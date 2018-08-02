@@ -74,7 +74,6 @@ typedef HRESULT DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
 void installIATPatches(HMODULE);
 
 unordered_map<__int64, __int64> g_sfs_redirections;
-bool g_is_core_wrapper_loaded = false;
 HMODULE g_core_wrapper_module = 0;
 SFS_openf_T *g_sfs_openf_f = 0;
 CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
@@ -137,6 +136,37 @@ HMODULE loadDinputLibrary()
 }
 
 
+void loadCoreWrapper(const char *libFileName)
+{
+  assert(!g_core_wrapper_module);
+
+  HMODULE core_module = LoadLibraryA(libFileName);
+  if (!core_module)
+  {
+    printf("LoadLibraryA() failed with error %u.\n", GetLastError());
+    exit(1);
+  }
+  installIATPatches(core_module);
+
+  HMODULE wrapper_module = LoadLibraryA("il2_core_wrapper.dll");
+  if (!wrapper_module)
+  {
+    printf("LoadLibraryA() failed with error %u.\n", GetLastError());
+    exit(1);
+  }
+
+  g_core_wrapper_get_proc_address_f =
+    (CoreWrapperGetProcAddressFunc*) GetProcAddress(wrapper_module, "coreWrapperGetProcAddress");
+  assert(g_core_wrapper_get_proc_address_f);
+
+  CoreWrapperInitFunc *wrapper_init_f = (CoreWrapperInitFunc*) GetProcAddress(wrapper_module, "coreWrapperInit");
+  assert(wrapper_init_f);
+  wrapper_init_f(core_module, &g_interface);
+
+  g_core_wrapper_module = wrapper_module;
+}
+
+
 HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
 {
   printf("LoadLibrary: %s\n", libFileName);
@@ -146,42 +176,11 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
   int err = _splitpath_s(libFileName, NULL, 0, NULL, 0, module_name, sizeof(module_name), NULL, 0);
   assert(!err);
 
-  if (_stricmp(module_name, "il2_core") == 0 || _stricmp(module_name, "il2_corep4") == 0 )
+  if (_stricmp(module_name, "il2_core") == 0 ||
+      _stricmp(module_name, "il2_corep4") == 0 )
   {
-    if (!g_is_core_wrapper_loaded)
-    {
-      HMODULE core_module = LoadLibraryA(libFileName);
-      if (!core_module)
-      {
-        printf("LoadLibraryA() failed with error %u.\n", GetLastError());
-        exit(1);
-      }
-      installIATPatches(core_module);
-
-      HMODULE wrapper_module = LoadLibraryA("il2_core_wrapper.dll");
-      if (!wrapper_module)
-      {
-        printf("LoadLibraryA() failed with error %u.\n", GetLastError());
-        exit(1);
-      }
-
-      g_core_wrapper_get_proc_address_f =
-        (CoreWrapperGetProcAddressFunc*) GetProcAddress(wrapper_module, "coreWrapperGetProcAddress");
-      assert(g_core_wrapper_get_proc_address_f);
-
-      CoreWrapperInitFunc *wrapper_init_f = (CoreWrapperInitFunc*) GetProcAddress(wrapper_module, "coreWrapperInit");
-      assert(wrapper_init_f);
-      wrapper_init_f(core_module, &g_interface);
-
-      g_is_core_wrapper_loaded = true;
-      g_core_wrapper_module = wrapper_module;
-
-      return wrapper_module;
-    }
-    else
-    {
-      assert(0);
-    }
+    loadCoreWrapper(libFileName);
+    return g_core_wrapper_module;
   }
 
   if (_stricmp(module_name, "dinput") == 0)
