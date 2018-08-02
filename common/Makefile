@@ -6,11 +6,6 @@ include ../paths.mk
 BASE_BUILD_DIR:= ../build/$(PLATFORM)
 BUILD_DIR:= $(BASE_BUILD_DIR)/common
 
-CXX_native:=g++
-CXX_wine:=wineg++
-
-CXX:=$(CXX_$(PLATFORM))
-
 include $(RENDER_UTIL_DIR)/cflags.mk
 
 INCLUDES+= -I../include
