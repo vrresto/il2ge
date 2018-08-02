@@ -1,0 +1,40 @@
+Camera SetCameraPos jdoubleArray
+Camera transform3f jobject jobject
+Camera transformVirt3f jobject jobject
+Camera ActivateWorldMode jobject
+Camera DeactivateWorldMode
+Camera SetOrtho2D jobject jobject jobject jobject jobject jobject
+Camera SetOrtho jobject jobject jobject
+Camera SetFOV jfloat jfloat jfloat
+Camera SetZOrder jobject
+Camera SetViewportCrop jfloat jint jint jint jint jint jint jint jint jint jint
+Render transform3f jobject jobject
+Render transform3fInv jobject jobject
+Render transformVirt3f jobject jobject
+Render prepareStates
+Render clearStates
+Render flush
+Render shadows
+Render drawBeginTriangleLists jobject
+Render drawEnd
+Render drawTriangleList___3FIII_3II jobject jobject jobject jobject jobject jobject
+Render drawTriangleList___3F_3II_3II jobject jobject jobject jobject jobject
+Render vertexArraysTransformAndLock jobject jobject
+Render vertexArraysUnLock
+Landscape cPreRender jfloat jboolean jfloatArray
+Landscape cRender0 jint
+Landscape cRender1 jint
+Mat PreRender__I jobject
+Mat PreRender__IFFFF jobject jobject jobject jobject jobject
+Renders PrePreRenders
+Renders PostPreRenders
+Renders PostRenders
+Mesh Render jobject
+Mesh renderMeshes jobject
+RenderContext SetDrawMesh jobject
+MeshShared RenderArray jobject jobject jobject jobject jobject
+SMesh Render jobject
+HierMesh Render jobject
+Sun setNative jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat
+Landscape cLoadMap jstring jintArray jint jboolean
+Landscape cUnloadMap
