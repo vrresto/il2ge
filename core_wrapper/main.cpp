@@ -211,7 +211,7 @@ HMODULE WINAPI wrap_JGL_LoadLibrary(LPCSTR libFileName)
   if (strcasecmp(libFileName, "opengl32.dll") == 0)
     g_gl_module = module;
   else
-^     assert(0);
+     assert(0);
 
   return g_gl_module;
 }
