@@ -1,9 +1,7 @@
-set(JDK_PATH /usr/lib/jvm/default-java)
-
 include_directories(
   include
   ini_parser
-  ${JDK_PATH}/include
+  jni
 )
 
 set(CXX_SRCS

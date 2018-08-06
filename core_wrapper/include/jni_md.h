@@ -19,13 +19,12 @@
 #ifndef JNI_MD_LOCAL_H
 #define JNI_MD_LOCAL_H
 
-#include <linux/jni_md.h>
-
-#ifndef __stdcall
-#define __stdcall __attribute__((__stdcall__)) __attribute__((__force_align_arg_pointer__))
-#endif
-
-#undef JNICALL
+#define JNIEXPORT
+#define JNIIMPORT
 #define JNICALL __stdcall
+
+typedef long jint;
+typedef __int64 jlong;
+typedef signed char jbyte;
 
 #endif
