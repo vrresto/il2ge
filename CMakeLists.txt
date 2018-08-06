@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(il2ge)
 
-set(renderutil_dir ${PROJECT_SOURCE_DIR}/../render_util)
+set(renderutil_dir ${PROJECT_SOURCE_DIR}/render_util)
 
 include(${renderutil_dir}/cflags.cmake)
 
