@@ -11,7 +11,7 @@ build:
   # instead of calling g++ directly you can also use some build toolkit like make
   # install the necessary build tools when needed
   before_script:
-     - apt-get update && apt-get -y install make libglfw3-dev libglm-dev cmake wine32-developement
+     - apt-get update && apt-get -y install make libglfw3-dev libglm-dev cmake wine32-development
   script:
     - mkdir build
     - cd build && cmake -DCMAKE_C_FLAGS=-m32 -DCMAKE_CXX_COMPILER=wineg++ .. && make
