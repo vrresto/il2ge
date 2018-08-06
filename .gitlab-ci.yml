@@ -13,7 +13,7 @@ build:
   before_script:
      - dpkg --add-architecture i386
      - apt-get update
-     - apt-get -y --no-install-recommends install gcc-multilib g++-multilib libglfw3-dev:i386 libglm-dev:i386 make cmake wine32-tools python
+     - apt-get -y --no-install-recommends install gcc-multilib g++-multilib libglfw3-dev:i386 libglm-dev:i386 libtiff-dev:i386 make cmake wine32-tools python
   script:
     - mkdir build
     - cd build && LDFLAGS=-m32 CFLAGS=-m32 CXXFLAGS=-m32 cmake -DCMAKE_C_FLAGS=-m32 -DCMAKE_C_COMPILER=winegcc-stable -DCMAKE_CXX_COMPILER=wineg++-stable .. && make
