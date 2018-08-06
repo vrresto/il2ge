@@ -2,7 +2,7 @@
 # use the official gcc image, based on debian
 # can use verions as well, like gcc:5.2
 # see https://hub.docker.com/_/gcc/
-image: debian:buster-slim
+image: gcc
 
 build:
   variables:
@@ -11,10 +11,12 @@ build:
   # instead of calling g++ directly you can also use some build toolkit like make
   # install the necessary build tools when needed
   before_script:
-     - apt-get update && apt-get -y install gcc-multilib g++-multilib libglfw3-dev:i386 libglm-dev:i386 make cmake wine32-development wine-development
+     - dpkg --add-architecture i386
+     - apt-get update
+     - apt-get -y --no-install-recommends install gcc-multilib g++-multilib libglfw3-dev:i386 libglm-dev:i386 make cmake wine32-tools
   script:
     - mkdir build
-    - cd build && cmake -DCMAKE_C_FLAGS=-m32 -DCMAKE_C_COMPILER=wineg++ -DCMAKE_CXX_COMPILER=wineg++ .. && make
+    - cd build && cmake -DCMAKE_C_FLAGS=-m32 -DCMAKE_C_COMPILER=winegcc-stable -DCMAKE_CXX_COMPILER=wineg++-stable .. && make
   artifacts:
     paths:
       #- build/testbed/terrain_test
