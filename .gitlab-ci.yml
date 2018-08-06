@@ -16,7 +16,7 @@ build:
      - apt-get -y --no-install-recommends install gcc-multilib g++-multilib libglfw3-dev:i386 libglm-dev:i386 make cmake wine32-tools
   script:
     - mkdir build
-    - cd build && cmake -DCMAKE_C_FLAGS=-m32 -DCMAKE_C_COMPILER=winegcc-stable -DCMAKE_CXX_COMPILER=wineg++-stable .. && make
+    - cd build && LDFLAGS=-m32 cmake -DCMAKE_C_FLAGS=-m32 -DCMAKE_C_COMPILER=winegcc-stable -DCMAKE_CXX_COMPILER=wineg++-stable .. && make
   artifacts:
     paths:
       #- build/testbed/terrain_test
