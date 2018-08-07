@@ -44,18 +44,25 @@
 
 extern "C"
 {
+  BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
+
+  HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst,
+                                    DWORD dwVersion,
+                                    void *ppDI,
+                                    LPUNKNOWN punkOuter);
+
 
   int CDECL _splitpath_s(
-    const char * path,  
-    char * drive,  
-    size_t driveNumberOfElements,  
-    char * dir,  
-    size_t dirNumberOfElements,  
-    char * fname,  
-    size_t nameNumberOfElements,  
-    char * ext,   
-    size_t extNumberOfElements  
-  );  
+    const char * path,
+    char * drive,
+    size_t driveNumberOfElements,
+    char * dir,
+    size_t dirNumberOfElements,
+    char * fname,
+    size_t nameNumberOfElements,
+    char * ext,
+    size_t extNumberOfElements
+  );
 
 }
 
