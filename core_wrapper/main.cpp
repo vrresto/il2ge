@@ -249,7 +249,7 @@ namespace render_util
 {
   const std::string &getDataPath()
   {
-    static std::string path = "ge";
+    static std::string path = IL2GE_DATA_DIR;
     return path;
   }
 

@@ -68,3 +68,8 @@ set_target_properties(core_wrapper PROPERTIES
   PREFIX ""
   SUFFIX ".dll.so"
 )
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/core_wrapper.dll.so
+  DESTINATION .
+  RENAME core_wrapper.dll
+)

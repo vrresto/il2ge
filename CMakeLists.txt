@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 
+set(il2ge_data_dir il2ge)
+
+add_definitions(-DIL2GE_DATA_DIR="${il2ge_data_dir}")
+
 SET(CMAKE_SYSTEM_NAME Generic)
 SET(CMAKE_C_COMPILER_WORKS 1)
 SET(CMAKE_CXX_COMPILER_WORKS 1)
@@ -22,3 +26,7 @@ include_directories(
 add_subdirectory(common)
 add_subdirectory(map_viewer)
 add_subdirectory(core_wrapper)
+
+install(DIRECTORY render_util/shaders
+  DESTINATION ${il2ge_data_dir}
+)
