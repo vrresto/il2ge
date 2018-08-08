@@ -15,7 +15,9 @@ endif(platform STREQUAL "wine")
 
 project(il2ge)
 
-set(renderutil_dir ${PROJECT_SOURCE_DIR}/render_util)
+if(NOT renderutil_dir)
+  set(renderutil_dir ${PROJECT_SOURCE_DIR}/render_util)
+endif(NOT renderutil_dir)
 
 add_subdirectory(${renderutil_dir} ${CMAKE_BINARY_DIR}/render_util)
 
