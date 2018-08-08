@@ -59,7 +59,7 @@ target_link_libraries(core_wrapper
   render_util
 )
 
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/core_wrapper.dll.so
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/core_wrapper${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
   DESTINATION .
   RENAME core_wrapper.dll
 )
