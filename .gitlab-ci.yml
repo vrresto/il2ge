@@ -17,12 +17,12 @@ build:
   script:
     - mkdir build
     - mkdir install
-    - cd build && LDFLAGS=-m32 CFLAGS=-m32 CXXFLAGS=-m32 cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_C_FLAGS=-m32 -DCMAKE_C_COMPILER=winegcc-stable -DCMAKE_CXX_COMPILER=wineg++-stable .. && make install
+    - cd build
+    - LDFLAGS=-m32 CFLAGS=-m32 CXXFLAGS=-m32 cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_C_FLAGS=-m32 -DCMAKE_C_COMPILER=winegcc -DCMAKE_CXX_COMPILER=wineg++ ..
+    - make install
   artifacts:
     paths:
-      - install/dinput.dll
-      - install/core_wrapper.dll
-      - install/il2ge
+      - install
   # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
   # cache:
   #   paths:
