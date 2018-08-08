@@ -4,9 +4,14 @@ set(il2ge_data_dir il2ge)
 
 add_definitions(-DIL2GE_DATA_DIR="${il2ge_data_dir}")
 
-# SET(CMAKE_SYSTEM_NAME Generic)
 # SET(CMAKE_C_COMPILER_WORKS 1)
 # SET(CMAKE_CXX_COMPILER_WORKS 1)
+
+if(platform STREQUAL "wine")
+  set(CMAKE_EXECUTABLE_SUFFIX_CXX ".exe")
+  set(CMAKE_SHARED_LIBRARY_PREFIX_CXX "")
+  set(CMAKE_SHARED_LIBRARY_SUFFIX_CXX ".dll.so")
+endif(platform STREQUAL "wine")
 
 project(il2ge)
 

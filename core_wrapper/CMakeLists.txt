@@ -30,11 +30,6 @@ set(JNI_WRAPPER_CLASSES
 
 add_executable(jni_generator jni_wrapper/generate_meta_code.cpp)
 
-set_target_properties(jni_generator PROPERTIES
-  PREFIX ""
-  SUFFIX ".exe"
-)
-
 foreach(class_name ${JNI_WRAPPER_CLASSES})
   set(CXX_SRCS ${CXX_SRCS} jni_wrapper/wrap_${class_name}.cpp)
   foreach(cmd definitions registration)
@@ -62,11 +57,6 @@ add_dependencies(core_wrapper core_wrapper_generated)
 target_link_libraries(core_wrapper
   common
   render_util
-)
-
-set_target_properties(core_wrapper PROPERTIES
-  PREFIX ""
-  SUFFIX ".dll.so"
 )
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/core_wrapper.dll.so
