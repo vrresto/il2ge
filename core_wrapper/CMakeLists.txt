@@ -57,6 +57,7 @@ add_dependencies(core_wrapper core_wrapper_generated)
 target_link_libraries(core_wrapper
   common
   render_util
+  -Wb,--export=${CMAKE_CURRENT_SOURCE_DIR}/il2_core_wrapper.spec
 )
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/core_wrapper${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
