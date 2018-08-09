@@ -18,7 +18,7 @@ build:
     - mkdir build
     - mkdir install
     - cd build
-    - LDFLAGS=-m32 CFLAGS=-m32 CXXFLAGS=-m32 cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=wine -DCMAKE_C_FLAGS=-m32 -DCMAKE_C_COMPILER=winegcc -DCMAKE_CXX_COMPILER=wineg++ ..
+    - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=wine ..
     - make install
   artifacts:
     paths:
