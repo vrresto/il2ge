@@ -1,3 +1,7 @@
+add_definitions(
+  -DCORE_WRAPPER_LIBRARY_NAME="${core_wrapper_library_name}"
+)
+
 set(SRCS
   src/iat.c
   src/main.cpp

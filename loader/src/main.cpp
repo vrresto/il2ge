@@ -155,7 +155,7 @@ void loadCoreWrapper(const char *libFileName)
   }
   installIATPatches(core_module);
 
-  HMODULE wrapper_module = LoadLibraryA("il2_core_wrapper.dll");
+  HMODULE wrapper_module = LoadLibraryA(CORE_WRAPPER_LIBRARY_NAME ".dll");
   if (!wrapper_module)
   {
     printf("LoadLibraryA() failed with error %u.\n", GetLastError());

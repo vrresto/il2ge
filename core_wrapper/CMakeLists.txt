@@ -1,3 +1,5 @@
+set(library_name ${core_wrapper_library_name})
+
 include_directories(
   include
   ini_parser
@@ -50,17 +52,17 @@ endforeach(class_name)
 
 add_custom_target(core_wrapper_generated DEPENDS ${generated_output})
 
-add_library(core_wrapper SHARED ${CXX_SRCS})
+add_library(${library_name} SHARED ${CXX_SRCS})
 
-add_dependencies(core_wrapper core_wrapper_generated)
+add_dependencies(${library_name} core_wrapper_generated)
 
-target_link_libraries(core_wrapper
+target_link_libraries(${library_name}
   common
   render_util
   -Wb,--export=${CMAKE_CURRENT_SOURCE_DIR}/il2_core_wrapper.spec
 )
 
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/core_wrapper${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${library_name}${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
   DESTINATION .
-  RENAME core_wrapper.dll
+  RENAME ${library_name}.dll
 )

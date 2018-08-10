@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
+set(core_wrapper_library_name "il2_core_wrapper")
 set(il2ge_data_dir "il2ge")
 set (renderutil_data_dir ${il2ge_data_dir})
 
