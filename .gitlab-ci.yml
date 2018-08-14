@@ -13,16 +13,22 @@ build:
   before_script:
      - dpkg --add-architecture i386
      - apt-get update
-     - apt-get -y --no-install-recommends install gcc-multilib g++-multilib libglfw3-dev:i386 libglm-dev:i386 libtiff-dev:i386 make cmake wine32-tools wine32 wine python
+     - apt-get -y --no-install-recommends install gcc-multilib g++-multilib gcc-mingw-w64-i686 g++-mingw-w64-i686 libglfw3-dev:i386 libglm-dev:i386 libtiff-dev:i386 make cmake wine32-tools wine32 wine python
   script:
     - mkdir build
     - mkdir install
     - cd build
     - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=wine ..
     - make install
+    - mkdir mingw-build
+    - mkdir mingw-install
+    - cd mingw-build
+    - cmake -DCMAKE_INSTALL_PREFIX=../mingw-install -Dplatform=mingw ..
+    - make install
   artifacts:
     paths:
       - install
+      - mingw-install
   # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
   # cache:
   #   paths:
