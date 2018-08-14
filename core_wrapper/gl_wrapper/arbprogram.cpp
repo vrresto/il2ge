@@ -44,16 +44,6 @@
 
 #include <gl_wrapper/gl_functions.h>
 
-#undef assert
-#define assert(c) \
-{ \
-  if (!(c)) { \
-    printf("%s:%d: assertion %s failed.\n", __FILE__, __LINE__,  #c); \
-    exit(0); \
-  } \
-}
-
-
 // void replace_arb_program_string(const void **str, size_t *len, const char *extension);
 
 namespace core_gl_wrapper
