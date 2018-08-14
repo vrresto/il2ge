@@ -20,6 +20,7 @@ build:
     - cd build
     - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=wine ..
     - make install
+    - cd ..
     - mkdir mingw-build
     - mkdir mingw-install
     - cd mingw-build
