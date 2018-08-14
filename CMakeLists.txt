@@ -41,6 +41,7 @@ if(platform_mingw)
   set(CMAKE_C_FLAGS "-static-libgcc -static-libstdc++")
   set(CMAKE_CXX_FLAGS "-static-libgcc -static-libstdc++")
   set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
+  add_definitions(-DMINGW_HAS_SECURE_API)
 endif(platform_mingw)
 
 if(NOT renderutil_dir)

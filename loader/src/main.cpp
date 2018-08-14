@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 /*
 #undef assert
@@ -51,7 +52,7 @@ extern "C"
                                     void *ppDI,
                                     LPUNKNOWN punkOuter);
 
-
+#ifdef __linux__
   int CDECL _splitpath_s(
     const char * path,
     char * drive,
@@ -63,6 +64,7 @@ extern "C"
     char * ext,
     size_t extNumberOfElements
   );
+#endif
 
 }
 
