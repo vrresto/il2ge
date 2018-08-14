@@ -5,6 +5,7 @@ set(il2ge_data_dir "il2ge")
 set (renderutil_data_dir ${il2ge_data_dir})
 
 if(platform STREQUAL "wine")
+  set(platform_wine 1)
   set(CMAKE_C_COMPILER_WORKS 1)
   set(CMAKE_CXX_COMPILER_WORKS 1)
   set(CMAKE_C_COMPILER "winegcc")
@@ -14,14 +15,33 @@ if(platform STREQUAL "wine")
   set(CMAKE_SHARED_LIBRARY_SUFFIX_CXX ".dll.so")
 endif(platform STREQUAL "wine")
 
+if(platform STREQUAL "mingw")
+  set(platform_mingw 1)
+  set(no_std_thread 1)
+  set(CMAKE_C_COMPILER_WORKS 1)
+  set(CMAKE_CXX_COMPILER_WORKS 1)
+  set(CMAKE_C_COMPILER "i686-w64-mingw32-gcc")
+  set(CMAKE_CXX_COMPILER "i686-w64-mingw32-g++")
+  set(CMAKE_EXECUTABLE_SUFFIX_CXX ".exe")
+  set(CMAKE_SHARED_LIBRARY_PREFIX_CXX "")
+  set(CMAKE_SHARED_LIBRARY_SUFFIX_CXX ".dll")
+endif(platform STREQUAL "mingw")
+
+
 project(il2ge)
 
 add_definitions(-DIL2GE_DATA_DIR="${il2ge_data_dir}")
 
-if(platform STREQUAL "wine")
+if(platform_wine)
   set(CMAKE_C_FLAGS "-m32 ${CMAKE_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "-m32 ${CMAKE_CXX_FLAGS}")
-endif(platform STREQUAL "wine")
+endif(platform_wine)
+
+if(platform_mingw)
+  set(CMAKE_C_FLAGS "-static-libgcc -static-libstdc++")
+  set(CMAKE_CXX_FLAGS "-static-libgcc -static-libstdc++")
+  set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
+endif(platform_mingw)
 
 if(NOT renderutil_dir)
   set(renderutil_dir ${PROJECT_SOURCE_DIR}/render_util)
@@ -38,10 +58,16 @@ include_directories(
   ${render_util_BINARY_DIR}
 )
 
+if(platform_mingw)
+  include_directories(${render_util_BINARY_DIR}/glm-install/include)
+endif(platform_mingw)
+
 add_subdirectory(common)
-add_subdirectory(map_viewer)
 add_subdirectory(core_wrapper)
 add_subdirectory(loader)
+if(NOT platform_mingw)
+  add_subdirectory(map_viewer)
+endif(NOT platform_mingw)
 
 install(DIRECTORY render_util/shaders
   DESTINATION ${il2ge_data_dir}

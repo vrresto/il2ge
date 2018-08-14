@@ -57,7 +57,7 @@ namespace
 
 struct ContextData : public Module
 {
-  gl_wrapper::GL_Interface *interface = nullptr;
+  gl_wrapper::GL_Interface *iface = nullptr;
   WGL_Interface *wgl_interface = nullptr;
 };
 
@@ -81,7 +81,7 @@ wglMakeCurrent_t *real_wglMakeCurrent = nullptr;
 typedef int __stdcall isCubeUpdated_T(void*, void*);
 isCubeUpdated_T *is_cube_updated_func = nullptr;
 
-
+#ifdef __linux__
 void signalHandler (int sig)
 {
   if (sig == SIGABRT)
@@ -97,6 +97,7 @@ void signalHandler (int sig)
     quick_exit(1);
   }
 }
+#endif
 
 
 BOOL WINAPI wrap_wglMakeContextCurrentARB(HDC hDrawDC, HDC hReadDC, HGLRC hglrc)
@@ -158,7 +159,7 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
     {
       ContextData *d = new ContextData;
 
-      d->interface = new gl_wrapper::GL_Interface(&getProcAddress_ext);
+      d->iface = new gl_wrapper::GL_Interface(&getProcAddress_ext);
 
       d->wgl_interface = new WGL_Interface;
       d->wgl_interface->init(&getProcAddress_ext);
@@ -167,7 +168,7 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
       current_context = d;
     }
 
-    gl_wrapper::setCurrent_GL_interface(current_context->interface);
+    gl_wrapper::setCurrent_GL_interface(current_context->iface);
 
     return true;
   }
@@ -311,8 +312,10 @@ void coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
   g_loader = loader;
   assert(g_loader);
 
+#ifdef __linux__
   signal(SIGABRT, signalHandler);
 //   signal(SIGSEGV, signalHandler);
+#endif
 
   SFS::init();
   core_gl_wrapper::init();

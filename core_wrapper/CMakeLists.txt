@@ -36,10 +36,19 @@ foreach(class_name ${JNI_WRAPPER_CLASSES})
   set(CXX_SRCS ${CXX_SRCS} jni_wrapper/wrap_${class_name}.cpp)
   foreach(cmd definitions registration)
     set(output ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/${class_name}_${cmd})
+
+    set(generator_cmd jni_generator)
+
+    if(platform_mingw)
+      if(NOT CMAKE_HOST_WIN32)
+        set(generator_cmd wine jni_generator)
+      endif(NOT CMAKE_HOST_WIN32)
+    endif(platform_mingw)
+
     add_custom_command(
         OUTPUT ${output}
         COMMAND mkdir -p ${PROJECT_BINARY_DIR}/_generated/jni_wrapper
-        COMMAND jni_generator ${cmd} ${class_name}
+        COMMAND ${generator_cmd} ${cmd} ${class_name}
           < ${CMAKE_CURRENT_SOURCE_DIR}/jni_wrapper/signatures
           > ${output}
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/jni_wrapper/signatures
@@ -59,8 +68,13 @@ add_dependencies(${library_name} core_wrapper_generated)
 target_link_libraries(${library_name}
   common
   render_util
-  -Wb,--export=${CMAKE_CURRENT_SOURCE_DIR}/il2_core_wrapper.spec
 )
+
+if(platform_wine)
+  target_link_libraries(${library_name}
+    -Wb,--export=${CMAKE_CURRENT_SOURCE_DIR}/il2_core_wrapper.spec
+  )
+endif(platform_wine)
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${library_name}${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
   DESTINATION .

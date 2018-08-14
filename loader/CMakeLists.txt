@@ -11,8 +11,13 @@ add_library(dinput SHARED ${SRCS})
 
 target_link_libraries(dinput
   msvcrt
-  -Wb,--export=${CMAKE_CURRENT_SOURCE_DIR}/loader.def
 )
+
+if(platform_wine)
+  target_link_libraries(dinput
+    -Wb,--export=${CMAKE_CURRENT_SOURCE_DIR}/loader.def
+  )
+endif(platform_wine)
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/dinput${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
   DESTINATION .

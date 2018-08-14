@@ -312,6 +312,7 @@ namespace core
   render_util::ShaderProgramPtr activeShader()
   {
     assert(false);
+    abort();
   }
 
   void setActiveShader(render_util::ShaderProgramPtr shader)
@@ -323,6 +324,7 @@ namespace core
   render_util::ShaderProgramPtr activeARBProgram()
   {
     assert(false);
+    abort();
   }
 
   void setActiveARBProgram(render_util::ShaderProgramPtr prog)

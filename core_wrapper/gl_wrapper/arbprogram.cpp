@@ -35,7 +35,6 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <dlfcn.h>
 
 
 #include <gl_wrapper.h>
