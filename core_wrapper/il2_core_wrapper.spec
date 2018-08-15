@@ -1,2 +1,2 @@
-500 cdecl coreWrapperInit() coreWrapperInit
-501 cdecl coreWrapperGetProcAddress() coreWrapperGetProcAddress
+500 cdecl il2ge_coreWrapperInit() il2ge_coreWrapperInit
+501 cdecl il2ge_coreWrapperGetProcAddress() il2ge_coreWrapperGetProcAddress

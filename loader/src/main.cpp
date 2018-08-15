@@ -18,6 +18,7 @@
 
 #include "iat.h"
 #include <loader_interface.h>
+#include <il2ge/core_wrapper.h>
 
 #include <iostream>
 #include <unordered_map>
@@ -30,7 +31,6 @@
 #ifndef _stricmp
 #define _stricmp strcasecmp
 #endif
-
 
 extern "C"
 {
@@ -64,17 +64,16 @@ namespace
 
 using namespace std;
 
-typedef void CoreWrapperInitFunc(HMODULE core_module, const LoaderInterface *loader);
-typedef void* CoreWrapperGetProcAddressFunc(const char* name);
 typedef int __stdcall SFS_openf_T (unsigned __int64 hash, int flags);
 typedef HRESULT DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
 
 void installIATPatches(HMODULE);
 
 unordered_map<__int64, __int64> g_sfs_redirections;
+HMODULE g_loader_module = 0;
 HMODULE g_core_wrapper_module = 0;
 SFS_openf_T *g_sfs_openf_f = 0;
-CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
+il2ge::CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
 DirectInputCreateA_T *g_directInputCreateA_func = 0;
 
 
@@ -146,6 +145,11 @@ void loadCoreWrapper(const char *libFileName)
   }
   installIATPatches(core_module);
 
+#ifdef STATIC_CORE_WRAPPER
+  HMODULE wrapper_module = g_loader_module;
+  g_core_wrapper_get_proc_address_f = &il2ge_coreWrapperGetProcAddress;
+  il2ge::CoreWrapperInitFunc *wrapper_init_f = &il2ge_coreWrapperInit;
+#else
   HMODULE wrapper_module = LoadLibraryA(CORE_WRAPPER_LIBRARY_NAME ".dll");
   if (!wrapper_module)
   {
@@ -154,11 +158,14 @@ void loadCoreWrapper(const char *libFileName)
   }
 
   g_core_wrapper_get_proc_address_f =
-    (CoreWrapperGetProcAddressFunc*) GetProcAddress(wrapper_module, "coreWrapperGetProcAddress");
+    (il2ge::CoreWrapperGetProcAddressFunc*) GetProcAddress(wrapper_module, "il2ge_coreWrapperGetProcAddress");
   assert(g_core_wrapper_get_proc_address_f);
 
-  CoreWrapperInitFunc *wrapper_init_f = (CoreWrapperInitFunc*) GetProcAddress(wrapper_module, "coreWrapperInit");
+  il2ge::CoreWrapperInitFunc *wrapper_init_f =
+    (il2ge::CoreWrapperInitFunc*) GetProcAddress(wrapper_module, "il2ge_coreWrapperInit");
   assert(wrapper_init_f);
+#endif
+
   wrapper_init_f(core_module, &g_interface);
 
   g_core_wrapper_module = wrapper_module;
@@ -258,12 +265,14 @@ HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, void *ppDI, 
   return g_directInputCreateA_func(hinst, dwVersion, ppDI, punkOuter);
 }
 
+
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
 {
   switch (reason)
   {
     case DLL_PROCESS_ATTACH:
       printf("*** loader dll process attach ***\n");
+      g_loader_module = instance;
       installIATPatches(GetModuleHandle(0));
       loadDinputLibrary();
       break;

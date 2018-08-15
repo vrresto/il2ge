@@ -17,9 +17,9 @@
  */
 
 #include <sfs.h>
-#include <render_util/render_util.h>
 #include <misc.h>
 #include <core.h>
+#include <render_util/render_util.h>
 
 #include <gl_wrapper.h>
 #include <gl_wrapper/gl_wrapper.h>
@@ -41,12 +41,11 @@
 #include <gl_wrapper/gl_interface.h>
 #include <wgl_interface.h>
 #include <loader_interface.h>
+#include <il2ge/core_wrapper.h>
 
 
 extern "C"
 {
-  void coreWrapperInit(HMODULE core_module, const LoaderInterface *loader);
-  void* coreWrapperGetProcAddress(const char *name);
   BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
 }
 
@@ -288,7 +287,7 @@ extern "C"
 {
 
 
-void *coreWrapperGetProcAddress(const char *name)
+void *il2ge_coreWrapperGetProcAddress(const char *name)
 {
   void *addr = nullptr;
 
@@ -302,7 +301,7 @@ void *coreWrapperGetProcAddress(const char *name)
 }
 
 
-void coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
+void il2ge_coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
 {
   printf("*** il2_core wrapper initialisation ***\n");
 
@@ -338,7 +337,7 @@ void coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
   printf("*** il2_core wrapper initialisation finished ***\n");
 }
 
-
+#ifndef STATIC_CORE_WRAPPER
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
 {
   switch (reason)
@@ -352,6 +351,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
 
   return TRUE;
 }
+#endif
 
 
 } // extern "C"

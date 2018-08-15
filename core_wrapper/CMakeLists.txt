@@ -1,4 +1,7 @@
 set(library_name ${core_wrapper_library_name})
+if(NOT static_core_wrapper)
+  set(library_type SHARED)
+endif(NOT static_core_wrapper)
 
 include_directories(
   include
@@ -61,7 +64,7 @@ endforeach(class_name)
 
 add_custom_target(core_wrapper_generated DEPENDS ${generated_output})
 
-add_library(${library_name} SHARED ${CXX_SRCS})
+add_library(${library_name} ${library_type} ${CXX_SRCS})
 
 add_dependencies(${library_name} core_wrapper_generated)
 
@@ -70,13 +73,15 @@ target_link_libraries(${library_name}
   render_util
 )
 
-if(platform_wine)
+if(platform_wine AND NOT static_core_wrapper)
   target_link_libraries(${library_name}
     -Wb,--export=${CMAKE_CURRENT_SOURCE_DIR}/il2_core_wrapper.spec
   )
-endif(platform_wine)
+endif(platform_wine AND NOT static_core_wrapper)
 
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${library_name}${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
-  DESTINATION .
-  RENAME ${library_name}.dll
-)
+if(NOT static_core_wrapper)
+  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${library_name}${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
+    DESTINATION .
+    RENAME ${library_name}.dll
+  )
+endif(NOT static_core_wrapper)

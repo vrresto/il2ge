@@ -13,6 +13,12 @@ target_link_libraries(dinput
   msvcrt
 )
 
+if(static_core_wrapper)
+  target_link_libraries(dinput
+    ${core_wrapper_library_name}
+  )
+endif(static_core_wrapper)
+
 if(platform_wine)
   target_link_libraries(dinput
     -Wb,--export=${CMAKE_CURRENT_SOURCE_DIR}/loader.def
