@@ -27,17 +27,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-/*
-#undef assert
-#define assert(c) \
-{ \
-  if (!(c)) { \
-    printf("%s:%d: assertion %s failed.\n", __FILE__, __LINE__,  #c); \
-    exit(1); \
-  } \
-}
-*/
-
 #ifndef _stricmp
 #define _stricmp strcasecmp
 #endif
