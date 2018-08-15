@@ -322,6 +322,7 @@ const char * getShaderName(const void *source, size_t len)
   {
     printf("unknown shader: %lu\n", hash_value);
     assert(0);
+    abort();
   }
 
 
@@ -450,6 +451,7 @@ struct Context : public Module
     }
     else {
       assert(0);
+      abort();
     }
 
     p->real_id = id;
@@ -524,6 +526,7 @@ struct Context : public Module
     }
     else {
       assert(0);
+      abort();
     }
 
     delete p;
@@ -538,6 +541,7 @@ struct Context : public Module
     if (!p)
     {
       assert(0);
+      abort();
     }
 
     assert(p->target == target);
@@ -557,6 +561,7 @@ struct Context : public Module
     else
     {
       assert(0);
+      abort();
     }
 
     update();
@@ -690,6 +695,7 @@ GLboolean GLAPIENTRY
 wrap_IsProgramARB(GLuint id)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -781,6 +787,7 @@ wrap_ProgramEnvParameter4dARB(GLenum target, GLuint index,
                                GLdouble x, GLdouble y, GLdouble z, GLdouble w)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -788,6 +795,7 @@ wrap_ProgramEnvParameter4dvARB(GLenum target, GLuint index,
                                 const GLdouble *params)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -795,6 +803,7 @@ wrap_ProgramEnvParameter4fARB(GLenum target, GLuint index,
                                GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -802,6 +811,7 @@ wrap_ProgramEnvParameter4fvARB(GLenum target, GLuint index,
                                 const GLfloat *params)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -809,6 +819,7 @@ wrap_ProgramEnvParameters4fvEXT(GLenum target, GLuint index, GLsizei count,
                                  const GLfloat *params)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -817,6 +828,7 @@ wrap_ProgramLocalParameter4dARB(GLenum target, GLuint index,
                                  GLdouble z, GLdouble w)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -824,6 +836,7 @@ wrap_ProgramLocalParameter4dvARB(GLenum target, GLuint index,
                                   const GLdouble *params)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -831,6 +844,7 @@ wrap_ProgramLocalParameters4fvEXT(GLenum target, GLuint index, GLsizei count,
                                    const GLfloat *params)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -838,6 +852,7 @@ wrap_GetProgramEnvParameterdvARB(GLenum target, GLuint index,
                                   GLdouble *params)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -845,6 +860,7 @@ wrap_GetProgramEnvParameterfvARB(GLenum target, GLuint index,
                                   GLfloat *params)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -852,6 +868,7 @@ wrap_GetProgramLocalParameterdvARB(GLenum target, GLuint index,
                                     GLdouble *params)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
@@ -859,18 +876,21 @@ wrap_GetProgramLocalParameterfvARB(GLenum target, GLuint index,
                                     GLfloat *params)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
 wrap_GetProgramivARB(GLenum target, GLenum pname, GLint *params)
 {
   assert(0);
+  abort();
 }
 
 void GLAPIENTRY
 wrap_GetProgramStringARB(GLenum target, GLenum pname, GLvoid *string)
 {
   assert(0);
+  abort();
 }
 
 #endif
