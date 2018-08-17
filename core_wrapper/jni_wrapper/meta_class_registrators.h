@@ -16,36 +16,14 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef JNI_WRAPPER_META_CLASS_REGISTRATORS_H
+#define JNI_WRAPPER_META_CLASS_REGISTRATORS_H
+
 #include "jni_wrapper.h"
-#include "meta_class_registrators.h"
-#include <core.h>
 
-#include <glm/glm.hpp>
-
-using namespace jni_wrapper;
-
-namespace
+namespace jni_wrapper
 {
-
-#include <_generated/jni_wrapper/Sun_definitions>
-
-Interface import;
-
-int JNICALL setNative(JNIEnv *env, jobject obj,
-    jfloat arg0,
-    jfloat arg1,
-    jfloat arg2,
-    jfloat arg3,
-    jfloat arg4,
-    jfloat arg5,
-    jfloat arg6,
-    jfloat arg7,
-    jfloat arg8)
-{
-  core::setSunDir(glm::normalize(glm::vec3(arg0, arg1, arg2)));
-  return import.setNative(env, obj, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+  #include <_generated/jni_wrapper/registrator_definitions>
 }
 
-} // namespace
-
-#include <_generated/jni_wrapper/Sun_registration>
+#endif

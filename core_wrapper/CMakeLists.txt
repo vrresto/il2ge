@@ -33,20 +33,23 @@ set(JNI_WRAPPER_CLASSES
   Sun
 )
 
+
 add_executable(jni_generator jni_wrapper/generate_meta_code.cpp)
+
+set(generator_cmd jni_generator)
+
+if(platform_mingw)
+  if(NOT CMAKE_HOST_WIN32)
+    set(generator_cmd wine jni_generator)
+  endif(NOT CMAKE_HOST_WIN32)
+endif(platform_mingw)
 
 foreach(class_name ${JNI_WRAPPER_CLASSES})
   set(CXX_SRCS ${CXX_SRCS} jni_wrapper/wrap_${class_name}.cpp)
+  set(jni_wrapper_classes_string "${class_name} ${jni_wrapper_classes_string}")
+
   foreach(cmd definitions registration)
     set(output ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/${class_name}_${cmd})
-
-    set(generator_cmd jni_generator)
-
-    if(platform_mingw)
-      if(NOT CMAKE_HOST_WIN32)
-        set(generator_cmd wine jni_generator)
-      endif(NOT CMAKE_HOST_WIN32)
-    endif(platform_mingw)
 
     add_custom_command(
         OUTPUT ${output}
@@ -61,8 +64,19 @@ foreach(class_name ${JNI_WRAPPER_CLASSES})
   endforeach(cmd)
 endforeach(class_name)
 
+foreach(name table definitions)
+  set(output ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/registrator_${name})
+  add_custom_command(
+      OUTPUT ${output}
+      COMMAND mkdir -p ${PROJECT_BINARY_DIR}/_generated/jni_wrapper
+      COMMAND ${generator_cmd} registrator-${name} ${jni_wrapper_classes_string} > ${output}
+      DEPENDS jni_generator
+  )
+  set(generated_output ${generated_output} ${output})
+endforeach(name)
 
 add_custom_target(core_wrapper_generated DEPENDS ${generated_output})
+
 
 add_library(${library_name} ${library_type} ${CXX_SRCS})
 

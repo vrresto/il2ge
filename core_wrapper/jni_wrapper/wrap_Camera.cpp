@@ -17,6 +17,7 @@
  */
 
 #include "jni_wrapper.h"
+#include "meta_class_registrators.h"
 #include <core.h>
 #include <render_util/camera.h>
 
@@ -87,7 +88,11 @@ int JNICALL SetFOV(JNIEnv *env, jobject obj, jfloat arg0, jfloat arg1, jfloat ar
 
 #define ADD_METHOD(m) meta_class.addMethod<m##_t>(#m, &import.m, &m)
 
-void initializeMetaClass(MetaClass &meta_class)
+
+} // namespace
+
+
+void jni_wrapper::initializeMetaClass_Camera(MetaClass &meta_class)
 {
   meta_class.package = "com.maddox.il2.engine";
   meta_class.name = "Camera";
@@ -97,8 +102,3 @@ void initializeMetaClass(MetaClass &meta_class)
   ADD_METHOD(SetViewportCrop);
   ADD_METHOD(SetFOV);
 }
-
-MetaClassRegistrator g_registrator(&initializeMetaClass);
-
-
-} // namespace

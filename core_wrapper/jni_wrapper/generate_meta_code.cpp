@@ -16,6 +16,9 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+#include <util.h>
+
 #include <string>
 #include <iostream>
 #include <vector>
@@ -110,7 +113,7 @@ void emitMetaClassRegistration(const string &name, ostream &out)
 {
   ClassInfo &info = getClassInfo(name);
 
-  out << "void initializeMetaClass(MetaClass &meta_class)" << endl;
+  out << "void jni_wrapper::initializeMetaClass_" << name << "(MetaClass &meta_class)" << endl;
   out << "{" << endl;
   out << '\t' << "meta_class.package = \"com.maddox.il2.engine\";" <<endl;
   out << '\t' << "meta_class.name = \"" << name << "\";" << endl;
@@ -123,8 +126,6 @@ void emitMetaClassRegistration(const string &name, ostream &out)
 
   out << "}" << endl;
   out << endl;
-
-  out << "MetaClassRegistrator g_registrator(&initializeMetaClass);" << endl;
 }
 
 void emitMethodImplementation(const MethodInfo &mi, ostream &out)
@@ -161,6 +162,8 @@ void dumpClassWrappers(const string &output_dir)
     assert(out.good());
 
     out << "#include \"jni_wrapper.h\"" << endl;
+    out << "#include \"meta_class_registrators.h\"" << endl;
+    out << endl;
     out << "using namespace jni_wrapper;" << endl;
     out << endl;
     out << "namespace" << endl;
@@ -176,9 +179,12 @@ void dumpClassWrappers(const string &output_dir)
       emitMethodImplementation(mi, out);
     }
 
-    out << "#include <_generated/jni_wrapper/" << class_name << "_registration>" << endl;
     out << endl;
     out << "} // namespace" << endl;
+
+    out << endl;
+    out << endl;
+    out << "#include <_generated/jni_wrapper/" << class_name << "_registration>" << endl;
   }
 }
 
@@ -196,10 +202,20 @@ int main(int argc, char **argv)
   string cmd_arg = argv[2];
   assert(!cmd_arg.empty());
 
-  parseSignatures(cin);
-
-  if (cmd == "definitions")
+  if(cmd == "registrator-table")
   {
+    for (auto name : util::tokenize(cmd_arg))
+      cout << "&initializeMetaClass_" << name << "," << endl;
+  }
+  else if(cmd == "registrator-definitions")
+  {
+    for (auto name : util::tokenize(cmd_arg))
+      cout << "MetaClassInitFunc initializeMetaClass_" << name << ";" << endl;
+  }
+  else if (cmd == "definitions")
+  {
+    parseSignatures(cin);
+
     string class_name = cmd_arg;
 
     emitMethodDefinitions(getClassInfo(class_name), cout);
@@ -208,6 +224,8 @@ int main(int argc, char **argv)
   }
   else if (cmd == "registration")
   {
+    parseSignatures(cin);
+
     string class_name = cmd_arg;
     class_name[0] = toupper(class_name[0]);
 
@@ -215,6 +233,8 @@ int main(int argc, char **argv)
   }
   else if (cmd == "all")
   {
+    parseSignatures(cin);
+
     dumpClassWrappers(cmd_arg);
   }
   else

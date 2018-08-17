@@ -17,10 +17,12 @@
  */
 
 #include "jni_wrapper.h"
+#include "meta_class_registrators.h"
 #include <misc.h>
 
 #include <iostream>
 #include <map>
+#include <vector>
 #include <string>
 #include <cassert>
 #include <jni.h>
@@ -34,13 +36,11 @@ namespace
 
 
 map<string, void*> g_exports;
-
-
-vector<const MetaClassRegistrator*> &getRegistrators()
+vector<MetaClassInitFunc*> g_registrator_table =
 {
-  static vector<const MetaClassRegistrator*> registrators;
-  return registrators;
-}
+  #include <_generated/jni_wrapper/registrator_table>
+};
+
 
 void registerMetaClass(const MetaClass &meta_class)
 {
@@ -70,11 +70,6 @@ void registerMetaClass(const MetaClass &meta_class)
   }
 }
 
-void registerMetaClassRegistrator(const MetaClassRegistrator &registrator)
-{
-  getRegistrators().push_back(&registrator);
-}
-
 
 } // namespace
 
@@ -85,23 +80,19 @@ namespace jni_wrapper
 
 void init()
 {
-  for (const MetaClassRegistrator *registrator : getRegistrators())
+  for (auto registrator : g_registrator_table)
   {
     MetaClass meta_class;
-    registrator->getInitFunc()(meta_class);
+    registrator(meta_class);
     registerMetaClass(meta_class);
   }
+
 }
 
 void *getExport(const string &full_name)
 {
   cout<<"getExport: "<<full_name<<endl;
   return g_exports[full_name];
-}
-
-MetaClassRegistrator::MetaClassRegistrator(initializeMetaClass_t *init_func) : m_init_func(init_func)
-{
-  registerMetaClassRegistrator(*this);
 }
 
 

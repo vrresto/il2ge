@@ -17,6 +17,7 @@
  */
 
 #include "jni_wrapper.h"
+#include "meta_class_registrators.h"
 #include <core.h>
 
 using namespace jni_wrapper;
@@ -46,6 +47,7 @@ int JNICALL PostRenders(JNIEnv *env, jobject obj)
   return import.PostRenders(env, obj);
 }
 
-#include <_generated/jni_wrapper/Renders_registration>
 
 } // namespace
+
+#include <_generated/jni_wrapper/Renders_registration>

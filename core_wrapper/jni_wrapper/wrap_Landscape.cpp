@@ -17,6 +17,7 @@
  */
 
 #include "jni_wrapper.h"
+#include "meta_class_registrators.h"
 #include <core.h>
 
 using namespace jni_wrapper;
@@ -78,6 +79,7 @@ int JNICALL cUnloadMap(JNIEnv *env, jobject obj)
   return import.cUnloadMap(env, obj);
 }
 
-#include <_generated/jni_wrapper/Landscape_registration>
 
 } // namespace
+
+#include <_generated/jni_wrapper/Landscape_registration>

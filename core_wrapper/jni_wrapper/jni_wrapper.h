@@ -64,15 +64,7 @@ struct MetaClass
 };
 
 
-class MetaClassRegistrator
-{
-  typedef void initializeMetaClass_t(jni_wrapper::MetaClass&);
-  initializeMetaClass_t *m_init_func = 0;
-
-public:
-  MetaClassRegistrator(initializeMetaClass_t *init_func);
-  initializeMetaClass_t *getInitFunc() const { return m_init_func; }
-};
+typedef void MetaClassInitFunc(jni_wrapper::MetaClass&);
 
 
 } // namespace jni_wrapper
