@@ -20,6 +20,7 @@
 #include "core_p.h"
 #include <render_util/terrain.h>
 #include <render_util/texture_util.h>
+#include <render_util/render_util.h>
 
 #include <string>
 #include <GL/gl.h>
@@ -28,18 +29,13 @@
 
 using namespace gl_wrapper::gl_functions;
 
-namespace
-{
-  const std::string resource_path = "ge/";
-}
-
 namespace core
 {
 
   GLObjects::GLObjects()
   {
-    curvature_map = render_util::createCurvatureTexture(texture_manager, resource_path);
-    atmosphere_map = render_util::createAmosphereThicknessTexture(texture_manager, resource_path);
+    curvature_map = render_util::createCurvatureTexture(texture_manager, render_util::getResourcePath());
+    atmosphere_map = render_util::createAmosphereThicknessTexture(texture_manager, render_util::getResourcePath());
 
     GLenum active_unit_save;
     gl::GetIntegerv(GL_ACTIVE_TEXTURE, reinterpret_cast<GLint*>(&active_unit_save));
