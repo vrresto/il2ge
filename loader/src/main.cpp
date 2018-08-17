@@ -137,7 +137,7 @@ void loadCoreWrapper(const char *libFileName)
   g_core_wrapper_get_proc_address_f = &il2ge_coreWrapperGetProcAddress;
   il2ge::CoreWrapperInitFunc *wrapper_init_f = &il2ge_coreWrapperInit;
 #else
-  HMODULE wrapper_module = LoadLibraryA(CORE_WRAPPER_LIBRARY_NAME ".dll");
+  HMODULE wrapper_module = LoadLibraryA(IL2GE_DATA_DIR "/" CORE_WRAPPER_LIBRARY_NAME ".dll");
   if (!wrapper_module)
   {
     printf("LoadLibraryA() failed with error %u.\n", GetLastError());
