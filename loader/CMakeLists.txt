@@ -9,10 +9,6 @@ set(SRCS
 
 add_library(dinput SHARED ${SRCS})
 
-target_link_libraries(dinput
-  msvcrt
-)
-
 if(static_core_wrapper)
   target_link_libraries(dinput
     ${core_wrapper_library_name}

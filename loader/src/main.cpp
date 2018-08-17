@@ -19,6 +19,7 @@
 #include "iat.h"
 #include <loader_interface.h>
 #include <il2ge/core_wrapper.h>
+#include <util.h>
 
 #include <iostream>
 #include <unordered_map>
@@ -32,6 +33,7 @@
 #define _stricmp strcasecmp
 #endif
 
+
 extern "C"
 {
   BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
@@ -40,21 +42,6 @@ extern "C"
                                     DWORD dwVersion,
                                     void *ppDI,
                                     LPUNKNOWN punkOuter);
-
-#ifdef __linux__
-  int CDECL _splitpath_s(
-    const char * path,
-    char * drive,
-    size_t driveNumberOfElements,
-    char * dir,
-    size_t dirNumberOfElements,
-    char * fname,
-    size_t nameNumberOfElements,
-    char * ext,
-    size_t extNumberOfElements
-  );
-#endif
-
 }
 
 
@@ -176,35 +163,32 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
 {
   printf("LoadLibrary: %s\n", libFileName);
 
-  char module_name[100];
+  string module_name = util::makeLowercase(util::basename(libFileName, true));
 
-  int err = _splitpath_s(libFileName, NULL, 0, NULL, 0, module_name, sizeof(module_name), NULL, 0);
-  assert(!err);
-
-  if (_stricmp(module_name, "il2_core") == 0 ||
-      _stricmp(module_name, "il2_corep4") == 0 )
+  if (module_name.compare("il2_core") == 0 ||
+      module_name.compare("il2_corep4") == 0 )
   {
     loadCoreWrapper(libFileName);
     return g_core_wrapper_module;
   }
 
-  if (_stricmp(module_name, "dinput") == 0)
+  if (module_name.compare("dinput") == 0)
   {
     return loadDinputLibrary();
   }
 
   HMODULE module = LoadLibraryA(libFileName);
 
-  if (_stricmp(module_name, "jvm") == 0 ||
-      _stricmp(module_name, "dt") == 0 ||
-      _stricmp(module_name, "jgl") == 0 ||
-      _stricmp(module_name, "hpi") == 0 ||
-      _stricmp(module_name, "wrapper") == 0)
+  if (module_name.compare("jvm") == 0 ||
+      module_name.compare("dt") == 0 ||
+      module_name.compare("jgl") == 0 ||
+      module_name.compare("hpi") == 0 ||
+      module_name.compare("wrapper") == 0)
   {
     installIATPatches(module);
   }
 
-  if (_stricmp(module_name, "wrapper") == 0)
+  if (module_name.compare("wrapper") == 0)
   {
     g_sfs_openf_f = (SFS_openf_T*) GetProcAddress(module, "__SFS_openf");
     assert(g_sfs_openf_f);
