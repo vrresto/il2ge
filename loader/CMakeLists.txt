@@ -1,6 +1,7 @@
 set(library_name "il2ge")
 
 set_source_files_properties(
+  forwarder.spec
   forwarder.def
   loader.def
   PROPERTIES EXTERNAL_OBJECT 1
@@ -24,30 +25,38 @@ if(static_core_wrapper)
   )
 endif(static_core_wrapper)
 
-if(platform_wine)
+if(platform_mingw)
   target_link_libraries(${library_name}
-    -Wb,--export=${CMAKE_CURRENT_SOURCE_DIR}/loader.def
+    -Wl,--enable-stdcall-fixup
+    -Wl,--add-stdcall-alias
   )
+endif(platform_mingw)
+
+if(platform_wine)
+  set(forwarder_def forwarder.spec)
+else(platform_wine)
+  set(forwarder_def forwarder.def)
 endif(platform_wine)
 
-target_link_libraries(${library_name}
-  -Wl,--enable-stdcall-fixup
-  -Wl,--add-stdcall-alias
+add_library(dinput SHARED
+  ${forwarder_def}
+  src/dummy_entry.c
 )
 
-add_library(dinput SHARED forwarder.def src/dummy_entry.c)
-
-target_link_libraries(dinput
-  -nostartfiles
-  -nostdlib
-  -s
-)
+if(platform_mingw)
+  target_link_libraries(dinput
+    -nostartfiles
+    -nostdlib
+    -s
+  )
+endif(platform_mingw)
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${library_name}${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
   DESTINATION ${il2ge_data_dir}
   RENAME ${library_name}.dll
 )
 
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/dinput${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/dinput${CMAKE_SHARED_LIBRARY_SUFFIX_C}
   DESTINATION ${il2ge_data_dir}
+  RENAME dinput.dll
 )

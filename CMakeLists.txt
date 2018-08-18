@@ -11,7 +11,9 @@ if(platform STREQUAL "wine")
   set(CMAKE_C_COMPILER "winegcc")
   set(CMAKE_CXX_COMPILER "wineg++")
   set(CMAKE_EXECUTABLE_SUFFIX_CXX ".exe")
+  set(CMAKE_SHARED_LIBRARY_PREFIX_C "")
   set(CMAKE_SHARED_LIBRARY_PREFIX_CXX "")
+  set(CMAKE_SHARED_LIBRARY_SUFFIX_C ".dll.so")
   set(CMAKE_SHARED_LIBRARY_SUFFIX_CXX ".dll.so")
 endif(platform STREQUAL "wine")
 
@@ -75,6 +77,6 @@ if(NOT platform_mingw)
   add_subdirectory(map_viewer)
 endif(NOT platform_mingw)
 
-install(DIRECTORY render_util/shaders
+install(DIRECTORY ${renderutil_dir}/shaders
   DESTINATION ${il2ge_data_dir}
 )
