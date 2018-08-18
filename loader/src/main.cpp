@@ -120,11 +120,11 @@ HMODULE loadDinputLibrary()
 }
 
 
-void loadCoreWrapper(const char *libFileName)
+void loadCoreWrapper(const char *core_library_filename)
 {
   assert(!g_core_wrapper_module);
 
-  HMODULE core_module = LoadLibraryA(libFileName);
+  HMODULE core_module = LoadLibraryA(core_library_filename);
   if (!core_module)
   {
     printf("LoadLibraryA() failed with error %u.\n", GetLastError());
