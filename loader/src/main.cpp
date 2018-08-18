@@ -51,6 +51,7 @@ namespace
 
 using namespace std;
 
+typedef void CrashHandlerFunc(PEXCEPTION_POINTERS pExceptionInfo);
 typedef int __stdcall SFS_openf_T (unsigned __int64 hash, int flags);
 typedef HRESULT DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
 
@@ -62,6 +63,45 @@ HMODULE g_core_wrapper_module = 0;
 SFS_openf_T *g_sfs_openf_f = 0;
 il2ge::CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
 DirectInputCreateA_T *g_directInputCreateA_func = 0;
+
+
+LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
+{
+  static LONG num_entered_handlers = 0;
+
+  if (InterlockedIncrement(&num_entered_handlers) != 1)
+  {
+    abort();
+  }
+
+  printf("\nException code: %u  Flags: %u\n",
+          info->ExceptionRecord->ExceptionCode,
+          info->ExceptionRecord->ExceptionFlags);
+
+  HMODULE crash_handler_module = LoadLibraryA("crash_handler.dll");
+
+  if (crash_handler_module)
+  {
+    CrashHandlerFunc *crash_handler = (CrashHandlerFunc*)
+        GetProcAddress(crash_handler_module, "crashHandler");
+    assert(crash_handler);
+    crash_handler(info);
+  }
+  else
+  {
+    printf("\n**** could not load crash_handler.dll - backtrace diabled ****\n\n");
+  }
+
+  InterlockedDecrement(&num_entered_handlers);
+
+  return EXCEPTION_CONTINUE_SEARCH;
+}
+
+
+void installExceptionHandler()
+{
+  AddVectoredExceptionHandler(true, &vectoredExceptionHandler);
+}
 
 
 void sfsRedirect(__int64 hash, __int64 hash_redirection)
@@ -256,6 +296,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
   {
     case DLL_PROCESS_ATTACH:
       printf("*** loader dll process attach ***\n");
+      installExceptionHandler();
       g_loader_module = instance;
       installIATPatches(GetModuleHandle(0));
       loadDinputLibrary();
