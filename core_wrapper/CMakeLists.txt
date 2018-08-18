@@ -3,6 +3,7 @@ if(NOT static_core_wrapper)
   set(library_type SHARED)
 endif(NOT static_core_wrapper)
 
+
 include_directories(
   include
   ini_parser
@@ -78,9 +79,11 @@ endforeach(name)
 add_custom_target(core_wrapper_generated DEPENDS ${generated_output})
 
 
+
 add_library(${library_name} ${library_type} ${CXX_SRCS})
 
 add_dependencies(${library_name} core_wrapper_generated)
+
 
 target_link_libraries(${library_name}
   common
