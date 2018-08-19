@@ -53,7 +53,7 @@ using namespace std;
 
 typedef void CrashHandlerFunc(PEXCEPTION_POINTERS pExceptionInfo);
 typedef int __stdcall SFS_openf_T (unsigned __int64 hash, int flags);
-typedef HRESULT DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
+typedef HRESULT __stdcall DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
 
 void installIATPatches(HMODULE);
 
