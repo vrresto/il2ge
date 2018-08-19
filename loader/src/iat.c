@@ -33,7 +33,8 @@ static IMAGE_THUNK_DATA32 *findThunk(const void *function, const char *import_na
 
 //   printf("base addr: %x\n", (unsigned)base_addr);
 
-  if (dos_headers->e_magic != IMAGE_DOS_SIGNATURE) {
+  if (dos_headers->e_magic != IMAGE_DOS_SIGNATURE)
+  {
     printf("Error: e_magic is no valid DOS signature\n");
     exit(1);
   }
@@ -62,14 +63,18 @@ static IMAGE_THUNK_DATA32 *findThunk(const void *function, const char *import_na
 //   printf("import directory: %x\n", (unsigned)import_descriptor);
 
 //   BOOL found = FALSE;
-  while (import_descriptor->Name) {
+  while (import_descriptor->Name)
+  {
     const char *importName = base_addr + import_descriptor->Name;
 //     printf("importName: %s\n", importName);
-    if (_stricmp (importName, import_name) == 0) {
+    if (_stricmp (importName, import_name) == 0)
+    {
       PIMAGE_THUNK_DATA thunk = (PIMAGE_THUNK_DATA)(base_addr + import_descriptor->FirstThunk);
-      while (thunk->u1.Function) {
+      while (thunk->u1.Function)
+      {
 //         printf("function: %x\n", (unsigned)thunk->u1.Function);
-        if (thunk->u1.Function == (DWORD)function) {
+        if (thunk->u1.Function == (DWORD)function)
+        {
 //           printf("got it!\n");
           return thunk;
         }
