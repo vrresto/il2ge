@@ -93,7 +93,7 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
   }
   else
   {
-    fprintf(stderr, "\n**** could not load %s - backtrace diabled ****\n\n",
+    fprintf(stderr, "\n**** could not load %s - backtrace disabled ****\n\n",
             crash_handler_library_name);
   }
 
