@@ -48,8 +48,12 @@ extern "C"
 namespace
 {
 
-
 using namespace std;
+
+const char* const crash_handler_library_name =
+    IL2GE_DATA_DIR "/mingw_crash_handler.dll";
+
+const char* const crash_handler_func_name = "crashHandler";
 
 typedef void CrashHandlerFunc(PEXCEPTION_POINTERS pExceptionInfo);
 typedef int __stdcall SFS_openf_T (unsigned __int64 hash, int flags);
@@ -78,18 +82,19 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
           info->ExceptionRecord->ExceptionCode,
           info->ExceptionRecord->ExceptionFlags);
 
-  HMODULE crash_handler_module = LoadLibraryA("crash_handler.dll");
+  HMODULE crash_handler_module = LoadLibraryA(crash_handler_library_name);
 
   if (crash_handler_module)
   {
     CrashHandlerFunc *crash_handler = (CrashHandlerFunc*)
-        GetProcAddress(crash_handler_module, "crashHandler");
+        GetProcAddress(crash_handler_module, crash_handler_func_name);
     assert(crash_handler);
     crash_handler(info);
   }
   else
   {
-    fprintf(stderr, "\n**** could not load crash_handler.dll - backtrace diabled ****\n\n");
+    fprintf(stderr, "\n**** could not load %s - backtrace diabled ****\n\n",
+            crash_handler_library_name);
   }
 
   InterlockedDecrement(&num_entered_handlers);

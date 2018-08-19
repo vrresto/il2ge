@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 
+if(platform STREQUAL "mingw")
+  add_subdirectory(mingw_crash_handler)
+endif(platform STREQUAL "mingw")
+
 set(core_wrapper_library_name "il2_core_wrapper")
 set(il2ge_data_dir "il2ge")
 set (renderutil_data_dir ${il2ge_data_dir})
@@ -80,3 +84,9 @@ endif(NOT platform_mingw)
 install(DIRECTORY ${renderutil_dir}/shaders
   DESTINATION ${il2ge_data_dir}
 )
+
+if(platform_mingw)
+  install(PROGRAMS ${mingw_crash_handler_BINARY_DIR}/mingw_crash_handler.dll
+    DESTINATION ${il2ge_data_dir}
+  )
+endif(platform_mingw)
