@@ -74,7 +74,7 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
     abort();
   }
 
-  printf("\nException code: %u  Flags: %u\n",
+  fprintf(stderr, "\nException code: %u  Flags: %u\n",
           info->ExceptionRecord->ExceptionCode,
           info->ExceptionRecord->ExceptionFlags);
 
@@ -89,7 +89,7 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
   }
   else
   {
-    printf("\n**** could not load crash_handler.dll - backtrace diabled ****\n\n");
+    fprintf(stderr, "\n**** could not load crash_handler.dll - backtrace diabled ****\n\n");
   }
 
   InterlockedDecrement(&num_entered_handlers);
