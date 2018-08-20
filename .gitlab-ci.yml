@@ -26,7 +26,7 @@ build:
     - mkdir install
     - cd build
     - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Dno_tools=1 ..
-    - make install
+    - make install VERBOSE=1
   artifacts:
     paths:
       - install/il2ge
