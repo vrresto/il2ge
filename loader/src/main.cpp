@@ -95,6 +95,13 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
   {
     fprintf(stderr, "\n**** could not load %s - backtrace disabled ****\n\n",
             crash_handler_library_name);
+
+    stringstream message;
+    message<<"Could not load "<<crash_handler_library_name<<" - backtrace disabled.";
+    message<<endl<<endl;
+    message<<"To get a useful backtrace please download https://github.com/jrfonseca/drmingw/releases/download/0.8.2/drmingw-0.8.2-win32.7z and copy the file bin/exchndl.dll to your IL-2 directory.";
+
+    MessageBoxA(0, message.str().c_str(), nullptr, 0);
   }
 
   InterlockedDecrement(&num_entered_handlers);
