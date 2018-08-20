@@ -71,7 +71,8 @@ include_directories(
 )
 
 if(platform_mingw)
-  include_directories(${render_util_BINARY_DIR}/glm-install/include)
+  ExternalProject_Get_Property(glm SOURCE_DIR)
+  include_directories(${SOURCE_DIR})
 endif(platform_mingw)
 
 add_subdirectory(common)
