@@ -246,10 +246,13 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
     loadCoreWrapper(libFileName);
     return g_core_wrapper_module;
   }
-
-  if (module_name.compare("dinput") == 0)
+  else if (module_name.compare("dinput") == 0)
   {
     return loadDinputLibrary();
+  }
+  else if (module_name.compare("jvm") == 0)
+  {
+    loadDinputLibrary();
   }
 
   HMODULE module = LoadLibraryA(libFileName);
@@ -331,10 +334,9 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
   {
     case DLL_PROCESS_ATTACH:
       printf("*** loader dll process attach ***\n");
-      installExceptionHandler();
       g_loader_module = instance;
+      installExceptionHandler();
       installIATPatches(GetModuleHandle(0));
-      loadDinputLibrary();
       break;
     case DLL_PROCESS_DETACH:
       break;
