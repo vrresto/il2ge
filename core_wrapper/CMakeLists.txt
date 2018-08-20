@@ -3,6 +3,9 @@ if(NOT static_core_wrapper)
   set(library_type SHARED)
 endif(NOT static_core_wrapper)
 
+if(no_refresh_maps)
+  add_definitions(-DNO_REFRESH_MAPS)
+endif(no_refresh_maps)
 
 include_directories(
   include
@@ -13,6 +16,7 @@ include_directories(
 set(CXX_SRCS
   main.cpp
   sfs/sfs.cpp
+  core/core.cpp
   core/ressource_loader.cpp
   core/map.cpp
   core/render_state.cpp
@@ -83,7 +87,6 @@ add_custom_target(core_wrapper_generated DEPENDS ${generated_output})
 add_library(${library_name} ${library_type} ${CXX_SRCS})
 
 add_dependencies(${library_name} core_wrapper_generated)
-
 
 target_link_libraries(${library_name}
   common

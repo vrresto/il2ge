@@ -235,6 +235,12 @@ Module *getGLContext()
 }
 
 
+std::string getCoreWrapperFilePath()
+{
+  return g_loader->getCoreWrapperFilePath();
+}
+
+
 void *getOrigProcAddress(const char *name)
 {
   void *func = reinterpret_cast<void*>(GetProcAddress(g_core_module, name));
@@ -318,6 +324,7 @@ void il2ge_coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
 
   SFS::init();
   core_gl_wrapper::init();
+  core::init();
   jni_wrapper::init();
 
   HMODULE jgl_module = GetModuleHandle("jgl.dll");

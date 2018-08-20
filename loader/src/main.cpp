@@ -121,7 +121,30 @@ void sfsClearRedirections()
 }
 
 
-LoaderInterface g_interface = { &sfsRedirect, &sfsClearRedirections, &patchIAT };
+std::string getCoreWrapperFilePath()
+{
+  assert(g_core_wrapper_module);
+
+  char module_file_name[MAX_PATH];
+
+  if (!GetModuleFileNameA(g_core_wrapper_module,
+      module_file_name,
+      sizeof(module_file_name)))
+  {
+    assert(false);
+  }
+
+  return module_file_name;
+}
+
+
+LoaderInterface g_interface =
+{
+  &sfsRedirect,
+  &sfsClearRedirections,
+  &patchIAT,
+  &getCoreWrapperFilePath
+};
 
 
 int WINAPI wrap_SFS_openf(const unsigned __int64 hash_, const int flags)
@@ -198,9 +221,9 @@ void loadCoreWrapper(const char *core_library_filename)
   assert(wrapper_init_f);
 #endif
 
-  wrapper_init_f(core_module, &g_interface);
-
   g_core_wrapper_module = wrapper_module;
+
+  wrapper_init_f(core_module, &g_interface);
 }
 
 

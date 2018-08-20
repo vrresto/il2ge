@@ -18,13 +18,13 @@ build:
     - mkdir build
     - mkdir install
     - cd build
-    - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=wine ..
+    - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=wine -Dno_tools ..
     - make install
     - cd ..
     - mkdir mingw-build
     - mkdir mingw-install
     - cd mingw-build
-    - cmake -DCMAKE_INSTALL_PREFIX=../mingw-install -Dplatform=mingw ..
+    - cmake -DCMAKE_INSTALL_PREFIX=../mingw-install -Dplatform=mingw -Dno_tools ..
     - make install
   artifacts:
     paths:

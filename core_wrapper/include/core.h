@@ -130,6 +130,8 @@ namespace core
   render_util::Camera *getCamera();
 
   render_util::TextureManager &textureManager();
+
+  void init();
 }
 
 #endif

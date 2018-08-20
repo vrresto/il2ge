@@ -19,6 +19,7 @@
 #ifndef LOADER_INTERFACE_H
 #define LOADER_INTERFACE_H
 
+#include <string>
 #include <windef.h>
 
 struct LoaderInterface
@@ -30,6 +31,7 @@ struct LoaderInterface
       void *new_function,
       void **orig_func_out,
       HMODULE module) = 0;
+  std::string (*getCoreWrapperFilePath)() = 0;
 };
 
 #endif

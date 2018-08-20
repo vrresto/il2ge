@@ -57,6 +57,7 @@ public:
 Module *getGLContext();
 
 void *getOrigProcAddress(const char *name);
+std::string getCoreWrapperFilePath();
 
 
 #endif
