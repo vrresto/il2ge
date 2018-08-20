@@ -14,7 +14,7 @@ build:
      - dpkg --add-architecture i386
      - apt-get update
      #- apt-get -y --no-install-recommends install gcc-multilib g++-multilib gcc-mingw-w64-i686 g++-mingw-w64-i686 libglfw3-dev:i386 libglm-dev:i386 libtiff-dev:i386 make cmake wine32-tools wine32 wine python
-     - apt-get -y --no-install-recommends install gcc-mingw-w64-i686 g++-mingw-w64-i686 make cmake python
+     - apt-get -y --no-install-recommends install gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake python
   script:
     #- mkdir build
     #- mkdir install
