@@ -38,9 +38,11 @@ endif(platform STREQUAL "mingw")
 project(il2ge)
 
 add_definitions(-DIL2GE_DATA_DIR="${il2ge_data_dir}")
-if(static_core_wrapper)
+
+if(NOT no_static_core_wrapper)
+  set(static_core_wrapper 1)
   add_definitions(-DSTATIC_CORE_WRAPPER)
-endif(static_core_wrapper)
+endif(NOT no_static_core_wrapper)
 
 if(platform_wine)
   set(CMAKE_C_FLAGS "-m32 ${CMAKE_C_FLAGS}")
