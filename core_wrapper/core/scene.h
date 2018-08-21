@@ -16,20 +16,38 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_CORE_P_H
-#define CORE_CORE_P_H
+#ifndef CORE_SCENE_H
+#define CORE_SCENE_H
 
+#include "map.h"
+#include <misc.h>
 #include <core.h>
+
+#include <memory>
+#include <cassert>
 
 namespace core
 {
-  Il2RenderPhase getRenderPhase();
+  class Map;
 
-//   float getFrameDelta();
-//   glm::vec4 getShoreWavePos();
-//   float getWaterAnimationFrameDelta();
-//   int getWaterAnimationStep();
+  class Scene : public Module
+  {
+    render_util::TexturePtr atmosphere_map;
+    render_util::TexturePtr curvature_map;
+    std::unique_ptr<Map> map;
 
-}
+  public:
+    render_util::TextureManager texture_manager = render_util::TextureManager(0);
+
+    Scene();
+
+    void unloadMap();
+    void loadMap(const char *path);
+    void updateTerrain(const glm::vec3 &camera_pos);
+    void setTerrainDrawDistance(float distance);
+    void drawTerrain(render_util::ShaderProgramPtr program);
+    void updateUniforms(render_util::ShaderProgramPtr program);
+  };
+};
 
 #endif

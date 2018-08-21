@@ -32,6 +32,11 @@ namespace core_gl_wrapper
     render_util::ShaderProgramPtr invisible_program;
     render_util::ShaderProgramPtr red_program;
     render_util::ShaderProgramPtr tree_program;
+
+    bool is_arb_program_active = false;
+    render_util::ShaderProgramPtr current_shader;
+    render_util::ShaderProgramPtr current_arb_program;
+    render_util::ShaderProgramPtr active_shader;
   };
 
   Context *getContext();
@@ -43,6 +48,14 @@ namespace core_gl_wrapper
   void updateUniforms(render_util::ShaderProgramPtr program);
 
   void setProc(const char *name, void *func);
+
+  render_util::ShaderProgramPtr activeShader();
+  void setActiveShader(render_util::ShaderProgramPtr);
+  render_util::ShaderProgramPtr activeARBProgram();
+  void setActiveARBProgram(render_util::ShaderProgramPtr);
+  void setIsARBProgramActive(bool active);
+  bool isARBProgramActive();
+
 
   namespace texture_state
   {

@@ -16,6 +16,8 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "scene.h"
+#include "core_p.h"
 #include <core.h>
 #include <misc.h>
 #include <render_util/render_util.h>
@@ -25,6 +27,8 @@
 #include <cassert>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#include <gl_wrapper/gl_functions.h>
 
 using namespace std;
 
@@ -75,6 +79,78 @@ void init()
   refreshFile(IL2GE_DATA_DIR "/atmosphere_map", render_util::createAtmosphereMap);
   refreshFile(IL2GE_DATA_DIR "/curvature_map", render_util::createCurvatureMap);
 #endif
+}
+
+
+Scene *getScene()
+{
+  Module *current_context = getGLContext();
+
+  assert(current_context);
+
+  Scene *scene = current_context->getSubModule<Scene>();
+
+  if (!scene)
+  {
+    scene = new Scene;
+    current_context->setSubModule(scene);
+  }
+
+  return scene;
+}
+
+
+void unloadMap()
+{
+  getScene()->unloadMap();
+}
+
+
+void loadMap(const char *path)
+{
+  getScene()->loadMap(path);
+}
+
+
+void updateTerrain()
+{
+  getScene()->updateTerrain(getCameraPos());
+}
+
+
+void setTerrainDrawDistance(float distance)
+{
+  getScene()->setTerrainDrawDistance(distance);
+}
+
+
+void drawTerrain(render_util::ShaderProgramPtr program)
+{
+  getScene()->drawTerrain(program);
+}
+
+
+void updateUniforms(render_util::ShaderProgramPtr program)
+{
+  program->setUniform("cameraPosWorld", core::getCameraPos());
+  program->setUniform("projectionMatrixFar", core::getProjectionMatrixFar());
+  program->setUniform("world2ViewMatrix", core::getWorld2ViewMatrix());
+  program->setUniform("view2WorldMatrix", core::getView2WorldMatrix());
+  program->setUniform("terrainColor", glm::vec3(0,1,0));
+  program->setUniform("sunDir", core::getSunDir());
+
+  //FIXME
+//   program->setUniform("shore_wave_scroll", core::getShoreWavePos());
+
+  getScene()->updateUniforms(program);
+
+  CHECK_GL_ERROR();
+}
+
+
+render_util::TextureManager &textureManager()
+{
+  return getScene()->texture_manager;
 }
 
 

@@ -19,7 +19,6 @@
 #include "map.h"
 #include "ressource_loader.h"
 #include "core_p.h"
-#include "gl_objects.h"
 
 #include <sfs.h>
 #include <core.h>
@@ -39,16 +38,6 @@ using namespace std;
 using namespace render_util;
 using namespace glm;
 using namespace gl_wrapper::gl_functions;
-
-
-namespace
-{
-  core::Map *currentMap()
-  {
-    assert(core::glObjects()->map);
-    return core::glObjects()->map.get();
-  }
-}
 
 
 namespace core
@@ -116,7 +105,6 @@ glm::vec2 Map::getSize()
 void Map::setUniforms(render_util::ShaderProgramPtr program)
 {
   program->setUniform("map_size", getSize());
-  program->setUniform("shore_wave_scroll", core::getShoreWavePos());
   program->setUniform("terrain_height_offset", 0);
   p->textures->setUniforms(program);
   p->water_animation->updateUniforms(program);
@@ -132,57 +120,8 @@ void Map::setUniforms(render_util::ShaderProgramPtr program)
 //   return currentMap()->getTypeMapSize();
 // }
 
-void updateUniforms(render_util::ShaderProgramPtr program)
-{
-  program->setUniform("cameraPosWorld", core::getCameraPos());
-  program->setUniform("projectionMatrixFar", core::getProjectionMatrixFar());
-  program->setUniform("world2ViewMatrix", core::getWorld2ViewMatrix());
-  program->setUniform("view2WorldMatrix", core::getView2WorldMatrix());
-  program->setUniform("terrainColor", glm::vec3(0,1,0));
-  program->setUniform("sunDir", core::getSunDir());
 
-  currentMap()->setUniforms(program);
 
-  CHECK_GL_ERROR();
-}
 
-void unloadMap()
-{
-  glObjects()->map = nullptr;
-  gl::Finish();
-  SFS::clearRedirections();
-}
-
-void updateTerrain()
-{
-  if (currentMap())
-  {
-    currentMap()->getTerrain()->update(getCameraPos());
-    currentMap()->getWaterAnimation()->update();
-  }
-}
-
-void setTerrainDrawDistance(float distance)
-{
-  if (currentMap())
-    currentMap()->getTerrain()->setDrawDistance(distance);
-}
-
-void drawTerrain(render_util::ShaderProgramPtr program)
-{
-  if (currentMap())
-    currentMap()->getTerrain()->draw(program);
-}
-
-void loadMap(const char *path)
-{
-  printf("load map: %s\n", path);
-
-  unloadMap();
-
-//   core::textureManager().setActive(true);
-
-  glObjects()->map = make_unique<Map>(path);
-}
 
 } // namespace core

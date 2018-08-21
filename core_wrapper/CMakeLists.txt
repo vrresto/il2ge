@@ -20,7 +20,7 @@ set(CXX_SRCS
   core/ressource_loader.cpp
   core/map.cpp
   core/render_state.cpp
-  core/gl_objects.cpp
+  core/scene.cpp
   jni_wrapper/jni_wrapper.cpp
   gl_wrapper/wgl_interface.cpp
   gl_wrapper/gl_wrapper_main.cpp

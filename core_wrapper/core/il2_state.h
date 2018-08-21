@@ -16,33 +16,29 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_GL_OBJECTS_H
-#define CORE_GL_OBJECTS_H
+#ifndef CORE_IL2_STATE_H
+#define CORE_IL2_STATE_H
 
-#include "map.h"
-#include <misc.h>
 #include <core.h>
+#include <render_util/camera.h>
 
-#include <memory>
-#include <cassert>
+#include <chrono>
+#include <glm/glm.hpp>
 
 namespace core
 {
-  struct GLObjects : public Module
-  {
-    render_util::ShaderProgramPtr current_shader;
-    render_util::ShaderProgramPtr current_arb_program;
-    render_util::ShaderProgramPtr active_shader;
 
-    render_util::TexturePtr atmosphere_map;
-    render_util::TexturePtr curvature_map;
 
-    bool is_arb_program_active = false;
-    std::unique_ptr<Map> map;
-    render_util::TextureManager texture_manager = render_util::TextureManager(0);
-
-    GLObjects();
-  };
+struct IL2State
+{
+  render_util::Camera camera;
+  glm::vec3 sun_dir;
+  Il2RenderState render_state;
+//   std::chrono::steady_clock Clock::time_point last_frame_time; // = Clock::time_point(std::chrono::seconds(0));
+//   float frame_delta = 0;
 };
+
+
+}
 
 #endif

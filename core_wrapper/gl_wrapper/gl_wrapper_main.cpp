@@ -298,18 +298,18 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 //             || true
         )
     {
-//         core::setActiveShader(getSkyProgram());
+//         core_gl_wrapper::setActiveShader(getSkyProgram());
 //         updateUniforms(getSkyProgram());
 //       }
 //       else {
-      core::setActiveShader(getInvisibleProgram());
-//         core::setActiveShader(getRedProgram());
+      core_gl_wrapper::setActiveShader(getInvisibleProgram());
+//         core_gl_wrapper::setActiveShader(getRedProgram());
     }
   }
 
 //     discardGlCalls(true);
 
-//     core::setActiveShader(getRedProgram());
+//     core_gl_wrapper::setActiveShader(getRedProgram());
 //     gl::PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   gl::Begin(mode);
 }
@@ -326,7 +326,7 @@ void GLAPIENTRY wrap_glEnd()
 //     if (!is_arb_program_active())
 //       gl::UseProgram(0);
 
-  core::setActiveShader(nullptr);
+  core_gl_wrapper::setActiveShader(nullptr);
 
   onObjectRendered();
 
@@ -359,7 +359,7 @@ void GLAPIENTRY wrap_glDrawElements(
   gl::GetError();
 //   	return;
 
-//     core::setActiveShader(getTreeProgram());
+//     core_gl_wrapper::setActiveShader(getTreeProgram());
 #if 0
   {
     GLint values[4];
@@ -414,9 +414,7 @@ void GLAPIENTRY wrap_glDrawElements(
 
 //     gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-  core::setActiveShader(nullptr);
-
-  core::onTreeDrawn();
+  core_gl_wrapper::setActiveShader(nullptr);
 }
 
 
@@ -448,7 +446,7 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   {
     gl::DrawRangeElements(mode, start, end, count, type, indices);
   }
-  else if (isARBProgramActive())
+  else if (core_gl_wrapper::isARBProgramActive())
   {
 
     const string name = core_gl_wrapper::getFragmentProgramName();
@@ -491,6 +489,53 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
 #endif
 
 
+void updateShaderState()
+{
+  auto *ctx = core_gl_wrapper::getContext();
+
+  bool is_arb_program_active = ctx->is_arb_program_active;
+
+//     if (is_arb_program_active && render_state.render_phase == IL2_Landscape0_PreTerrain)
+//     {
+//       setRenderPhase(IL2_Landscape0_TerrainFar);
+//     }
+
+  render_util::ShaderProgramPtr new_active_shader;
+
+  if (ctx->current_shader)
+  {
+    new_active_shader = ctx->current_shader;
+  }
+  else if (is_arb_program_active)
+  {
+    new_active_shader = ctx->current_arb_program;
+  }
+//     if (is_arb_program_active)
+//     {
+//       new_active_shader = ctx->current_arb_program;
+//     }
+//     else
+//     {
+//       new_active_shader = ctx->current_shader;
+//     }
+
+  if (new_active_shader)
+  {
+    assert(new_active_shader->isValid());
+//       if (new_active_shader != ctx->active_shader)
+//       {
+      gl::UseProgram(new_active_shader->getId());
+      ctx->active_shader = new_active_shader;
+//       }
+  }
+  else
+  {
+    gl::UseProgram(0);
+    ctx->active_shader = nullptr;
+  }
+}
+
+
 } // namespace
 
 
@@ -520,7 +565,7 @@ inline void doDrawTerrain()
   CHECK_GL_ERROR();
 
 
-  core::setActiveShader(getSkyProgram());
+  core_gl_wrapper::setActiveShader(getSkyProgram());
   updateUniforms(getSkyProgram());
 
 //     gl::Disable(GL_DEPTH_TEST);
@@ -531,7 +576,7 @@ inline void doDrawTerrain()
 
   render_util::drawSkyBox();
 
-  core::setActiveShader(getTerrainProgram());
+  core_gl_wrapper::setActiveShader(getTerrainProgram());
 
   CHECK_GL_ERROR();
 
@@ -580,7 +625,7 @@ inline void doDrawTerrain()
   core::setTerrainDrawDistance(5000.f);
   core::updateTerrain();
 
-  core::setActiveShader(forest_program);
+  core_gl_wrapper::setActiveShader(forest_program);
   updateUniforms(forest_program);
 
   CHECK_GL_ERROR();
@@ -619,7 +664,7 @@ inline void doDrawTerrain()
 
   CHECK_GL_ERROR();
 
-  core::setActiveShader(nullptr);
+  core_gl_wrapper::setActiveShader(nullptr);
 
   CHECK_GL_ERROR();
 
@@ -657,9 +702,50 @@ void *getProc(const char *name)
 }
 
 
+// render_util::ShaderProgramPtr activeShader()
+// {
+//   assert(false);
+//   abort();
+// }
+
+
+void setActiveShader(render_util::ShaderProgramPtr shader)
+{
+  getContext()->current_shader = shader;
+  updateShaderState();
+}
+
+
+// render_util::ShaderProgramPtr activeARBProgram()
+// {
+//   assert(false);
+//   abort();
+// }
+
+
+void setActiveARBProgram(render_util::ShaderProgramPtr prog)
+{
+  getContext()->current_arb_program = prog;
+  updateShaderState();
+}
+
+
+void setIsARBProgramActive(bool active)
+{
+  getContext()->is_arb_program_active = active;
+  updateShaderState();
+}
+
+
+bool isARBProgramActive()
+{
+  return getContext()->is_arb_program_active;
+}
+
+
 Context *getContext()
 {
-  Context *context = getGLContext()->getSubModule<Context>();
+  auto *context = getGLContext()->getSubModule<Context>();
 
   if (!context)
   {

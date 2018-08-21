@@ -26,13 +26,12 @@
 namespace render_util
 {
   class Camera;
-  class Terrain;
 }
 
 namespace core
 {
 
-  class GLObjects;
+  class Scene;
 
   enum Il2RenderPhase
   {
@@ -57,17 +56,6 @@ namespace core
     int num_rendered_array_objects = 0;
   };
 
-  unsigned int getTexUnitNum();
-  int getTexUnit(int num);
-  const char* getTexUnitName(int num);
-
-  glm::vec2 getMapSize();
-  glm::ivec2 getTypeMapSize();
-
-  void drawTerrain(render_util::ShaderProgramPtr program);
-  void updateTerrain();
-  void setTerrainDrawDistance(float distance);
-
   bool isCubeUpdated();
 
   const glm::mat4 &getView2WorldMatrix();
@@ -75,20 +63,10 @@ namespace core
   const glm::mat4 &getProjectionMatrixFar();
   const glm::vec3 &getCameraPos();
 
-  float getWaterMapShift();
-  float getWaterMapScale();
-
-  const glm::vec3 &getSunDir();
-  float getWaterAnimationFrameDelta();
-  int getWaterAnimationStep();
-
   Il2CameraMode getCameraMode();
   void setCameraMode(Il2CameraMode);
 
   void getRenderState(Il2RenderState *state);
-
-  float getFrameDelta();
-  glm::vec4 getShoreWavePos();
 
   void onCubeMapBegin();
   void onCubeMapFaceFinished();
@@ -106,29 +84,22 @@ namespace core
   void onLandscapeRender1();
   void onLandscapePostRender();
 
-  void onTreeDrawn();
-
-  GLObjects *glObjects();
-
-  render_util::ShaderProgramPtr activeShader();
-  void setActiveShader(render_util::ShaderProgramPtr);
-  render_util::ShaderProgramPtr activeARBProgram();
-  void setActiveARBProgram(render_util::ShaderProgramPtr);
-  void setIsARBProgramActive(bool active);
+  Scene *getScene();
 
   void updateUniforms(render_util::ShaderProgramPtr program);
-
-  bool isARBProgramActive();
 
   void loadMap(const char *path);
   void unloadMap();
 
-  void updateWaterAnimation();
+//   void updateWaterAnimation();
+  void drawTerrain(render_util::ShaderProgramPtr program);
+  void updateTerrain();
+  void setTerrainDrawDistance(float distance);
 
+  const glm::vec3 &getSunDir();
   void setSunDir(const glm::vec3 &dir);
 
   render_util::Camera *getCamera();
-
   render_util::TextureManager &textureManager();
 
   void init();

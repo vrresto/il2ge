@@ -16,23 +16,26 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "gl_objects.h"
+#include "scene.h"
 #include "core_p.h"
+#include <sfs.h>
 #include <render_util/terrain.h>
 #include <render_util/texture_util.h>
 #include <render_util/render_util.h>
 
 #include <string>
+#include <memory>
 #include <GL/gl.h>
 
 #include <gl_wrapper/gl_functions.h>
 
 using namespace gl_wrapper::gl_functions;
+using namespace std;
 
 namespace core
 {
 
-  GLObjects::GLObjects()
+  Scene::Scene()
   {
     curvature_map = render_util::createCurvatureTexture(texture_manager, render_util::getResourcePath());
     atmosphere_map = render_util::createAmosphereThicknessTexture(texture_manager, render_util::getResourcePath());
@@ -50,21 +53,49 @@ namespace core
   }
 
 
-  GLObjects *glObjects()
+  void Scene::unloadMap()
   {
-    Module *current_context = getGLContext();
+    map.reset();
+    gl::Finish();
+    SFS::clearRedirections();
+  }
 
-    assert(current_context);
+  void Scene::loadMap(const char *path)
+  {
+    printf("load map: %s\n", path);
 
-    GLObjects *gl_objects = current_context->getSubModule<GLObjects>();
+    unloadMap();
 
-    if (!gl_objects)
-    {
-      gl_objects = new GLObjects;
-      current_context->setSubModule(gl_objects);
-    }
+    map = make_unique<Map>(path);
+  }
 
-    return gl_objects;
+
+  void Scene::updateTerrain(const glm::vec3 &camera_pos)
+  {
+    assert(map);
+    map->getTerrain()->update(camera_pos);
+//     map->getWaterAnimation()->update();
+  }
+
+
+  void Scene::drawTerrain(render_util::ShaderProgramPtr program)
+  {
+    assert(map);
+    map->getTerrain()->draw(program);
+  }
+
+
+  void Scene::setTerrainDrawDistance(float distance)
+  {
+    assert(map);
+    map->getTerrain()->setDrawDistance(distance);
+  }
+
+
+  void Scene::updateUniforms(render_util::ShaderProgramPtr program)
+  {
+    assert(map);
+    map->setUniforms(program);
   }
 
 

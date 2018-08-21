@@ -37,8 +37,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-#include <gl_wrapper.h>
-
 #include <GL/gl.h>
 #include <GL/glext.h>
 
@@ -631,17 +629,17 @@ struct Context : public Module
 
       if (new_active_glsl_program && new_active_glsl_program->isValid())
       {
-        core::setActiveARBProgram(new_active_glsl_program);
+        core_gl_wrapper::setActiveARBProgram(new_active_glsl_program);
         updateUniforms(new_active_glsl_program);
       }
       else
-        core::setActiveARBProgram(nullptr);
+        core_gl_wrapper::setActiveARBProgram(nullptr);
 
     }
     else
-      core::setActiveARBProgram(nullptr);
+      core_gl_wrapper::setActiveARBProgram(nullptr);
 
-    core::setIsARBProgramActive(is_arb_program_active);
+    core_gl_wrapper::setIsARBProgramActive(is_arb_program_active);
   }
 
 };

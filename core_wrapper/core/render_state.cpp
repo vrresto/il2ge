@@ -18,10 +18,8 @@
 
 #include "core.h"
 #include "core_p.h"
-#include "gl_objects.h"
-#include <render_util/camera.h>
+#include "il2_state.h"
 
-#include <chrono>
 #include <iostream>
 #include <GL/gl.h>
 
@@ -35,101 +33,27 @@ using namespace std;
 using Clock = std::chrono::steady_clock;
 
 
-namespace core_gl_wrapper
-{
-  void drawTerrain();
-}
-
 namespace
 {
-//   const float shore_wave_hz = 0.05;
-  const vec4 shore_wave_hz = vec4(0.05, 0.07, 0, 0);
-
-  Clock::time_point last_frame_time = Clock::time_point(std::chrono::seconds(0));
-  float frame_delta = 0;
-  vec4 shore_wave_pos = vec4(0);
-
-  vec3 sun_dir;
-  Il2RenderState render_state;
-
-  render_util::Camera camera;
+//   const vec4 shore_wave_hz = vec4(0.05, 0.07, 0, 0);
+//   vec4 shore_wave_pos = vec4(0);
 
 
-  int num_trees_drawn = 0;
+//   void onCubeMapFinished()
+//   {
+//     assert(0);
+//
+//     g_il2_state.render_state.num_rendered_objects = 0;
+//     g_il2_state.render_state.num_rendered_array_objects = 0;
+//
+//     setRenderPhase(IL2_Landscape0_PreTerrain);
+//   }
 
-//   int numTimesFarTerrainDrawn = 0;
+  IL2State g_il2_state;
 
-  void setRenderPhase(Il2RenderPhase phase)
+  void setRenderPhase(core::Il2RenderPhase phase)
   {
-    if (phase != IL2_RENDER_PHASE_UNKNOWN)
-    {
-      if (render_state.render_phase == phase)
-      {
-//         cout<<"error: already in render phase "<<phase<<endl;
-//         exit(1);
-      }
-//       assert (render_state.render_phase != phase);
-    }
-
-    render_state.render_phase = phase;
-//     render_state.num_rendered_objects = 0;
-//     render_state.num_rendered_array_objects = 0;
-  }
-
-  void updateShaderState()
-  {
-    auto *ctx = glObjects();
-
-    bool is_arb_program_active = ctx->is_arb_program_active;
-
-//     if (is_arb_program_active && render_state.render_phase == IL2_Landscape0_PreTerrain)
-//     {
-//       setRenderPhase(IL2_Landscape0_TerrainFar);
-//     }
-
-    render_util::ShaderProgramPtr new_active_shader;
-
-    if (ctx->current_shader)
-    {
-      new_active_shader = ctx->current_shader;
-    }
-    else if (is_arb_program_active)
-    {
-      new_active_shader = ctx->current_arb_program;
-    }
-//     if (is_arb_program_active)
-//     {
-//       new_active_shader = ctx->current_arb_program;
-//     }
-//     else
-//     {
-//       new_active_shader = ctx->current_shader;
-//     }
-
-    if (new_active_shader)
-    {
-      assert(new_active_shader->isValid());
-//       if (new_active_shader != ctx->active_shader)
-//       {
-        gl::UseProgram(new_active_shader->getId());
-        ctx->active_shader = new_active_shader;
-//       }
-    }
-    else
-    {
-      gl::UseProgram(0);
-      ctx->active_shader = nullptr;
-    }
-  }
-
-  void onCubeMapFinished()
-  {
-    assert(0);
-
-    render_state.num_rendered_objects = 0;
-    render_state.num_rendered_array_objects = 0;
-
-    setRenderPhase(IL2_Landscape0_PreTerrain);
+    g_il2_state.render_state.render_phase = phase;
   }
 
 
@@ -140,42 +64,42 @@ namespace core
 
   void getRenderState(Il2RenderState *state)
   {
-    *state = render_state;
+    *state = g_il2_state.render_state;
   }
 
   render_util::Camera *getCamera()
   {
-    return &camera;
+    return &g_il2_state.camera;
   }
 
-  vec4 getShoreWavePos()
-  {
-    return shore_wave_pos;
-  }
+//   vec4 getShoreWavePos()
+//   {
+//     return shore_wave_pos;
+//   }
 
   void onObjectRendered()
   {
-    render_state.num_rendered_objects++;
+    g_il2_state.render_state.num_rendered_objects++;
   }
 
   void onArrayObjectRendered()
   {
-    render_state.num_rendered_array_objects++;
+    g_il2_state.render_state.num_rendered_array_objects++;
   }
 
   void onClear()
   {
-    render_state.num_rendered_objects = 0;
-    render_state.num_rendered_array_objects = 0;
+    g_il2_state.render_state.num_rendered_objects = 0;
+    g_il2_state.render_state.num_rendered_array_objects = 0;
   }
 
   void onClearStates()
   {
-    switch (render_state.render_phase)
+    switch (g_il2_state.render_state.render_phase)
     {
       case core::IL2_PostPreRenders:
-        render_state.num_rendered_objects = 0;
-        render_state.num_rendered_array_objects = 0;
+        g_il2_state.render_state.num_rendered_objects = 0;
+        g_il2_state.render_state.num_rendered_array_objects = 0;
         setRenderPhase(core::IL2_PreLandscape);
         break;
       case core::IL2_PostLandscape:
@@ -192,18 +116,15 @@ namespace core
 
   void onPrePreRenders()
   {
-    num_trees_drawn = 0;
+//     Clock::time_point frame_time =  Clock::now();
 
-    Clock::time_point frame_time =  Clock::now();
+//     std::chrono::microseconds delta = std::chrono::duration_cast<std::chrono::microseconds>(frame_time - last_frame_time);
+//     frame_delta = ((float)delta.count()) / 1000000.0;
 
-    std::chrono::microseconds delta = std::chrono::duration_cast<std::chrono::microseconds>(frame_time - last_frame_time);
-    frame_delta = ((float)delta.count()) / 1000000.0;
+//     last_frame_time = frame_time;
 
-    last_frame_time = frame_time;
-
-//     shore_wave_pos = fract(shore_wave_pos + (frame_delta * shore_wave_hz));
-    shore_wave_pos.x = shore_wave_pos.x + (frame_delta * shore_wave_hz.x);
-    shore_wave_pos.y = shore_wave_pos.y + (frame_delta * shore_wave_hz.y);
+//     shore_wave_pos.x = shore_wave_pos.x + (frame_delta * shore_wave_hz.x);
+//     shore_wave_pos.y = shore_wave_pos.y + (frame_delta * shore_wave_hz.y);
 
     setRenderPhase(IL2_PrePreRenders);
   }
@@ -215,8 +136,8 @@ namespace core
 
   void onPostRenders()
   {
-//   printf("rendered %d objects.\n", render_state.num_rendered_objects);
-//   printf("rendered %d array objects.\n", render_state.num_rendered_array_objects);
+//   printf("rendered %d objects.\n", g_il2_state.render_state.num_rendered_objects);
+//   printf("rendered %d array objects.\n", g_il2_state.render_state.num_rendered_array_objects);
 //   printf("=========================================\n");
 
     setRenderPhase(IL2_PostRenders);
@@ -229,13 +150,13 @@ namespace core
     setRenderPhase(IL2_Landscape_cPreRender);
   }
 
-  int numRenderedCubeFaces = 0;
+//   int numRenderedCubeFaces = 0;
 
   void onLandscapeRender0()
   {
-    render_state.num_rendered_objects = 0;
-    render_state.num_rendered_array_objects = 0;
-    numRenderedCubeFaces = 0;
+    g_il2_state.render_state.num_rendered_objects = 0;
+    g_il2_state.render_state.num_rendered_array_objects = 0;
+//     numRenderedCubeFaces = 0;
 
     setRenderPhase(IL2_Landscape0_PreTerrain);
 
@@ -253,9 +174,9 @@ namespace core
 
   void onCubeMapFaceFinished()
   {
-    numRenderedCubeFaces++;
-    if (numRenderedCubeFaces == 6)
-      onCubeMapFinished();
+//     numRenderedCubeFaces++;
+//     if (numRenderedCubeFaces == 6)
+//       onCubeMapFinished();
   }
 
   void onFarTerrainDone()
@@ -286,98 +207,53 @@ namespace core
 
   const vec3 &getSunDir()
   {
-    return sun_dir;
+    return g_il2_state.sun_dir;
   }
 
   void setSunDir(const vec3 &dir)
   {
-    sun_dir = dir;
+    g_il2_state.sun_dir = dir;
   }
 
   void setCameraMode(Il2CameraMode mode)
   {
-    render_state.camera_mode = mode;
+    g_il2_state.render_state.camera_mode = mode;
   }
 
   Il2CameraMode getCameraMode()
   {
-    return render_state.camera_mode;
+    return g_il2_state.render_state.camera_mode;
   }
 
   Il2RenderPhase getRenderPhase()
   {
-    return render_state.render_phase;
-  }
-
-  render_util::ShaderProgramPtr activeShader()
-  {
-    assert(false);
-    abort();
-  }
-
-  void setActiveShader(render_util::ShaderProgramPtr shader)
-  {
-    glObjects()->current_shader = shader;
-    updateShaderState();
-  }
-
-  render_util::ShaderProgramPtr activeARBProgram()
-  {
-    assert(false);
-    abort();
-  }
-
-  void setActiveARBProgram(render_util::ShaderProgramPtr prog)
-  {
-    glObjects()->current_arb_program = prog;
-    updateShaderState();
-  }
-
-  void setIsARBProgramActive(bool active)
-  {
-    glObjects()->is_arb_program_active = active;
-    updateShaderState();
-  }
-
-  bool isARBProgramActive()
-  {
-    return glObjects()->is_arb_program_active;
-  }
-
-  render_util::TextureManager &textureManager()
-  {
-    return glObjects()->texture_manager;
+    return g_il2_state.render_state.render_phase;
   }
 
   const glm::mat4 &getView2WorldMatrix()
   {
-    return camera.getView2WorldMatrix();
+    return g_il2_state.camera.getView2WorldMatrix();
   }
 
   const glm::mat4 &getWorld2ViewMatrix()
   {
-    return camera.getWorld2ViewMatrix();
+    return g_il2_state.camera.getWorld2ViewMatrix();
   }
 
   const glm::mat4 &getProjectionMatrixFar()
   {
-    return camera.getProjectionMatrixFar();
+    return g_il2_state.camera.getProjectionMatrixFar();
   }
 
   const glm::vec3 &getCameraPos()
   {
-    return camera.getPos();
+    return g_il2_state.camera.getPos();
   }
 
-  float getFrameDelta()
-  {
-    return frame_delta;
-  }
-
-  void onTreeDrawn()
-  {
-    num_trees_drawn++;
-  }
+//   float getFrameDelta()
+//   {
+//     return frame_delta;
+//   }
 
 
 }
