@@ -23,6 +23,8 @@
 
 namespace core
 {
+  class Scene;
+
   Il2RenderPhase getRenderPhase();
 
 //   float getFrameDelta();
@@ -30,6 +32,7 @@ namespace core
 //   float getWaterAnimationFrameDelta();
 //   int getWaterAnimationStep();
 
+  Scene *getScene();
 }
 
 #endif

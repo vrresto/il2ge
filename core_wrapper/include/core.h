@@ -30,9 +30,6 @@ namespace render_util
 
 namespace core
 {
-
-  class Scene;
-
   enum Il2RenderPhase
   {
     #define IL2_DECLARE_RENDER_PHASE(name) IL2_##name,
@@ -68,24 +65,6 @@ namespace core
 
   void getRenderState(Il2RenderState *state);
 
-  void onCubeMapBegin();
-  void onCubeMapFaceFinished();
-  void onObjectRendered();
-  void onArrayObjectRendered();
-  void onClear();
-  void onClearStates();
-  void onPrePreRenders();
-  void onPostPreRenders();
-  void onPostRenders();
-  void onLandscapePreRender();
-  void onLandscapeRender0();
-  void onFarTerrainDone();
-  void onLandscapeRender0Done();
-  void onLandscapeRender1();
-  void onLandscapePostRender();
-
-  Scene *getScene();
-
   void updateUniforms(render_util::ShaderProgramPtr program);
 
   void loadMap(const char *path);
@@ -101,6 +80,22 @@ namespace core
 
   render_util::Camera *getCamera();
   render_util::TextureManager &textureManager();
+
+  void onCubeMapBegin();
+  void onCubeMapFaceFinished();
+  void onObjectRendered();
+  void onArrayObjectRendered();
+  void onClear();
+  void onClearStates();
+  void onPrePreRenders();
+  void onPostPreRenders();
+  void onPostRenders();
+  void onLandscapePreRender();
+  void onLandscapeRender0();
+  void onFarTerrainDone();
+  void onLandscapeRender0Done();
+  void onLandscapeRender1();
+  void onLandscapePostRender();
 
   void init();
 }
