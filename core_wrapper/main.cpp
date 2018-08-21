@@ -65,7 +65,7 @@ bool g_initialized = false;
 const LoaderInterface *g_loader = nullptr;
 HMODULE g_core_module = 0;
 HMODULE g_gl_module = 0;
-ContextData *current_context = nullptr;
+ContextData *g_current_context = nullptr;
 
 std::unordered_map<HGLRC, ContextData*> g_data_for_context;
 
@@ -148,13 +148,13 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
   {
     if (!hglrc)
     {
-      current_context = nullptr;
+      g_current_context = nullptr;
       gl_wrapper::setCurrent_GL_interface(nullptr);
       return true;
     }
 
-    current_context = g_data_for_context[hglrc];
-    if (!current_context)
+    g_current_context = g_data_for_context[hglrc];
+    if (!g_current_context)
     {
       ContextData *d = new ContextData;
 
@@ -164,10 +164,10 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
       d->wgl_interface->init(&getProcAddress_ext);
 
       g_data_for_context[hglrc] = d;
-      current_context = d;
+      g_current_context = d;
     }
 
-    gl_wrapper::setCurrent_GL_interface(current_context->iface);
+    gl_wrapper::setCurrent_GL_interface(g_current_context->iface);
 
     return true;
   }
@@ -221,8 +221,8 @@ HMODULE WINAPI wrap_JGL_LoadLibrary(LPCSTR libFileName)
 
 
 // const WGL_Interface *current_WGL_Interface() {
-//   if (current_context)
-//     return current_context->wgl_interface;
+//   if (g_current_context)
+//     return g_current_context->wgl_interface;
 //   else
 //     return 0;
 // }
@@ -230,8 +230,8 @@ HMODULE WINAPI wrap_JGL_LoadLibrary(LPCSTR libFileName)
 
 Module *getGLContext()
 {
-  assert(current_context);
-  return current_context;
+  assert(g_current_context);
+  return g_current_context;
 }
 
 
