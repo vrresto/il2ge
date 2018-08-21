@@ -28,7 +28,7 @@ build:
     - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Dno_tools=1 ..
     - make install
   artifacts:
-    name: "il2ge-$CI_JOB_ID"
+    name: "il2ge-build_$CI_JOB_ID"
     paths:
       - install/il2ge
   # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
