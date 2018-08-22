@@ -149,7 +149,7 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
     if (!hglrc)
     {
       g_current_context = nullptr;
-      gl_wrapper::setCurrent_GL_interface(nullptr);
+      gl_wrapper::GL_Interface::setCurrent(nullptr);
       return true;
     }
 
@@ -167,7 +167,7 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
       g_current_context = d;
     }
 
-    gl_wrapper::setCurrent_GL_interface(g_current_context->iface);
+    gl_wrapper::GL_Interface::setCurrent(g_current_context->iface);
 
     return true;
   }
