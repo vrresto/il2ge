@@ -56,8 +56,8 @@ namespace
 
 struct ContextData : public Module
 {
-  gl_wrapper::GL_Interface *iface = nullptr;
-  WGL_Interface *wgl_interface = nullptr;
+  std::unique_ptr<gl_wrapper::GL_Interface> iface;
+  std::unique_ptr<WGL_Interface> wgl_interface;
 };
 
 
@@ -74,8 +74,10 @@ typedef PROC WINAPI GetProcAddressFunc(LPCSTR);
 GetProcAddressFunc *getProcAddressFunc = nullptr;
 
 typedef BOOL WINAPI wglMakeCurrent_t(HDC, HGLRC);
+typedef BOOL WINAPI wglDeleteContext_t(HGLRC);
 
 wglMakeCurrent_t *real_wglMakeCurrent = nullptr;
+wglDeleteContext_t *real_wglDeleteContext = nullptr;
 
 typedef int __stdcall isCubeUpdated_T(void*, void*);
 isCubeUpdated_T *is_cube_updated_func = nullptr;
@@ -124,37 +126,64 @@ PROC WINAPI wrap_wglGetProcAddress(LPCSTR name)
 }
 
 
+void setCurrentContext(ContextData *c)
+{
+  gl_wrapper::GL_Interface *iface = c ? c->iface.get() : nullptr;
+  g_current_context = c;
+  gl_wrapper::GL_Interface::setCurrent(iface);
+}
+
+
 BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
 {
   if (real_wglMakeCurrent(hdc, hglrc))
   {
     if (!hglrc)
     {
-      g_current_context = nullptr;
-      gl_wrapper::GL_Interface::setCurrent(nullptr);
+      setCurrentContext(nullptr);
       return true;
     }
 
-    g_current_context = g_data_for_context[hglrc];
-    if (!g_current_context)
+    auto d = g_data_for_context[hglrc];
+
+    if (!d)
     {
-      ContextData *d = new ContextData;
+      d = new ContextData;
 
-      d->iface = new gl_wrapper::GL_Interface(&getProcAddress_ext);
+      d->iface = std::make_unique<gl_wrapper::GL_Interface>(&getProcAddress_ext);
 
-      d->wgl_interface = new WGL_Interface;
+      d->wgl_interface = std::make_unique<WGL_Interface>();
       d->wgl_interface->init(&getProcAddress_ext);
 
       g_data_for_context[hglrc] = d;
-      g_current_context = d;
     }
 
-    gl_wrapper::GL_Interface::setCurrent(g_current_context->iface);
+    setCurrentContext(d);
 
     return true;
   }
   else
     return false;
+}
+
+
+BOOL WINAPI wrap_wglDeleteContext(HGLRC hglrc)
+{
+  assert(real_wglDeleteContext);
+
+  ContextData *c = g_data_for_context[hglrc];
+
+  g_data_for_context.erase(hglrc);
+
+  if (c && c == g_current_context)
+  {
+    setCurrentContext(nullptr);
+  }
+
+  delete c;
+  c = nullptr;
+
+  return real_wglDeleteContext(hglrc);
 }
 
 
@@ -174,6 +203,12 @@ FARPROC WINAPI wrap_JGL_GetProcAddress(HMODULE module, LPCSTR name)
   {
     real_wglMakeCurrent = (wglMakeCurrent_t*) proc;
     return (FARPROC) &wrap_wglMakeCurrent;
+  }
+
+  if (strcmp(name, "wglDeleteContext") == 0)
+  {
+    real_wglDeleteContext = (wglDeleteContext_t*) proc;
+    return (FARPROC) &wrap_wglDeleteContext;
   }
 
   FARPROC wrap_proc = (FARPROC) core_gl_wrapper::getProc(name);
