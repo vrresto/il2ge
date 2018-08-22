@@ -14,6 +14,7 @@ add_definitions(
 set(SRCS
   loader.def
   src/iat.c
+  src/backtrace.cpp
   src/main.cpp
 )
 

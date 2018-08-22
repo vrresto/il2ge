@@ -80,24 +80,6 @@ wglMakeCurrent_t *real_wglMakeCurrent = nullptr;
 typedef int __stdcall isCubeUpdated_T(void*, void*);
 isCubeUpdated_T *is_cube_updated_func = nullptr;
 
-#ifdef __linux__
-void signalHandler (int sig)
-{
-  if (sig == SIGABRT)
-  {
-    fprintf(stderr, "aborted.\n");
-    fflush(stderr);
-    quick_exit(1);
-  }
-  if (sig == SIGSEGV)
-  {
-    fprintf(stderr, "SIGSEGV\n");
-    fflush(stderr);
-    quick_exit(1);
-  }
-}
-#endif
-
 
 BOOL WINAPI wrap_wglMakeContextCurrentARB(HDC hDrawDC, HDC hReadDC, HGLRC hglrc)
 {
@@ -316,11 +298,6 @@ void il2ge_coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
 
   g_loader = loader;
   assert(g_loader);
-
-#ifdef __linux__
-  signal(SIGABRT, signalHandler);
-//   signal(SIGSEGV, signalHandler);
-#endif
 
   SFS::init();
   core_gl_wrapper::init();

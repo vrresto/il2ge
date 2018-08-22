@@ -44,18 +44,13 @@ extern "C"
                                     LPUNKNOWN punkOuter);
 }
 
+void installExceptionHandler();
 
 namespace
 {
 
 using namespace std;
 
-const char* const crash_handler_library_name =
-    IL2GE_DATA_DIR "/mingw_crash_handler.dll";
-
-const char* const crash_handler_func_name = "crashHandler";
-
-typedef void CrashHandlerFunc(PEXCEPTION_POINTERS pExceptionInfo);
 typedef int __stdcall SFS_openf_T (unsigned __int64 hash, int flags);
 typedef HRESULT __stdcall DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
 
@@ -67,53 +62,6 @@ HMODULE g_core_wrapper_module = 0;
 SFS_openf_T *g_sfs_openf_f = 0;
 il2ge::CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
 DirectInputCreateA_T *g_directInputCreateA_func = 0;
-
-
-LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
-{
-  static LONG num_entered_handlers = 0;
-
-  if (InterlockedIncrement(&num_entered_handlers) != 1)
-  {
-    abort();
-  }
-
-  fprintf(stderr, "\nException code: %u  Flags: %u\n",
-          info->ExceptionRecord->ExceptionCode,
-          info->ExceptionRecord->ExceptionFlags);
-
-  HMODULE crash_handler_module = LoadLibraryA(crash_handler_library_name);
-
-  if (crash_handler_module)
-  {
-    CrashHandlerFunc *crash_handler = (CrashHandlerFunc*)
-        GetProcAddress(crash_handler_module, crash_handler_func_name);
-    assert(crash_handler);
-    crash_handler(info);
-  }
-  else
-  {
-    fprintf(stderr, "\n**** could not load %s - backtrace disabled ****\n\n",
-            crash_handler_library_name);
-
-    stringstream message;
-    message<<"Could not load "<<crash_handler_library_name<<" - backtrace disabled.";
-    message<<endl<<endl;
-    message<<"To get a useful backtrace please download https://github.com/jrfonseca/drmingw/releases/download/0.8.2/drmingw-0.8.2-win32.7z and copy the file bin/exchndl.dll to your IL-2 directory.";
-
-    MessageBoxA(0, message.str().c_str(), nullptr, 0);
-  }
-
-  InterlockedDecrement(&num_entered_handlers);
-
-  return EXCEPTION_CONTINUE_SEARCH;
-}
-
-
-void installExceptionHandler()
-{
-  AddVectoredExceptionHandler(true, &vectoredExceptionHandler);
-}
 
 
 void sfsRedirect(__int64 hash, __int64 hash_redirection)
@@ -143,7 +91,6 @@ std::string getCoreWrapperFilePath()
 
   return module_file_name;
 }
-
 
 LoaderInterface g_interface =
 {
