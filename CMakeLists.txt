@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 if(platform STREQUAL "mingw")
-  add_subdirectory(mingw_crash_handler)
+  add_subdirectory(_modules/mingw_crash_handler)
 endif(platform STREQUAL "mingw")
 
 set(core_wrapper_library_name "il2_core_wrapper")
@@ -57,7 +57,7 @@ if(platform_mingw)
 endif(platform_mingw)
 
 if(NOT renderutil_dir)
-  set(renderutil_dir ${PROJECT_SOURCE_DIR}/render_util)
+  set(renderutil_dir ${PROJECT_SOURCE_DIR}/_modules/render_util)
 endif(NOT renderutil_dir)
 
 add_subdirectory(${renderutil_dir} ${CMAKE_BINARY_DIR}/render_util)
