@@ -154,6 +154,7 @@ void signalHandler(int sig)
   }
 }
 
+
 LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 {
   static LONG num_entered_handlers = 0;
