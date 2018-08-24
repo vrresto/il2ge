@@ -186,7 +186,6 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
     return true;
   }
 
-
   if (real_wglMakeCurrent(hdc, hglrc))
   {
     auto d = g_data.m_data_for_context[hglrc];
