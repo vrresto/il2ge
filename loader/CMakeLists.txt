@@ -3,7 +3,7 @@ set(library_name "il2ge")
 set_source_files_properties(
   forwarder.spec
   forwarder.def
-  loader.def
+  il2ge.def
   PROPERTIES EXTERNAL_OBJECT 1
 )
 
@@ -12,7 +12,7 @@ add_definitions(
 )
 
 set(SRCS
-  loader.def
+  il2ge.def
   src/iat.c
   src/backtrace.cpp
   src/main.cpp
