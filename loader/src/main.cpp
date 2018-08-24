@@ -188,7 +188,7 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
   string module_name = util::makeLowercase(util::basename(libFileName, true));
 
   if (module_name.compare("il2_core") == 0 ||
-      module_name.compare("il2_corep4") == 0 )
+      module_name.compare("il2_corep4") == 0)
   {
     loadCoreWrapper(libFileName);
     return g_core_wrapper_module;
