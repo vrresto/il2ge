@@ -239,14 +239,6 @@ HMODULE WINAPI wrap_JGL_LoadLibrary(LPCSTR libFileName)
 } // namespace
 
 
-// const WGL_Interface *current_WGL_Interface() {
-//   if (g_current_context)
-//     return g_current_context->wgl_interface;
-//   else
-//     return 0;
-// }
-
-
 Module *getGLContext()
 {
   assert(g_current_context);
