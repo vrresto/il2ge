@@ -16,6 +16,7 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "loader.h"
 #include "iat.h"
 #include <loader_interface.h>
 #include <il2ge/core_wrapper.h>
@@ -44,14 +45,14 @@ extern "C"
                                     LPUNKNOWN punkOuter);
 }
 
-void installExceptionHandler();
 
 namespace
 {
 
+
 using namespace std;
 
-typedef int __stdcall SFS_openf_T (unsigned __int64 hash, int flags);
+// typedef int __stdcall SFS_openf_T (unsigned __int64 hash, int flags);
 typedef HRESULT __stdcall DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
 
 void installIATPatches(HMODULE);
@@ -59,7 +60,7 @@ void installIATPatches(HMODULE);
 unordered_map<__int64, __int64> g_sfs_redirections;
 HMODULE g_loader_module = 0;
 HMODULE g_core_wrapper_module = 0;
-SFS_openf_T *g_sfs_openf_f = 0;
+// SFS_openf_T *g_sfs_openf_f = 0;
 il2ge::CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
 DirectInputCreateA_T *g_directInputCreateA_func = 0;
 
@@ -101,15 +102,15 @@ LoaderInterface g_interface =
 };
 
 
-int WINAPI wrap_SFS_openf(const unsigned __int64 hash_, const int flags)
-{
-  unsigned __int64 hash = hash_;
-
-  auto it = g_sfs_redirections.find(hash);
-  if (it != g_sfs_redirections.end())
-    hash = it->second;
-  return g_sfs_openf_f(hash, flags);
-}
+// int WINAPI wrap_SFS_openf(const unsigned __int64 hash_, const int flags)
+// {
+//   unsigned __int64 hash = hash_;
+//
+//   auto it = g_sfs_redirections.find(hash);
+//   if (it != g_sfs_redirections.end())
+//     hash = it->second;
+//   return g_sfs_openf_f(hash, flags);
+// }
 
 
 HMODULE loadDinputLibrary()
@@ -215,8 +216,8 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
 
   if (module_name.compare("wrapper") == 0)
   {
-    g_sfs_openf_f = (SFS_openf_T*) GetProcAddress(module, "__SFS_openf");
-    assert(g_sfs_openf_f);
+//     g_sfs_openf_f = (SFS_openf_T*) GetProcAddress(module, "__SFS_openf");
+//     assert(g_sfs_openf_f);
   }
 
   return module;
@@ -241,7 +242,7 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
   }
   else if (_stricmp(lpProcName, "__SFS_openf") == 0)
   {
-    return (FARPROC)&wrap_SFS_openf;
+//     return (FARPROC)&wrap_SFS_openf;
   }
 
   return GetProcAddress(hModule, lpProcName);
@@ -260,6 +261,20 @@ void installIATPatches(HMODULE module)
 
 extern "C"
 {
+
+
+void abort()
+{
+  static long handler_entered = 0;
+
+  if (InterlockedIncrement(&handler_entered) == 1)
+  {
+    fprintf(stderr, "\n");
+    printBacktrace();
+  }
+
+  _Exit(1);
+}
 
 
 HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, void *ppDI, LPUNKNOWN punkOuter)
@@ -281,9 +296,11 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
   {
     case DLL_PROCESS_ATTACH:
       printf("*** loader dll process attach ***\n");
+
       g_loader_module = instance;
       installExceptionHandler();
       installIATPatches(GetModuleHandle(0));
+
       break;
     case DLL_PROCESS_DETACH:
       break;

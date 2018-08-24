@@ -16,6 +16,8 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "loader.h"
+
 #include <iostream>
 #include <sstream>
 #include <cstdio>
@@ -25,7 +27,6 @@
 
 using namespace std;
 
-void installExceptionHandler();
 
 namespace
 {
@@ -99,7 +100,7 @@ DWORD WINAPI backtraceThreadMain(_In_ LPVOID lpParameter)
 }
 
 
-void printBacktrace()
+void printBacktracePrivate()
 {
   HANDLE currend_thread = 0;
   bool res = DuplicateHandle(GetCurrentProcess(),
@@ -186,6 +187,11 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 
 } // namespace
 
+
+void printBacktrace()
+{
+  printBacktracePrivate();
+}
 
 void installExceptionHandler()
 {
