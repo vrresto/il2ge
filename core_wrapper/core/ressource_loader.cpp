@@ -38,10 +38,8 @@ namespace
     if (!dump_enabled)
       return;
 
-    ofstream out(dump_dir + name);
-    assert(out.good());
-    out.write(data, data_size);
-    assert(out.good());
+    bool res = util::writeFile(dump_dir + name, data, data_size);
+    assert(res);
   }
 }
 
