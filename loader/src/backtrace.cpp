@@ -96,7 +96,8 @@ DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
     fprintf(stderr, "ERROR: GetThreadContext() failed.\n");
   }
 
-  ResumeThread(thread);
+  _Exit(EXIT_FAILURE);
+//   ResumeThread(thread);
 
   return 0;
 }
