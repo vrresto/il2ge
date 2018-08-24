@@ -64,6 +64,11 @@ struct ContextData : public Module
 
 
 // typedef int __stdcall isCubeUpdated_T(void*, vo403id*);
+typedef PROC WINAPI GetProcAddressFunc(LPCSTR);
+typedef BOOL WINAPI wglMakeCurrent_t(HDC, HGLRC);
+typedef BOOL WINAPI wglDeleteContext_t(HGLRC);
+
+
 bool g_initialized = false;
 const LoaderInterface *g_loader = nullptr;
 HMODULE g_core_module = 0;
@@ -71,16 +76,9 @@ HMODULE g_gl_module = 0;
 ContextData *g_current_context = nullptr;
 
 std::unordered_map<HGLRC, ContextData*> g_data_for_context;
-
-typedef PROC WINAPI GetProcAddressFunc(LPCSTR);
-
-GetProcAddressFunc *getProcAddressFunc = nullptr;
-
-typedef BOOL WINAPI wglMakeCurrent_t(HDC, HGLRC);
-typedef BOOL WINAPI wglDeleteContext_t(HGLRC);
-
 wglMakeCurrent_t *real_wglMakeCurrent = nullptr;
 wglDeleteContext_t *real_wglDeleteContext = nullptr;
+GetProcAddressFunc *getProcAddressFunc = nullptr;
 
 // isCubeUpdated_T *is_cube_updated_func = nullptr;
 
