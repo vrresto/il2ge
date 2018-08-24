@@ -31,9 +31,13 @@ using namespace util;
 namespace
 {
   const string dump_dir = "ge/dump/";
+  const bool dump_enabled = false;
 
   void dumpFile(string name, const char *data, size_t data_size)
   {
+    if (!dump_enabled)
+      return;
+
     ofstream out(dump_dir + name);
     assert(out.good());
     out.write(data, data_size);
