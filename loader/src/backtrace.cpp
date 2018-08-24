@@ -122,6 +122,10 @@ void printBacktracePrivate()
 
   cout<<"current thread: "<<currend_thread<<endl;
 
+  printf("waiting for backtrace thread to finish ...\n");
+  fflush(stdout);
+  fflush(stderr);
+
   auto thread = CreateThread(nullptr,
                              0,
                              &backtraceThreadMain,
@@ -133,8 +137,10 @@ void printBacktracePrivate()
     fprintf(stderr, "ERROR: can't create backtrace thread.\n");
     return;
   }
-  printf("waiting for backtrace thread to finish ...\n");
   WaitForSingleObject(thread, INFINITE);
+
+  fprintf(stderr, "backtrace thread returned\n");
+
   CloseHandle(currend_thread);
 }
 
