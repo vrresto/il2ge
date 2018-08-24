@@ -16,6 +16,7 @@ include_directories(
 set(CXX_SRCS
   main.cpp
   sfs/sfs.cpp
+  sfs/hash.cpp
   core/core.cpp
   core/ressource_loader.cpp
   core/map.cpp
@@ -28,6 +29,13 @@ set(CXX_SRCS
   gl_wrapper/arbprogram.cpp
   ini_parser/INIReader.cpp
   ini_parser/ini.cpp
+)
+
+set_source_files_properties(
+  sfs/sfs.cpp
+
+  PROPERTIES
+    COMPILE_FLAGS "-O0"
 )
 
 set(JNI_WRAPPER_CLASSES
