@@ -36,9 +36,16 @@ namespace jni_wrapper
 class Module
 {
   std::unordered_map<std::type_index, std::shared_ptr<Module>> sub_modules;
+  std::string name;
 
 public:
+  Module(const char *name) : name(name) {}
   virtual ~Module() {}
+
+  bool hasSubmodules() { return !sub_modules.empty(); }
+  void clearSubmodules() { sub_modules.clear(); }
+  void printSubmodules();
+  const std::string &getName() { return name; }
 
   template <class T>
   T *getSubModule()

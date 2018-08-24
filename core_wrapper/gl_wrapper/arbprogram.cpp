@@ -406,6 +406,9 @@ struct Context : public Module
 //   GLint fragment_main_id = 0;
 
 
+  Context() : Module("arbprogram.cpp::Context") {}
+
+
   void enableVertexProgram(int enable)
   {
     assert(&getContext() == this);

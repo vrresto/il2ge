@@ -43,6 +43,8 @@ namespace
 
   struct TextureState : public Module
   {
+    TextureState() : Module("TextureState") {}
+
     bool is_frozen = false;
     unsigned int active_unit = 0;
     array<Unit, MAX_UNITS> units;

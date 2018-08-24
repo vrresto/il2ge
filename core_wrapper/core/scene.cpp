@@ -35,7 +35,7 @@ using namespace std;
 namespace core
 {
 
-  Scene::Scene()
+  Scene::Scene() : Module("Scene")
   {
     curvature_map = render_util::createCurvatureTexture(texture_manager, render_util::getResourcePath());
     atmosphere_map = render_util::createAmosphereThicknessTexture(texture_manager, render_util::getResourcePath());

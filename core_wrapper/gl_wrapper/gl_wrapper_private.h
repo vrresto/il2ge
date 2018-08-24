@@ -37,6 +37,8 @@ namespace core_gl_wrapper
     render_util::ShaderProgramPtr current_shader;
     render_util::ShaderProgramPtr current_arb_program;
     render_util::ShaderProgramPtr active_shader;
+
+    Context() : Module("core_gl_wrapper::Context") {}
   };
 
   Context *getContext();

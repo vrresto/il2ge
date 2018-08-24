@@ -56,6 +56,8 @@ namespace
 
 struct ContextData : public Module
 {
+  ContextData() : Module("ContextData") {}
+
   std::unique_ptr<gl_wrapper::GL_Interface> iface;
   std::unique_ptr<WGL_Interface> wgl_interface;
 };
