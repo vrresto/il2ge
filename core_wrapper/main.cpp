@@ -59,7 +59,6 @@ struct ContextData : public Module
   ContextData() : Module("ContextData") {}
 
   std::unique_ptr<gl_wrapper::GL_Interface> iface;
-  std::unique_ptr<WGL_Interface> wgl_interface;
 };
 
 
@@ -152,8 +151,6 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
 
       d->iface = std::make_unique<gl_wrapper::GL_Interface>(&getProcAddress_ext);
 
-      d->wgl_interface = std::make_unique<WGL_Interface>();
-      d->wgl_interface->init(&getProcAddress_ext);
 
       g_data_for_context[hglrc] = d;
     }
