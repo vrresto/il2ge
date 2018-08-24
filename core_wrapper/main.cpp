@@ -58,7 +58,7 @@ struct ContextData : public Module
 {
   ContextData() : Module("ContextData") {}
 
-  std::unique_ptr<gl_wrapper::GL_Interface> iface;
+  std::shared_ptr<gl_wrapper::GL_Interface> iface;
 };
 
 
@@ -73,12 +73,12 @@ const LoaderInterface *g_loader = nullptr;
 HMODULE g_core_module = 0;
 HMODULE g_gl_module = 0;
 ContextData *g_current_context = nullptr;
-
+ContextData *g_main_context = nullptr;
+bool g_in_shutdown = false;
 std::unordered_map<HGLRC, ContextData*> g_data_for_context;
 wglMakeCurrent_t *real_wglMakeCurrent = nullptr;
 wglDeleteContext_t *real_wglDeleteContext = nullptr;
 GetProcAddressFunc *getProcAddressFunc = nullptr;
-
 // isCubeUpdated_T *is_cube_updated_func = nullptr;
 
 
@@ -129,19 +129,39 @@ void setCurrentContext(ContextData *c)
 {
   gl_wrapper::GL_Interface *iface = c ? c->iface.get() : nullptr;
   g_current_context = c;
+  if (!g_main_context)
+    g_main_context = g_current_context;
   gl_wrapper::GL_Interface::setCurrent(iface);
 }
 
 
 BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
 {
-  if (real_wglMakeCurrent(hdc, hglrc))
+  assert(!g_in_shutdown);
+
+  if (!hglrc)
   {
-    if (!hglrc)
-    {
-      setCurrentContext(nullptr);
-      return true;
-    }
+    // assumtion: this is called with by the game prior to deleting the main context (and only then)
+    // so we use this last chance to free our ressources while the the context is still current
+
+    g_in_shutdown = true;
+
+    assert(g_current_context);
+    assert(g_main_context);
+    assert(g_current_context == g_main_context);
+    assert(g_current_context->hasSubmodules());
+
+    g_current_context->clearSubmodules();
+
+    setCurrentContext(nullptr);
+
+    bool res = real_wglMakeCurrent(hdc, hglrc);
+    assert(res);
+
+    return true;
+  }
+  else if (real_wglMakeCurrent(hdc, hglrc))
+  {
 
     auto d = g_data_for_context[hglrc];
 
@@ -149,8 +169,7 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
     {
       d = new ContextData;
 
-      d->iface = std::make_unique<gl_wrapper::GL_Interface>(&getProcAddress_ext);
-
+      d->iface = std::make_shared<gl_wrapper::GL_Interface>(&getProcAddress_ext);
 
       g_data_for_context[hglrc] = d;
     }
@@ -166,21 +185,34 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
 
 BOOL WINAPI wrap_wglDeleteContext(HGLRC hglrc)
 {
-  assert(real_wglDeleteContext);
-
   ContextData *c = g_data_for_context[hglrc];
 
   g_data_for_context.erase(hglrc);
 
-  if (c && c == g_current_context)
+  if (c)
   {
-    setCurrentContext(nullptr);
+    c->printSubmodules();
+    assert(!c->hasSubmodules());
+
+    if (c == g_main_context)
+    {
+      assert(g_in_shutdown);
+      g_main_context = nullptr;
+    }
+
+    if (c == g_current_context)
+    {
+      setCurrentContext(nullptr);
+    }
   }
 
   delete c;
   c = nullptr;
 
-  return real_wglDeleteContext(hglrc);
+  bool res =  real_wglDeleteContext(hglrc);
+  assert(res);
+
+  return res;
 }
 
 
@@ -236,7 +268,10 @@ HMODULE WINAPI wrap_JGL_LoadLibrary(LPCSTR libFileName)
 
 Module *getGLContext()
 {
+  assert(!g_in_shutdown);
   assert(g_current_context);
+  assert(g_main_context);
+  assert(g_current_context == g_main_context);
   return g_current_context;
 }
 
