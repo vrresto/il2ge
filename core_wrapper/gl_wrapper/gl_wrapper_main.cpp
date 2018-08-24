@@ -59,7 +59,7 @@ namespace
 {
 
 
-const std::string SHADER_PATH = "ge/shaders";
+const std::string SHADER_PATH = IL2GE_DATA_DIR "/shaders";
 
 unordered_map<string, void*> g_procs;
 int g_viewport_w = 0;
