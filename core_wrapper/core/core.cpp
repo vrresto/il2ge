@@ -40,6 +40,7 @@ void refreshFile(const char *path,
                  std::function<bool(const char*)> generate_func)
 {
   string core_wrapper_file = getCoreWrapperFilePath();
+  cout<<"core wrapper library: "<<core_wrapper_file<<endl;
 
   struct stat stat_res;
 
@@ -102,6 +103,7 @@ Scene *getScene()
 
 void unloadMap()
 {
+  printf("unloadMap()\n");
   getScene()->unloadMap();
 }
 
