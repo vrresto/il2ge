@@ -63,7 +63,7 @@ HMODULE loadCrashHandlerLibrary()
 }
 
 
-DWORD WINAPI backtraceThreadMain(_In_ LPVOID lpParameter)
+DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
 {
   Sleep(1000); // workaround race condition
 
