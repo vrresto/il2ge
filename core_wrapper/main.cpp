@@ -299,15 +299,6 @@ namespace SFS
 }
 
 
-namespace core
-{
-  bool isCubeUpdated()
-  {
-    return is_cube_updated_func(0, 0);
-  }
-}
-
-
 extern "C"
 {
 
