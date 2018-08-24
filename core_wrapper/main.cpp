@@ -16,6 +16,8 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+#include "wgl_wrapper.h"
 #include <sfs.h>
 #include <misc.h>
 #include <core.h>
@@ -63,188 +65,20 @@ struct ContextData : public Module
 
 
 // typedef int __stdcall isCubeUpdated_T(void*, vo403id*);
-typedef PROC WINAPI GetProcAddressFunc(LPCSTR);
-typedef BOOL WINAPI wglMakeCurrent_t(HDC, HGLRC);
-typedef BOOL WINAPI wglDeleteContext_t(HGLRC);
 
 
 bool g_initialized = false;
 const LoaderInterface *g_loader = nullptr;
 HMODULE g_core_module = 0;
 HMODULE g_gl_module = 0;
-ContextData *g_current_context = nullptr;
-ContextData *g_main_context = nullptr;
-bool g_in_shutdown = false;
-std::unordered_map<HGLRC, ContextData*> g_data_for_context;
-wglMakeCurrent_t *real_wglMakeCurrent = nullptr;
-wglDeleteContext_t *real_wglDeleteContext = nullptr;
-GetProcAddressFunc *getProcAddressFunc = nullptr;
 // isCubeUpdated_T *is_cube_updated_func = nullptr;
-
-
-BOOL WINAPI wrap_wglMakeContextCurrentARB(HDC hDrawDC, HDC hReadDC, HGLRC hglrc)
-{
-  printf("wglMakeContextCurrentARB\n");
-//   if (current_WGL_Interface()->wglMakeContextCurrentARB(hDrawDC, hReadDC, hglrc)) {
-    exit(0);
-//   }
-//   else
-//     return false;
-}
-
-
-void *getProcAddress_ext(const char *name)
-{
-  void *func = (void*) GetProcAddress(g_gl_module, name);
-  if (!func) {
-    func = (void*) getProcAddressFunc(name);
-  }
-
-  return func;
-}
-
-
-PROC WINAPI wrap_wglGetProcAddress(LPCSTR name)
-{
-  printf("wglGetProcAddress: %s\n", name);
-
-  if (strcmp(name, "wglMakeContextCurrentARB") == 0)
-  {
-    return (PROC) &wrap_wglMakeContextCurrentARB;
-  }
-
-  assert(getProcAddressFunc);
-
-  PROC proc = getProcAddressFunc(name);
-
-  void *wrap_proc = core_gl_wrapper::getProc(name);
-  if (wrap_proc && proc)
-    return (PROC) wrap_proc;
-
-  return proc;
-}
-
-
-void setCurrentContext(ContextData *c)
-{
-  gl_wrapper::GL_Interface *iface = c ? c->iface.get() : nullptr;
-  g_current_context = c;
-  if (!g_main_context)
-    g_main_context = g_current_context;
-  gl_wrapper::GL_Interface::setCurrent(iface);
-}
-
-
-BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
-{
-  assert(!g_in_shutdown);
-
-  if (!hglrc)
-  {
-    // assumtion: this is called with by the game prior to deleting the main context (and only then)
-    // so we use this last chance to free our ressources while the the context is still current
-
-    g_in_shutdown = true;
-
-    assert(g_current_context);
-    assert(g_main_context);
-    assert(g_current_context == g_main_context);
-    assert(g_current_context->hasSubmodules());
-
-    g_current_context->clearSubmodules();
-
-    setCurrentContext(nullptr);
-
-    bool res = real_wglMakeCurrent(hdc, hglrc);
-    assert(res);
-
-    return true;
-  }
-  else if (real_wglMakeCurrent(hdc, hglrc))
-  {
-
-    auto d = g_data_for_context[hglrc];
-
-    if (!d)
-    {
-      d = new ContextData;
-
-      d->iface = std::make_shared<gl_wrapper::GL_Interface>(&getProcAddress_ext);
-
-      g_data_for_context[hglrc] = d;
-    }
-
-    setCurrentContext(d);
-
-    return true;
-  }
-  else
-    return false;
-}
-
-
-BOOL WINAPI wrap_wglDeleteContext(HGLRC hglrc)
-{
-  ContextData *c = g_data_for_context[hglrc];
-
-  g_data_for_context.erase(hglrc);
-
-  if (c)
-  {
-    c->printSubmodules();
-    assert(!c->hasSubmodules());
-
-    if (c == g_main_context)
-    {
-      assert(g_in_shutdown);
-      g_main_context = nullptr;
-    }
-
-    if (c == g_current_context)
-    {
-      setCurrentContext(nullptr);
-    }
-  }
-
-  delete c;
-  c = nullptr;
-
-  bool res =  real_wglDeleteContext(hglrc);
-  assert(res);
-
-  return res;
-}
 
 
 FARPROC WINAPI wrap_JGL_GetProcAddress(HMODULE module, LPCSTR name)
 {
   printf("jgl => GetProcAddress: %s\n", name);
 
-  FARPROC proc = GetProcAddress(module, name);
-
-  if (strcmp(name, "wglGetProcAddress") == 0)
-  {
-    getProcAddressFunc = (GetProcAddressFunc*) proc;
-    return (FARPROC) &wrap_wglGetProcAddress;
-  }
-
-  if (strcmp(name, "wglMakeCurrent") == 0)
-  {
-    real_wglMakeCurrent = (wglMakeCurrent_t*) proc;
-    return (FARPROC) &wrap_wglMakeCurrent;
-  }
-
-  if (strcmp(name, "wglDeleteContext") == 0)
-  {
-    real_wglDeleteContext = (wglDeleteContext_t*) proc;
-    return (FARPROC) &wrap_wglDeleteContext;
-  }
-
-  FARPROC wrap_proc = (FARPROC) core_gl_wrapper::getProc(name);
-  if (wrap_proc && proc)
-    return wrap_proc;
-
-  return proc;
+  return (FARPROC) wgl_wrapper::getProcAddress(module, name);
 }
 
 
@@ -264,16 +98,6 @@ HMODULE WINAPI wrap_JGL_LoadLibrary(LPCSTR libFileName)
 
 
 } // namespace
-
-
-Module *getGLContext()
-{
-  assert(!g_in_shutdown);
-  assert(g_current_context);
-  assert(g_main_context);
-  assert(g_current_context == g_main_context);
-  return g_current_context;
-}
 
 
 std::string getCoreWrapperFilePath()
@@ -360,6 +184,7 @@ void il2ge_coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
   assert(g_loader);
 
   SFS::init();
+  wgl_wrapper::init();
   core_gl_wrapper::init();
   core::init();
   jni_wrapper::init();
@@ -380,6 +205,7 @@ void il2ge_coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
 
   printf("*** il2_core wrapper initialisation finished ***\n");
 }
+
 
 #ifndef STATIC_CORE_WRAPPER
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)

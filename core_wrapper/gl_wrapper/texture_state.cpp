@@ -17,6 +17,7 @@
  */
 
 #include <misc.h>
+#include <wgl_wrapper.h>
 
 #include "gl_wrapper_private.h"
 
@@ -68,18 +69,23 @@ namespace
 
   void GLAPI wrap_glBindTexture(GLenum target, GLuint texture)
   {
-    TextureState *state = getState();
+    if (wgl_wrapper::isMainContextCurrent())
+    {
+      TextureState *state = getState();
 
-    assert(!state->is_frozen);
+      assert(!state->is_frozen);
 
-    Unit &u = state->units[state->active_unit];
-    u.bindings[target] = texture;
+      Unit &u = state->units[state->active_unit];
+      u.bindings[target] = texture;
+    }
 
     gl::BindTexture(target, texture);
   }
 
   void GLAPI wrap_glActiveTexture(GLenum texture)
   {
+    assert(wgl_wrapper::isMainContextCurrent());
+
     TextureState *state = getState();
 
     assert(!state->is_frozen);

@@ -20,6 +20,7 @@
 #include "gl_wrapper_private.h"
 #include "misc.h"
 #include "core.h"
+#include <wgl_wrapper.h>
 
 #include <render_util/shader_util.h>
 #include <render_util/texture_manager.h>
@@ -167,11 +168,13 @@ void GLAPIENTRY wrap_glCallList(GLuint list)
 
 void GLAPIENTRY wrap_glClear(GLbitfield mask)
 {
+  assert(wgl_wrapper::isMainThread());
+
   gl::Clear(mask);
 
 //     onClear();
 
-  if (mask & GL_COLOR_BUFFER_BIT)
+  if (mask & GL_COLOR_BUFFER_BIT && wgl_wrapper::isMainContextCurrent())
   {
     onClear();
 //       is_skybox_finished = false;
@@ -181,6 +184,9 @@ void GLAPIENTRY wrap_glClear(GLbitfield mask)
 
 void GLAPIENTRY wrap_glViewport(GLint x,  GLint y,  GLsizei width,  GLsizei height)
 {
+  assert(wgl_wrapper::isMainThread());
+  assert(wgl_wrapper::isMainContextCurrent());
+
   gl::Viewport(x, y, width, height);
 
   g_viewport_w = width;
@@ -230,6 +236,9 @@ void GLAPIENTRY wrap_glTexImage2D(GLenum target,
   GLenum type,
   const GLvoid* data)
 {
+  assert(wgl_wrapper::isMainThread());
+  assert(wgl_wrapper::isMainContextCurrent());
+
   gl::TexImage2D(target, level, internalFormat, width, height, border, format, type, data);
 
   Il2RenderState state;
@@ -258,6 +267,12 @@ void GLAPIENTRY wrap_glTexImage2D(GLenum target,
 
 void GLAPIENTRY wrap_glBegin(GLenum mode)
 {
+  assert(wgl_wrapper::isMainThread());
+
+  if (!wgl_wrapper::isMainContextCurrent())
+  {
+    return gl::Begin(mode);
+  }
 
   {
     Il2RenderState state;
@@ -318,7 +333,14 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 
 void GLAPIENTRY wrap_glEnd()
 {
+  assert(wgl_wrapper::isMainThread());
+
   gl::End();
+
+  if (!wgl_wrapper::isMainContextCurrent())
+  {
+    return;
+  }
 
 //     gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -357,6 +379,9 @@ void GLAPIENTRY wrap_glDrawElements(
     GLenum type,
     const GLvoid * indices)
 {
+  assert(wgl_wrapper::isMainThread());
+  assert(wgl_wrapper::isMainContextCurrent());
+
   gl::GetError();
 //   	return;
 
@@ -433,6 +458,9 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
       GLenum type,
       const GLvoid * indices)
 {
+  assert(wgl_wrapper::isMainThread());
+  assert(wgl_wrapper::isMainContextCurrent());
+
   Il2RenderState state;
   getRenderState(&state);
 
@@ -552,7 +580,6 @@ void updateUniforms(render_util::ShaderProgramPtr program)
 
 inline void doDrawTerrain()
 {
-
 #if 1
   texture_state::freeze();
   core::textureManager().setActive(true);

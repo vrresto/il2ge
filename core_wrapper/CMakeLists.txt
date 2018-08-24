@@ -15,6 +15,7 @@ include_directories(
 
 set(CXX_SRCS
   main.cpp
+  wgl_wrapper.cpp
   sfs/sfs.cpp
   sfs/hash.cpp
   core/core.cpp

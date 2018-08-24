@@ -22,6 +22,7 @@
 #include "misc.h"
 #include "gl_wrapper.h"
 #include "gl_wrapper_private.h"
+#include <wgl_wrapper.h>
 #include <render_util/shader.h>
 #include <render_util/texunits.h>
 
@@ -910,14 +911,22 @@ void setEnabled(GLenum cap, bool enable)
 
 void GLAPIENTRY wrap_Enable(GLenum cap)
 {
+  assert(wgl_wrapper::isMainThread());
+
   gl::Enable(cap);
-  setEnabled(cap, true);
+
+  if (wgl_wrapper::isMainContextCurrent())
+    setEnabled(cap, true);
 }
 
 void GLAPIENTRY wrap_Disable(GLenum cap)
 {
+  assert(wgl_wrapper::isMainThread());
+
   gl::Disable(cap);
-  setEnabled(cap, false);
+
+  if (wgl_wrapper::isMainContextCurrent())
+    setEnabled(cap, false);
 }
 
 
