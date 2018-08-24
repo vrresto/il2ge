@@ -20,6 +20,9 @@
 #include "core_p.h"
 #include <core.h>
 #include <misc.h>
+
+#include <atmosphere_map.h>
+#include <curvature_map.h>
 #include <render_util/render_util.h>
 
 #include <functional>
@@ -37,6 +40,7 @@ namespace
 
 
 void refreshFile(const char *path,
+                 size_t size,
                  std::function<bool(const char*)> generate_func)
 {
   string core_wrapper_file = getCoreWrapperFilePath();
@@ -55,8 +59,15 @@ void refreshFile(const char *path,
   {
     if (!(program_mtime > stat_res.st_mtime))
     {
-      cout << path << " is up to date." << endl;
-      return;
+      if (stat_res.st_size != size)
+      {
+        cout << path << " size mismatch." << endl;
+      }
+      else
+      {
+        cout << path << " is up to date." << endl;
+        return;
+      }
     }
   }
 
@@ -77,8 +88,8 @@ namespace core
 void init()
 {
 #ifndef NO_REFRESH_MAPS
-  refreshFile(IL2GE_DATA_DIR "/atmosphere_map", render_util::createAtmosphereMap);
-  refreshFile(IL2GE_DATA_DIR "/curvature_map", render_util::createCurvatureMap);
+  refreshFile(IL2GE_DATA_DIR "/atmosphere_map", atmosphere_map_size_bytes, render_util::createAtmosphereMap);
+  refreshFile(IL2GE_DATA_DIR "/curvature_map", curvature_map_size_bytes, render_util::createCurvatureMap);
 #endif
 }
 
