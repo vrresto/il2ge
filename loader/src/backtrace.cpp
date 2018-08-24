@@ -24,6 +24,13 @@
 #include <csignal>
 #include <cassert>
 #include <windows.h>
+#include <ntstatus.h>
+
+
+#ifndef STATUS_CPP_EH_EXCEPTION
+#define STATUS_CPP_EH_EXCEPTION 0xE06D7363
+#endif
+
 
 using namespace std;
 
@@ -32,14 +39,18 @@ namespace
 {
 
 
+typedef void CrashHandlerFunc(PEXCEPTION_POINTERS pExceptionInfo);
+typedef void DumpStackFunc(const CONTEXT*);
+
+
 const char* const crash_handler_library_name =
     IL2GE_DATA_DIR "/mingw_crash_handler.dll";
 
 const char* const crash_handler_func_name = "crashHandler";
 const char* const dump_stack_func_name = "dumpStack";
 
-typedef void CrashHandlerFunc(PEXCEPTION_POINTERS pExceptionInfo);
-typedef void DumpStackFunc(const CONTEXT*);
+
+static LONG g_handler_entered = 0;
 
 
 HMODULE loadCrashHandlerLibrary()
@@ -145,13 +156,9 @@ void printBacktracePrivate()
 }
 
 
-static LONG handler_entered = 0;
-
-enum { STATUS_CPP_EH_EXCEPTION = 0xE06D7363 };
-
 void abortHandler(int sig)
 {
-  if (InterlockedIncrement(&handler_entered) != 1)
+  if (InterlockedIncrement(&g_handler_entered) != 1)
   {
     _Exit(1);
   }
@@ -162,7 +169,7 @@ void abortHandler(int sig)
 
   _Exit(1);
 
-  InterlockedDecrement(&handler_entered);
+  InterlockedDecrement(&g_handler_entered);
 }
 
 
@@ -170,7 +177,7 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 {
   if (info->ExceptionRecord->ExceptionCode != STATUS_CPP_EH_EXCEPTION)
   {
-    if (InterlockedIncrement(&handler_entered) != 1)
+    if (InterlockedIncrement(&g_handler_entered) != 1)
     {
       _Exit(1);
     }
@@ -189,7 +196,7 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
       crash_handler(info);
     }
 
-    InterlockedDecrement(&handler_entered);
+    InterlockedDecrement(&g_handler_entered);
   }
 
   return EXCEPTION_CONTINUE_SEARCH;
