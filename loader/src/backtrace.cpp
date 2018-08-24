@@ -145,50 +145,52 @@ void printBacktracePrivate()
 }
 
 
-void signalHandler(int sig)
+static LONG handler_entered = 0;
+
+enum { STATUS_CPP_EH_EXCEPTION = 0xE06D7363 };
+
+void abortHandler(int sig)
 {
-  if (sig == SIGABRT)
+  if (InterlockedIncrement(&handler_entered) != 1)
   {
-    static LONG num_entered_handlers = 0;
-
-    if (InterlockedIncrement(&num_entered_handlers) != 1)
-    {
-      _exit(1);
-    }
-
-    fprintf(stderr, "caught SIGABRT\n");
-    fflush(stderr);
-    printBacktrace();
-
-    InterlockedDecrement(&num_entered_handlers);
+    _Exit(1);
   }
+
+  fprintf(stderr, "caught SIGABRT\n");
+  fflush(stderr);
+  printBacktrace();
+
+  _Exit(1);
+
+  InterlockedDecrement(&handler_entered);
 }
 
 
 LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 {
-  static LONG num_entered_handlers = 0;
-
-  if (InterlockedIncrement(&num_entered_handlers) != 1)
+  if (info->ExceptionRecord->ExceptionCode != STATUS_CPP_EH_EXCEPTION)
   {
-    abort();
+    if (InterlockedIncrement(&handler_entered) != 1)
+    {
+      _Exit(1);
+    }
+
+    fprintf(stderr, "\nException code: %x  Flags: %x\n",
+            info->ExceptionRecord->ExceptionCode,
+            info->ExceptionRecord->ExceptionFlags);
+
+    HMODULE crash_handler_module = loadCrashHandlerLibrary();
+
+    if (crash_handler_module)
+    {
+      CrashHandlerFunc *crash_handler = (CrashHandlerFunc*)
+          GetProcAddress(crash_handler_module, crash_handler_func_name);
+      assert(crash_handler);
+      crash_handler(info);
+    }
+
+    InterlockedDecrement(&handler_entered);
   }
-
-  fprintf(stderr, "\nException code: %u  Flags: %u\n",
-          info->ExceptionRecord->ExceptionCode,
-          info->ExceptionRecord->ExceptionFlags);
-
-  HMODULE crash_handler_module = loadCrashHandlerLibrary();
-
-  if (crash_handler_module)
-  {
-    CrashHandlerFunc *crash_handler = (CrashHandlerFunc*)
-        GetProcAddress(crash_handler_module, crash_handler_func_name);
-    assert(crash_handler);
-    crash_handler(info);
-  }
-
-  InterlockedDecrement(&num_entered_handlers);
 
   return EXCEPTION_CONTINUE_SEARCH;
 }
@@ -205,5 +207,5 @@ void printBacktrace()
 void installExceptionHandler()
 {
   AddVectoredExceptionHandler(true, &vectoredExceptionHandler);
-  signal(SIGABRT, signalHandler);
+  signal(SIGABRT, abortHandler);
 }
