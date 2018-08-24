@@ -65,6 +65,8 @@ HMODULE loadCrashHandlerLibrary()
 
 DWORD WINAPI backtraceThreadMain(_In_ LPVOID lpParameter)
 {
+  Sleep(1000); // workaround race condition
+
   HANDLE thread = lpParameter;
 
   cout<<"target thread: "<<thread<<endl;
