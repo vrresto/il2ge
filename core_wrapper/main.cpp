@@ -63,6 +63,7 @@ struct ContextData : public Module
 };
 
 
+// typedef int __stdcall isCubeUpdated_T(void*, vo403id*);
 bool g_initialized = false;
 const LoaderInterface *g_loader = nullptr;
 HMODULE g_core_module = 0;
@@ -81,8 +82,7 @@ typedef BOOL WINAPI wglDeleteContext_t(HGLRC);
 wglMakeCurrent_t *real_wglMakeCurrent = nullptr;
 wglDeleteContext_t *real_wglDeleteContext = nullptr;
 
-typedef int __stdcall isCubeUpdated_T(void*, void*);
-isCubeUpdated_T *is_cube_updated_func = nullptr;
+// isCubeUpdated_T *is_cube_updated_func = nullptr;
 
 
 BOOL WINAPI wrap_wglMakeContextCurrentARB(HDC hDrawDC, HDC hReadDC, HGLRC hglrc)
@@ -342,9 +342,9 @@ void il2ge_coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
   g_loader->patchIAT("GetProcAddress", "kernel32.dll",
       (void*) &wrap_JGL_GetProcAddress, NULL, jgl_module);
 
-  is_cube_updated_func = (isCubeUpdated_T*) GetProcAddress(g_core_module,
-                 "_Java_com_maddox_il2_engine_Landscape_cIsCubeUpdated@8");
-  assert(is_cube_updated_func);
+//   is_cube_updated_func = (isCubeUpdated_T*) GetProcAddress(g_core_module,
+//                  "_Java_com_maddox_il2_engine_Landscape_cIsCubeUpdated@8");
+//   assert(is_cube_updated_func);
 
   g_initialized = true;
 
