@@ -87,6 +87,10 @@ install(DIRECTORY ${renderutil_dir}/shaders
   DESTINATION ${il2ge_data_dir}
 )
 
+install(DIRECTORY shaders
+  DESTINATION ${il2ge_data_dir}
+)
+
 if(platform_mingw)
   install(PROGRAMS ${mingw_crash_handler_BINARY_DIR}/mingw_crash_handler.dll
     DESTINATION ${il2ge_data_dir}
