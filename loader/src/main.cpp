@@ -267,13 +267,15 @@ void abort()
 {
   static long handler_entered = 0;
 
-  if (InterlockedIncrement(&handler_entered) == 1)
+  if (InterlockedIncrement(&handler_entered) < 3)
   {
-    fprintf(stderr, "\n");
+    fprintf(stderr, "\naborted.\n");
     printBacktrace();
   }
 
-  _Exit(1);
+  TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
+  SuspendThread(GetCurrentThread());
+  _Exit(EXIT_FAILURE);
 }
 
 

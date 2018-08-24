@@ -107,10 +107,9 @@ DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
     fprintf(stderr, "ERROR: GetThreadContext() failed.\n");
   }
 
+  TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
+  SuspendThread(GetCurrentThread());
   _Exit(EXIT_FAILURE);
-//   ResumeThread(thread);
-
-  return 0;
 }
 
 
@@ -136,6 +135,7 @@ void printBacktracePrivate()
   printf("waiting for backtrace thread to finish ...\n");
   fflush(stdout);
   fflush(stderr);
+  SetLastError(0);
 
   auto thread = CreateThread(nullptr,
                              0,
@@ -145,7 +145,8 @@ void printBacktracePrivate()
                              nullptr);
   if (!thread)
   {
-    fprintf(stderr, "ERROR: can't create backtrace thread.\n");
+    fprintf(stderr, "ERROR: can't create backtrace thread - error code: 0x%x\n", GetLastError());
+    CloseHandle(currend_thread);
     return;
   }
   WaitForSingleObject(thread, INFINITE);
