@@ -773,12 +773,12 @@ bool isARBProgramActive()
 
 Context *getContext()
 {
-  auto *context = getGLContext()->getSubModule<Context>();
+  auto *context = wgl_wrapper::getContext()->getSubModule<Context>();
 
   if (!context)
   {
     context = new Context;
-    getGLContext()->setSubModule(context);
+    wgl_wrapper::getContext()->setSubModule(context);
   }
 
   return context;

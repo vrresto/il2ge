@@ -21,11 +21,14 @@
 
 #include <windef.h>
 
+class Module;
+
 namespace wgl_wrapper
 {
   bool isMainThread();
   bool isMainContextCurrent();
   void *getProcAddress(HMODULE module, LPCSTR name);
+  Module *getContext();
   void init();
 }
 

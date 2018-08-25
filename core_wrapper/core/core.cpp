@@ -19,6 +19,7 @@
 #include "scene.h"
 #include "core_p.h"
 #include <core.h>
+#include <wgl_wrapper.h>
 #include <misc.h>
 
 #include <atmosphere_map.h>
@@ -96,7 +97,7 @@ void init()
 
 Scene *getScene()
 {
-  Module *current_context = getGLContext();
+  auto current_context = wgl_wrapper::getContext();
 
   assert(current_context);
 

@@ -333,10 +333,7 @@ void *getProcAddress(HMODULE module, LPCSTR name)
 }
 
 
-} // namespace wgl_wrapper
-
-
-Module *getGLContext()
+Module *getContext()
 {
   Lock lock(g_data.m_mutex);
 
@@ -352,3 +349,6 @@ Module *getGLContext()
 
   return current_context;
 }
+
+
+} // namespace wgl_wrapper
