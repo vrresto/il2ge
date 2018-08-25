@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
 if(platform STREQUAL "mingw")
-  add_subdirectory(_modules/mingw_crash_handler)
+  if (mingw_crash_handler_dir)
+    add_subdirectory(${mingw_crash_handler_dir} ${CMAKE_BINARY_DIR}/mingw_crash_handler)
+  else (mingw_crash_handler_dir)
+    add_subdirectory(_modules/mingw_crash_handler)
+  endif (mingw_crash_handler_dir)
 endif(platform STREQUAL "mingw")
 
 set(core_wrapper_library_name "il2_core_wrapper")

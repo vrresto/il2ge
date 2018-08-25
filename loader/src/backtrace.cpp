@@ -41,6 +41,7 @@ namespace
 
 typedef void CrashHandlerFunc(PEXCEPTION_POINTERS pExceptionInfo);
 typedef void DumpStackFunc(const CONTEXT*);
+typedef void SetLogFileNameFunc(const char *name);
 
 
 const char* const crash_handler_library_name =
@@ -48,6 +49,7 @@ const char* const crash_handler_library_name =
 
 const char* const crash_handler_func_name = "crashHandler";
 const char* const dump_stack_func_name = "dumpStack";
+const char* const set_log_file_name_func_name = "setLogFileName";
 
 
 static LONG g_handler_entered = 0;
@@ -69,6 +71,12 @@ HMODULE loadCrashHandlerLibrary()
 
     MessageBoxA(0, message.str().c_str(), nullptr, 0);
   }
+
+  SetLogFileNameFunc *set_log_file_name_func =
+        (SetLogFileNameFunc*) GetProcAddress(crash_handler_module, set_log_file_name_func_name);
+  assert(set_log_file_name_func);
+
+  set_log_file_name_func("il2ge.log");
 
   return crash_handler_module;
 }
