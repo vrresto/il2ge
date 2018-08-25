@@ -82,14 +82,12 @@ namespace SFS
   __int64 getHash(const char *filename)
   {
     std::string filename_uppercase = filename;
-    for (auto it = filename_uppercase.begin();
-         it != filename_uppercase.end();
-         it++)
+    for (auto &c : filename_uppercase)
     {
-      if (*it == '/')
-        *it = '\\';
+      if (c == '/')
+        c = '\\';
       else
-        *it = toupper(*it);
+        c = toupper(c);
     }
 
     __int64 hash = makeHash(0, filename_uppercase.c_str(),
