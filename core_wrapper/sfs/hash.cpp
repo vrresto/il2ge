@@ -119,8 +119,9 @@ const unsigned int FPbTable[] =
 } // namespace
 
 
-unsigned __int64 SFS::makeHash(const unsigned __int64 hash, const void *buf,
-                          const int len)
+unsigned __int64 sfs_private::makeHash(const unsigned __int64 hash,
+                                       const void *buf,
+                                       const int len)
 {
   unsigned char c;
   unsigned a = (unsigned)(hash & 0xFFFFFFFF);

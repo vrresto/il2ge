@@ -33,6 +33,7 @@ using std::endl;
 // #define SFS_API __cdecl
 #define SFS_API __stdcall
 
+
 namespace
 {
 
@@ -51,16 +52,15 @@ SFS_lseek_T *g_lseek_func = nullptr;
 
 int open(const char *filename)
 {
-  return g_openf_func(SFS::getHash(filename), 0);
+  return g_openf_func(sfs::getHash(filename), 0);
 }
 
 
 } // namespace
 
 
-namespace SFS
+namespace sfs
 {
-
 
 void init()
 {
@@ -100,8 +100,8 @@ __int64 getHash(const char *filename)
       c = toupper(c);
   }
 
-  __int64 hash = makeHash(0, filename_uppercase.c_str(),
-                          filename_uppercase.length());
+  __int64 hash = sfs_private::makeHash(0, filename_uppercase.c_str(),
+                                       filename_uppercase.length());
   return hash;
 }
 
@@ -126,4 +126,4 @@ bool readFile(const std::string &filename, std::vector<char> &out)
 }
 
 
-} // namespace SFS
+} // namespace sfs

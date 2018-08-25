@@ -16,14 +16,14 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SFS_H
-#define SFS_H
+#ifndef IL2GE_SFS_H
+#define IL2GE_SFS_H
 
 #include <vector>
 #include <cstdint>
 #include <string>
 
-namespace SFS
+namespace sfs
 {
   void init();
   bool readFile(const std::string &filename, std::vector<char> &out);

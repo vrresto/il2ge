@@ -58,7 +58,7 @@ namespace core
   {
     map.reset();
     gl::Finish();
-    SFS::clearRedirections();
+    sfs::clearRedirections();
   }
 
   void Scene::loadMap(const char *path)

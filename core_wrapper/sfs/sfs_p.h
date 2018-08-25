@@ -15,12 +15,12 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SFS_P_H
-#define SFS_P_H
+#ifndef IL2GE_SFS_P_H
+#define IL2GE_SFS_P_H
 
 #include <windef.h>
 
-namespace SFS
+namespace sfs_private
 {
   unsigned __int64 makeHash(const unsigned __int64 hash, const void *buf, const int len);
 }

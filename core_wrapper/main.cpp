@@ -131,7 +131,7 @@ namespace render_util
 }
 
 
-namespace SFS
+namespace sfs
 {
   void redirect(__int64 hash, __int64 hash_redirection)
   {
@@ -183,7 +183,7 @@ void il2ge_coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
   g_loader = loader;
   assert(g_loader);
 
-  SFS::init();
+  sfs::init();
   wgl_wrapper::init();
   core_gl_wrapper::init();
   core::init();

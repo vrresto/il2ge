@@ -54,7 +54,7 @@ core::RessourceLoader::RessourceLoader(const char *path_)
 
   cout<<"reading load.ini"<<endl;
   std::vector<char> ini_content;
-  if (!SFS::readFile(path.c_str(), ini_content)) {
+  if (!sfs::readFile(path.c_str(), ini_content)) {
     assert(0);
   }
   cout<<"done reading load.ini"<<endl;
@@ -111,7 +111,7 @@ bool core::RessourceLoader::readFile(const char *section,
   if (suffix)
     path += suffix;
 
-  return SFS::readFile(path, content);
+  return sfs::readFile(path, content);
 }
 
 
@@ -141,11 +141,11 @@ bool core::RessourceLoader::readTextureFile(const char *section,
   path += filename;
 
   if (redirect)
-    SFS::redirect(SFS::getHash(path.c_str()), SFS::getHash("dummy.tga"));
+    sfs::redirect(sfs::getHash(path.c_str()), sfs::getHash("dummy.tga"));
 
   cout<<"reading "<<path<<endl;
 
-  return SFS::readFile(path, content);
+  return sfs::readFile(path, content);
 }
 
 
@@ -156,7 +156,7 @@ bool core::RessourceLoader::readTextureFile(const char *path_,
   string path = path_;
 
   if (redirect)
-    SFS::redirect(SFS::getHash(path.c_str()), SFS::getHash("dummy.tga"));
+    sfs::redirect(sfs::getHash(path.c_str()), sfs::getHash("dummy.tga"));
 
-  return SFS::readFile(path, content);
+  return sfs::readFile(path, content);
 }
