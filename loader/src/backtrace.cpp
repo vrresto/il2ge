@@ -204,6 +204,39 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 }
 
 
+void terminateHandler()
+{
+  static int tried_throw = 0;
+  stringstream message;
+
+  try
+  {
+    // try once to re-throw currently active exception
+    tried_throw++;
+    if (tried_throw == 1)
+      throw;
+  }
+  catch (const std::exception &e)
+  {
+    message << __FUNCTION__ << " caught unhandled exception. what(): "
+              << e.what() << std::endl;
+  }
+  catch (...)
+  {
+    message << __FUNCTION__ << " caught unknown/unhandled exception."
+              << std::endl;
+  }
+
+  string message_str = message.str();
+  if (!message_str.empty())
+  {
+    cerr << message_str;
+    MessageBoxA(0, message_str.c_str(), nullptr, MB_TASKMODAL | MB_SETFOREGROUND | MB_TOPMOST);
+  }
+  abort();
+}
+
+
 } // namespace
 
 
@@ -216,4 +249,5 @@ void installExceptionHandler()
 {
   AddVectoredExceptionHandler(true, &vectoredExceptionHandler);
   signal(SIGABRT, abortHandler);
+  std::set_terminate(&terminateHandler);
 }
