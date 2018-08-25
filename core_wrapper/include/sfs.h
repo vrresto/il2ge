@@ -26,12 +26,6 @@
 namespace SFS
 {
   void init();
-
-  int open(const char *filename, int flags);
-  int openf(uint64_t hash, int flags);
-  int close(int fd);
-  int read(int fd, void *buf, int nbyte);
-  unsigned int lseek(int fd, unsigned int offset, int whence);
   bool readFile(const std::string &filename, std::vector<char> &out);
   __int64 getHash(const char *filename);
   void redirect(__int64 hash, __int64 hash_redirection);

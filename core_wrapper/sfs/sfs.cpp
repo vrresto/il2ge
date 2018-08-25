@@ -30,121 +30,100 @@
 using std::cout;
 using std::endl;
 
+// #define SFS_API __cdecl
+#define SFS_API __stdcall
+
 namespace
 {
 
-  typedef int __stdcall SFS_open_T (const char *filename, int flags);
-  typedef int __stdcall SFS_openf_T (unsigned __int64 hash, int flags);
-  typedef int __stdcall SFS_close_T(int fd);
-  typedef int __stdcall SFS_read_T (int fd, void *buf, int nbyte);
-  typedef unsigned int __stdcall SFS_lseek_T (int fd, unsigned int offset, int whence);
+typedef int __cdecl SAS_SFS_openf_T(unsigned __int64 hash, int flags);
+typedef int SFS_API SFS_close_T(int fd);
+typedef int SFS_API SFS_read_T(int fd, void *buffer, unsigned int numberOfBytesToRead);
+typedef long SFS_API SFS_lseek_T(int fd, long offset, int moveMethod);
 
-  bool initialized = false;
-  SFS_openf_T *openf_f = 0;
-  SFS_close_T *close_f = 0;
-  SFS_read_T *read_f = 0;
-  SFS_lseek_T *lseek_f = 0;
 
+bool g_initialized = false;
+SAS_SFS_openf_T *g_openf_func = nullptr;
+SFS_close_T *g_close_func = nullptr;
+SFS_read_T *g_read_func = nullptr;
+SFS_lseek_T *g_lseek_func = nullptr;
+
+
+int open(const char *filename)
+{
+  return g_openf_func(SFS::getHash(filename), 0);
 }
+
+
+} // namespace
 
 
 namespace SFS
 {
 
 
-  void init()
+void init()
+{
+  if (!g_initialized)
   {
-    if (!initialized)
-    {
-      HMODULE m = GetModuleHandle(0);
-      assert(m);
+    HMODULE m = GetModuleHandle(0);
+    assert(m);
 
-      close_f = (SFS_close_T*) GetProcAddress(m, "SFS_close");
-      assert(close_f);
+    g_close_func = (SFS_close_T*) GetProcAddress(m, "SFS_close");
+    assert(g_close_func);
 
-      read_f = (SFS_read_T*) GetProcAddress(m, "SFS_read");
-      assert(read_f);
+    g_read_func = (SFS_read_T*) GetProcAddress(m, "SFS_read");
+    assert(g_read_func);
 
-      lseek_f = (SFS_lseek_T*) GetProcAddress(m, "SFS_lseek");
-      assert(lseek_f);
+    g_lseek_func = (SFS_lseek_T*) GetProcAddress(m, "SFS_lseek");
+    assert(g_lseek_func);
 
-      m = GetModuleHandle("wrapper.dll");
-      assert(m);
+    m = GetModuleHandle("wrapper.dll");
+    assert(m);
 
-      openf_f = (SFS_openf_T*) GetProcAddress(m, "__SFS_openf");
-      assert(openf_f);
+    g_openf_func = (SAS_SFS_openf_T*) GetProcAddress(m, "__SFS_openf");
+    assert(g_openf_func);
 
-      initialized = true;
-    }
+    g_initialized = true;
+  }
+}
+
+
+__int64 getHash(const char *filename)
+{
+  std::string filename_uppercase = filename;
+  for (auto &c : filename_uppercase)
+  {
+    if (c == '/')
+      c = '\\';
+    else
+      c = toupper(c);
   }
 
-
-  __int64 getHash(const char *filename)
-  {
-    std::string filename_uppercase = filename;
-    for (auto &c : filename_uppercase)
-    {
-      if (c == '/')
-        c = '\\';
-      else
-        c = toupper(c);
-    }
-
-    __int64 hash = makeHash(0, filename_uppercase.c_str(),
-                            filename_uppercase.length());
-    return hash;
-  }
+  __int64 hash = makeHash(0, filename_uppercase.c_str(),
+                          filename_uppercase.length());
+  return hash;
+}
 
 
-  int open(const char *filename, int flags)
-  {
-    return openf(getHash(filename), 0);
-  }
+bool readFile(const std::string &filename, std::vector<char> &out)
+{
+  auto fd = open(filename.c_str());
 
+  if (fd == -1)
+    return false;
 
-  int openf(uint64_t hash, int flags)
-  {
-    assert(openf_f);
-    return openf_f(hash, flags);
-  }
+  auto size = g_lseek_func(fd, 0, SEEK_END);
+  g_lseek_func(fd, 0, SEEK_SET);
 
+  out.resize(size);
 
-  int close(int fd)
-  {
-    return close_f(fd);
-  }
+  auto ret = g_read_func(fd, out.data(), size);
 
+  g_close_func(fd);
 
-  int read(int fd, void *buf, int nbyte)
-  {
-    return read_f(fd, buf, nbyte);
-  }
-
-
-  unsigned int lseek(int fd, unsigned int offset, int whence)
-  {
-    return lseek_f(fd, offset, whence);
-  }
-
-
-  bool readFile(const std::string &filename, std::vector<char> &out)
-  {
-    int fd = open(filename.c_str(), 0);
-
-    if (fd == -1)
-      return false;
-
-    unsigned int size = lseek(fd, 0, SEEK_END);
-    lseek(fd, 0, SEEK_SET);
-
-    out.resize(size);
-
-    int ret = read(fd, out.data(), size);
-
-    close(fd);
-
-    return ret > 0 ? ((unsigned int)ret) == size : false;
-  }
+  return ret > 0 ? ((unsigned int)ret) == size : false;
+}
 
 
 } // namespace SFS

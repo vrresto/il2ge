@@ -36,7 +36,7 @@ set_source_files_properties(
   sfs/sfs.cpp
 
   PROPERTIES
-    COMPILE_FLAGS "-O0"
+#     COMPILE_FLAGS "-O0"
 )
 
 set(JNI_WRAPPER_CLASSES
