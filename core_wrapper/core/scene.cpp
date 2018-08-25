@@ -22,6 +22,7 @@
 #include <render_util/terrain.h>
 #include <render_util/texture_util.h>
 #include <render_util/render_util.h>
+#include <render_util/water.h>
 
 #include <string>
 #include <memory>
@@ -70,11 +71,17 @@ namespace core
   }
 
 
+  void Scene::update()
+  {
+    if (map)
+      map->getWaterAnimation()->update();
+  }
+
+
   void Scene::updateTerrain(const glm::vec3 &camera_pos)
   {
     assert(map);
     map->getTerrain()->update(camera_pos);
-//     map->getWaterAnimation()->update();
   }
 
 

@@ -47,6 +47,10 @@ namespace il2ge
                             bool from_map_dir,
                             bool redirect,
                             float *scale = nullptr) = 0;
+
+    virtual bool readTextureFile(const char *path,
+                            std::vector<char> &content,
+                            bool redirect) = 0;
   };
 }
 

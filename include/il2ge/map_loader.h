@@ -25,6 +25,7 @@ namespace render_util
 {
   class MapTextures;
   class TerrainBase;
+  class WaterAnimation;
 }
 
 namespace il2ge
@@ -33,7 +34,8 @@ namespace il2ge
 
   void loadMap(il2ge::RessourceLoader *loader,
       render_util::MapTextures *map_textures,
-      render_util::TerrainBase*terrain,
+      render_util::TerrainBase *terrain,
+      render_util::WaterAnimation *water_animation,
       glm::vec2 &size,
       glm::ivec2 &type_map_size);
 

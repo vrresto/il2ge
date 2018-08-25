@@ -19,6 +19,8 @@
 #include "core.h"
 #include "core_p.h"
 #include "il2_state.h"
+#include "scene.h"
+#include <render_util/water.h>
 
 #include <iostream>
 #include <GL/gl.h>
@@ -127,6 +129,8 @@ namespace core
 //     shore_wave_pos.y = shore_wave_pos.y + (frame_delta * shore_wave_hz.y);
 
     setRenderPhase(IL2_PrePreRenders);
+
+    getScene()->update();
   }
 
   void onPostPreRenders()

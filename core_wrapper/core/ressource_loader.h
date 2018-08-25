@@ -52,6 +52,11 @@ namespace core
               bool from_map_dir,
               bool redirect,
               float *scale) override;
+
+    bool readTextureFile(const char *path,
+              std::vector<char> &content,
+              bool redirect) override;
+
   };
 
 

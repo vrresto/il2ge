@@ -43,6 +43,7 @@ namespace core
 
     void unloadMap();
     void loadMap(const char *path);
+    void update();
     void updateTerrain(const glm::vec3 &camera_pos);
     void setTerrainDrawDistance(float distance);
     void drawTerrain(render_util::ShaderProgramPtr program);

@@ -63,15 +63,18 @@ Map::Map(const char *path) : p(new Private)
   p->textures = make_shared<render_util::MapTextures>(core::textureManager());
 
   p->water_animation = make_shared<render_util::WaterAnimation>();
-  p->water_animation->createTextures(p->textures.get());
 
   p->terrain = make_shared<core::Terrain>();
   p->terrain->setTextureManager(&core::textureManager());
 
-
   RessourceLoader res_loader(path);
 
-  il2ge::loadMap(&res_loader, p->textures.get(), p->terrain.get(), p->size, p->type_map_size);
+  il2ge::loadMap(&res_loader,
+                 p->textures.get(),
+                 p->terrain.get(),
+                 p->water_animation.get(),
+                 p->size,
+                 p->type_map_size);
 
   p->textures->bind();
 }

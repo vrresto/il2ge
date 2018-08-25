@@ -29,6 +29,7 @@
 #include <render_util/terrain.h>
 #include <render_util/terrain_cdlod.h>
 #include <render_util/elevation_map.h>
+#include <render_util/water.h>
 #include <il2ge/map_loader.h>
 #include <il2ge/water_map.h>
 #include <il2ge/ressource_loader.h>
@@ -345,12 +346,74 @@ void createWaterTypeMap(ImageGreyScale::ConstPtr type_map, MapTextures *map_text
 }
 
 
+string getWaterTextureDir()
+{
+  return "maps/_Tex/Water/Animated";
+}
+
+
+void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
+                           render_util::MapTextures *map_textures,
+                           il2ge::RessourceLoader *loader)
+{
+  enum { MAX_ANIMATION_STEPS = 32 };
+
+  printf("loading water textures...\n");
+
+  //     const char *foam_detail_name = "water_textures/FoamNV40.tga";
+  //     foam_detail_texture = SOIL_load_OGL_texture(foam_detail_name, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,
+  //         SOIL_FLAG_MIPMAPS | SOIL_FLAG_TEXTURE_REPEATS);
+  //
+  //     if (!foam_detail_texture) {
+  //       printf("Fail\n");
+  //       exit(1);
+  //     }
+
+  vector<ImageRGBA::ConstPtr> normal_maps;
+  vector<ImageGreyScale::ConstPtr> foam_masks;
+
+  int i = 0;
+  while (i < MAX_ANIMATION_STEPS)
+  {
+    char path[MAX_PATH];
+
+    snprintf(path, sizeof(path), "%s/WaterNoise%.2dDot3.tga", getWaterTextureDir().c_str(), i);
+    printf("loading %s...\n", path);
+    vector<char> data;
+    if (!loader->readTextureFile(path, data, true))
+    {
+      break;
+    }
+    render_util::ImageRGBA::Ptr normal_map(render_util::loadImageFromMemory<ImageRGBA>(data));
+    assert(normal_map);
+    normal_maps.push_back(normal_map);
+
+    snprintf(path, sizeof(path), "%s/WaterNoiseFoam%.2d.tga", getWaterTextureDir().c_str(), i);
+    printf("loading %s...\n", path);
+    if (!loader->readTextureFile(path, data, true))
+    {
+      break;
+    }
+    ImageGreyScale::Ptr foam_mask(render_util::loadImageFromMemory<ImageGreyScale>(data));
+    assert(foam_mask);
+    foam_masks.push_back(foam_mask);
+
+    i++;
+  }
+
+  assert(normal_maps.size() == foam_masks.size());
+
+  water_animation->createTextures(map_textures, normal_maps, foam_masks);
+}
+
+
 } // namespace
 
 
 void il2ge::loadMap(il2ge::RessourceLoader *loader,
              render_util::MapTextures *map_textures,
              render_util::TerrainBase *terrain,
+             render_util::WaterAnimation *water_animation,
              glm::vec2 &size,
              glm::ivec2 &type_map_size)
 {
@@ -374,6 +437,8 @@ void il2ge::loadMap(il2ge::RessourceLoader *loader,
 
   type_map_size = type_map->size();
   size = glm::vec2(type_map->w() * TYPE_MAP_METERS_PER_PIXEL, type_map->h() * TYPE_MAP_METERS_PER_PIXEL);
+
+  createWaterNormalMaps(water_animation, map_textures, loader);
 
 #if 1
   cout<<"creating water map ..."<<endl;

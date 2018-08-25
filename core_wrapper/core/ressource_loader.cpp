@@ -43,7 +43,7 @@ namespace
   }
 }
 
-#if 1
+
 core::RessourceLoader::RessourceLoader(const char *path_)
 {
   string path = "maps/";
@@ -70,10 +70,12 @@ core::RessourceLoader::RessourceLoader(const char *path_)
   cout<<"done parsing load.ini"<<endl;
 }
 
+
 std::string core::RessourceLoader::getDumpDir()
 {
   return dump_dir;
 }
+
 
 glm::vec3 core::RessourceLoader::getWaterColor(const glm::vec3 &default_value)
 {
@@ -92,6 +94,7 @@ glm::vec3 core::RessourceLoader::getWaterColor(const glm::vec3 &default_value)
 
  return water_color;
 }
+
 
 bool core::RessourceLoader::readFile(const char *section,
           const char *name,
@@ -144,4 +147,16 @@ bool core::RessourceLoader::readTextureFile(const char *section,
 
   return SFS::readFile(path, content);
 }
-#endif
+
+
+bool core::RessourceLoader::readTextureFile(const char *path_,
+          std::vector<char> &content,
+          bool redirect)
+{
+  string path = path_;
+
+  if (redirect)
+    SFS::redirect(SFS::getHash(path.c_str()), SFS::getHash("dummy.tga"));
+
+  return SFS::readFile(path, content);
+}
