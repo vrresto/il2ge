@@ -18,9 +18,11 @@
 
 #include "sfs.h"
 #include "sfs_p.h"
+#include <il2ge/core_wrapper.h>
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <cassert>
 #include <cstdlib>
 #include <cstdio>
@@ -29,6 +31,7 @@
 
 using std::cout;
 using std::endl;
+using std::unordered_map;
 
 // #define SFS_API __cdecl
 #define SFS_API __stdcall
@@ -42,17 +45,31 @@ typedef int SFS_API SFS_close_T(int fd);
 typedef int SFS_API SFS_read_T(int fd, void *buffer, unsigned int numberOfBytesToRead);
 typedef long SFS_API SFS_lseek_T(int fd, long offset, int moveMethod);
 
+SAS_SFS_openf_T wrap_SFS_openf;
 
 bool g_initialized = false;
 SAS_SFS_openf_T *g_openf_func = nullptr;
 SFS_close_T *g_close_func = nullptr;
 SFS_read_T *g_read_func = nullptr;
 SFS_lseek_T *g_lseek_func = nullptr;
+unordered_map<__int64, __int64> g_redirections;
 
 
 int open(const char *filename)
 {
   return g_openf_func(sfs::getHash(filename), 0);
+}
+
+
+int __cdecl wrap_SFS_openf(unsigned __int64 hash, int flags)
+{
+  assert(g_openf_func);
+
+  auto it = g_redirections.find(hash);
+  if (it != g_redirections.end())
+    hash = it->second;
+
+  return g_openf_func(hash, flags);
 }
 
 
@@ -126,4 +143,23 @@ bool readFile(const std::string &filename, std::vector<char> &out)
 }
 
 
+void redirect(__int64 hash, __int64 hash_redirection)
+{
+  g_redirections[hash] = hash_redirection;
+}
+
+void clearRedirections()
+{
+  cout<<"SFS wrapper: clearing "<<g_redirections.size()<<" redirections."<<endl;
+  g_redirections.clear();
+}
+
+
 } // namespace sfs
+
+
+void *il2ge::get_SFS_openf_wrapper()
+{
+  sfs::init();
+  return (void*) &wrap_SFS_openf;
+}

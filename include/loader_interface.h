@@ -24,8 +24,6 @@
 
 struct LoaderInterface
 {
-  void (*sfsRedirect)(__int64 hash, __int64 hash_redirection) = 0;
-  void (*sfsClearRedirections)() = 0;
   void (*patchIAT)(const char *function_name,
       const char *import_module,
       void *new_function,

@@ -131,20 +131,6 @@ namespace render_util
 }
 
 
-namespace sfs
-{
-  void redirect(__int64 hash, __int64 hash_redirection)
-  {
-    g_loader->sfsRedirect(hash, hash_redirection);
-  }
-
-  void clearRedirections()
-  {
-    g_loader->sfsClearRedirections();
-  }
-}
-
-
 void Module::printSubmodules()
 {
   using namespace std;

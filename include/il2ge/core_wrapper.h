@@ -19,10 +19,14 @@
 #ifndef IL2GE_CORE_WRAPPER_H
 #define IL2GE_CORE_WRAPPER_H
 
+struct LoaderInterface;
+
 namespace il2ge
 {
   typedef void CoreWrapperInitFunc(HMODULE core_module, const LoaderInterface *loader);
   typedef void* CoreWrapperGetProcAddressFunc(const char* name);
+
+  void *get_SFS_openf_wrapper();
 }
 
 extern "C"

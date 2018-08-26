@@ -23,7 +23,6 @@
 #include <util.h>
 
 #include <iostream>
-#include <unordered_map>
 #include <windows.h>
 #include <stdio.h>
 #include <assert.h>
@@ -57,24 +56,11 @@ typedef HRESULT __stdcall DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOW
 
 void installIATPatches(HMODULE);
 
-unordered_map<__int64, __int64> g_sfs_redirections;
 HMODULE g_loader_module = 0;
 HMODULE g_core_wrapper_module = 0;
 // SFS_openf_T *g_sfs_openf_f = 0;
 il2ge::CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
 DirectInputCreateA_T *g_directInputCreateA_func = 0;
-
-
-void sfsRedirect(__int64 hash, __int64 hash_redirection)
-{
-  g_sfs_redirections[hash] = hash_redirection;
-}
-
-
-void sfsClearRedirections()
-{
-  g_sfs_redirections.clear();
-}
 
 
 std::string getCoreWrapperFilePath()
@@ -93,24 +79,12 @@ std::string getCoreWrapperFilePath()
   return module_file_name;
 }
 
+
 LoaderInterface g_interface =
 {
-  &sfsRedirect,
-  &sfsClearRedirections,
   &patchIAT,
   &getCoreWrapperFilePath
 };
-
-
-// int WINAPI wrap_SFS_openf(const unsigned __int64 hash_, const int flags)
-// {
-//   unsigned __int64 hash = hash_;
-//
-//   auto it = g_sfs_redirections.find(hash);
-//   if (it != g_sfs_redirections.end())
-//     hash = it->second;
-//   return g_sfs_openf_f(hash, flags);
-// }
 
 
 HMODULE loadDinputLibrary()
@@ -242,7 +216,7 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
   }
   else if (_stricmp(lpProcName, "__SFS_openf") == 0)
   {
-//     return (FARPROC)&wrap_SFS_openf;
+    return (FARPROC) il2ge::get_SFS_openf_wrapper();
   }
 
   return GetProcAddress(hModule, lpProcName);
