@@ -51,14 +51,12 @@ namespace
 
 using namespace std;
 
-// typedef int __stdcall SFS_openf_T (unsigned __int64 hash, int flags);
 typedef HRESULT __stdcall DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
 
 void installIATPatches(HMODULE);
 
 HMODULE g_loader_module = 0;
 HMODULE g_core_wrapper_module = 0;
-// SFS_openf_T *g_sfs_openf_f = 0;
 il2ge::CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
 DirectInputCreateA_T *g_directInputCreateA_func = 0;
 
@@ -186,12 +184,6 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
       module_name.compare("wrapper") == 0)
   {
     installIATPatches(module);
-  }
-
-  if (module_name.compare("wrapper") == 0)
-  {
-//     g_sfs_openf_f = (SFS_openf_T*) GetProcAddress(module, "__SFS_openf");
-//     assert(g_sfs_openf_f);
   }
 
   return module;
