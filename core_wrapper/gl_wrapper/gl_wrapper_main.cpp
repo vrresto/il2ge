@@ -467,8 +467,8 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   core_gl_wrapper::updateARBProgram();
 
   if (state.camera_mode == IL2_CAMERA_MODE_2D
-//       || state.render_phase < IL2_Landscape0
-//       || state.render_phase >= IL2_PostLandscape
+      || state.render_phase < IL2_Landscape0
+      || state.render_phase >= IL2_PostLandscape
 //         || state.render_phase < IL2_Landscape0_Finished
 //       || true
     )
