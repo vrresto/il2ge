@@ -86,7 +86,7 @@ typename T::Ptr getTexture(const char *section,
   std::vector<char> data;
   if (loader->readTextureFile(section, name, default_path, data, from_map_dir, false))
   {
-    image.reset(render_util::loadImageFromMemory<T>(data));
+    image = render_util::loadImageFromMemory<T>(data);
     dump<T>(image, dump_name, loader->getDumpDir());
   }
   else

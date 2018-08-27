@@ -526,7 +526,7 @@ ImageRGBA::Ptr il2ge::getTexture(const char *section,
     if (isIMF(data))
       image = loadImageFromIMF(data, dump_name.c_str());
     else
-      image.reset(render_util::loadImageFromMemory<ImageRGBA>(data));
+      image = render_util::loadImageFromMemory<ImageRGBA>(data);
 
     dump<ImageRGBA>(image, dump_name, loader->getDumpDir());
   }
