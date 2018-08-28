@@ -55,6 +55,12 @@ const char* const set_log_file_name_func_name = "setLogFileName";
 static LONG g_handler_entered = 0;
 
 
+void showError(const char *msg)
+{
+  MessageBoxA(0, msg, "IL2GE", MB_TASKMODAL | MB_SETFOREGROUND | MB_TOPMOST | MB_ICONERROR);
+}
+
+
 HMODULE loadCrashHandlerLibrary()
 {
   HMODULE crash_handler_module = LoadLibraryA(crash_handler_library_name);
@@ -69,7 +75,7 @@ HMODULE loadCrashHandlerLibrary()
     message<<endl<<endl;
     message<<"To get a useful backtrace please download https://github.com/jrfonseca/drmingw/releases/download/0.8.2/drmingw-0.8.2-win32.7z and copy the file bin/exchndl.dll to your IL-2 directory.";
 
-    MessageBoxA(0, message.str().c_str(), nullptr, 0);
+    showError(message.str().c_str());
 
     return 0;
   }
@@ -271,3 +277,26 @@ void installExceptionHandler()
   signal(SIGABRT, abortHandler);
   std::set_terminate(&terminateHandler);
 }
+
+
+extern "C"
+{
+
+
+void abort()
+{
+  static long handler_entered = 0;
+
+  if (InterlockedIncrement(&handler_entered) < 3)
+  {
+    fprintf(stderr, "\naborted.\n");
+    printBacktrace();
+  }
+
+  TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
+  SuspendThread(GetCurrentThread());
+  _Exit(EXIT_FAILURE);
+}
+
+
+} // extern "C"

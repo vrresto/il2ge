@@ -241,22 +241,6 @@ extern "C"
 {
 
 
-void abort()
-{
-  static long handler_entered = 0;
-
-  if (InterlockedIncrement(&handler_entered) < 3)
-  {
-    fprintf(stderr, "\naborted.\n");
-    printBacktrace();
-  }
-
-  TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
-  SuspendThread(GetCurrentThread());
-  _Exit(EXIT_FAILURE);
-}
-
-
 HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, void *ppDI, LPUNKNOWN punkOuter)
 {
   if (!g_directInputCreateA_func)
