@@ -19,7 +19,11 @@
 #ifndef IL2GE_LOADER_H
 #define IL2GE_LOADER_H
 
+#include <windef.h>
+
 void printBacktrace();
 void installExceptionHandler();
+HMODULE getLoaderModule();
+HMODULE getCoreWrapperModule();
 
 #endif

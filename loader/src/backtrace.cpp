@@ -70,6 +70,8 @@ HMODULE loadCrashHandlerLibrary()
     message<<"To get a useful backtrace please download https://github.com/jrfonseca/drmingw/releases/download/0.8.2/drmingw-0.8.2-win32.7z and copy the file bin/exchndl.dll to your IL-2 directory.";
 
     MessageBoxA(0, message.str().c_str(), nullptr, 0);
+
+    return 0;
   }
 
   SetLogFileNameFunc *set_log_file_name_func =
@@ -195,14 +197,24 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
             info->ExceptionRecord->ExceptionCode,
             info->ExceptionRecord->ExceptionFlags);
 
-    HMODULE crash_handler_module = loadCrashHandlerLibrary();
-
-    if (crash_handler_module)
+    HMODULE module = 0;
+    auto res = GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                                  GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                                  (const char*)info->ExceptionRecord->ExceptionAddress,
+                                  &module);
+    if (res)
     {
-      CrashHandlerFunc *crash_handler = (CrashHandlerFunc*)
-          GetProcAddress(crash_handler_module, crash_handler_func_name);
-      assert(crash_handler);
-      crash_handler(info);
+      if (getLoaderModule() == module || getCoreWrapperModule() == module)
+      {
+        HMODULE crash_handler_module = loadCrashHandlerLibrary();
+        if (crash_handler_module)
+        {
+          CrashHandlerFunc *crash_handler = (CrashHandlerFunc*)
+              GetProcAddress(crash_handler_module, crash_handler_func_name);
+          assert(crash_handler);
+          crash_handler(info);
+        }
+      }
     }
 
     InterlockedDecrement(&g_handler_entered);

@@ -225,6 +225,18 @@ void installIATPatches(HMODULE module)
 } // namespace
 
 
+HMODULE getLoaderModule()
+{
+  return g_loader_module;
+}
+
+
+HMODULE getCoreWrapperModule()
+{
+  return g_core_wrapper_module;
+}
+
+
 extern "C"
 {
 
