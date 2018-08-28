@@ -56,14 +56,6 @@ namespace
 {
 
 
-struct ContextData : public Module
-{
-  ContextData() : Module("ContextData") {}
-
-  std::shared_ptr<gl_wrapper::GL_Interface> iface;
-};
-
-
 // typedef int __stdcall isCubeUpdated_T(void*, vo403id*);
 
 
