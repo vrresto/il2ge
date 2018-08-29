@@ -17,6 +17,7 @@
  */
 
 #include "loader.h"
+#include <mingw_crash_handler.h>
 
 #include <iostream>
 #include <sstream>
@@ -39,27 +40,16 @@ namespace
 {
 
 
-typedef void CrashHandlerFunc(PEXCEPTION_POINTERS pExceptionInfo);
-typedef void DumpStackFunc(const CONTEXT*);
-typedef void SetLogFileNameFunc(const char *name);
-typedef void* GetModuleBaseFunc(void *address);
-
-
 const char* const crash_handler_library_name =
   IL2GE_DATA_DIR "/mingw_crash_handler.dll";
 
 const char* const drmingw_download_url =
   "https://github.com/jrfonseca/drmingw/releases/download/0.8.2/drmingw-0.8.2-win32.7z";
 
-const char* const crash_handler_func_name = "crashHandler";
-const char* const dump_stack_func_name = "dumpStack";
-const char* const set_log_file_name_func_name = "setLogFileName";
-const char* const get_module_base_func_name = "getModuleBase";
-
 
 LONG g_handler_entered = 0;
 HMODULE g_crash_handler_module = 0;
-GetModuleBaseFunc *g_get_module_base_func = nullptr;
+MingwCrashHandlerInterface *g_crash_handler = nullptr;
 
 
 bool loadCrashHandlerLibrary()
@@ -87,15 +77,11 @@ bool loadCrashHandlerLibrary()
     return false;
   }
 
-  g_get_module_base_func = (GetModuleBaseFunc*)
-    GetProcAddress(g_crash_handler_module, get_module_base_func_name);
-  assert(g_get_module_base_func);
+  g_crash_handler = (MingwCrashHandlerInterface*)
+      GetProcAddress(g_crash_handler_module, "mingw_crash_handler_interface");
+  assert(g_crash_handler);
 
-  SetLogFileNameFunc *set_log_file_name_func =
-        (SetLogFileNameFunc*) GetProcAddress(g_crash_handler_module, set_log_file_name_func_name);
-  assert(set_log_file_name_func);
-
-  set_log_file_name_func(getLogFileName());
+  g_crash_handler->setLogFileName(getLogFileName());
 
   return true;
 }
@@ -121,10 +107,7 @@ DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
   {
     if (loadCrashHandlerLibrary())
     {
-      DumpStackFunc *dump_stack_func = (DumpStackFunc*)
-          GetProcAddress(g_crash_handler_module, dump_stack_func_name);
-      assert(dump_stack_func);
-      dump_stack_func(&context);
+      g_crash_handler->dumpStack(&context);
     }
   }
   else
@@ -193,7 +176,8 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 
     if (loadCrashHandlerLibrary())
     {
-      HMODULE module = (HMODULE) g_get_module_base_func(info->ExceptionRecord->ExceptionAddress);
+      HMODULE module = (HMODULE)
+          g_crash_handler->getModuleBase(info->ExceptionRecord->ExceptionAddress);
 
       if (!module || getLoaderModule() == module || getCoreWrapperModule() == module)
       {
@@ -204,10 +188,7 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
         g_log << std::dec;
         g_log.flush();
 
-        CrashHandlerFunc *crash_handler = (CrashHandlerFunc*)
-            GetProcAddress(g_crash_handler_module, crash_handler_func_name);
-        assert(crash_handler);
-        crash_handler(info);
+        g_crash_handler->crashHandler(info);
 
         TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
         SuspendThread(GetCurrentThread());

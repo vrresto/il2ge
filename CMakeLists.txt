@@ -41,6 +41,7 @@ endif(platform STREQUAL "mingw")
 
 project(il2ge)
 
+
 add_definitions(-DIL2GE_DATA_DIR="${il2ge_data_dir}")
 
 if(NOT no_static_core_wrapper)
@@ -58,6 +59,7 @@ if(platform_mingw)
   set(CMAKE_CXX_FLAGS "-static-libgcc -static-libstdc++")
   set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
   add_definitions(-DMINGW_HAS_SECURE_API)
+  include_directories(${mingw_crash_handler_SOURCE_DIR})
 endif(platform_mingw)
 
 if(NOT renderutil_dir)
