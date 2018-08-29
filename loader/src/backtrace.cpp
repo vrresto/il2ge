@@ -42,6 +42,7 @@ namespace
 typedef void CrashHandlerFunc(PEXCEPTION_POINTERS pExceptionInfo);
 typedef void DumpStackFunc(const CONTEXT*);
 typedef void SetLogFileNameFunc(const char *name);
+typedef void* GetModuleBaseFunc(void *address);
 
 
 const char* const crash_handler_library_name =
@@ -53,33 +54,50 @@ const char* const drmingw_download_url =
 const char* const crash_handler_func_name = "crashHandler";
 const char* const dump_stack_func_name = "dumpStack";
 const char* const set_log_file_name_func_name = "setLogFileName";
+const char* const get_module_base_func_name = "getModuleBase";
 
 
-static LONG g_handler_entered = 0;
+LONG g_handler_entered = 0;
+HMODULE g_crash_handler_module = 0;
+GetModuleBaseFunc *g_get_module_base_func = nullptr;
 
 
-HMODULE loadCrashHandlerLibrary()
+bool loadCrashHandlerLibrary()
 {
-  HMODULE crash_handler_module = LoadLibraryA(crash_handler_library_name);
+  static bool failed = false;
+  if (failed)
+    return false;
 
-  if (!crash_handler_module)
+  if (g_crash_handler_module)
+    return true;
+
+  g_crash_handler_module = LoadLibraryA(crash_handler_library_name);
+
+  if (!g_crash_handler_module)
   {
+    failed = true;
+
+    g_log.printSeparator();
     g_log << "Could not load " << crash_handler_library_name << " - backtrace disabled.\n";
     g_log << "To get a useful backtrace please download "
           << drmingw_download_url
           << " and copy the file bin/exchndl.dll to your IL-2 directory.\n";
     g_log.flush();
 
-    return 0;
+    return false;
   }
 
+  g_get_module_base_func = (GetModuleBaseFunc*)
+    GetProcAddress(g_crash_handler_module, get_module_base_func_name);
+  assert(g_get_module_base_func);
+
   SetLogFileNameFunc *set_log_file_name_func =
-        (SetLogFileNameFunc*) GetProcAddress(crash_handler_module, set_log_file_name_func_name);
+        (SetLogFileNameFunc*) GetProcAddress(g_crash_handler_module, set_log_file_name_func_name);
   assert(set_log_file_name_func);
 
   set_log_file_name_func(getLogFileName());
 
-  return crash_handler_module;
+  return true;
 }
 
 
@@ -101,12 +119,10 @@ DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
 
   if (GetThreadContext(thread, &context))
   {
-    HMODULE crash_handler_module = loadCrashHandlerLibrary();
-
-    if (crash_handler_module)
+    if (loadCrashHandlerLibrary())
     {
       DumpStackFunc *dump_stack_func = (DumpStackFunc*)
-          GetProcAddress(crash_handler_module, dump_stack_func_name);
+          GetProcAddress(g_crash_handler_module, dump_stack_func_name);
       assert(dump_stack_func);
       dump_stack_func(&context);
     }
@@ -175,14 +191,11 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
       _Exit(1);
     }
 
-    HMODULE module = 0;
-    auto res = GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
-                                  GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                                  (const char*)info->ExceptionRecord->ExceptionAddress,
-                                  &module);
-    if (res)
+    if (loadCrashHandlerLibrary())
     {
-      if (getLoaderModule() == module || getCoreWrapperModule() == module)
+      HMODULE module = (HMODULE) g_get_module_base_func(info->ExceptionRecord->ExceptionAddress);
+
+      if (!module || getLoaderModule() == module || getCoreWrapperModule() == module)
       {
         g_log.printSeparator();
         g_log << std::hex;
@@ -191,14 +204,15 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
         g_log << std::dec;
         g_log.flush();
 
-        HMODULE crash_handler_module = loadCrashHandlerLibrary();
-        if (crash_handler_module)
-        {
-          CrashHandlerFunc *crash_handler = (CrashHandlerFunc*)
-              GetProcAddress(crash_handler_module, crash_handler_func_name);
-          assert(crash_handler);
-          crash_handler(info);
-        }
+        CrashHandlerFunc *crash_handler = (CrashHandlerFunc*)
+            GetProcAddress(g_crash_handler_module, crash_handler_func_name);
+        assert(crash_handler);
+        crash_handler(info);
+
+        TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
+        SuspendThread(GetCurrentThread());
+        _Exit(EXIT_FAILURE);
+
       }
     }
 
