@@ -34,6 +34,8 @@
 #endif
 
 
+using namespace std;
+
 extern "C"
 {
   BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
@@ -49,7 +51,6 @@ namespace
 {
 
 
-using namespace std;
 
 typedef HRESULT __stdcall DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
 
