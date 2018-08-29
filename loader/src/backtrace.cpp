@@ -45,7 +45,10 @@ typedef void SetLogFileNameFunc(const char *name);
 
 
 const char* const crash_handler_library_name =
-    IL2GE_DATA_DIR "/mingw_crash_handler.dll";
+  IL2GE_DATA_DIR "/mingw_crash_handler.dll";
+
+const char* const drmingw_download_url =
+  "https://github.com/jrfonseca/drmingw/releases/download/0.8.2/drmingw-0.8.2-win32.7z";
 
 const char* const crash_handler_func_name = "crashHandler";
 const char* const dump_stack_func_name = "dumpStack";
@@ -55,27 +58,17 @@ const char* const set_log_file_name_func_name = "setLogFileName";
 static LONG g_handler_entered = 0;
 
 
-void showError(const char *msg)
-{
-  MessageBoxA(0, msg, "IL2GE", MB_TASKMODAL | MB_SETFOREGROUND | MB_TOPMOST | MB_ICONERROR);
-}
-
-
 HMODULE loadCrashHandlerLibrary()
 {
   HMODULE crash_handler_module = LoadLibraryA(crash_handler_library_name);
 
   if (!crash_handler_module)
   {
-    fprintf(stderr, "\n**** could not load %s - backtrace disabled ****\n\n",
-            crash_handler_library_name);
-
-    stringstream message;
-    message<<"Could not load "<<crash_handler_library_name<<" - backtrace disabled.";
-    message<<endl<<endl;
-    message<<"To get a useful backtrace please download https://github.com/jrfonseca/drmingw/releases/download/0.8.2/drmingw-0.8.2-win32.7z and copy the file bin/exchndl.dll to your IL-2 directory.";
-
-    showError(message.str().c_str());
+    g_log << "Could not load " << crash_handler_library_name << " - backtrace disabled.\n";
+    g_log << "To get a useful backtrace please download "
+          << drmingw_download_url
+          << " and copy the file bin/exchndl.dll to your IL-2 directory.\n";
+    g_log.flush();
 
     return 0;
   }
@@ -84,7 +77,7 @@ HMODULE loadCrashHandlerLibrary()
         (SetLogFileNameFunc*) GetProcAddress(crash_handler_module, set_log_file_name_func_name);
   assert(set_log_file_name_func);
 
-  set_log_file_name_func("il2ge.log");
+  set_log_file_name_func(getLogFileName());
 
   return crash_handler_module;
 }
@@ -173,23 +166,6 @@ void printBacktracePrivate()
 }
 
 
-void abortHandler(int sig)
-{
-  if (InterlockedIncrement(&g_handler_entered) != 1)
-  {
-    _Exit(1);
-  }
-
-  fprintf(stderr, "caught SIGABRT\n");
-  fflush(stderr);
-  printBacktrace();
-
-  _Exit(1);
-
-  InterlockedDecrement(&g_handler_entered);
-}
-
-
 LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 {
   if (info->ExceptionRecord->ExceptionCode != STATUS_CPP_EH_EXCEPTION)
@@ -198,10 +174,6 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
     {
       _Exit(1);
     }
-
-    fprintf(stderr, "\nException code: %x  Flags: %x\n",
-            info->ExceptionRecord->ExceptionCode,
-            info->ExceptionRecord->ExceptionFlags);
 
     HMODULE module = 0;
     auto res = GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
@@ -212,6 +184,13 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
     {
       if (getLoaderModule() == module || getCoreWrapperModule() == module)
       {
+        g_log.printSeparator();
+        g_log << std::hex;
+        g_log << "Exception code: " << info->ExceptionRecord->ExceptionCode << "  Flags: "
+              << info->ExceptionRecord->ExceptionFlags << '\n';
+        g_log << std::dec;
+        g_log.flush();
+
         HMODULE crash_handler_module = loadCrashHandlerLibrary();
         if (crash_handler_module)
         {
@@ -233,7 +212,6 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 void terminateHandler()
 {
   static int tried_throw = 0;
-  stringstream message;
 
   try
   {
@@ -244,21 +222,17 @@ void terminateHandler()
   }
   catch (const std::exception &e)
   {
-    message << __FUNCTION__ << " caught unhandled exception. what(): "
-              << e.what() << std::endl;
+    g_log.printSeparator();
+    g_log << __FUNCTION__ << " caught unhandled exception. what(): " << e.what() << '\n';
   }
   catch (...)
   {
-    message << __FUNCTION__ << " caught unknown/unhandled exception."
-              << std::endl;
+    g_log.printSeparator();
+    g_log << __FUNCTION__ << " caught unknown/unhandled exception.\n";
   }
 
-  string message_str = message.str();
-  if (!message_str.empty())
-  {
-    cerr << message_str;
-    MessageBoxA(0, message_str.c_str(), nullptr, MB_TASKMODAL | MB_SETFOREGROUND | MB_TOPMOST);
-  }
+  g_log.flush();
+
   abort();
 }
 
@@ -271,10 +245,10 @@ void printBacktrace()
   printBacktracePrivate();
 }
 
+
 void installExceptionHandler()
 {
   AddVectoredExceptionHandler(true, &vectoredExceptionHandler);
-  signal(SIGABRT, abortHandler);
   std::set_terminate(&terminateHandler);
 }
 
@@ -283,14 +257,28 @@ extern "C"
 {
 
 
+void _assert(const char *_Message, const char *_File, unsigned _Line)
+{
+  g_log.printSeparator();
+  g_log << "Assertion failed: " << _Message << '\n';
+  g_log << "File: " << _File << ":" << _Line << '\n';
+  g_log.flush();
+
+  abort();
+}
+
+
 void abort()
 {
   static long handler_entered = 0;
 
   if (InterlockedIncrement(&handler_entered) < 3)
   {
-    fprintf(stderr, "\naborted.\n");
+    g_log.printSeparator();
+    g_log << "Aborted.\n";
+    g_log.flush();
     printBacktrace();
+    g_log.flush();
   }
 
   TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);

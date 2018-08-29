@@ -47,10 +47,14 @@ extern "C"
 }
 
 
+Logger g_log;
+
+
 namespace
 {
 
 
+const char* const g_log_file_name = "il2ge.log";
 
 typedef HRESULT __stdcall DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
 
@@ -60,6 +64,7 @@ HMODULE g_loader_module = 0;
 HMODULE g_core_wrapper_module = 0;
 il2ge::CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
 DirectInputCreateA_T *g_directInputCreateA_func = 0;
+std::ofstream g_logfile;
 
 
 std::string getCoreWrapperFilePath()
@@ -223,6 +228,13 @@ void installIATPatches(HMODULE module)
 }
 
 
+void atexitHandler()
+{
+  g_log.flush();
+  g_log.m_outputs.clear();
+}
+
+
 } // namespace
 
 
@@ -235,6 +247,12 @@ HMODULE getLoaderModule()
 HMODULE getCoreWrapperModule()
 {
   return g_core_wrapper_module;
+}
+
+
+const char *getLogFileName()
+{
+  return g_log_file_name;
 }
 
 
@@ -263,6 +281,15 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
       printf("*** loader dll process attach ***\n");
 
       g_loader_module = instance;
+
+      std::atexit(atexitHandler);
+
+      g_log.m_outputs.push_back(&cerr);
+
+      g_logfile.open(getLogFileName(), ios_base::app);
+      if (g_logfile.good())
+        g_log.m_outputs.push_back(&g_logfile);
+
       installExceptionHandler();
       installIATPatches(GetModuleHandle(0));
 

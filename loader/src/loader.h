@@ -19,11 +19,40 @@
 #ifndef IL2GE_LOADER_H
 #define IL2GE_LOADER_H
 
+#include <vector>
+#include <fstream>
 #include <windef.h>
+
+struct Logger
+{
+  std::vector<std::ostream*> m_outputs;
+
+  template <typename T>
+  Logger &operator<<(T arg)
+  {
+    for (auto o : m_outputs)
+      *o << arg;
+    return *this;
+  }
+
+  void printSeparator()
+  {
+    *this << "-----------------------------------------------------------\n";
+  }
+
+  void flush()
+  {
+    for (auto o : m_outputs)
+      o->flush();
+  }
+};
+
+extern Logger g_log;
 
 void printBacktrace();
 void installExceptionHandler();
 HMODULE getLoaderModule();
 HMODULE getCoreWrapperModule();
+const char *getLogFileName();
 
 #endif
