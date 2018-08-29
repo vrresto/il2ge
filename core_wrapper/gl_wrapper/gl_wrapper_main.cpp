@@ -141,7 +141,10 @@ render_util::ShaderProgramPtr getForestProgram()
   if (!ctx->forest_program)
   {
     CHECK_GL_ERROR();
-    ctx->forest_program = render_util::createShaderProgram("forest_cdlod", core::textureManager(), SHADER_PATH);
+
+    map<unsigned int, string> attribute_locations = { { 4, "attrib_pos" } };
+
+    ctx->forest_program = render_util::createShaderProgram("forest_cdlod", core::textureManager(), SHADER_PATH, attribute_locations);
     CHECK_GL_ERROR();
   }
   return ctx->forest_program;
