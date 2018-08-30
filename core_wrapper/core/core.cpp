@@ -89,8 +89,10 @@ namespace core
 void init()
 {
 #ifndef NO_REFRESH_MAPS
-  refreshFile(IL2GE_DATA_DIR "/atmosphere_map", atmosphere_map_size_bytes, render_util::createAtmosphereMap);
-  refreshFile(IL2GE_DATA_DIR "/curvature_map", curvature_map_size_bytes, render_util::createCurvatureMap);
+  auto res = util::mkdir(IL2GE_CACHE_DIR);
+  assert(res);
+  refreshFile(IL2GE_CACHE_DIR "/atmosphere_map", atmosphere_map_size_bytes, render_util::createAtmosphereMap);
+  refreshFile(IL2GE_CACHE_DIR "/curvature_map", curvature_map_size_bytes, render_util::createCurvatureMap);
 #endif
 }
 

@@ -11,7 +11,9 @@ endif(platform STREQUAL "mingw")
 set(core_wrapper_library_name "il2_core_wrapper")
 set(il2ge_data_dir "il2ge")
 set(il2ge_lib_dir "${il2ge_data_dir}/lib")
+set(il2ge_cache_dir "${il2ge_data_dir}/cache")
 set (renderutil_data_dir ${il2ge_data_dir})
+set (renderutil_cache_dir ${il2ge_cache_dir})
 
 if(platform STREQUAL "wine")
   set(platform_wine 1)
@@ -45,6 +47,7 @@ project(il2ge)
 
 add_definitions(-DIL2GE_DATA_DIR="${il2ge_data_dir}")
 add_definitions(-DIL2GE_LIB_DIR="${il2ge_lib_dir}")
+add_definitions(-DIL2GE_CACHE_DIR="${il2ge_cache_dir}")
 
 if(NOT no_static_core_wrapper)
   set(static_core_wrapper 1)

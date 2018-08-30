@@ -38,8 +38,8 @@ namespace core
 
   Scene::Scene() : Module("Scene")
   {
-    curvature_map = render_util::createCurvatureTexture(texture_manager, render_util::getResourcePath());
-    atmosphere_map = render_util::createAmosphereThicknessTexture(texture_manager, render_util::getResourcePath());
+    curvature_map = render_util::createCurvatureTexture(texture_manager, IL2GE_CACHE_DIR);
+    atmosphere_map = render_util::createAmosphereThicknessTexture(texture_manager, IL2GE_CACHE_DIR);
 
     GLenum active_unit_save;
     gl::GetIntegerv(GL_ACTIVE_TEXTURE, reinterpret_cast<GLint*>(&active_unit_save));
