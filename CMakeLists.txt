@@ -10,6 +10,7 @@ endif(platform STREQUAL "mingw")
 
 set(core_wrapper_library_name "il2_core_wrapper")
 set(il2ge_data_dir "il2ge")
+set(il2ge_lib_dir "${il2ge_data_dir}/lib")
 set (renderutil_data_dir ${il2ge_data_dir})
 
 if(platform STREQUAL "wine")
@@ -43,6 +44,7 @@ project(il2ge)
 
 
 add_definitions(-DIL2GE_DATA_DIR="${il2ge_data_dir}")
+add_definitions(-DIL2GE_LIB_DIR="${il2ge_lib_dir}")
 
 if(NOT no_static_core_wrapper)
   set(static_core_wrapper 1)
@@ -115,6 +117,6 @@ install(DIRECTORY shaders
 
 if(platform_mingw)
   install(PROGRAMS ${mingw_crash_handler_BINARY_DIR}/mingw_crash_handler.dll
-    DESTINATION ${il2ge_data_dir}
+    DESTINATION ${il2ge_lib_dir}
   )
 endif(platform_mingw)

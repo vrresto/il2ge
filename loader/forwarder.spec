@@ -1,1 +1,1 @@
-@ extern DirectInputCreateA il2ge/il2ge.DirectInputCreateA
+@ extern DirectInputCreateA il2ge/lib/il2ge.DirectInputCreateA

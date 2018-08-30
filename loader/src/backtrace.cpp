@@ -41,7 +41,7 @@ namespace
 
 
 const char* const crash_handler_library_name =
-  IL2GE_DATA_DIR "/mingw_crash_handler.dll";
+  IL2GE_LIB_DIR "/mingw_crash_handler.dll";
 
 const char* const drmingw_download_url =
   "https://github.com/jrfonseca/drmingw/releases/download/0.8.2/drmingw-0.8.2-win32.7z";

@@ -112,7 +112,7 @@ endif(platform_wine AND NOT static_core_wrapper)
 
 if(NOT static_core_wrapper)
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${library_name}${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
-    DESTINATION ${il2ge_data_dir}
+    DESTINATION ${il2ge_lib_dir}
     RENAME ${library_name}.dll
   )
 endif(NOT static_core_wrapper)

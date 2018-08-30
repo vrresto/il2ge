@@ -1,2 +1,2 @@
 EXPORTS
-  DirectInputCreateA=il2ge/il2ge.DirectInputCreateA
+  DirectInputCreateA=il2ge/lib/il2ge.DirectInputCreateA
