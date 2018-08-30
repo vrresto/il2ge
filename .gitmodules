@@ -4,3 +4,6 @@
 [submodule "mingw_crash_handler"]
 	path = _modules/mingw_crash_handler
 	url = https://gitlab.com/vrresto/mingw_crash_handler.git
+[submodule "_modules/inih"]
+	path = _modules/inih
+	url = https://gitlab.com/vrresto/inih.git

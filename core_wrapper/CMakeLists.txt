@@ -7,9 +7,11 @@ if(no_refresh_maps)
   add_definitions(-DNO_REFRESH_MAPS)
 endif(no_refresh_maps)
 
+add_definitions(-DINI_ALLOW_MULTILINE=0 -DINI_ALLOW_INLINE_COMMENTS=1 -DINI_INLINE_COMMENT_PREFIXES="//")
+
 include_directories(
   include
-  ini_parser
+  ${PROJECT_SOURCE_DIR}/_modules/inih/cpp
   jni
 )
 
@@ -28,8 +30,8 @@ set(CXX_SRCS
   gl_wrapper/gl_wrapper_main.cpp
   gl_wrapper/texture_state.cpp
   gl_wrapper/arbprogram.cpp
-  ini_parser/INIReader.cpp
-  ini_parser/ini.cpp
+  ${PROJECT_SOURCE_DIR}/_modules/inih/cpp/INIReader.cpp
+  ${PROJECT_SOURCE_DIR}/_modules/inih/ini.c
 )
 
 set_source_files_properties(

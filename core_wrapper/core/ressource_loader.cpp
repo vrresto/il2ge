@@ -62,7 +62,7 @@ core::RessourceLoader::RessourceLoader(const char *path_)
   dumpFile("load.ini", ini_content.data(), ini_content.size());
 
   cout<<"parsing load.ini"<<endl;
-  reader.reset(new INIReader(ini_content));
+  reader = make_unique<INIReader>(ini_content.data(), ini_content.size());
   if (reader->ParseError()) {
     printf("parse error at line %d\n", reader->ParseError());
     exit(1);
