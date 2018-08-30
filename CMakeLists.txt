@@ -89,6 +89,22 @@ if(NOT platform_mingw)
   add_subdirectory(map_viewer)
 endif(NOT platform_mingw)
 
+
+install(FILES _modules/mingw_crash_handler/LICENSE.txt
+  DESTINATION ${il2ge_data_dir}
+  RENAME LICENSE_mingw_crash_handler.txt
+)
+
+install(FILES _modules/inih/LICENSE.txt
+  DESTINATION ${il2ge_data_dir}
+  RENAME LICENSE_inih.txt
+)
+
+install(FILES _modules/inih/README.md
+  DESTINATION ${il2ge_data_dir}
+  RENAME README_inih.md
+)
+
 install(DIRECTORY ${renderutil_dir}/shaders
   DESTINATION ${il2ge_data_dir}
 )
