@@ -61,6 +61,8 @@ if(platform_mingw)
   set(CMAKE_CXX_FLAGS "-static-libgcc -static-libstdc++")
   set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
   add_definitions(-DMINGW_HAS_SECURE_API)
+  add_definitions(-DIL2GE_USE_MSVCRT)
+  add_definitions(-DRENDER_UTIL_USE_MSVCRT)
   include_directories(${mingw_crash_handler_SOURCE_DIR})
 endif(platform_mingw)
 
