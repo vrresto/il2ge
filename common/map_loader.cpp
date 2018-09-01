@@ -93,7 +93,7 @@ ImageRGBA::Ptr loadImageFromIMF(const vector<char> &data, const char *field_name
   int width, height;
   loadIMF(data, rgba_data, width, height, field_name);
 
-  return make_shared<ImageRGBA>(width, height, rgba_data.size(), rgba_data.data());
+  return make_shared<ImageRGBA>(width, height, std::move(rgba_data));
 }
 
 
