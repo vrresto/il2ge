@@ -130,7 +130,7 @@ void loadMap(const char *path)
 
 void updateTerrain()
 {
-  getScene()->updateTerrain(getCameraPos());
+  getScene()->updateTerrain(*getCamera());
 }
 
 

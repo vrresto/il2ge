@@ -22,6 +22,7 @@
 #include "map.h"
 #include <misc.h>
 #include <core.h>
+#include <render_util/camera.h>
 
 #include <memory>
 #include <cassert>
@@ -44,7 +45,7 @@ namespace core
     void unloadMap();
     void loadMap(const char *path);
     void update();
-    void updateTerrain(const glm::vec3 &camera_pos);
+    void updateTerrain(const render_util::Camera &camera);
     void setTerrainDrawDistance(float distance);
     void drawTerrain(render_util::ShaderProgramPtr program);
     void updateUniforms(render_util::ShaderProgramPtr program);

@@ -31,6 +31,7 @@
 #include <gl_wrapper/gl_functions.h>
 
 using namespace gl_wrapper::gl_functions;
+using namespace render_util;
 using namespace std;
 
 namespace core
@@ -78,10 +79,10 @@ namespace core
   }
 
 
-  void Scene::updateTerrain(const glm::vec3 &camera_pos)
+  void Scene::updateTerrain(const Camera &camera)
   {
     assert(map);
-    map->getTerrain()->update(camera_pos);
+    map->getTerrain()->update(camera);
   }
 
 
