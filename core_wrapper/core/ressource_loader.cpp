@@ -81,8 +81,8 @@ glm::vec3 core::RessourceLoader::getWaterColor(const glm::vec3 &default_value)
 {
   glm::vec3 water_color = default_value;
 
-//   string value = reader->Get("WATER", "WaterColorATI", "");
-  string value = reader->Get("WATER", "WaterColorNV", "");
+  string value = reader->Get("WATER", "WaterColorATI", "");
+//   string value = reader->Get("WATER", "WaterColorNV", "");
 
   if (!value.empty())
   {
