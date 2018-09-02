@@ -71,7 +71,7 @@ bool loadCrashHandlerLibrary()
     g_log << "Could not load " << crash_handler_library_name << " - backtrace disabled.\n";
     g_log << "To get a useful backtrace please download "
           << drmingw_download_url
-          << " and copy the file bin/exchndl.dll to your IL-2 directory.\n";
+          << " and copy the file bin/mgwhelp.dll to your IL-2 directory.\n";
     g_log.flush();
 
     return false;
