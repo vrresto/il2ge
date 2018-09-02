@@ -803,8 +803,8 @@ void init()
   setProc("glViewport", (void*) &wrap_glViewport);
   setProc("glTexImage2D", (void*) &wrap_glTexImage2D);
 
-  SET_PROC(glDrawElements);
-  SET_PROC(glDrawArrays);
+//   SET_PROC(glDrawElements);
+//   SET_PROC(glDrawArrays);
   SET_PROC(glDrawRangeElements);
   setProc("glDrawRangeElementsEXT", (void*) wrap_glDrawRangeElements);
   #endif
