@@ -40,12 +40,14 @@ using namespace glm;
 using namespace gl_wrapper::gl_functions;
 
 
+namespace
+{
+  auto getTerrainFactory() { return render_util::g_terrain_cdlod_factory; }
+}
+
+
 namespace core
 {
-
-
-typedef render_util::TerrainCDLOD Terrain;
-//   typedef render_util::Terrain Terrain;
 
 
 struct Map::Private
@@ -64,7 +66,7 @@ Map::Map(const char *path) : p(new Private)
 
   p->water_animation = make_shared<render_util::WaterAnimation>();
 
-  p->terrain = make_shared<core::Terrain>();
+  p->terrain = getTerrainFactory()();
   p->terrain->setTextureManager(&core::textureManager());
 
   RessourceLoader res_loader(path);
