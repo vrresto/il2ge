@@ -97,6 +97,10 @@ if(NOT platform_mingw)
 endif(NOT platform_mingw)
 
 
+install(FILES resources/dummy.tga
+  DESTINATION "#SAS/il2ge/il2ge"
+)
+
 install(FILES _modules/mingw_crash_handler/LICENSE.txt
   DESTINATION ${il2ge_data_dir}
   RENAME LICENSE_mingw_crash_handler.txt

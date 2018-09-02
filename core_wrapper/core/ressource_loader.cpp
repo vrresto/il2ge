@@ -141,7 +141,7 @@ bool core::RessourceLoader::readTextureFile(const char *section,
   path += filename;
 
   if (redirect)
-    sfs::redirect(sfs::getHash(path.c_str()), sfs::getHash("dummy.tga"));
+    sfs::redirect(sfs::getHash(path.c_str()), sfs::getHash("il2ge/dummy.tga"));
 
   cout<<"reading "<<path<<endl;
 
@@ -156,7 +156,7 @@ bool core::RessourceLoader::readTextureFile(const char *path_,
   string path = path_;
 
   if (redirect)
-    sfs::redirect(sfs::getHash(path.c_str()), sfs::getHash("dummy.tga"));
+    sfs::redirect(sfs::getHash(path.c_str()), sfs::getHash("il2ge/dummy.tga"));
 
   return sfs::readFile(path, content);
 }
