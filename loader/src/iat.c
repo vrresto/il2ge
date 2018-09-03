@@ -36,7 +36,7 @@ static IMAGE_THUNK_DATA32 *findThunk(const void *function, const char *import_na
   if (dos_headers->e_magic != IMAGE_DOS_SIGNATURE)
   {
     printf("Error: e_magic is no valid DOS signature\n");
-    exit(1);
+    abort();
   }
 
   PIMAGE_NT_HEADERS nt_headers = (PIMAGE_NT_HEADERS)(base_addr + dos_headers->e_lfanew);

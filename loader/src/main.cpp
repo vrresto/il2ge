@@ -114,8 +114,9 @@ HMODULE loadDinputLibrary()
   module = LoadLibraryA(dinput_path);
   if (!module)
   {
-    printf("LoadLibraryA() failed with error %u.\n", GetLastError());
-    exit(1);
+    g_log << "Loading " << dinput_path << " failed with error " << GetLastError() << '\n';
+    g_log.flush();
+    abort();
   }
   return module;
 }
@@ -128,8 +129,9 @@ void loadCoreWrapper(const char *core_library_filename)
   HMODULE core_module = LoadLibraryA(core_library_filename);
   if (!core_module)
   {
-    printf("LoadLibraryA() failed with error %u.\n", GetLastError());
-    exit(1);
+    g_log << "Loading " << core_library_filename << " failed with error " << GetLastError() << '\n';
+    g_log.flush();
+    abort();
   }
   installIATPatches(core_module);
 
@@ -162,7 +164,7 @@ void loadCoreWrapper(const char *core_library_filename)
 
 HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
 {
-  printf("LoadLibrary: %s\n", libFileName);
+  g_log << "LoadLibrary: " << libFileName << '\n';
 
   string module_name = util::makeLowercase(util::basename(libFileName, true));
 
@@ -278,8 +280,6 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
   switch (reason)
   {
     case DLL_PROCESS_ATTACH:
-      printf("*** loader dll process attach ***\n");
-
       g_loader_module = instance;
 
       std::atexit(atexitHandler);
@@ -289,6 +289,10 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
       g_logfile.open(getLogFileName(), ios_base::app);
       if (g_logfile.good())
         g_log.m_outputs.push_back(&g_logfile);
+
+      g_log.printSeparator();
+      g_log << "*** il2ge.dll process attach ***\n";
+      g_log.flush();
 
       installExceptionHandler();
       installIATPatches(GetModuleHandle(0));
