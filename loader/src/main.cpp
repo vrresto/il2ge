@@ -299,6 +299,9 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
 
       std::atexit(atexitHandler);
 
+      freopen("il2ge_out.log", "w", stdout);
+      freopen("il2ge_err.log", "w", stderr);
+
       g_log.m_outputs.push_back(&cerr);
 
       g_logfile.open(getLogFileName(), ios_base::app);
