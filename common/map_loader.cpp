@@ -380,17 +380,17 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
     snprintf(path, sizeof(path), "%s/WaterNoise%.2dDot3.tga", getWaterTextureDir().c_str(), i);
     printf("loading %s...\n", path);
     vector<char> data;
-    if (!loader->readTextureFile(path, data, true))
+    if (!loader->readTextureFile(path, data, false))
     {
       break;
     }
-    render_util::ImageRGBA::Ptr normal_map(render_util::loadImageFromMemory<ImageRGBA>(data));
+    auto normal_map = il2ge::loadImageFromMemory(data, path);
     assert(normal_map);
     normal_maps.push_back(normal_map);
 
     snprintf(path, sizeof(path), "%s/WaterNoiseFoam%.2d.tga", getWaterTextureDir().c_str(), i);
     printf("loading %s...\n", path);
-    if (!loader->readTextureFile(path, data, true))
+    if (!loader->readTextureFile(path, data, false))
     {
       break;
     }
@@ -509,6 +509,7 @@ bool il2ge::isForest(unsigned int index)
     return false;
 }
 
+
 ImageRGBA::Ptr il2ge::getTexture(const char *section,
                           const char *name,
                           const char *default_path,
@@ -533,6 +534,17 @@ ImageRGBA::Ptr il2ge::getTexture(const char *section,
 
   return image;
 }
+
+
+render_util::ImageRGBA::Ptr il2ge::loadImageFromMemory(const std::vector<char> &data,
+                                                       const char *name)
+{
+  if (isIMF(data))
+    return loadImageFromIMF(data, name);
+  else
+    return render_util::loadImageFromMemory<ImageRGBA>(data);
+}
+
 
 void il2ge::createChunks(render_util::ImageGreyScale::ConstPtr image,
                           int chunk_size,

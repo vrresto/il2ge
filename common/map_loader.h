@@ -96,6 +96,7 @@ typename T::Ptr getTexture(const char *section,
 }
 
 
+render_util::ImageRGBA::Ptr loadImageFromMemory(const std::vector<char> &data, const char *name);
 void createChunks(render_util::ImageGreyScale::ConstPtr image, int chunk_size, std::vector<render_util::ImageGreyScale::ConstPtr> &chunks);
 
 
