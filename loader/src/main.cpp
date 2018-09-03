@@ -99,6 +99,7 @@ HMODULE loadDinputLibrary()
   if (module)
   {
     g_log << "Success.\n";
+    g_log.flush();
     return module;
   }
 
@@ -129,6 +130,7 @@ HMODULE loadDinputLibrary()
   }
 
   g_log << "Success.\n";
+  g_log.flush();
 
   return module;
 }
@@ -177,6 +179,7 @@ void loadCoreWrapper(const char *core_library_filename)
 HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
 {
   g_log << "LoadLibrary: " << libFileName << '\n';
+  g_log.flush();
 
   string module_name = util::makeLowercase(util::basename(libFileName, true));
 
