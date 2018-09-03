@@ -1,8 +1,14 @@
 set(library_name "il2ge")
+set(forward_to ${il2ge_lib_dir}/${library_name})
+
+string(REGEX REPLACE "/" "\\\\" forward_to ${forward_to})
+
+configure_file(forwarder.def.in ${CMAKE_CURRENT_BINARY_DIR}/forwarder.def)
+configure_file(forwarder.spec.in ${CMAKE_CURRENT_BINARY_DIR}/forwarder.spec)
 
 set_source_files_properties(
-  forwarder.spec
-  forwarder.def
+  ${CMAKE_CURRENT_BINARY_DIR}/forwarder.spec
+  ${CMAKE_CURRENT_BINARY_DIR}/forwarder.def
   il2ge.def
   PROPERTIES EXTERNAL_OBJECT 1
 )
@@ -40,7 +46,7 @@ else(platform_wine)
 endif(platform_wine)
 
 add_library(dinput SHARED
-  ${forwarder_def}
+  ${CMAKE_CURRENT_BINARY_DIR}/${forwarder_def}
   src/dummy_entry.c
 )
 
