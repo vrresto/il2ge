@@ -93,9 +93,16 @@ LoaderInterface g_interface =
 
 HMODULE loadDinputLibrary()
 {
+  g_log << "Loading bin\\selector\\basefiles\\dinput.dll ...\n";
+
   HMODULE module = LoadLibraryA("bin\\selector\\basefiles\\dinput.dll");
   if (module)
+  {
+    g_log << "Success.\n";
     return module;
+  }
+
+  g_log << "Failed.\n";
 
   static char dinput_path[MAX_PATH];
 
@@ -111,6 +118,8 @@ HMODULE loadDinputLibrary()
     snprintf(dinput_path, sizeof(dinput_path), "%s\\system32\\dinput.dll", system_root);
   }
 
+  g_log << "Loading " << dinput_path << " ...\n";
+
   module = LoadLibraryA(dinput_path);
   if (!module)
   {
@@ -118,6 +127,9 @@ HMODULE loadDinputLibrary()
     g_log.flush();
     abort();
   }
+
+  g_log << "Success.\n";
+
   return module;
 }
 
