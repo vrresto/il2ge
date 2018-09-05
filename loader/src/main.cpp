@@ -299,8 +299,13 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
 
       std::atexit(atexitHandler);
 
-      freopen("il2ge_out.log", "w", stdout);
-      freopen("il2ge_err.log", "w", stderr);
+      {
+        // clear previous contents
+        ofstream all_log("il2ge_all.log");
+      }
+
+      freopen("il2ge_all.log", "a", stdout);
+      freopen("il2ge_all.log", "a", stderr);
 
       g_log.m_outputs.push_back(&cerr);
 
