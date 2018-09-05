@@ -65,9 +65,9 @@ int __cdecl wrap_SFS_openf(unsigned __int64 hash, int flags)
 {
   assert(g_openf_func);
 
-  auto it = g_redirections.find(hash);
-  if (it != g_redirections.end())
-    hash = it->second;
+//   auto it = g_redirections.find(hash);
+//   if (it != g_redirections.end())
+//     hash = it->second;
 
   return g_openf_func(hash, flags);
 }
