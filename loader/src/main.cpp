@@ -67,6 +67,17 @@ DirectInputCreateA_T *g_directInputCreateA_func = 0;
 std::ofstream g_logfile;
 
 
+void initLog()
+{
+  auto out_fd = _fileno(stdout);
+
+  auto res = _dup2(out_fd, 1);
+  assert(res != -1);
+  res = _dup2(out_fd, 2);
+  assert(res != -1);
+}
+
+
 std::string getCoreWrapperFilePath()
 {
   assert(g_core_wrapper_module);
@@ -195,6 +206,7 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
   }
   else if (module_name.compare("jvm") == 0)
   {
+    initLog();
     loadDinputLibrary();
   }
 
