@@ -1,5 +1,5 @@
 set(library_name "il2ge")
-set(forward_to ${il2ge_lib_dir}/${library_name})
+set(forward_to ${library_name})
 
 string(REGEX REPLACE "/" "\\\\" forward_to ${forward_to})
 
@@ -59,7 +59,7 @@ if(platform_mingw)
 endif(platform_mingw)
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${library_name}${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
-  DESTINATION ${il2ge_lib_dir}
+  DESTINATION .
   RENAME ${library_name}.dll
 )
 
