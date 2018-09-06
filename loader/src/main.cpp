@@ -62,6 +62,8 @@ void installIATPatches(HMODULE);
 
 HMODULE g_loader_module = 0;
 HMODULE g_core_wrapper_module = 0;
+HMODULE g_dinput_module = 0;
+bool g_was_loaded_by_selector = false;
 il2ge::CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
 DirectInputCreateA_T *g_directInputCreateA_func = 0;
 std::ofstream g_logfile;
@@ -88,7 +90,7 @@ std::string getCoreWrapperFilePath()
       module_file_name,
       sizeof(module_file_name)))
   {
-    assert(false);
+    abort();
   }
 
   return module_file_name;
@@ -104,14 +106,42 @@ LoaderInterface g_interface =
 
 HMODULE loadDinputLibrary()
 {
+  if (g_dinput_module)
+    return g_dinput_module;
+
+  char exe_path[MAX_PATH];
+
+  auto res = GetModuleFileName(GetModuleHandle(0), exe_path, sizeof(exe_path));
+  if (!res || res == sizeof(exe_path))
+    abort();
+
+  auto dir = util::getDirFromPath(exe_path);
+  assert(!dir.empty());
+
+  auto dummy_dinput_path = dir + "/dinput.dll";
+
+  auto dummy_dinput_module = GetModuleHandle(dummy_dinput_path.c_str());
+  if (!dummy_dinput_module)
+    abort();
+
+  g_was_loaded_by_selector = GetProcAddress(dummy_dinput_module,
+      "Java_com_maddox_sas1946_il2_util_BaseGameVersion_getSelectorInfo") != nullptr;
+
+  if (g_was_loaded_by_selector)
+  {
+    g_log << "IL2GE was loaded by IL-2 Selector.\n";
+    g_dinput_module = dummy_dinput_module;
+    return g_dinput_module;
+  }
+
   g_log << "Loading bin\\selector\\basefiles\\dinput.dll ...\n";
 
-  HMODULE module = LoadLibraryA("bin\\selector\\basefiles\\dinput.dll");
-  if (module)
+  g_dinput_module = LoadLibraryA("bin\\selector\\basefiles\\dinput.dll");
+  if (g_dinput_module)
   {
     g_log << "Success.\n";
     g_log.flush();
-    return module;
+    return g_dinput_module;
   }
 
   g_log << "Failed.\n";
@@ -132,8 +162,8 @@ HMODULE loadDinputLibrary()
 
   g_log << "Loading " << dinput_path << " ...\n";
 
-  module = LoadLibraryA(dinput_path);
-  if (!module)
+  g_dinput_module = LoadLibraryA(dinput_path);
+  if (!g_dinput_module)
   {
     g_log << "Loading " << dinput_path << " failed with error " << GetLastError() << '\n';
     g_log.flush();
@@ -143,7 +173,7 @@ HMODULE loadDinputLibrary()
   g_log << "Success.\n";
   g_log.flush();
 
-  return module;
+  return g_dinput_module;
 }
 
 
@@ -294,6 +324,7 @@ HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, void *ppDI, 
   if (!g_directInputCreateA_func)
   {
     HMODULE dinput_module = loadDinputLibrary();
+    assert(!g_was_loaded_by_selector);
     g_directInputCreateA_func = (DirectInputCreateA_T*) GetProcAddress(dinput_module, "DirectInputCreateA");
     assert(g_directInputCreateA_func);
   }
