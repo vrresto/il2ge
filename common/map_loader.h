@@ -19,6 +19,7 @@
 #ifndef IL2GE_MAP_LOADER
 #define IL2GE_MAP_LOADER
 
+#include <il2ge/map_loader.h>
 #include <il2ge/ressource_loader.h>
 #include <render_util/image.h>
 #include <render_util/image_loader.h>
@@ -32,15 +33,13 @@ namespace il2ge
 {
 
 
-const bool dump_enabled = false;
-
 bool isForest(unsigned int index);
 
 
 template <typename T>
 void dump(std::shared_ptr<T> image, const std::string &name, const std::string &dump_dir)
 {
-  if (dump_enabled && !dump_dir.empty())
+  if (isDumpEnabled() && !dump_dir.empty())
   {
     std::string dump_path = dump_dir + name + ".tga";
     render_util::saveImageToFile<T>(dump_path, image.get());
@@ -51,7 +50,7 @@ void dump(std::shared_ptr<T> image, const std::string &name, const std::string &
 template <typename T>
 void dump(const std::vector<typename T::ConstPtr> &images, const std::string &name, const std::string &dump_dir)
 {
-  if (dump_enabled && !dump_dir.empty())
+  if (isDumpEnabled() && !dump_dir.empty())
   {
     for (size_t i = 0; i < images.size(); i++)
     {

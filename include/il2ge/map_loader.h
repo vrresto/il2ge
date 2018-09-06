@@ -32,6 +32,8 @@ namespace il2ge
 {
   class RessourceLoader;
 
+  bool isDumpEnabled();
+
   void loadMap(il2ge::RessourceLoader *loader,
       render_util::MapTextures *map_textures,
       render_util::TerrainBase *terrain,

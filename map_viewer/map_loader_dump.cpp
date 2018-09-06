@@ -35,6 +35,13 @@ using namespace std;
 using namespace render_util;
 using namespace glm;
 
+
+namespace il2ge
+{
+  bool isDumpEnabled() { return false; }
+}
+
+
 namespace
 {
 

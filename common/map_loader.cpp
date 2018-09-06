@@ -66,12 +66,9 @@ const vec3 default_water_color = vec3(45,51,40) / vec3(255);
 
 void dumpFile(string name, const char *data, size_t data_size, const string &dump_dir)
 {
-  if (!dump_enabled || dump_dir.empty())
+  if (!isDumpEnabled() || dump_dir.empty())
     return;
-  ofstream out(dump_dir + name);
-  assert(out.good());
-  out.write(data, data_size);
-  assert(out.good());
+  util::writeFile(dump_dir + '/' +  name, data, data_size);
 }
 
 bool isIMF(const vector<char> &data)
@@ -375,27 +372,31 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
   int i = 0;
   while (i < MAX_ANIMATION_STEPS)
   {
-    char path[MAX_PATH];
+    char basename[MAX_PATH];
 
-    snprintf(path, sizeof(path), "WaterNoise%.2dDot3.tga", i);
-    printf("loading %s...\n", path);
+    snprintf(basename, sizeof(basename), "WaterNoise%.2dDot3", i);
+    auto filename = string(basename) + ".tga";
+    cout << "loading " << filename << endl;;
     vector<char> data;
-    if (!loader->readWaterAnimation(path, data))
+    if (!loader->readWaterAnimation(filename, data))
     {
       break;
     }
-    auto normal_map = il2ge::loadImageFromMemory(data, path);
+    auto normal_map = il2ge::loadImageFromMemory(data, filename.c_str());
     assert(normal_map);
+    dump(normal_map, basename, loader->getDumpDir());
     normal_maps.push_back(normal_map);
 
-    snprintf(path, sizeof(path), "WaterNoiseFoam%.2d.tga", i);
-    printf("loading %s...\n", path);
-    if (!loader->readWaterAnimation(path, data))
+    snprintf(basename, sizeof(basename), "WaterNoiseFoam%.2d", i);
+    filename = string(basename) + ".tga";
+    cout << "loading " << filename << endl;;
+    if (!loader->readWaterAnimation(filename, data))
     {
       break;
     }
-    ImageGreyScale::Ptr foam_mask(render_util::loadImageFromMemory<ImageGreyScale>(data));
+    auto foam_mask = render_util::loadImageFromMemory<ImageGreyScale>(data);
     assert(foam_mask);
+    dump(foam_mask, basename, loader->getDumpDir());
     foam_masks.push_back(foam_mask);
 
     i++;

@@ -21,11 +21,13 @@
 #include <core.h>
 #include <wgl_wrapper.h>
 #include <misc.h>
+#include <il2ge/map_loader.h>
 
 #include <atmosphere_map.h>
 #include <curvature_map.h>
 #include <render_util/render_util.h>
 
+#include <INIReader.h>
 #include <functional>
 #include <iostream>
 #include <cassert>
@@ -38,6 +40,9 @@ using namespace std;
 
 namespace
 {
+
+
+bool g_dump_enabled = false;
 
 
 void refreshFile(const char *path,
@@ -82,12 +87,24 @@ void refreshFile(const char *path,
 } // namespace
 
 
+namespace il2ge
+{
+  bool isDumpEnabled() { return g_dump_enabled; }
+}
+
+
 namespace core
 {
 
 
 void init()
 {
+  INIReader ini("il2ge.ini");
+  if (!ini.ParseError())
+    g_dump_enabled = ini.GetBoolean("", "EnableDump", false);
+
+  cout << "IL2GE: enable dump: " << g_dump_enabled << endl;
+
 #ifndef NO_REFRESH_MAPS
   auto res = util::mkdir(IL2GE_CACHE_DIR);
   assert(res);
