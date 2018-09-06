@@ -50,6 +50,7 @@ const char* const drmingw_download_url =
 LONG g_handler_entered = 0;
 HMODULE g_crash_handler_module = 0;
 MingwCrashHandlerInterface *g_crash_handler = nullptr;
+HANDLE g_target_thread_mutex = 0;
 
 
 bool loadCrashHandlerLibrary()
@@ -89,15 +90,12 @@ bool loadCrashHandlerLibrary()
 
 DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
 {
-  Sleep(1000); // workaround race condition
+  auto wait_res = WaitForSingleObject(g_target_thread_mutex, INFINITE);
+  assert(wait_res == WAIT_OBJECT_0);
 
   HANDLE thread = lpParameter;
 
   cout<<"target thread: "<<thread<<endl;
-
-  SuspendThread(thread);
-
-  printf("target thread suspended.\n");
 
   CONTEXT context;
   memset(&context, 0, sizeof(context));
@@ -157,7 +155,11 @@ void printBacktracePrivate()
     CloseHandle(currend_thread);
     return;
   }
-  WaitForSingleObject(thread, INFINITE);
+
+  auto wait_res = WaitForSingleObject(g_target_thread_mutex, INFINITE);
+  assert(wait_res == WAIT_OBJECT_0);
+
+  SignalObjectAndWait(g_target_thread_mutex, thread, INFINITE, false);
 
   fprintf(stderr, "backtrace thread returned\n");
 
@@ -243,6 +245,9 @@ void printBacktrace()
 
 void installExceptionHandler()
 {
+  g_target_thread_mutex = CreateMutexA(nullptr, false, nullptr);
+  assert(g_target_thread_mutex);
+
   AddVectoredExceptionHandler(true, &vectoredExceptionHandler);
   std::set_terminate(&terminateHandler);
 }
