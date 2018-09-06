@@ -41,13 +41,23 @@ namespace render_util
 
 int main(int argc, char **argv)
 {
-  if (argc != 2)
+  string map_path;
+
+  if (argc == 1)
   {
-    cerr << "Usage: map_viewer <path to map directory>" << endl;
+    map_path = "il2ge_dump";
+  }
+  else if (argc == 2)
+  {
+    map_path = argv[1];
+  }
+  else
+  {
+    cerr << "Usage: map_viewer [path to map directory]" << endl;
     return 1;
   }
 
-  string map_path = argv[1];
+  assert(!map_path.empty());
 
   render_util::viewer::runViewer(make_shared<MapLoaderDump>(), map_path);
 }
