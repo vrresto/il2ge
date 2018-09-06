@@ -53,9 +53,7 @@ namespace core
               bool redirect,
               float *scale) override;
 
-    bool readTextureFile(const char *path,
-              std::vector<char> &content,
-              bool redirect) override;
+    bool readWaterAnimation(const std::string &file_name, std::vector<char> &content) override;
 
   };
 

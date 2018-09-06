@@ -9,3 +9,7 @@ target_link_libraries(map_viewer
   common
   viewer
 )
+
+install(TARGETS map_viewer
+  DESTINATION .
+)

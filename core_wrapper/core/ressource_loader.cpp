@@ -41,6 +41,13 @@ namespace
     bool res = util::writeFile(dump_dir + name, data, data_size);
     assert(res);
   }
+
+  const string &getWaterAnimationDir()
+  {
+    static string dir = "maps/_Tex/Water/Animated/";
+    return dir;
+  }
+
 }
 
 
@@ -149,14 +156,9 @@ bool core::RessourceLoader::readTextureFile(const char *section,
 }
 
 
-bool core::RessourceLoader::readTextureFile(const char *path_,
-          std::vector<char> &content,
-          bool redirect)
+bool core::RessourceLoader::readWaterAnimation(const string &file_name, std::vector<char> &content)
 {
-  string path = path_;
-
-  if (redirect)
-    sfs::redirect(sfs::getHash(path.c_str()), sfs::getHash("il2ge/dummy.tga"));
-
+  string path = getWaterAnimationDir() + file_name;
+  cout<<"reading "<<path<<endl;
   return sfs::readFile(path, content);
 }

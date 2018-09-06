@@ -291,7 +291,9 @@ void createFieldTextures(ImageGreyScale::Ptr type_map,
 
   assert(textures.size());
 
+  cout << "uploading textures ..." <<endl;
   map_textures->setTextures(textures, texture_scale);
+  cout << "uploading textures ... done." <<endl;
 
   for (int y = 0; y < type_map->h(); y++)
   {
@@ -307,6 +309,8 @@ void createFieldTextures(ImageGreyScale::Ptr type_map,
   }
 
   map_textures->setTypeMap(type_map);
+
+  cout << "generating far texture ..." <<endl;
 
   ImageRGBA::Ptr far_texture =
     createMapFarTexture(type_map,
@@ -346,10 +350,6 @@ void createWaterTypeMap(ImageGreyScale::ConstPtr type_map, MapTextures *map_text
 }
 
 
-string getWaterTextureDir()
-{
-  return "maps/_Tex/Water/Animated";
-}
 
 
 void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
@@ -377,10 +377,10 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
   {
     char path[MAX_PATH];
 
-    snprintf(path, sizeof(path), "%s/WaterNoise%.2dDot3.tga", getWaterTextureDir().c_str(), i);
+    snprintf(path, sizeof(path), "WaterNoise%.2dDot3.tga", i);
     printf("loading %s...\n", path);
     vector<char> data;
-    if (!loader->readTextureFile(path, data, false))
+    if (!loader->readWaterAnimation(path, data))
     {
       break;
     }
@@ -388,9 +388,9 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
     assert(normal_map);
     normal_maps.push_back(normal_map);
 
-    snprintf(path, sizeof(path), "%s/WaterNoiseFoam%.2d.tga", getWaterTextureDir().c_str(), i);
+    snprintf(path, sizeof(path), "WaterNoiseFoam%.2d.tga", i);
     printf("loading %s...\n", path);
-    if (!loader->readTextureFile(path, data, false))
+    if (!loader->readWaterAnimation(path, data))
     {
       break;
     }

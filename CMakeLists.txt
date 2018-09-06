@@ -12,7 +12,8 @@ set(core_wrapper_library_name "il2_core_wrapper")
 set(il2ge_data_dir "il2ge")
 set(il2ge_lib_dir "${il2ge_data_dir}/lib")
 set(il2ge_cache_dir "${il2ge_data_dir}/cache")
-set (renderutil_data_dir ${il2ge_data_dir})
+set (renderutil_base_dir ${il2ge_data_dir})
+set (renderutil_shader_dir ${il2ge_data_dir}/shaders)
 set (renderutil_cache_dir ${il2ge_cache_dir})
 
 if(platform STREQUAL "wine")
@@ -92,9 +93,7 @@ endif(platform_mingw)
 add_subdirectory(common)
 add_subdirectory(core_wrapper)
 add_subdirectory(loader)
-if(NOT platform_mingw)
-  add_subdirectory(map_viewer)
-endif(NOT platform_mingw)
+add_subdirectory(map_viewer)
 
 
 install(FILES resources/dummy.tga

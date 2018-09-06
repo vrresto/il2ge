@@ -52,7 +52,8 @@ public:
 
   std::string getDumpDir() override
   {
-    return "../../../dump/";
+    static string dir = "/dev/null";
+    return dir;
   }
 
   glm::vec3 getWaterColor(const glm::vec3 &default_value) override
@@ -85,6 +86,14 @@ public:
 
     return util::readFile(path, content);
   }
+
+  bool readWaterAnimation(const std::string &file_name, std::vector<char> &content) override
+  {
+    string path = map_dir + '/' + file_name;
+    return util::readFile(path, content);
+  }
+
+
 };
 
 
@@ -98,7 +107,13 @@ void MapLoaderDump::loadMap(const std::string &path, render_util::Map &map)
   vec2 size;
   ivec2 type_map_size;
 
-  il2ge::loadMap(&res_loader, map.textures.get(), map.terrain.get(), size, type_map_size);
+  il2ge::loadMap(&res_loader,
+                 map.textures.get(),
+                 map.terrain.get(),
+                 map.water_animation.get(),
+                 size,
+                 type_map_size);
+
   map.size = size;
   map.type_map_size = type_map_size;
 }

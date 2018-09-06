@@ -48,9 +48,7 @@ namespace il2ge
                             bool redirect,
                             float *scale = nullptr) = 0;
 
-    virtual bool readTextureFile(const char *path,
-                            std::vector<char> &content,
-                            bool redirect) = 0;
+    virtual bool readWaterAnimation(const std::string &file_name, std::vector<char> &content) = 0;
   };
 }
 

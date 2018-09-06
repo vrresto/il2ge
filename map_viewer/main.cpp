@@ -19,10 +19,7 @@
 #include "map_loader_dump.h"
 #include <render_util/viewer.h>
 
-namespace
-{
-  const char map_path[] = "../../../dumps/narvik";
-}
+#include <iostream>
 
 using namespace std;
 
@@ -30,18 +27,26 @@ namespace render_util
 {
   const std::string &getResourcePath()
   {
-    static string path = "../../render_util";
+    static string path = IL2GE_DATA_DIR;
     return path;
   }
 
   const std::string &getDataPath()
   {
-    static string path = "../../../ge_data";
+    static string path = "";
     return path;
   }
 }
 
-int main()
+int main(int argc, char **argv)
 {
-  runViewer(make_shared<MapLoaderDump>(), map_path);
+  if (argc != 2)
+  {
+    cerr << "Usage: map_viewer <path to map directory>" << endl;
+    return 1;
+  }
+
+  string map_path = argv[1];
+
+  render_util::viewer::runViewer(make_shared<MapLoaderDump>(), map_path);
 }
