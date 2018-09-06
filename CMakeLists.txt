@@ -102,17 +102,17 @@ install(FILES resources/dummy.tga
 
 install(FILES _modules/mingw_crash_handler/LICENSE.txt
   DESTINATION ${il2ge_data_dir}
-  RENAME LICENSE_mingw_crash_handler.txt
+  RENAME mingw_crash_handler_LICENSE.txt
 )
 
 install(FILES _modules/inih/LICENSE.txt
   DESTINATION ${il2ge_data_dir}
-  RENAME LICENSE_inih.txt
+  RENAME inih_LICENSE.txt
 )
 
 install(FILES _modules/inih/README.md
   DESTINATION ${il2ge_data_dir}
-  RENAME README_inih.md
+  RENAME inih_README.md
 )
 
 install(DIRECTORY ${renderutil_dir}/shaders
