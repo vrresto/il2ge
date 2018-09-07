@@ -96,6 +96,10 @@ add_subdirectory(loader)
 add_subdirectory(map_viewer)
 
 
+install(FILES README.md
+  DESTINATION ${il2ge_data_dir}
+)
+
 install(FILES resources/dummy.tga
   DESTINATION "#SAS/il2ge/il2ge"
 )
