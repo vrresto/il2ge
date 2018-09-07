@@ -53,6 +53,17 @@ MingwCrashHandlerInterface *g_crash_handler = nullptr;
 HANDLE g_target_thread_mutex = 0;
 
 
+[[ noreturn ]] void die()
+{
+  TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
+
+  while (true)
+  {
+    Sleep(1000);
+  }
+}
+
+
 bool loadCrashHandlerLibrary()
 {
   static bool failed = false;
@@ -113,9 +124,7 @@ DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
     fprintf(stderr, "ERROR: GetThreadContext() failed.\n");
   }
 
-  TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
-  SuspendThread(GetCurrentThread());
-  _Exit(EXIT_FAILURE);
+  die();
 }
 
 
@@ -156,6 +165,7 @@ void printBacktracePrivate()
   {
     fprintf(stderr, "ERROR: can't create backtrace thread - error code: 0x%x\n", GetLastError());
     CloseHandle(currend_thread);
+    ReleaseMutex(g_target_thread_mutex);
     return;
   }
 
@@ -163,6 +173,7 @@ void printBacktracePrivate()
 
   fprintf(stderr, "backtrace thread returned\n");
 
+  ReleaseMutex(g_target_thread_mutex);
   CloseHandle(currend_thread);
 }
 
@@ -173,7 +184,7 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
   {
     if (InterlockedIncrement(&g_handler_entered) != 1)
     {
-      _Exit(1);
+      die();
     }
 
     if (loadCrashHandlerLibrary())
@@ -192,10 +203,7 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 
         g_crash_handler->crashHandler(info);
 
-        TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
-        SuspendThread(GetCurrentThread());
-        _Exit(EXIT_FAILURE);
-
+        die();
       }
     }
 
@@ -281,9 +289,7 @@ void abort()
     g_log.flush();
   }
 
-  TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
-  SuspendThread(GetCurrentThread());
-  _Exit(EXIT_FAILURE);
+  die();
 }
 
 
