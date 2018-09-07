@@ -104,11 +104,8 @@ LoaderInterface g_interface =
 };
 
 
-HMODULE loadDinputLibrary()
+void lookForSelector()
 {
-  if (g_dinput_module)
-    return g_dinput_module;
-
   char exe_path[MAX_PATH];
 
   auto res = GetModuleFileName(GetModuleHandle(0), exe_path, sizeof(exe_path));
@@ -131,8 +128,17 @@ HMODULE loadDinputLibrary()
   {
     g_log << "IL2GE was loaded by IL-2 Selector.\n";
     g_dinput_module = dummy_dinput_module;
-    return g_dinput_module;
   }
+
+}
+
+
+HMODULE loadDinputLibrary()
+{
+  if (g_dinput_module)
+    return g_dinput_module;
+
+  assert(!g_was_loaded_by_selector);
 
   g_log << "Loading bin\\selector\\basefiles\\dinput.dll ...\n";
 
@@ -362,6 +368,9 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
 
       installExceptionHandler();
       installIATPatches(GetModuleHandle(0));
+      lookForSelector();
+      if (g_was_loaded_by_selector)
+        installIATPatches(GetModuleHandle("jvm.dll"));
 
       break;
     case DLL_PROCESS_DETACH:
