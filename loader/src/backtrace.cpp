@@ -47,9 +47,38 @@ const char* const drmingw_download_url =
   "https://github.com/jrfonseca/drmingw/releases/download/0.8.2/drmingw-0.8.2-win32.7z";
 
 
+class Lock
+{
+  HANDLE m_mutex;
+
+public:
+  Lock(HANDLE mutex) : m_mutex(mutex)
+  {
+    SetLastError(ERROR_SUCCESS);
+    auto wait_res = WAIT_FAILED;
+
+    while (wait_res != WAIT_OBJECT_0)
+    {
+      wait_res = WaitForSingleObject(m_mutex, INFINITE);
+      if (wait_res != WAIT_OBJECT_0)
+      {
+        fprintf(stderr, "WaitForSingleObject() failed - wait_res: 0x%x - error: 0x%x\n",
+                wait_res,
+                GetLastError());
+      }
+    }
+  }
+  ~Lock()
+  {
+    auto release_res = ReleaseMutex(m_mutex);
+    assert(release_res);
+  }
+};
+
+
 LONG g_handler_entered = 0;
-HMODULE g_crash_handler_module = 0;
 MingwCrashHandlerInterface *g_crash_handler = nullptr;
+HANDLE g_crash_handler_mutex = 0;
 HANDLE g_target_thread_mutex = 0;
 
 
@@ -66,8 +95,12 @@ HANDLE g_target_thread_mutex = 0;
 
 bool loadCrashHandlerLibrary()
 {
-  static bool failed = false;
-  if (failed)
+  Lock lock(g_crash_handler_mutex);
+
+  static HMODULE g_crash_handler_module = 0;
+
+  static bool g_failed = false;
+  if (g_failed)
     return false;
 
   if (g_crash_handler_module)
@@ -77,7 +110,7 @@ bool loadCrashHandlerLibrary()
 
   if (!g_crash_handler_module)
   {
-    failed = true;
+    g_failed = true;
 
     g_log.printSeparator();
     g_log << "Could not load " << crash_handler_library_name << " - backtrace disabled.\n";
@@ -114,10 +147,9 @@ DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
 
   if (GetThreadContext(thread, &context))
   {
-    if (loadCrashHandlerLibrary())
-    {
-      g_crash_handler->dumpStack(&context);
-    }
+    Lock lock(g_crash_handler_mutex);
+    assert(g_crash_handler);
+    g_crash_handler->dumpStack(&context);
   }
   else
   {
@@ -130,6 +162,9 @@ DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
 
 void printBacktracePrivate()
 {
+  if (!loadCrashHandlerLibrary())
+    return;
+
   HANDLE currend_thread = 0;
   bool res = DuplicateHandle(GetCurrentProcess(),
                              GetCurrentThread(),
@@ -189,6 +224,8 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 
     if (loadCrashHandlerLibrary())
     {
+      Lock lock(g_crash_handler_mutex);
+
       HMODULE module = (HMODULE)
           g_crash_handler->getModuleBase(info->ExceptionRecord->ExceptionAddress);
 
@@ -255,6 +292,8 @@ void installExceptionHandler()
 {
   g_target_thread_mutex = CreateMutexA(nullptr, false, nullptr);
   assert(g_target_thread_mutex);
+  g_crash_handler_mutex = CreateMutexA(nullptr, false, nullptr);
+  assert(g_crash_handler_mutex);
 
   AddVectoredExceptionHandler(true, &vectoredExceptionHandler);
   std::set_terminate(&terminateHandler);
