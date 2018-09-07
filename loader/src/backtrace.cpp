@@ -143,6 +143,9 @@ void printBacktracePrivate()
   fflush(stderr);
   SetLastError(0);
 
+  auto wait_res = WaitForSingleObject(g_target_thread_mutex, INFINITE);
+  assert(wait_res == WAIT_OBJECT_0);
+
   auto thread = CreateThread(nullptr,
                              0,
                              &backtraceThreadMain,
@@ -155,9 +158,6 @@ void printBacktracePrivate()
     CloseHandle(currend_thread);
     return;
   }
-
-  auto wait_res = WaitForSingleObject(g_target_thread_mutex, INFINITE);
-  assert(wait_res == WAIT_OBJECT_0);
 
   SignalObjectAndWait(g_target_thread_mutex, thread, INFINITE, false);
 
