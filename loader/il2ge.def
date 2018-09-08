@@ -1,2 +1,2 @@
 EXPORTS
-  DirectInputCreateA
+  Init=il2ge_init

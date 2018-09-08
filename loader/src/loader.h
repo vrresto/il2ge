@@ -55,4 +55,7 @@ HMODULE getLoaderModule();
 HMODULE getCoreWrapperModule();
 const char *getLogFileName();
 
+extern "C" void WINAPI il2ge_init();
+
+
 #endif

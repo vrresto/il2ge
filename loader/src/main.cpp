@@ -55,6 +55,7 @@ namespace
 
 
 const char* const g_log_file_name = "il2ge.log";
+const bool g_was_loaded_by_selector = true;
 
 typedef HRESULT __stdcall DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
 
@@ -63,7 +64,6 @@ void installIATPatches(HMODULE);
 HMODULE g_loader_module = 0;
 HMODULE g_core_wrapper_module = 0;
 HMODULE g_dinput_module = 0;
-bool g_was_loaded_by_selector = false;
 il2ge::CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
 DirectInputCreateA_T *g_directInputCreateA_func = 0;
 std::ofstream g_logfile;
@@ -121,13 +121,19 @@ void lookForSelector()
   if (!dummy_dinput_module)
     abort();
 
-  g_was_loaded_by_selector = GetProcAddress(dummy_dinput_module,
+  bool was_loaded_by_selector = GetProcAddress(dummy_dinput_module,
       "Java_com_maddox_sas1946_il2_util_BaseGameVersion_getSelectorInfo") != nullptr;
 
-  if (g_was_loaded_by_selector)
+  if (was_loaded_by_selector)
   {
     g_log << "IL2GE was loaded by IL-2 Selector.\n";
     g_dinput_module = dummy_dinput_module;
+  }
+  else
+  {
+    g_log << "ERROR: IL2GE was NOT loaded by IL-2 Selector.\n";
+    g_log.flush();
+    abort();
   }
 
 }
@@ -135,6 +141,10 @@ void lookForSelector()
 
 HMODULE loadDinputLibrary()
 {
+  assert(g_dinput_module);
+  return g_dinput_module;
+
+#if 0
   if (g_dinput_module)
     return g_dinput_module;
 
@@ -180,6 +190,7 @@ HMODULE loadDinputLibrary()
   g_log.flush();
 
   return g_dinput_module;
+#endif
 }
 
 
@@ -324,7 +335,7 @@ const char *getLogFileName()
 extern "C"
 {
 
-
+#if 0
 HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, void *ppDI, LPUNKNOWN punkOuter)
 {
   if (!g_directInputCreateA_func)
@@ -337,6 +348,37 @@ HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, void *ppDI, 
 
   return g_directInputCreateA_func(hinst, dwVersion, ppDI, punkOuter);
 }
+#endif
+
+
+void WINAPI il2ge_init()
+{
+  std::atexit(atexitHandler);
+
+  {
+    // clear previous contents
+    ofstream all_log("il2ge_all.log");
+  }
+
+  freopen("il2ge_all.log", "a", stdout);
+  freopen("il2ge_all.log", "a", stderr);
+
+  g_log.m_outputs.push_back(&cerr);
+
+  g_logfile.open(getLogFileName(), ios_base::app);
+  if (g_logfile.good())
+    g_log.m_outputs.push_back(&g_logfile);
+
+  g_log.printSeparator();
+  g_log << "*** il2ge.dll initialization ***\n";
+  g_log.flush();
+
+  initLog();
+  installExceptionHandler();
+  installIATPatches(GetModuleHandle(0));
+  lookForSelector();
+  installIATPatches(GetModuleHandle("jvm.dll"));
+}
 
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
@@ -345,33 +387,6 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
   {
     case DLL_PROCESS_ATTACH:
       g_loader_module = instance;
-
-      std::atexit(atexitHandler);
-
-      {
-        // clear previous contents
-        ofstream all_log("il2ge_all.log");
-      }
-
-      freopen("il2ge_all.log", "a", stdout);
-      freopen("il2ge_all.log", "a", stderr);
-
-      g_log.m_outputs.push_back(&cerr);
-
-      g_logfile.open(getLogFileName(), ios_base::app);
-      if (g_logfile.good())
-        g_log.m_outputs.push_back(&g_logfile);
-
-      g_log.printSeparator();
-      g_log << "*** il2ge.dll process attach ***\n";
-      g_log.flush();
-
-      installExceptionHandler();
-      installIATPatches(GetModuleHandle(0));
-      lookForSelector();
-      if (g_was_loaded_by_selector)
-        installIATPatches(GetModuleHandle("jvm.dll"));
-
       break;
     case DLL_PROCESS_DETACH:
       break;
