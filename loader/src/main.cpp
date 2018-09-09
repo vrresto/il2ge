@@ -39,11 +39,6 @@ using namespace std;
 extern "C"
 {
   BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
-
-  HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst,
-                                    DWORD dwVersion,
-                                    void *ppDI,
-                                    LPUNKNOWN punkOuter);
 }
 
 
@@ -55,17 +50,12 @@ namespace
 
 
 const char* const g_log_file_name = "il2ge.log";
-const bool g_was_loaded_by_selector = true;
-
-typedef HRESULT __stdcall DirectInputCreateA_T(HINSTANCE, DWORD, void*, LPUNKNOWN);
 
 void installIATPatches(HMODULE);
 
 HMODULE g_loader_module = 0;
 HMODULE g_core_wrapper_module = 0;
-HMODULE g_dinput_module = 0;
 il2ge::CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
-DirectInputCreateA_T *g_directInputCreateA_func = 0;
 std::ofstream g_logfile;
 
 
@@ -102,96 +92,6 @@ LoaderInterface g_interface =
   &patchIAT,
   &getCoreWrapperFilePath
 };
-
-
-void lookForSelector()
-{
-  char exe_path[MAX_PATH];
-
-  auto res = GetModuleFileName(GetModuleHandle(0), exe_path, sizeof(exe_path));
-  if (!res || res == sizeof(exe_path))
-    abort();
-
-  auto dir = util::getDirFromPath(exe_path);
-  assert(!dir.empty());
-
-  auto dummy_dinput_path = dir + "/dinput.dll";
-
-  auto dummy_dinput_module = GetModuleHandle(dummy_dinput_path.c_str());
-  if (!dummy_dinput_module)
-    abort();
-
-  bool was_loaded_by_selector = GetProcAddress(dummy_dinput_module,
-      "Java_com_maddox_sas1946_il2_util_BaseGameVersion_getSelectorInfo") != nullptr;
-
-  if (was_loaded_by_selector)
-  {
-    g_log << "IL2GE was loaded by IL-2 Selector.\n";
-    g_dinput_module = dummy_dinput_module;
-  }
-  else
-  {
-    g_log << "ERROR: IL2GE was NOT loaded by IL-2 Selector.\n";
-    g_log.flush();
-    abort();
-  }
-
-}
-
-
-HMODULE loadDinputLibrary()
-{
-  assert(g_dinput_module);
-  return g_dinput_module;
-
-#if 0
-  if (g_dinput_module)
-    return g_dinput_module;
-
-  assert(!g_was_loaded_by_selector);
-
-  g_log << "Loading bin\\selector\\basefiles\\dinput.dll ...\n";
-
-  g_dinput_module = LoadLibraryA("bin\\selector\\basefiles\\dinput.dll");
-  if (g_dinput_module)
-  {
-    g_log << "Success.\n";
-    g_log.flush();
-    return g_dinput_module;
-  }
-
-  g_log << "Failed.\n";
-
-  static char dinput_path[MAX_PATH];
-
-  const char *dinput_dir = getenv("DINPUT_DIR");
-  if (dinput_dir)
-  {
-    snprintf(dinput_path, sizeof(dinput_path), "%s\\dinput.dll", dinput_dir);
-  }
-  else
-  {
-    const char *system_root = getenv("SystemRoot");
-    assert(system_root);
-    snprintf(dinput_path, sizeof(dinput_path), "%s\\system32\\dinput.dll", system_root);
-  }
-
-  g_log << "Loading " << dinput_path << " ...\n";
-
-  g_dinput_module = LoadLibraryA(dinput_path);
-  if (!g_dinput_module)
-  {
-    g_log << "Loading " << dinput_path << " failed with error " << GetLastError() << '\n';
-    g_log.flush();
-    abort();
-  }
-
-  g_log << "Success.\n";
-  g_log.flush();
-
-  return g_dinput_module;
-#endif
-}
 
 
 void loadCoreWrapper(const char *core_library_filename)
@@ -246,15 +146,6 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
   {
     loadCoreWrapper(libFileName);
     return g_core_wrapper_module;
-  }
-  else if (module_name.compare("dinput") == 0)
-  {
-    return loadDinputLibrary();
-  }
-  else if (module_name.compare("jvm") == 0)
-  {
-    initLog();
-    loadDinputLibrary();
   }
 
   HMODULE module = LoadLibraryA(libFileName);
@@ -343,21 +234,6 @@ void fatalError(const std::string &message)
 extern "C"
 {
 
-#if 0
-HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, void *ppDI, LPUNKNOWN punkOuter)
-{
-  if (!g_directInputCreateA_func)
-  {
-    HMODULE dinput_module = loadDinputLibrary();
-    assert(!g_was_loaded_by_selector);
-    g_directInputCreateA_func = (DirectInputCreateA_T*) GetProcAddress(dinput_module, "DirectInputCreateA");
-    assert(g_directInputCreateA_func);
-  }
-
-  return g_directInputCreateA_func(hinst, dwVersion, ppDI, punkOuter);
-}
-#endif
-
 
 void WINAPI il2ge_init()
 {
@@ -383,9 +259,12 @@ void WINAPI il2ge_init()
 
   initLog();
   installExceptionHandler();
+
+  auto jvm_module = GetModuleHandle("jvm.dll");
+  assert(jvm_module);
+
   installIATPatches(GetModuleHandle(0));
-  lookForSelector();
-  installIATPatches(GetModuleHandle("jvm.dll"));
+  installIATPatches(jvm_module);
 }
 
 
