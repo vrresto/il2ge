@@ -62,7 +62,6 @@ namespace
 bool g_initialized = false;
 const LoaderInterface *g_loader = nullptr;
 HMODULE g_core_module = 0;
-HMODULE g_gl_module = 0;
 // isCubeUpdated_T *is_cube_updated_func = nullptr;
 
 
@@ -80,12 +79,12 @@ HMODULE WINAPI wrap_JGL_LoadLibrary(LPCSTR libFileName)
 
   HMODULE module = LoadLibraryA(libFileName);
 
-  if (strcasecmp(libFileName, "opengl32.dll") == 0)
-    g_gl_module = module;
-  else
-     assert(0);
+  if (module != wgl_wrapper::getGLModule())
+  {
+    fatalError("DirectX mode is not supported.");
+  }
 
-  return g_gl_module;
+  return module;
 }
 
 

@@ -22,6 +22,9 @@
 #include <string>
 #include <windef.h>
 
+
+void fatalError(const std::string &message);
+
 struct LoaderInterface
 {
   void (*patchIAT)(const char *function_name,

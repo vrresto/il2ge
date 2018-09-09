@@ -332,6 +332,14 @@ const char *getLogFileName()
 }
 
 
+void fatalError(const std::string &message)
+{
+  g_log << "ERROR: " << message << '\n';
+  g_log.flush();
+  _Exit(1);
+}
+
+
 extern "C"
 {
 

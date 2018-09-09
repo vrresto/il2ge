@@ -60,6 +60,7 @@ struct GlobalData
   DWORD m_main_thread = 0;
   bool m_in_shutdown = false;
   HANDLE m_mutex = 0;
+  HMODULE m_gl_module = 0;
 };
 
 
@@ -118,7 +119,7 @@ BOOL WINAPI wrap_wglMakeContextCurrentARB(HDC hDrawDC, HDC hReadDC, HGLRC hglrc)
 
 void *getProcAddress_ext(const char *name)
 {
-  void *func = (void*) GetProcAddress(GetModuleHandle("opengl32.dll"), name);
+  void *func = (void*) GetProcAddress(g_data.m_gl_module, name);
   if (!func)
     func = (void*) real_wglGetProcAddress(name);
 
@@ -256,12 +257,21 @@ namespace wgl_wrapper
 
 void init()
 {
+  g_data.m_gl_module = LoadLibrary("opengl32.dll");
+  assert(g_data.m_gl_module);
+
   g_data.m_mutex = CreateMutexA(
       NULL,              // default security attributes
       FALSE,             // initially not owned
       NULL);             // unnamed mutex
 
   assert(g_data.m_mutex);
+}
+
+
+HMODULE getGLModule()
+{
+  return g_data.m_gl_module;
 }
 
 
