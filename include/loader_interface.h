@@ -23,7 +23,7 @@
 #include <windef.h>
 
 
-void fatalError(const std::string &message);
+[[ noreturn ]] void fatalError(const std::string &message);
 
 struct LoaderInterface
 {
