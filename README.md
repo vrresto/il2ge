@@ -5,7 +5,7 @@ I recommend using Carsmaster's water mod.
 ## Requirements
 - IL-2 Selector (at least Version 3.4.2)
 - Settings:
-   - OpenGL mode - DirecX is not supported
+   - OpenGL mode - DirectX is not supported
    - perfect mode
    - conf.ini:
       ```
