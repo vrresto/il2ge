@@ -18,6 +18,9 @@ I recommend using Carsmaster's water mod.
       Water=0
       ```
 
+## Installation
+Extract the contents of `install` in the zip file into your IL-2 folder.
+
 ## Current Bugs / Limitations
 - terrain artifacts (e.g. appears lower than it acually is)
 - objects appear in front of terrain even if they are behind it
@@ -27,4 +30,4 @@ I recommend using Carsmaster's water mod.
 - water is flat
 - no cloud shadows
 - no cirrus clouds
-- lighting/atmospheric effect is not applied to objects (planes/buildings/trees/roads/clouds/etc.)
+- lighting / atmospheric effect is not applied to objects (planes/buildings/trees/roads/clouds/etc.)
