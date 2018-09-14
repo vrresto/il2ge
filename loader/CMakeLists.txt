@@ -1,10 +1,4 @@
 set(library_name "il2ge")
-set(forward_to ${library_name})
-
-string(REGEX REPLACE "/" "\\\\" forward_to ${forward_to})
-
-configure_file(forwarder.def.in ${CMAKE_CURRENT_BINARY_DIR}/forwarder.def)
-configure_file(forwarder.spec.in ${CMAKE_CURRENT_BINARY_DIR}/forwarder.spec)
 
 set(build_job_id $ENV{CI_JOB_ID})
 set(commit_sha $ENV{CI_COMMIT_SHA})
@@ -20,8 +14,6 @@ endif()
 configure_file(version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
 
 set_source_files_properties(
-  ${CMAKE_CURRENT_BINARY_DIR}/forwarder.spec
-  ${CMAKE_CURRENT_BINARY_DIR}/forwarder.def
   il2ge.def
   PROPERTIES EXTERNAL_OBJECT 1
 )
@@ -53,31 +45,7 @@ if(platform_mingw)
   )
 endif(platform_mingw)
 
-if(platform_wine)
-  set(forwarder_def forwarder.spec)
-else(platform_wine)
-  set(forwarder_def forwarder.def)
-endif(platform_wine)
-
-add_library(dinput SHARED
-  ${CMAKE_CURRENT_BINARY_DIR}/${forwarder_def}
-  src/dummy_entry.c
-)
-
-if(platform_mingw)
-  target_link_libraries(dinput
-    -nostartfiles
-    -nostdlib
-    -s
-  )
-endif(platform_mingw)
-
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${library_name}${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
   DESTINATION .
   RENAME ${library_name}.dll
-)
-
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/dinput${CMAKE_SHARED_LIBRARY_SUFFIX_C}
-  DESTINATION ${il2ge_lib_dir}
-  RENAME dinput.dll
 )
