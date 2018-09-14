@@ -20,5 +20,7 @@ Water=0
 - no water reflections
 - water is flat
 - no cloud shadows
+- no cirrus clouds
+- lighting/atmospheric effect is not applied to objects (planes/buildings/trees/roads/clouds)
 
 I recommend using Carsmaster's water mod.
