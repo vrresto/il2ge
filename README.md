@@ -16,7 +16,7 @@ Water=0
 - terrain artifacts (e.g. appears lower than it acually is)
 - objects appear in front of terrain even if they are behind it
 - no normal/bump maps
-- lighting / atmosphere color could use some tuning, or a better (PBR-based) algorithm
+- lighting / atmosphere color could use some tuning, or a better (PBR) algorithm
 - no water reflections
 - water is flat
 - no cloud shadows
