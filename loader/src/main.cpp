@@ -20,6 +20,7 @@
 #include "iat.h"
 #include <loader_interface.h>
 #include <il2ge/core_wrapper.h>
+#include <il2ge/version.h>
 #include <util.h>
 
 #include <iostream>
@@ -255,6 +256,8 @@ void WINAPI il2ge_init()
 
   g_log.printSeparator();
   g_log << "*** il2ge.dll initialization ***\n";
+  g_log << "Build: " << il2ge::version::getBuildJobID() << '\n';
+  g_log << "Commit: " << il2ge::version::getCommitSHA() << '\n';
   g_log.flush();
 
   initLog();

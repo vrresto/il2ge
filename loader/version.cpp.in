@@ -1,0 +1,18 @@
+#include <il2ge/version.h>
+
+namespace il2ge::version
+{
+
+  const std::string &getBuildJobID()
+  {
+    static const std::string id = "${build_job_id}";
+    return id;
+  }
+
+  const std::string &getCommitSHA()
+  {
+    static const std::string sha = "${commit_sha}";
+    return sha;
+  }
+
+}

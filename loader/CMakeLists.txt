@@ -6,6 +6,19 @@ string(REGEX REPLACE "/" "\\\\" forward_to ${forward_to})
 configure_file(forwarder.def.in ${CMAKE_CURRENT_BINARY_DIR}/forwarder.def)
 configure_file(forwarder.spec.in ${CMAKE_CURRENT_BINARY_DIR}/forwarder.spec)
 
+set(build_job_id $ENV{CI_JOB_ID})
+set(commit_sha $ENV{CI_COMMIT_SHA})
+
+if(NOT build_job_id)
+  set(build_job_id "local")
+endif()
+
+if(NOT commit_sha)
+  set(commit_sha "unknown")
+endif()
+
+configure_file(version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
+
 set_source_files_properties(
   ${CMAKE_CURRENT_BINARY_DIR}/forwarder.spec
   ${CMAKE_CURRENT_BINARY_DIR}/forwarder.def
@@ -22,6 +35,7 @@ set(SRCS
   src/iat.c
   src/backtrace.cpp
   src/main.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
 )
 
 add_library(${library_name} SHARED ${SRCS})
