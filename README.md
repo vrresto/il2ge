@@ -5,12 +5,17 @@
 
 ## Required settings
 - OpenGL mode - DirecX is not supported
-- conf.ini
-[GLPROVIDER]
-GL=Opengl32.dll
-[Render_OpenGL]
-HardwareShaders=1
-Water=0
+- perfect mode
+- conf.ini  
+  ```
+  [GLPROVIDER]
+  GL=Opengl32.dll
+  ```
+  ```
+  [Render_OpenGL]  
+  HardwareShaders=1  
+  Water=0
+  ```
 
 ## Current Bugs / Limitations
 - terrain artifacts (e.g. appears lower than it acually is)
