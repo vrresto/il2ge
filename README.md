@@ -1,21 +1,22 @@
 # IL-2 Graphics Extender (IL2GE)
 
+I recommend using Carsmaster's water mod.
+
 ## Requirements
 - IL-2 Selector (at least Version 3.4.2)
-
-## Required settings
-- OpenGL mode - DirecX is not supported
-- perfect mode
-- conf.ini  
-  ```
-  [GLPROVIDER]
-  GL=Opengl32.dll
-  ```
-  ```
-  [Render_OpenGL]  
-  HardwareShaders=1  
-  Water=0
-  ```
+- Settings:
+   - OpenGL mode - DirecX is not supported
+   - perfect mode
+   - conf.ini:
+      ```
+      [GLPROVIDER]
+      GL=Opengl32.dll
+      ```
+      ```
+      [Render_OpenGL]  
+      HardwareShaders=1  
+      Water=0
+      ```
 
 ## Current Bugs / Limitations
 - terrain artifacts (e.g. appears lower than it acually is)
@@ -27,5 +28,3 @@
 - no cloud shadows
 - no cirrus clouds
 - lighting/atmospheric effect is not applied to objects (planes/buildings/trees/roads/clouds/etc.)
-
-I recommend using Carsmaster's water mod.
