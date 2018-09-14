@@ -26,6 +26,6 @@
 - water is flat
 - no cloud shadows
 - no cirrus clouds
-- lighting/atmospheric effect is not applied to objects (planes/buildings/trees/roads/clouds)
+- lighting/atmospheric effect is not applied to objects (planes/buildings/trees/roads/clouds/etc.)
 
 I recommend using Carsmaster's water mod.
