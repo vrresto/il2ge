@@ -70,6 +70,7 @@ namespace core
   void loadMap(const char *path);
   void unloadMap();
 
+  render_util::ShaderProgramPtr getTerrainProgram();
 //   void updateWaterAnimation();
   void drawTerrain(render_util::ShaderProgramPtr program);
   void updateTerrain();

@@ -49,6 +49,7 @@ namespace core
     void setTerrainDrawDistance(float distance);
     void drawTerrain(render_util::ShaderProgramPtr program);
     void updateUniforms(render_util::ShaderProgramPtr program);
+    render_util::ShaderProgramPtr getTerrainProgram();
   };
 };
 

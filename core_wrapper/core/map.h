@@ -41,6 +41,7 @@ namespace core
     ~Map();
 
     render_util::TerrainBase *getTerrain();
+    render_util::ShaderProgramPtr getTerrainProgram();
     render_util::WaterAnimation *getWaterAnimation();
     glm::vec2 getSize();
     glm::ivec2 getTypeMapSize();

@@ -107,4 +107,10 @@ namespace core
   }
 
 
+  render_util::ShaderProgramPtr Scene::getTerrainProgram()
+  {
+    assert(map);
+    return map->getTerrainProgram();
+  }
+
 }

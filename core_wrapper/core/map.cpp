@@ -22,8 +22,7 @@
 
 #include <sfs.h>
 #include <core.h>
-#include <render_util/terrain_cdlod.h>
-#include <render_util/terrain.h>
+#include <render_util/terrain_util.h>
 #include <render_util/map_textures.h>
 #include <render_util/image_loader.h>
 #include <render_util/water.h>
@@ -42,7 +41,8 @@ using namespace gl_wrapper::gl_functions;
 
 namespace
 {
-  auto getTerrainFactory() { return render_util::g_terrain_cdlod_factory; }
+  const bool g_terrain_use_lod = true;
+  const std::string g_shader_path = IL2GE_DATA_DIR "/shaders";
 }
 
 
@@ -54,9 +54,9 @@ struct Map::Private
 {
   glm::vec2 size;
   glm::ivec2 type_map_size;
-  shared_ptr<render_util::TerrainBase> terrain;
   shared_ptr<render_util::MapTextures> textures;
   shared_ptr<render_util::WaterAnimation> water_animation;
+  TerrainRenderer terrain_renderer;
 };
 
 
@@ -66,14 +66,13 @@ Map::Map(const char *path) : p(new Private)
 
   p->water_animation = make_shared<render_util::WaterAnimation>();
 
-  p->terrain = getTerrainFactory()();
-  p->terrain->setTextureManager(&core::textureManager());
+  p->terrain_renderer = createTerrainRenderer(textureManager(), g_terrain_use_lod, g_shader_path);
 
   RessourceLoader res_loader(path);
 
   il2ge::loadMap(&res_loader,
                  p->textures.get(),
-                 p->terrain.get(),
+                 getTerrain(),
                  p->water_animation.get(),
                  p->size,
                  p->type_map_size);
@@ -88,7 +87,12 @@ Map::~Map()
 
 render_util::TerrainBase *Map::getTerrain()
 {
-  return p->terrain.get();
+  return p->terrain_renderer.m_terrain.get();
+}
+
+render_util::ShaderProgramPtr Map::getTerrainProgram()
+{
+  return p->terrain_renderer.m_program;
 }
 
 render_util::WaterAnimation *Map::getWaterAnimation()

@@ -187,4 +187,9 @@ render_util::TextureManager &textureManager()
 }
 
 
+render_util::ShaderProgramPtr getTerrainProgram()
+{
+  return getScene()->getTerrainProgram();
+}
+
 } // namespace core

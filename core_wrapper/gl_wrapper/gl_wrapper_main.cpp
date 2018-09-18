@@ -116,25 +116,6 @@ render_util::ShaderProgramPtr getTreeProgram()
 }
 
 
-render_util::ShaderProgramPtr getTerrainProgram()
-{
-  core_gl_wrapper::Context *ctx = core_gl_wrapper::getContext();
-  if (!ctx->terrain_program)
-  {
-    CHECK_GL_ERROR();
-
-    map<unsigned int, string> attribute_locations = { { 4, "attrib_pos" } };
-
-    ctx->terrain_program = render_util::createShaderProgram("terrain_cdlod",
-                                                        core::textureManager(),
-                                                        SHADER_PATH,
-                                                        attribute_locations);
-    CHECK_GL_ERROR();
-  }
-  return ctx->terrain_program;
-}
-
-
 render_util::ShaderProgramPtr getForestProgram()
 {
   core_gl_wrapper::Context *ctx = core_gl_wrapper::getContext();
