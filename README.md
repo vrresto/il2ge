@@ -27,7 +27,7 @@ Extract the contents of `install` in the zip file into your IL-2 folder.
 - objects appear in front of terrain even if they are behind it
 - forest near/far texture is not blended
 - no normal/bump maps
-- lighting at disk/dawn/night needs improvement
+- lighting at dusk/dawn/night needs improvement
 - lighting / atmosphere color could use some tuning, or a better (PBR) algorithm
 - no water reflections
 - water is flat
