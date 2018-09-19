@@ -22,6 +22,7 @@ I recommend using Carsmaster's water mod.
 Extract the contents of `install` in the zip file into your IL-2 folder.
 
 ## Current Bugs / Limitations
+- no ground fog on terrain (objects are fogged, so this looks odd)
 - currently only cloudless weather looks as intended
 - terrain artifacts (e.g. appears lower than it acually is)
 - objects appear in front of terrain even if they are behind it
