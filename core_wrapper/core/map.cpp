@@ -66,16 +66,23 @@ Map::Map(const char *path) : p(new Private)
 
   p->water_animation = make_shared<render_util::WaterAnimation>();
 
-  p->terrain_renderer = createTerrainRenderer(textureManager(), g_terrain_use_lod, g_shader_path);
+  string terrain_program_name;
+
+  p->terrain_renderer = createTerrainRenderer(textureManager(), g_terrain_use_lod, g_shader_path, terrain_program_name);
+
+
+  p->terrain_renderer.getProgram()->setUniform("terrain_color", glm::vec3(1,0,0));
 
   RessourceLoader res_loader(path);
 
   il2ge::loadMap(&res_loader,
                  p->textures.get(),
-                 getTerrain(),
+                 nullptr,
                  p->water_animation.get(),
                  p->size,
                  p->type_map_size);
+
+  il2ge::createTerrain(&res_loader, p->terrain_renderer.getTerrain().get());
 
   p->textures->bind();
 }
@@ -85,31 +92,17 @@ Map::~Map()
   delete p;
 }
 
-render_util::TerrainBase *Map::getTerrain()
-{
-  return p->terrain_renderer.m_terrain.get();
-}
-
-render_util::ShaderProgramPtr Map::getTerrainProgram()
-{
-  return p->terrain_renderer.m_program;
-}
 
 render_util::WaterAnimation *Map::getWaterAnimation()
 {
   return p->water_animation.get();
 }
 
-//
+
 glm::vec2 Map::getSize()
 {
   return p->size;
 }
-//
-// glm::ivec2 Map::getTypeMapSize()
-// {
-//   return p->type_map_size;
-// }
 
 void Map::setUniforms(render_util::ShaderProgramPtr program)
 {
@@ -118,17 +111,12 @@ void Map::setUniforms(render_util::ShaderProgramPtr program)
   p->textures->setUniforms(program);
   p->water_animation->updateUniforms(program);
 }
-//
-// glm::vec2 getMapSize()
-// {
-//   return currentMap()->getSize();
-// }
-//
-// glm::ivec2 getTypeMapSize()
-// {
-//   return currentMap()->getTypeMapSize();
-// }
 
+
+render_util::TerrainRenderer &Map::getTerrainRenderer()
+{
+  return p->terrain_renderer;
+}
 
 
 

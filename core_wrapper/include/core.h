@@ -22,6 +22,7 @@
 #include <glm/glm.hpp>
 #include <render_util/shader.h>
 #include <render_util/texture_manager.h>
+#include <render_util/terrain_util.h>
 
 namespace render_util
 {
@@ -70,17 +71,13 @@ namespace core
   void loadMap(const char *path);
   void unloadMap();
 
-  render_util::ShaderProgramPtr getTerrainProgram();
-//   void updateWaterAnimation();
-  void drawTerrain(render_util::ShaderProgramPtr program);
-  void updateTerrain();
-  void setTerrainDrawDistance(float distance);
-
   const glm::vec3 &getSunDir();
   void setSunDir(const glm::vec3 &dir);
 
   render_util::Camera *getCamera();
   render_util::TextureManager &textureManager();
+
+  render_util::TerrainRenderer &getTerrainRenderer();
 
   void onCubeMapBegin();
   void onCubeMapFaceFinished();

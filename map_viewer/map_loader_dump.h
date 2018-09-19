@@ -23,8 +23,14 @@
 
 class MapLoaderDump : public render_util::MapLoaderBase
 {
+  std::string m_path;
+
 public:
-  void loadMap(const std::string &path, render_util::Map &map) override;
+  MapLoaderDump(const std::string &path) : m_path(path) {}
+
+  void loadMap(render_util::Map &map,
+               bool load_terrain,
+               render_util::ElevationMap *elevation_map) override;
 };
 
 #endif

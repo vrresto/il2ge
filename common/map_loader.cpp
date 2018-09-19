@@ -149,21 +149,10 @@ float elevation_table[256] =
 };
 
 
-void createTerrain(il2ge::RessourceLoader *loader, render_util::TerrainBase *terrain)
+void createTerrainPrivate(il2ge::RessourceLoader *loader, render_util::TerrainBase *terrain)
 {
-  ImageGreyScale::Ptr height_map =
-    getTexture<ImageGreyScale>("MAP", "HeightMap", "map_h.tga", true, loader);
-  assert(height_map);
-
-  vector<float> elevation_map_data(height_map->w() * height_map->h());
-  for (unsigned i = 0; i < elevation_map_data.size(); i++)
-  {
-    unsigned char elevation_index = height_map->data()[i];
-    float elevation = elevation_table[elevation_index];
-    elevation_map_data[i] = elevation;
-  }
-  render_util::ElevationMap elevation_map(height_map->w(), height_map->h(), elevation_map_data);
-
+  render_util::ElevationMap elevation_map;
+  createElevationMap(loader, elevation_map);
   terrain->build(&elevation_map);
 }
 
@@ -429,7 +418,8 @@ void il2ge::loadMap(il2ge::RessourceLoader *loader,
 //   getTexture("APPENDIX", "WaterNoise", "", loader, true);
 //   getTexture("WOOD", "WoodMiniMasks", "", loader, true);
 
-  createTerrain(loader, terrain);
+  if (terrain)
+    createTerrain(loader, terrain);
 
   cout<<"loading type map ..."<<endl;
   auto type_map = getTexture<ImageGreyScale>("MAP", "TypeMap", "map_T.tga", true, loader);
@@ -565,4 +555,28 @@ void il2ge::createChunks(render_util::ImageGreyScale::ConstPtr image,
       chunks.push_back(chunk);
     }
   }
+}
+
+
+void il2ge::createTerrain(il2ge::RessourceLoader *loader, render_util::TerrainBase *terrain)
+{
+  createTerrainPrivate(loader, terrain);
+}
+
+
+void il2ge::createElevationMap(il2ge::RessourceLoader *loader, render_util::ElevationMap &elevation_map)
+{
+  ImageGreyScale::Ptr height_map =
+    getTexture<ImageGreyScale>("MAP", "HeightMap", "map_h.tga", true, loader);
+  assert(height_map);
+
+  vector<float> elevation_map_data(height_map->w() * height_map->h());
+  for (unsigned i = 0; i < elevation_map_data.size(); i++)
+  {
+    unsigned char elevation_index = height_map->data()[i];
+    float elevation = elevation_table[elevation_index];
+    elevation_map_data[i] = elevation;
+  }
+
+  elevation_map = render_util::ElevationMap(height_map->w(), height_map->h(), elevation_map_data);
 }

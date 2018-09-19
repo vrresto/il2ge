@@ -20,6 +20,7 @@
 #define CORE_MAP_H
 
 #include <render_util/shader.h>
+#include <render_util/terrain_util.h>
 
 #include <glm/glm.hpp>
 
@@ -40,11 +41,10 @@ namespace core
     Map(const char *path);
     ~Map();
 
-    render_util::TerrainBase *getTerrain();
-    render_util::ShaderProgramPtr getTerrainProgram();
-    render_util::WaterAnimation *getWaterAnimation();
     glm::vec2 getSize();
     glm::ivec2 getTypeMapSize();
+    render_util::WaterAnimation *getWaterAnimation();
+    render_util::TerrainRenderer &getTerrainRenderer();
 
     void setUniforms(render_util::ShaderProgramPtr program);
   };

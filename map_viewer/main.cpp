@@ -59,5 +59,5 @@ int main(int argc, char **argv)
 
   assert(!map_path.empty());
 
-  render_util::viewer::runViewer(make_shared<MapLoaderDump>(), map_path);
+  render_util::viewer::runViewer(make_shared<MapLoaderDump>(map_path));
 }

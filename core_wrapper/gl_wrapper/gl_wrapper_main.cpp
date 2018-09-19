@@ -27,6 +27,8 @@
 #include <render_util/image.h>
 #include <render_util/image_loader.h>
 #include <render_util/texunits.h>
+#include <render_util/terrain_util.h>
+#include <render_util/gl_context.h>
 
 #include <cstdlib>
 #include <cstdio>
@@ -537,13 +539,13 @@ void updateShaderState()
     assert(new_active_shader->isValid());
 //       if (new_active_shader != ctx->active_shader)
 //       {
-      gl::UseProgram(new_active_shader->getId());
+      render_util::getCurrentGLContext()->setCurrentProgram(new_active_shader);
       ctx->active_shader = new_active_shader;
 //       }
   }
   else
   {
-    gl::UseProgram(0);
+    render_util::getCurrentGLContext()->setCurrentProgram(nullptr);
     ctx->active_shader = nullptr;
   }
 }
@@ -562,42 +564,20 @@ void updateUniforms(render_util::ShaderProgramPtr program)
 }
 
 
-inline void doDrawTerrain()
+inline void doDrawTerrain(render_util::TerrainRenderer &renderer)
 {
-#if 1
-  texture_state::freeze();
-  core::textureManager().setActive(true);
-
-//     gl::PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-//     assert(!isARBProgramActive());
-
-//     Core::bindGroundTexture();
 
   CHECK_GL_ERROR();
 
-
-  core_gl_wrapper::setActiveShader(getSkyProgram());
-  updateUniforms(getSkyProgram());
-
-//     gl::Disable(GL_DEPTH_TEST);
-
-//     glDepthMask(GL_FALSE);
-  gl::FrontFace(GL_CW);
-  gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-  render_util::drawSkyBox();
-
-  core_gl_wrapper::setActiveShader(getTerrainProgram());
+  core_gl_wrapper::setActiveShader(renderer.getProgram());
 
   CHECK_GL_ERROR();
 
-  core::setTerrainDrawDistance(0);
-  core::updateTerrain();
+  renderer.getTerrain()->setDrawDistance(0);
+  renderer.getTerrain()->update(*core::getCamera());
 
-  updateUniforms(getTerrainProgram());
+  updateUniforms(renderer.getProgram());
 
-  gl::DepthMask(true);
 
 //     gl::Enable(GL_DEPTH_TEST);
   gl::FrontFace(GL_CCW);
@@ -605,25 +585,9 @@ inline void doDrawTerrain()
   gl::Enable(GL_CULL_FACE);
   gl::DepthFunc(GL_LEQUAL);
 
-//     gl::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-//     gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-//     Core::drawFarTerrain();
-
-//     GLint loc = gl::GetUniformLocation(getTerrainProgram(), "terrainColor");
-//     assert(loc != -1);
-//     gl::Uniform4f(loc, 0.0, 0.0, 0.0, 0.7);
-//     gl::PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//     gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-//     Core::drawFarTerrain();
-
-//     gl::Uniform4f(loc, 1.0, 0.0, 0.0, 0.0);
-
-  gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
   CHECK_GL_ERROR();
 
-  core::drawTerrain(getTerrainProgram());
+  renderer.getTerrain()->draw();
 
   CHECK_GL_ERROR();
 
@@ -667,38 +631,61 @@ inline void doDrawTerrain()
 //     Core::drawNearTerrain();
 
 
-  gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
 //     gl::DepthFunc(GL_ALWAYS);
-//     gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   gl::Disable(GL_CULL_FACE);
-  gl::DepthMask(false);
 
   CHECK_GL_ERROR();
 
   core_gl_wrapper::setActiveShader(nullptr);
 
   CHECK_GL_ERROR();
-
-  core::textureManager().setActive(false);
-  texture_state::restore();
-#endif
 }
 
 
 void drawTerrain()
 {
+  texture_state::freeze();
+  core::textureManager().setActive(true);
+
+
+  gl::DepthMask(true);
+//     gl::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+
+  core_gl_wrapper::setActiveShader(getSkyProgram());
+  updateUniforms(getSkyProgram());
+//     gl::Disable(GL_DEPTH_TEST);
+//     glDepthMask(GL_FALSE);
+  gl::FrontFace(GL_CW);
+  gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  render_util::drawSkyBox();
+
+  gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 //     GLint values[4];
 //     gl::GetIntegerv(GL_SCISSOR_BOX, values);
 //     gl::Enable(GL_SCISSOR_TEST);
 //     gl::Scissor(900, 0, 900, values[3]);
 
-  doDrawTerrain();
+  doDrawTerrain(core::getTerrainRenderer());
+
+  gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  gl::DepthMask(false);
+
+
+  core_gl_wrapper::setActiveShader(nullptr);
 
 //    gl::Finish();
 
 //     gl::Scissor(values[0], values[1], values[2], values[3]);
 //     gl::Disable(GL_SCISSOR_TEST);
+
+  core::textureManager().setActive(false);
+  texture_state::restore();
 }
 
 
@@ -800,3 +787,13 @@ void init()
 
 
 } // namespace core_gl_wrapper
+
+
+shared_ptr<render_util::GLContext> render_util::getCurrentGLContext()
+{
+  auto context = core_gl_wrapper::getContext();
+  if (!context->render_util_gl_context)
+    context->render_util_gl_context = make_shared<render_util::GLContext>();
+
+  return context->render_util_gl_context;
+}

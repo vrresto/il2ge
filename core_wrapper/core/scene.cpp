@@ -79,27 +79,6 @@ namespace core
   }
 
 
-  void Scene::updateTerrain(const Camera &camera)
-  {
-    assert(map);
-    map->getTerrain()->update(camera);
-  }
-
-
-  void Scene::drawTerrain(render_util::ShaderProgramPtr program)
-  {
-    assert(map);
-    map->getTerrain()->draw(program);
-  }
-
-
-  void Scene::setTerrainDrawDistance(float distance)
-  {
-    assert(map);
-    map->getTerrain()->setDrawDistance(distance);
-  }
-
-
   void Scene::updateUniforms(render_util::ShaderProgramPtr program)
   {
     assert(map);
@@ -107,10 +86,10 @@ namespace core
   }
 
 
-  render_util::ShaderProgramPtr Scene::getTerrainProgram()
+  render_util::TerrainRenderer &Scene::getTerrainRenderer()
   {
     assert(map);
-    return map->getTerrainProgram();
+    return map->getTerrainRenderer();
   }
 
 }

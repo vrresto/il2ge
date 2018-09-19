@@ -107,19 +107,25 @@ public:
 } //namespace
 
 
-void MapLoaderDump::loadMap(const std::string &path, render_util::Map &map)
+void MapLoaderDump::loadMap(
+    render_util::Map &map,
+    bool load_terrain,
+    render_util::ElevationMap *elevation_map)
 {
-  RessourceLoader res_loader(path.c_str());
+  RessourceLoader res_loader(m_path.c_str());
 
   vec2 size;
   ivec2 type_map_size;
 
   il2ge::loadMap(&res_loader,
                  map.textures.get(),
-                 map.terrain.get(),
+                 load_terrain ? map.terrain.get() : nullptr,
                  map.water_animation.get(),
                  size,
                  type_map_size);
+
+  if (elevation_map)
+    il2ge::createElevationMap(&res_loader, *elevation_map);
 
   map.size = size;
   map.type_map_size = type_map_size;

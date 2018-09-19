@@ -145,24 +145,6 @@ void loadMap(const char *path)
 }
 
 
-void updateTerrain()
-{
-  getScene()->updateTerrain(*getCamera());
-}
-
-
-void setTerrainDrawDistance(float distance)
-{
-  getScene()->setTerrainDrawDistance(distance);
-}
-
-
-void drawTerrain(render_util::ShaderProgramPtr program)
-{
-  getScene()->drawTerrain(program);
-}
-
-
 void updateUniforms(render_util::ShaderProgramPtr program)
 {
   program->setUniform("cameraPosWorld", core::getCameraPos());
@@ -187,9 +169,16 @@ render_util::TextureManager &textureManager()
 }
 
 
-render_util::ShaderProgramPtr getTerrainProgram()
+render_util::TerrainRenderer &getTerrainRenderer()
 {
-  return getScene()->getTerrainProgram();
+  return getScene()->getTerrainRenderer();
 }
+
+
+// render_util::TerrainRenderer &getTerrainRendererLOD()
+// {
+//   return getScene()->getTerrainRendererLOD();
+// }
+
 
 } // namespace core

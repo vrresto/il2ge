@@ -19,6 +19,8 @@
 #ifndef IL2GE_MAP_LOADER_H
 #define IL2GE_MAP_LOADER_H
 
+#include <render_util/elevation_map.h>
+
 #include <glm/glm.hpp>
 
 namespace render_util
@@ -41,6 +43,9 @@ namespace il2ge
       glm::vec2 &size,
       glm::ivec2 &type_map_size);
 
+  void createTerrain(il2ge::RessourceLoader *loader, render_util::TerrainBase *terrain);
+
+  void createElevationMap(il2ge::RessourceLoader *loader, render_util::ElevationMap &elevation_map);
 }
 
 #endif

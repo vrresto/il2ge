@@ -45,11 +45,8 @@ namespace core
     void unloadMap();
     void loadMap(const char *path);
     void update();
-    void updateTerrain(const render_util::Camera &camera);
-    void setTerrainDrawDistance(float distance);
-    void drawTerrain(render_util::ShaderProgramPtr program);
     void updateUniforms(render_util::ShaderProgramPtr program);
-    render_util::ShaderProgramPtr getTerrainProgram();
+    render_util::TerrainRenderer &getTerrainRenderer();
   };
 };
 

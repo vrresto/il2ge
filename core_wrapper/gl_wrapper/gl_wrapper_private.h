@@ -18,6 +18,7 @@
 
 #include <misc.h>
 #include <render_util/shader.h>
+#include <render_util/gl_context.h>
 
 #include <string>
 #include <unordered_map>
@@ -37,6 +38,8 @@ namespace core_gl_wrapper
     render_util::ShaderProgramPtr current_shader;
     render_util::ShaderProgramPtr current_arb_program;
     render_util::ShaderProgramPtr active_shader;
+
+    std::shared_ptr<render_util::GLContext> render_util_gl_context;
 
     Context() : Module("core_gl_wrapper::Context") {}
   };
