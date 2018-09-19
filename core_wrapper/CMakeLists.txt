@@ -11,6 +11,7 @@ add_definitions(-DINI_ALLOW_MULTILINE=0 -DINI_ALLOW_INLINE_COMMENTS=1 -DINI_INLI
 
 include_directories(
   include
+  include/jni
   ${PROJECT_SOURCE_DIR}/_modules/inih/cpp
   jni
 )
