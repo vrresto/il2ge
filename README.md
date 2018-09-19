@@ -22,12 +22,16 @@ I recommend using Carsmaster's water mod.
 Extract the contents of `install` in the zip file into your IL-2 folder.
 
 ## Current Bugs / Limitations
+- currently only cloudless weather looks as intended
 - terrain artifacts (e.g. appears lower than it acually is)
 - objects appear in front of terrain even if they are behind it
+- forest near/far texture is not blended
 - no normal/bump maps
+- lighting at disk/dawn/night needs improvement
 - lighting / atmosphere color could use some tuning, or a better (PBR) algorithm
 - no water reflections
 - water is flat
 - no cloud shadows
 - no cirrus clouds
+- no shore waves / wave foam (code is there but currently disabled)
 - lighting / atmospheric effect is not applied to objects (planes/buildings/trees/roads/clouds/etc.)
