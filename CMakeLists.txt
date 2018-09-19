@@ -91,9 +91,12 @@ if(platform_mingw)
 endif(platform_mingw)
 
 add_subdirectory(common)
-add_subdirectory(core_wrapper)
-add_subdirectory(loader)
 add_subdirectory(map_viewer)
+if(platform_mingw)
+  add_subdirectory(core_wrapper)
+  add_subdirectory(loader)
+endif()
+
 
 
 install(FILES README.md

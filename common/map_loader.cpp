@@ -361,7 +361,7 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
   int i = 0;
   while (i < MAX_ANIMATION_STEPS)
   {
-    char basename[MAX_PATH];
+    char basename[100];
 
     snprintf(basename, sizeof(basename), "WaterNoise%.2dDot3", i);
     auto filename = string(basename) + ".tga";
