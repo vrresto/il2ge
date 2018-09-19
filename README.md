@@ -34,4 +34,4 @@ Extract the contents of `install` in the zip file into your IL-2 folder.
 - no cloud shadows
 - no cirrus clouds
 - no shore waves / wave foam (code is there but currently disabled)
-- lighting / atmospheric effect is not applied to objects (planes/buildings/trees/roads/clouds/etc.)
+- lighting / atmospheric effect is not applied to objects (planes/buildings/trees/roads/clouds/etc.) - WIP
