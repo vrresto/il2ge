@@ -33,5 +33,5 @@ Extract the contents of `install` in the zip file into your IL-2 folder.
 - water is flat
 - no cloud shadows
 - no cirrus clouds
-- no shore waves / wave foam (code is there but currently disabled)
+- no shore waves / wave foam (code is there but currently disabled) - WIP
 - lighting / atmospheric effect is not applied to objects (planes/buildings/trees/roads/clouds/etc.) - WIP
