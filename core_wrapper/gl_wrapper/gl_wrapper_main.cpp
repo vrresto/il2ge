@@ -672,7 +672,7 @@ void drawTerrain()
 
   doDrawTerrain(core::getTerrainRenderer());
 
-  gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  gl::Clear(GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   gl::DepthMask(false);
 
