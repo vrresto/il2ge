@@ -82,7 +82,7 @@ int JNICALL SetViewportCrop(JNIEnv *env, jobject obj,
 int JNICALL SetFOV(JNIEnv *env, jobject obj, jfloat arg0, jfloat arg1, jfloat arg2)
 {
   core::setCameraMode(core::IL2_CAMERA_MODE_3D);
-  core::getCamera()->setFov(arg0);
+  core::getCamera()->setProjection(arg0, arg1, arg2);
   return import.SetFOV(env, obj, arg0, arg1, arg2);
 }
 
