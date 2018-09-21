@@ -147,10 +147,6 @@ void loadMap(const char *path)
 
 void updateUniforms(render_util::ShaderProgramPtr program)
 {
-  program->setUniform("cameraPosWorld", core::getCameraPos());
-  program->setUniform("projectionMatrixFar", core::getProjectionMatrixFar());
-  program->setUniform("world2ViewMatrix", core::getWorld2ViewMatrix());
-  program->setUniform("view2WorldMatrix", core::getView2WorldMatrix());
   program->setUniform("terrainColor", glm::vec3(0,1,0));
   program->setUniform("sunDir", core::getSunDir());
 

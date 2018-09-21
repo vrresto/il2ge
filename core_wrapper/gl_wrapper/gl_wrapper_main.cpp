@@ -45,22 +45,18 @@
 
 
 using namespace core;
+using namespace core_gl_wrapper;
 using namespace gl_wrapper::gl_functions;
 using namespace std;
 
 #include <render_util/skybox.h>
 
 
-namespace core_gl_wrapper
-{
-  void drawTerrain();
-  void arbProgramInit();
-  void updateUniforms(render_util::ShaderProgramPtr program);
-}
-
-
 namespace
 {
+
+
+void drawTerrain();
 
 
 const std::string SHADER_PATH = IL2GE_DATA_DIR "/shaders";
@@ -69,7 +65,6 @@ unordered_map<string, void*> g_procs;
 int g_viewport_w = 0;
 int g_viewport_h = 0;
 //   unordered_set<string> g_forest_shader_names;
-
 
 
 render_util::ShaderProgramPtr getRedProgram()
@@ -288,7 +283,7 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
     {
 //       cout << "is cube updated: " << Core::isCubeUpdated() <<endl;
 //         if (!core::isCubeUpdated()) {
-        core_gl_wrapper::drawTerrain();
+        drawTerrain();
         onFarTerrainDone();
 //         }
     }
@@ -551,45 +546,49 @@ void updateShaderState()
 }
 
 
-} // namespace
-
-
-namespace core_gl_wrapper
-{
-
-
-void updateUniforms(render_util::ShaderProgramPtr program)
+void updateUniforms(render_util::ShaderProgramPtr program, const render_util::Camera &camera)
 {
   core::updateUniforms(program);
+  program->setUniform("cameraPosWorld", camera.getPos());
+  program->setUniform("projectionMatrixFar", camera.getProjectionMatrixFar());
+  program->setUniform("world2ViewMatrix", camera.getWorld2ViewMatrix());
+  program->setUniform("view2WorldMatrix", camera.getView2WorldMatrix());
 }
 
 
-inline void doDrawTerrain(render_util::TerrainRenderer &renderer)
+void doDrawTerrain(render_util::TerrainRenderer &renderer, const render_util::Camera &camera)
 {
+  auto program = renderer.getProgram();
 
-  CHECK_GL_ERROR();
+  updateUniforms(program, camera);
+
+  renderer.getTerrain()->update(camera);
+  renderer.getTerrain()->draw();
+}
+
+
+void doDrawTerrain(render_util::TerrainRenderer &renderer)
+{
+  renderer.getTerrain()->setDrawDistance(0);
 
   core_gl_wrapper::setActiveShader(renderer.getProgram());
 
-  CHECK_GL_ERROR();
+  auto z_far = core::getCamera()->getZFar();
 
-  renderer.getTerrain()->setDrawDistance(0);
-  renderer.getTerrain()->update(*core::getCamera());
+  render_util::Camera far_camera(*core::getCamera());
+  far_camera.setProjection(far_camera.getFov(), z_far - 2000, 300000);
 
-  updateUniforms(renderer.getProgram());
+  int dept_func_save;
+  gl::GetIntegerv(GL_DEPTH_FUNC, &dept_func_save);
 
-
-//     gl::Enable(GL_DEPTH_TEST);
   gl::FrontFace(GL_CCW);
-  gl::CullFace(GL_BACK);
-  gl::Enable(GL_CULL_FACE);
   gl::DepthFunc(GL_LEQUAL);
 
-  CHECK_GL_ERROR();
+  doDrawTerrain(renderer, far_camera);
 
-  renderer.getTerrain()->draw();
+  gl::Clear(GL_DEPTH_BUFFER_BIT);
 
-  CHECK_GL_ERROR();
+  doDrawTerrain(renderer, *core::getCamera());
 
 #if 0
   const int forest_layers = 5;
@@ -627,19 +626,9 @@ inline void doDrawTerrain(render_util::TerrainRenderer &renderer)
   gl::Disable(GL_BLEND);
 #endif
 
-//     gl::PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//     Core::drawNearTerrain();
-
-
-//     gl::DepthFunc(GL_ALWAYS);
-  gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  gl::Disable(GL_CULL_FACE);
-
-  CHECK_GL_ERROR();
+  gl::DepthFunc(dept_func_save);
 
   core_gl_wrapper::setActiveShader(nullptr);
-
-  CHECK_GL_ERROR();
 }
 
 
@@ -648,44 +637,47 @@ void drawTerrain()
   texture_state::freeze();
   core::textureManager().setActive(true);
 
+  int front_face_save;
+  gl::GetIntegerv(GL_FRONT_FACE, &front_face_save);
 
   gl::DepthMask(true);
-//     gl::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-
-  core_gl_wrapper::setActiveShader(getSkyProgram());
-  updateUniforms(getSkyProgram());
+//   gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  gl::Clear(GL_DEPTH_BUFFER_BIT);
+  gl::FrontFace(GL_CW);
+  gl::CullFace(GL_BACK);
 //     gl::Disable(GL_DEPTH_TEST);
 //     glDepthMask(GL_FALSE);
-  gl::FrontFace(GL_CW);
-  gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  core_gl_wrapper::setActiveShader(getSkyProgram());
+  core_gl_wrapper::updateUniforms(getSkyProgram());
 
   render_util::drawSkyBox();
 
-  gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-//     GLint values[4];
-//     gl::GetIntegerv(GL_SCISSOR_BOX, values);
-//     gl::Enable(GL_SCISSOR_TEST);
-//     gl::Scissor(900, 0, 900, values[3]);
+  gl::Clear(GL_DEPTH_BUFFER_BIT);
 
   doDrawTerrain(core::getTerrainRenderer());
 
-  gl::Clear(GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-  gl::DepthMask(false);
-
-
   core_gl_wrapper::setActiveShader(nullptr);
 
-//    gl::Finish();
-
-//     gl::Scissor(values[0], values[1], values[2], values[3]);
-//     gl::Disable(GL_SCISSOR_TEST);
+  gl::FrontFace(front_face_save);
+  gl::Disable(GL_CULL_FACE);
+  gl::DepthMask(false);
 
   core::textureManager().setActive(false);
   texture_state::restore();
+}
+
+
+} // namespace
+
+
+namespace core_gl_wrapper
+{
+
+
+void updateUniforms(render_util::ShaderProgramPtr program)
+{
+  ::updateUniforms(program, *core::getCamera());
 }
 
 

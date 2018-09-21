@@ -48,6 +48,7 @@ namespace core_gl_wrapper
 
   const std::string &getFragmentProgramName();
 
+  void arbProgramInit();
   void updateARBProgram();
 
   void updateUniforms(render_util::ShaderProgramPtr program);
