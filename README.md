@@ -23,10 +23,10 @@ Extract the contents of `install` in the zip file into your IL-2 folder.
 
 ## Current Bugs / Limitations
 - ~~terrain artifacts (e.g. appears lower than it acually is)~~
+- ~~objects appear in front of terrain even if they are behind it~~
 - forests are flat (but using a parallax effect) (code for layered forests exists but needs performance improvement)
 - no ground fog on terrain (objects are fogged, so this looks odd)
 - currently only cloudless weather looks as intended
-- objects appear in front of terrain even if they are behind it
 - forest near/far texture is not blended
 - no normal/bump maps
 - lighting at dusk/dawn/night needs improvement
