@@ -33,6 +33,7 @@ Extract the contents of `install` in the zip file into your IL-2 folder.
 - no normal/bump maps
 - lighting at dusk/dawn/night needs improvement
 - lighting / atmosphere color could use some tuning, or a better (PBR) algorithm
+- artifacts with the default water textures in VP modpack
 - no water reflections
 - water is flat
 - no cloud shadows
