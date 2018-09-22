@@ -582,7 +582,7 @@ void doDrawTerrain(render_util::TerrainRenderer &renderer)
   auto z_far = core::getCamera()->getZFar();
 
   render_util::Camera far_camera(*core::getCamera());
-  far_camera.setProjection(far_camera.getFov(), z_far - 4000, 300000);
+  far_camera.setProjection(far_camera.getFov(), z_far - 4000, 1500000);
 
   int dept_func_save;
   gl::GetIntegerv(GL_DEPTH_FUNC, &dept_func_save);
