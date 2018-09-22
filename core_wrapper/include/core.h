@@ -56,11 +56,6 @@ namespace core
 
   bool isCubeUpdated();
 
-  const glm::mat4 &getView2WorldMatrix();
-  const glm::mat4 &getWorld2ViewMatrix();
-  const glm::mat4 &getProjectionMatrixFar();
-  const glm::vec3 &getCameraPos();
-
   Il2CameraMode getCameraMode();
   void setCameraMode(Il2CameraMode);
 

@@ -234,26 +234,6 @@ namespace core
     return g_il2_state.render_state.render_phase;
   }
 
-  const glm::mat4 &getView2WorldMatrix()
-  {
-    return g_il2_state.camera.getView2WorldMatrix();
-  }
-
-  const glm::mat4 &getWorld2ViewMatrix()
-  {
-    return g_il2_state.camera.getWorld2ViewMatrix();
-  }
-
-  const glm::mat4 &getProjectionMatrixFar()
-  {
-    return g_il2_state.camera.getProjectionMatrixFar();
-  }
-
-  const glm::vec3 &getCameraPos()
-  {
-    return g_il2_state.camera.getPos();
-  }
-
 //   float getFrameDelta()
 //   {
 //     return frame_delta;
