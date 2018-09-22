@@ -342,7 +342,6 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
                            render_util::MapTextures *map_textures,
                            il2ge::RessourceLoader *loader)
 {
-  enum { MAX_ANIMATION_STEPS = 32 };
 
   printf("loading water textures...\n");
 
@@ -359,7 +358,7 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
   vector<ImageGreyScale::ConstPtr> foam_masks;
 
   int i = 0;
-  while (i < MAX_ANIMATION_STEPS)
+  while (true)
   {
     char basename[100];
 
