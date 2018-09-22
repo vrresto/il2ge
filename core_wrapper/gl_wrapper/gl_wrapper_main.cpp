@@ -556,11 +556,17 @@ void updateUniforms(render_util::ShaderProgramPtr program, const render_util::Ca
 }
 
 
-void doDrawTerrain(render_util::TerrainRenderer &renderer, const render_util::Camera &camera)
+void doDrawTerrain(render_util::TerrainRenderer &renderer,
+                   const render_util::Camera &camera,
+                   bool enable_details)
 {
   auto program = renderer.getProgram();
 
   updateUniforms(program, camera);
+
+  program->setUniform("draw_near_forest", enable_details);
+  program->setUniform("enable_waves", enable_details);
+  program->setUniform("enable_terrain_noise", enable_details);
 
   renderer.getTerrain()->update(camera);
   renderer.getTerrain()->draw();
@@ -576,7 +582,7 @@ void doDrawTerrain(render_util::TerrainRenderer &renderer)
   auto z_far = core::getCamera()->getZFar();
 
   render_util::Camera far_camera(*core::getCamera());
-  far_camera.setProjection(far_camera.getFov(), z_far - 2000, 300000);
+  far_camera.setProjection(far_camera.getFov(), z_far - 4000, 300000);
 
   int dept_func_save;
   gl::GetIntegerv(GL_DEPTH_FUNC, &dept_func_save);
@@ -584,11 +590,11 @@ void doDrawTerrain(render_util::TerrainRenderer &renderer)
   gl::FrontFace(GL_CCW);
   gl::DepthFunc(GL_LEQUAL);
 
-  doDrawTerrain(renderer, far_camera);
+  doDrawTerrain(renderer, far_camera, false);
 
   gl::Clear(GL_DEPTH_BUFFER_BIT);
 
-  doDrawTerrain(renderer, *core::getCamera());
+  doDrawTerrain(renderer, *core::getCamera(), true);
 
 #if 0
   const int forest_layers = 5;
