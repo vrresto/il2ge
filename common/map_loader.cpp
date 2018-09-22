@@ -365,7 +365,7 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
 
     snprintf(basename, sizeof(basename), "WaterNoise%.2dDot3", i);
     auto filename = string(basename) + ".tga";
-    cout << "loading " << filename << endl;;
+    cout << "loading " << filename << endl;
     vector<char> data;
     if (!loader->readWaterAnimation(filename, data))
     {
