@@ -2,7 +2,7 @@
 
 I recommend using Carsmaster's water mod.
 
-## Requirements
+### Requirements
 - IL-2 Selector (at least Version 3.4.2)
 - Settings:
    - OpenGL mode - DirectX is not supported
@@ -18,10 +18,10 @@ I recommend using Carsmaster's water mod.
       Water=0
       ```
 
-## Installation
+### Installation
 Extract the contents of `install` in the zip file into your IL-2 folder.
 
-## Current Bugs / Limitations
+### Current Bugs / Limitations
 - ~~terrain artifacts (e.g. appears lower than it acually is)~~
 - ~~objects appear in front of terrain even if they are behind it~~
 - forests are flat (but using a parallax effect) (code for layered forests exists but needs performance improvement)
