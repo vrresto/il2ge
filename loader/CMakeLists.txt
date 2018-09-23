@@ -13,6 +13,10 @@ endif()
 
 configure_file(version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
 
+include_directories(
+  ${PROJECT_SOURCE_DIR}/_modules/inih/cpp
+)
+
 set_source_files_properties(
   il2ge.def
   PROPERTIES EXTERNAL_OBJECT 1

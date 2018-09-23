@@ -23,6 +23,8 @@
 #include <il2ge/version.h>
 #include <util.h>
 
+#include <INIReader.h>
+
 #include <iostream>
 #include <windows.h>
 #include <stdio.h>
@@ -259,6 +261,17 @@ void WINAPI il2ge_init()
   g_log << "Build: " << il2ge::version::getBuildJobID() << '\n';
   g_log << "Commit: " << il2ge::version::getCommitSHA() << '\n';
   g_log.flush();
+
+  INIReader ini("il2ge.ini");
+  if (!ini.ParseError())
+  {
+    if (!ini.GetBoolean("", "EnableGE", true))
+    {
+      g_log << "IL2GE is disabled in config.\n";
+      g_log.flush();
+      return;
+    }
+  }
 
   initLog();
   installExceptionHandler();
