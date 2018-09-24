@@ -45,7 +45,7 @@ namespace il2ge
 
   void createTerrain(il2ge::RessourceLoader *loader, render_util::TerrainBase *terrain);
 
-  void createElevationMap(il2ge::RessourceLoader *loader, render_util::ElevationMap &elevation_map);
+  render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader);
 }
 
 #endif

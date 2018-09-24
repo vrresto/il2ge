@@ -151,9 +151,8 @@ float elevation_table[256] =
 
 void createTerrainPrivate(il2ge::RessourceLoader *loader, render_util::TerrainBase *terrain)
 {
-  render_util::ElevationMap elevation_map;
-  createElevationMap(loader, elevation_map);
-  terrain->build(&elevation_map);
+  auto elevation_map = createElevationMap(loader);
+  terrain->build(elevation_map);
 }
 
 
@@ -563,19 +562,21 @@ void il2ge::createTerrain(il2ge::RessourceLoader *loader, render_util::TerrainBa
 }
 
 
-void il2ge::createElevationMap(il2ge::RessourceLoader *loader, render_util::ElevationMap &elevation_map)
+render_util::ElevationMap::Ptr il2ge::createElevationMap(il2ge::RessourceLoader *loader)
 {
-  ImageGreyScale::Ptr height_map =
+  auto height_map =
     getTexture<ImageGreyScale>("MAP", "HeightMap", "map_h.tga", true, loader);
   assert(height_map);
 
-  vector<float> elevation_map_data(height_map->w() * height_map->h());
-  for (unsigned i = 0; i < elevation_map_data.size(); i++)
+  auto elevation_map = make_shared<ElevationMap>(height_map->getSize());
+  for (int y = 0; y < elevation_map->h(); y++)
   {
-    unsigned char elevation_index = height_map->data()[i];
-    float elevation = elevation_table[elevation_index];
-    elevation_map_data[i] = elevation;
+    for (int x = 0; x < elevation_map->w(); x++)
+    {
+      unsigned char elevation_index = height_map->get(x,y);
+      elevation_map->at(x,y) = elevation_table[elevation_index];
+    }
   }
 
-  elevation_map = render_util::ElevationMap(height_map->w(), height_map->h(), elevation_map_data);
+  return elevation_map;
 }

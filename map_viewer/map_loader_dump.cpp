@@ -110,7 +110,7 @@ public:
 void MapLoaderDump::loadMap(
     render_util::Map &map,
     bool load_terrain,
-    render_util::ElevationMap *elevation_map)
+    render_util::ElevationMap::Ptr *elevation_map)
 {
   RessourceLoader res_loader(m_path.c_str());
 
@@ -125,7 +125,7 @@ void MapLoaderDump::loadMap(
                  type_map_size);
 
   if (elevation_map)
-    il2ge::createElevationMap(&res_loader, *elevation_map);
+    *elevation_map = il2ge::createElevationMap(&res_loader);
 
   map.size = size;
   map.type_map_size = type_map_size;
