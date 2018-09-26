@@ -34,6 +34,8 @@
 #include <il2ge/water_map.h>
 #include <il2ge/ressource_loader.h>
 
+#include <FastNoise.h>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -91,6 +93,28 @@ ImageRGBA::Ptr loadImageFromIMF(const vector<char> &data, const char *field_name
   loadIMF(data, rgba_data, width, height, field_name);
 
   return make_shared<ImageRGBA>(width, height, std::move(rgba_data));
+}
+
+
+render_util::ElevationMap::Ptr generateHeightMap()
+{
+  FastNoise noise_generator;
+
+  auto heightmap = render_util::image::create<float>(0, ivec2(2048));
+
+  for (int y = 0; y < heightmap->w(); y++)
+  {
+    for (int x = 0; x < heightmap->h(); x++)
+    {
+
+      float height = noise_generator.GetValueFractal(x * 1, y * 1) * 5000;
+      height += (noise_generator.GetValueFractal(x * 10, y * 10) + 10) * 300;
+//       float height = 1000;
+      heightmap->at(x,y) = height;
+    }
+  }
+
+  return heightmap;
 }
 
 
