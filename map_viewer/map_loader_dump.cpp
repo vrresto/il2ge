@@ -110,7 +110,8 @@ public:
 void MapLoaderDump::loadMap(
     render_util::Map &map,
     bool load_terrain,
-    render_util::ElevationMap::Ptr *elevation_map)
+    render_util::ElevationMap::Ptr *elevation_map,
+    render_util::ElevationMap::Ptr *elevation_map_base)
 {
   RessourceLoader res_loader(m_path.c_str());
 

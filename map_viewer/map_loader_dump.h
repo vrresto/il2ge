@@ -30,7 +30,8 @@ public:
 
   void loadMap(render_util::Map &map,
                bool load_terrain,
-               render_util::ElevationMap::Ptr *elevation_map) override;
+               render_util::ElevationMap::Ptr *elevation_map,
+               render_util::ElevationMap::Ptr *elevation_map_base) override;
 };
 
 #endif
