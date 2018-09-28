@@ -237,7 +237,7 @@ void createWaterMap
                                                           table_size.y,
                                                           data_size * sizeof(unsigned int),
                                                           reinterpret_cast<unsigned char*>(data.data())));
-    water_map.table = image::flipY<Image<unsigned int>>(water_map.table);
+    water_map.table = image::flipY(water_map.table);
 
     il2ge::convertWaterMap(water_map, map);
   }
@@ -446,7 +446,7 @@ void il2ge::loadMap(il2ge::RessourceLoader *loader,
   cout<<"loading type map ..."<<endl;
   auto type_map = getTexture<ImageGreyScale>("MAP", "TypeMap", "map_T.tga", true, loader);
   assert(type_map);
-  type_map = image::flipY<ImageGreyScale>(type_map);
+  type_map = image::flipY(type_map);
 
   type_map_size = type_map->size();
   size = glm::vec2(type_map->w() * TYPE_MAP_METERS_PER_PIXEL, type_map->h() * TYPE_MAP_METERS_PER_PIXEL);
@@ -573,7 +573,7 @@ void il2ge::createChunks(render_util::ImageGreyScale::ConstPtr image,
       ImageGreyScale::Ptr chunk =
         image::subImage(image.get(), x * chunk_size, y * chunk_size, chunk_size, chunk_size);
 
-      chunk = image::flipY<ImageGreyScale>(chunk);
+      chunk = image::flipY(chunk);
       chunks.push_back(chunk);
     }
   }
