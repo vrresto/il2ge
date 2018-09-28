@@ -41,7 +41,8 @@ namespace il2ge
       render_util::TerrainBase *terrain,
       render_util::WaterAnimation *water_animation,
       glm::vec2 &size,
-      glm::ivec2 &type_map_size);
+      glm::ivec2 &type_map_size,
+      render_util::ElevationMap::ConstPtr base_elevation_map = {});
 
   void createTerrain(il2ge::RessourceLoader *loader, render_util::TerrainBase *terrain);
 

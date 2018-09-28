@@ -72,6 +72,7 @@ Map::Map(const char *path) : p(new Private)
 
 
   p->terrain_renderer.getProgram()->setUniform("terrain_color", glm::vec3(1,0,0));
+  p->terrain_renderer.getProgram()->setUniform("enable_base_terrain", false);
 
   RessourceLoader res_loader(path);
 

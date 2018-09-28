@@ -17,6 +17,7 @@
  */
 
 #include "map_loader.h"
+#include "map_generator.h"
 #include "imf.h"
 #include "forest.h"
 #include <render_util/image.h>
@@ -96,28 +97,6 @@ ImageRGBA::Ptr loadImageFromIMF(const vector<char> &data, const char *field_name
 }
 
 
-render_util::ElevationMap::Ptr generateHeightMap()
-{
-  FastNoise noise_generator;
-
-  auto heightmap = render_util::image::create<float>(0, ivec2(2048));
-
-  for (int y = 0; y < heightmap->w(); y++)
-  {
-    for (int x = 0; x < heightmap->h(); x++)
-    {
-
-      float height = noise_generator.GetValueFractal(x * 1, y * 1) * 5000;
-      height += (noise_generator.GetValueFractal(x * 10, y * 10) + 10) * 300;
-//       float height = 1000;
-      heightmap->at(x,y) = height;
-    }
-  }
-
-  return heightmap;
-}
-
-
 enum
 {
   NUM_FIELDS = 32
@@ -167,6 +146,18 @@ enum
 };
 
 
+unsigned getFieldIndex(const string &name)
+{
+  for (size_t i = 0; i < NUM_FIELDS; i++)
+  {
+    if (name == field_names[i])
+      return i;
+  }
+  assert(0);
+  return 0;
+}
+
+
 float elevation_table[256] =
 {
   #include "height_table"
@@ -176,7 +167,9 @@ float elevation_table[256] =
 void createTerrainPrivate(il2ge::RessourceLoader *loader, render_util::TerrainBase *terrain)
 {
   auto elevation_map = createElevationMap(loader);
-  terrain->build(elevation_map);
+  auto elevation_map_base = generateHeightMap();
+
+  terrain->build(elevation_map, elevation_map_base);
 }
 
 
@@ -244,9 +237,64 @@ void createWaterMap
 }
 
 
+void createBaseTypeMapTexture(render_util::MapTextures *map_textures,
+                              map<unsigned, unsigned> mapping,
+                              ElevationMap::ConstPtr elevation_map)
+{
+  using namespace map_generator;
+
+  auto texture = il2ge::map_generator::generateTypeMap(elevation_map);
+
+  texture->forEach([&] (auto &pixel)
+  {
+    switch (pixel)
+    {
+      case TERRAIN_TYPE_WATER:
+        assert(0);
+        break;
+      case TERRAIN_TYPE_GRASS:
+        assert(0);
+        pixel = getFieldIndex("LowLand0");
+        break;
+      case TERRAIN_TYPE_FIELD:
+        pixel = getFieldIndex("MidLand2");
+        break;
+      case TERRAIN_TYPE_FIELD2:
+        pixel = getFieldIndex("LowLand2");
+        break;
+      case TERRAIN_TYPE_FIELD3:
+        pixel = getFieldIndex("LowLand3");
+        break;
+      case TERRAIN_TYPE_FIELD4:
+        pixel = getFieldIndex("MidLand0");
+        break;
+      case TERRAIN_TYPE_FOREST:
+        pixel = getFieldIndex("Wood0");
+        break;
+      case TERRAIN_TYPE_ROCK:
+        assert(0);
+        pixel = getFieldIndex("Mount0");
+        break;
+      default:
+        assert(0);
+    }
+
+//     auto it = mapping.find(pixel);
+//     assert(it != mapping.end());
+//     pixel = it->second;
+    pixel = mapping[pixel];
+  });
+
+  texture = image::flipY(texture);
+
+  map_textures->setTexture(TEXUNIT_TYPE_MAP_BASE, texture);
+}
+
+
 void createFieldTextures(ImageGreyScale::Ptr type_map,
                          render_util::MapTextures *map_textures,
-                         il2ge::RessourceLoader *loader)
+                         il2ge::RessourceLoader *loader,
+                         ElevationMap::ConstPtr base_elevation_map)
 {
   vector<ImageRGBA::ConstPtr> textures;
   vector<float> texture_scale;
@@ -329,6 +377,11 @@ void createFieldTextures(ImageGreyScale::Ptr type_map,
   map_textures->setTexture(TEXUNIT_TERRAIN_FAR, far_texture);
 
   dump(far_texture, "far_texture", loader->getDumpDir());
+
+  if (base_elevation_map)
+    createBaseTypeMapTexture(map_textures, mapping, base_elevation_map);
+  else
+    map_textures->setTexture(TEXUNIT_TYPE_MAP_BASE, type_map);
 }
 
 
@@ -427,7 +480,8 @@ void il2ge::loadMap(il2ge::RessourceLoader *loader,
              render_util::TerrainBase *terrain,
              render_util::WaterAnimation *water_animation,
              glm::vec2 &size,
-             glm::ivec2 &type_map_size)
+             glm::ivec2 &type_map_size,
+             render_util::ElevationMap::ConstPtr base_elevation_map)
 {
 //   getTexture("APPENDIX", "BeachFoam", "", reader);
 //   getTexture("APPENDIX", "BeachSurf", "", reader);
@@ -498,7 +552,7 @@ void il2ge::loadMap(il2ge::RessourceLoader *loader,
   map_textures->setWaterColor(loader->getWaterColor(default_water_color));
 #endif
 
-  createFieldTextures(type_map, map_textures, loader);
+  createFieldTextures(type_map, map_textures, loader, base_elevation_map);
 
   cout<<"creating map textures done."<<endl;
 }
@@ -603,4 +657,26 @@ render_util::ElevationMap::Ptr il2ge::createElevationMap(il2ge::RessourceLoader 
   }
 
   return elevation_map;
+}
+
+render_util::ElevationMap::Ptr il2ge::generateHeightMap()
+{
+  FastNoise noise_generator;
+
+  auto heightmap = render_util::image::create<float>(0, ivec2(4096));
+
+  const float scale = 8;
+
+  for (int y = 0; y < heightmap->w(); y++)
+  {
+    for (int x = 0; x < heightmap->h(); x++)
+    {
+      float height = noise_generator.GetValueFractal(x * scale, y * scale) * 1500;
+//       height -= (noise_generator.GetValueFractal(x * 10, y * 10) + 10) * 300;
+      height = glm::max(10.f, height);
+      heightmap->at(x,y) = height;
+    }
+  }
+
+  return heightmap;
 }

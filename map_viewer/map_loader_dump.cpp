@@ -118,12 +118,16 @@ void MapLoaderDump::loadMap(
   vec2 size;
   ivec2 type_map_size;
 
+  if (elevation_map_base)
+    *elevation_map_base = il2ge::generateHeightMap();
+
   il2ge::loadMap(&res_loader,
                  map.textures.get(),
                  load_terrain ? map.terrain.get() : nullptr,
                  map.water_animation.get(),
                  size,
-                 type_map_size);
+                 type_map_size,
+                 elevation_map_base ? *elevation_map_base : render_util::ElevationMap::ConstPtr());
 
   if (elevation_map)
     *elevation_map = il2ge::createElevationMap(&res_loader);

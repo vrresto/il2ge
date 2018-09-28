@@ -3,6 +3,7 @@ set(CXX_SRCS
   map_loader.cpp
   imf.cpp
   forest.cpp
+  map_generator.cpp
 )
 
 add_library(common ${CXX_SRCS})
