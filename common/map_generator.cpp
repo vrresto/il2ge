@@ -69,20 +69,23 @@ ImageGreyScale::Ptr il2ge::map_generator::generateTypeMap(ElevationMap::ConstPtr
       {
         type = TERRAIN_TYPE_FOREST;
       }
-      else if (height < 1800)
+      else if (true || height < 1800)
       {
-        assert(0);
-        if (height < 700 && noise_generator.GetValueFractal(x * 16, y * 16) < 0.2)
-        {
-          type = TERRAIN_TYPE_GRASS;
-        }
-        else
-        {
-          if (noise > 0)
-            type = TERRAIN_TYPE_TUNDRA;
-          else
-            type = TERRAIN_TYPE_TUNDRA2;
-        }
+//         assert(0);
+
+        type = TERRAIN_TYPE_ROCK;
+
+//         if (height < 700 && noise_generator.GetValueFractal(x * 16, y * 16) < 0.2)
+//         {
+//           type = TERRAIN_TYPE_GRASS;
+//         }
+//         else
+//         {
+//           if (noise > 0)
+//             type = TERRAIN_TYPE_TUNDRA;
+//           else
+//             type = TERRAIN_TYPE_TUNDRA2;
+//         }
       }
       else
       {
@@ -90,7 +93,7 @@ ImageGreyScale::Ptr il2ge::map_generator::generateTypeMap(ElevationMap::ConstPtr
         type = TERRAIN_TYPE_ICE;
       }
 
-      assert(type == TERRAIN_TYPE_FOREST);
+//       assert(type == TERRAIN_TYPE_FOREST);
 
       type_map->at(x,y) = type;
     }

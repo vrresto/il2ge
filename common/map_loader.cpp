@@ -272,7 +272,6 @@ void createBaseTypeMapTexture(render_util::MapTextures *map_textures,
         pixel = getFieldIndex("Wood0");
         break;
       case TERRAIN_TYPE_ROCK:
-        assert(0);
         pixel = getFieldIndex("Mount0");
         break;
       default:
@@ -666,14 +665,19 @@ render_util::ElevationMap::Ptr il2ge::generateHeightMap()
   auto heightmap = render_util::image::create<float>(0, ivec2(4096));
 
   const float scale = 8;
+  const float coarse_scale = 4;
 
   for (int y = 0; y < heightmap->w(); y++)
   {
     for (int x = 0; x < heightmap->h(); x++)
     {
-      float height = noise_generator.GetValueFractal(x * scale, y * scale) * 1500;
-//       height -= (noise_generator.GetValueFractal(x * 10, y * 10) + 10) * 300;
+      float height = noise_generator.GetValueFractal(x, y) * 1000;
+      height += noise_generator.GetValueFractal(x * coarse_scale, y * coarse_scale) * 1500;
+      height += noise_generator.GetValueFractal(x * scale, y * scale) * 400;
+      height += noise_generator.GetValueFractal(x * 30, y * 30) * 200;
+      height += 200;
       height = glm::max(10.f, height);
+
       heightmap->at(x,y) = height;
     }
   }
