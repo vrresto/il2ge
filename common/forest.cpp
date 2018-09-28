@@ -57,10 +57,9 @@ vector<ImageRGBA::ConstPtr> getForestLayers(il2ge::RessourceLoader *loader)
   {
     cout<<"getForestTexture() - layer "<<i<<endl;
 
-    stringstream name;
-    name<<"Wood"<<i;
+    auto name = string("Wood") + to_string(i);
 
-    ImageRGBA::Ptr texture = il2ge::getTexture("WOOD", name.str().c_str(), "", loader);
+    ImageRGBA::Ptr texture = il2ge::getTexture("WOOD", name.c_str(), "", loader);
     if (!texture)
       continue;
 
@@ -90,10 +89,9 @@ ImageRGBA::Ptr createForestFarTexture(il2ge::RessourceLoader *loader)
     {
       cout<<"getForestTexture() - layer "<<i<<endl;
 
-      stringstream name;
-      name<<"Wood"<<i;
+      auto name = string("Wood") + to_string(i);
 
-      ImageRGBA::Ptr texture = il2ge::getTexture("WOOD", name.str().c_str(), "", loader);
+      ImageRGBA::Ptr texture = il2ge::getTexture("WOOD", name.c_str(), "", loader);
       if (!texture)
         continue;
 
