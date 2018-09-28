@@ -43,6 +43,7 @@ namespace
 
 
 bool g_dump_enabled = false;
+bool g_base_map_enabled = false;
 
 
 void refreshFile(const char *path,
@@ -101,7 +102,10 @@ void init()
 {
   INIReader ini("il2ge.ini");
   if (!ini.ParseError())
-    g_dump_enabled = ini.GetBoolean("", "EnableDump", false);
+  {
+    g_dump_enabled = ini.GetBoolean("", "EnableDump", g_dump_enabled);
+    g_base_map_enabled = ini.GetBoolean("", "EnableBaseMap", g_base_map_enabled);
+  }
 
   cout << "IL2GE: enable dump: " << g_dump_enabled << endl;
 
@@ -111,6 +115,12 @@ void init()
   refreshFile(IL2GE_CACHE_DIR "/atmosphere_map", atmosphere_map_size_bytes, render_util::createAtmosphereMap);
   refreshFile(IL2GE_CACHE_DIR "/curvature_map", curvature_map_size_bytes, render_util::createCurvatureMap);
 #endif
+}
+
+
+bool isBaseMapEnabled()
+{
+  return g_base_map_enabled;
 }
 
 

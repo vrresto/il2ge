@@ -33,6 +33,8 @@ namespace core
 //   int getWaterAnimationStep();
 
   Scene *getScene();
+
+  bool isBaseMapEnabled();
 }
 
 #endif

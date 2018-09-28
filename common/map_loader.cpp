@@ -164,15 +164,6 @@ float elevation_table[256] =
 };
 
 
-void createTerrainPrivate(il2ge::RessourceLoader *loader, render_util::TerrainBase *terrain)
-{
-  auto elevation_map = createElevationMap(loader);
-  auto elevation_map_base = generateHeightMap();
-
-  terrain->build(elevation_map, elevation_map_base);
-}
-
-
 void createWaterMap
   (
     ivec2 type_map_size,
@@ -633,9 +624,16 @@ void il2ge::createChunks(render_util::ImageGreyScale::ConstPtr image,
 }
 
 
-void il2ge::createTerrain(il2ge::RessourceLoader *loader, render_util::TerrainBase *terrain)
+void il2ge::createTerrain(il2ge::RessourceLoader *loader,
+                          render_util::TerrainBase *terrain,
+                          render_util::ElevationMap::Ptr elevation_map_base)
 {
-  createTerrainPrivate(loader, terrain);
+  auto elevation_map = createElevationMap(loader);
+
+  if (elevation_map_base)
+    terrain->build(elevation_map, elevation_map_base);
+  else
+    terrain->build(elevation_map);
 }
 
 

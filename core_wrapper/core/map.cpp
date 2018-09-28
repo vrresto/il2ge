@@ -68,22 +68,29 @@ Map::Map(const char *path) : p(new Private)
 
   string terrain_program_name;
 
-  p->terrain_renderer = createTerrainRenderer(textureManager(), g_terrain_use_lod, g_shader_path, terrain_program_name);
-
+  p->terrain_renderer = createTerrainRenderer(textureManager(),
+                                              g_terrain_use_lod,
+                                              g_shader_path,
+                                              terrain_program_name,
+                                              core::isBaseMapEnabled());
 
   p->terrain_renderer.getProgram()->setUniform("terrain_color", glm::vec3(1,0,0));
-  p->terrain_renderer.getProgram()->setUniform("enable_base_terrain", false);
 
   RessourceLoader res_loader(path);
+
+  render_util::ElevationMap::Ptr elevation_map_base;
+  if (core::isBaseMapEnabled())
+    elevation_map_base = il2ge::generateHeightMap();
 
   il2ge::loadMap(&res_loader,
                  p->textures.get(),
                  nullptr,
                  p->water_animation.get(),
                  p->size,
-                 p->type_map_size);
+                 p->type_map_size,
+                 elevation_map_base);
 
-  il2ge::createTerrain(&res_loader, p->terrain_renderer.getTerrain().get());
+  il2ge::createTerrain(&res_loader, p->terrain_renderer.getTerrain().get(), elevation_map_base);
 
   p->textures->bind();
 }
