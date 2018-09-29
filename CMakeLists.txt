@@ -98,7 +98,6 @@ if(platform_mingw)
 endif()
 
 
-
 install(FILES README.md
   DESTINATION ${il2ge_data_dir}
 )
@@ -135,3 +134,14 @@ if(platform_mingw)
     DESTINATION ${il2ge_lib_dir}
   )
 endif(platform_mingw)
+
+
+add_custom_target(run
+  WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
+  COMMAND wine il2fb.exe
+)
+
+add_custom_target(run_viewer
+  WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
+  COMMAND wine map_viewer.exe
+)
