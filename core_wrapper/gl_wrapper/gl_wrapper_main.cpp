@@ -653,6 +653,7 @@ void drawTerrain()
   gl::CullFace(GL_BACK);
 //     gl::Disable(GL_DEPTH_TEST);
 //     glDepthMask(GL_FALSE);
+  gl::Enable(GL_CULL_FACE);
 
   core_gl_wrapper::setActiveShader(getSkyProgram());
   core_gl_wrapper::updateUniforms(getSkyProgram());
@@ -661,7 +662,9 @@ void drawTerrain()
 
   gl::Clear(GL_DEPTH_BUFFER_BIT);
 
+//   gl::PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   doDrawTerrain(core::getTerrainRenderer());
+//   gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   core_gl_wrapper::setActiveShader(nullptr);
 
