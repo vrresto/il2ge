@@ -93,12 +93,9 @@ ImageGreyScale::Ptr il2ge::map_generator::generateTypeMap(ElevationMap::ConstPtr
         type = TERRAIN_TYPE_ICE;
       }
 
-//       assert(type == TERRAIN_TYPE_FOREST);
-
       type_map->at(x,y) = type;
     }
   }
-
 
   for (int y = 0; y < type_map->h(); y++)
   {

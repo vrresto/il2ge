@@ -23,6 +23,7 @@
 #include <render_util/texture_util.h>
 #include <render_util/render_util.h>
 #include <render_util/water.h>
+#include <render_util/texunits.h>
 
 #include <string>
 #include <memory>
@@ -45,7 +46,10 @@ namespace core
     GLenum active_unit_save;
     gl::GetIntegerv(GL_ACTIVE_TEXTURE, reinterpret_cast<GLint*>(&active_unit_save));
 
-    gl::ActiveTexture(GL_TEXTURE0 + 20); //FIXME
+    int atmosphere_map_unit = texture_manager.getHighestUnit() + 1;
+    assert(atmosphere_map_unit < MAX_GL_TEXUNITS);
+
+    gl::ActiveTexture(GL_TEXTURE0 + atmosphere_map_unit); //FIXME
 
     gl::BindTexture(atmosphere_map->getTarget(), atmosphere_map->getID());
 

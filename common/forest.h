@@ -33,7 +33,9 @@ namespace il2ge
   class RessourceLoader;
 
   void createForestTextures(render_util::ImageGreyScale::ConstPtr type_map,
-                            render_util::MapTextures *map_textures, il2ge::RessourceLoader *loader);
+                            render_util::MapTextures *map_textures,
+                            il2ge::RessourceLoader *loader,
+                            render_util::ImageGreyScale::ConstPtr type_map_base = {});
 }
 
 #endif

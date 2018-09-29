@@ -35,7 +35,7 @@ namespace
 
 ImageGreyScale::Ptr createForestMap(ImageGreyScale::ConstPtr type_map)
 {
-  auto map = image::clone<ImageGreyScale>(type_map);
+  auto map = image::clone(type_map);
 
   map->forEach([] (unsigned char &pixel)
   {
@@ -101,7 +101,7 @@ ImageRGBA::Ptr createForestFarTexture(il2ge::RessourceLoader *loader)
 
       if (!combined_texture)
       {
-        combined_texture = image::clone<ImageRGBA>(texture);
+        combined_texture = image::clone(texture);
       }
       else
       {
@@ -169,12 +169,22 @@ namespace il2ge
 {
 
 
-void createForestTextures(ImageGreyScale::ConstPtr type_map, MapTextures *map_textures, il2ge::RessourceLoader *loader)
+void createForestTextures(ImageGreyScale::ConstPtr type_map,
+                          MapTextures *map_textures,
+                          il2ge::RessourceLoader *loader,
+                          ImageGreyScale::ConstPtr type_map_base)
 {
   cout<<"loading forest texture ..."<<endl;
   auto forest_map = createForestMap(type_map);
   assert(forest_map);
   map_textures->setForestMap(forest_map);
+
+  if (type_map_base)
+  {
+    auto forest_map_base = createForestMap(type_map_base);
+    assert(forest_map_base);
+    map_textures->setTexture(TEXUNIT_FOREST_MAP_BASE, forest_map_base);
+  }
 
 //   map_textures->setTexture(TEXUNIT_FOREST_FAR, createForestFarTexture(loader));
   map_textures->setTexture(TEXUNIT_FOREST_FAR, createForestFarTexture_alt(loader));
