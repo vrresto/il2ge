@@ -141,7 +141,6 @@ const char * const field_names[NUM_FIELDS] =
 
 enum
 {
-  TYPE_MAP_METERS_PER_PIXEL = 200,
   METERS_PER_TILE = 1600
 };
 
@@ -473,12 +472,9 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
 } // namespace
 
 
-void il2ge::loadMap(il2ge::RessourceLoader *loader,
+void il2ge::createMapTextures(il2ge::RessourceLoader *loader,
              render_util::MapTextures *map_textures,
-             render_util::TerrainBase *terrain,
              render_util::WaterAnimation *water_animation,
-             glm::vec2 &size,
-             glm::ivec2 &type_map_size,
              render_util::ElevationMap::ConstPtr base_elevation_map)
 {
 //   getTexture("APPENDIX", "BeachFoam", "", reader);
@@ -492,16 +488,10 @@ void il2ge::loadMap(il2ge::RessourceLoader *loader,
 //   getTexture("APPENDIX", "WaterNoise", "", loader, true);
 //   getTexture("WOOD", "WoodMiniMasks", "", loader, true);
 
-  if (terrain)
-    createTerrain(loader, terrain);
-
   cout<<"loading type map ..."<<endl;
   auto type_map = getTexture<ImageGreyScale>("MAP", "TypeMap", "map_T.tga", true, loader);
   assert(type_map);
   type_map = image::flipY(type_map);
-
-  type_map_size = type_map->size();
-  size = glm::vec2(type_map->w() * TYPE_MAP_METERS_PER_PIXEL, type_map->h() * TYPE_MAP_METERS_PER_PIXEL);
 
   createWaterNormalMaps(water_animation, map_textures, loader);
 
@@ -632,19 +622,6 @@ void il2ge::createChunks(render_util::ImageGreyScale::ConstPtr image,
       chunks.push_back(chunk);
     }
   }
-}
-
-
-void il2ge::createTerrain(il2ge::RessourceLoader *loader,
-                          render_util::TerrainBase *terrain,
-                          render_util::ElevationMap::Ptr elevation_map_base)
-{
-  auto elevation_map = createElevationMap(loader);
-
-  if (elevation_map_base)
-    terrain->build(elevation_map, elevation_map_base);
-  else
-    terrain->build(elevation_map);
 }
 
 

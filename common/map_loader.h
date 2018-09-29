@@ -16,8 +16,8 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef IL2GE_MAP_LOADER
-#define IL2GE_MAP_LOADER
+#ifndef IL2GE_MAP_LOADER_PRIVATE
+#define IL2GE_MAP_LOADER_PRIVATE
 
 #include <il2ge/map_loader.h>
 #include <il2ge/ressource_loader.h>

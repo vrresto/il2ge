@@ -34,19 +34,18 @@ namespace il2ge
 {
   class RessourceLoader;
 
+  enum
+  {
+    HEIGHT_MAP_METERS_PER_PIXEL = 200,
+    TYPE_MAP_METERS_PER_PIXEL = 200
+  };
+
   bool isDumpEnabled();
 
-  void loadMap(il2ge::RessourceLoader *loader,
+  void createMapTextures(il2ge::RessourceLoader *loader,
       render_util::MapTextures *map_textures,
-      render_util::TerrainBase *terrain,
       render_util::WaterAnimation *water_animation,
-      glm::vec2 &size,
-      glm::ivec2 &type_map_size,
       render_util::ElevationMap::ConstPtr base_elevation_map = {});
-
-  void createTerrain(il2ge::RessourceLoader *loader,
-                     render_util::TerrainBase *terrain,
-                     render_util::ElevationMap::Ptr elevation_map_base = {});
 
   render_util::ElevationMap::Ptr generateHeightMap();
   render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader);

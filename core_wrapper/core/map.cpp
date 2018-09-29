@@ -53,7 +53,6 @@ namespace core
 struct Map::Private
 {
   glm::vec2 size;
-  glm::ivec2 type_map_size;
   shared_ptr<render_util::MapTextures> textures;
   shared_ptr<render_util::WaterAnimation> water_animation;
   TerrainRenderer terrain_renderer;
@@ -82,15 +81,19 @@ Map::Map(const char *path) : p(new Private)
   if (core::isBaseMapEnabled())
     elevation_map_base = il2ge::generateHeightMap();
 
-  il2ge::loadMap(&res_loader,
-                 p->textures.get(),
-                 nullptr,
-                 p->water_animation.get(),
-                 p->size,
-                 p->type_map_size,
-                 elevation_map_base);
+  auto elevation_map = il2ge::createElevationMap(&res_loader);
 
-  il2ge::createTerrain(&res_loader, p->terrain_renderer.getTerrain().get(), elevation_map_base);
+  il2ge::createMapTextures(&res_loader,
+                           p->textures.get(),
+                           p->water_animation.get(),
+                           elevation_map_base);
+
+  p->size = glm::vec2(elevation_map->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
+
+  if (elevation_map_base)
+    p->terrain_renderer.getTerrain()->build(elevation_map, elevation_map_base);
+  else
+    p->terrain_renderer.getTerrain()->build(elevation_map);
 
   p->textures->bind();
 }
