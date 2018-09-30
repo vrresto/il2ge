@@ -24,21 +24,6 @@
 
 namespace il2ge::map_generator
 {
-  enum
-  {
-    TERRAIN_TYPE_WATER,
-    TERRAIN_TYPE_GRASS,
-    TERRAIN_TYPE_FIELD,
-    TERRAIN_TYPE_FIELD2,
-    TERRAIN_TYPE_FIELD3,
-    TERRAIN_TYPE_FIELD4,
-    TERRAIN_TYPE_FOREST,
-    TERRAIN_TYPE_TUNDRA,
-    TERRAIN_TYPE_TUNDRA2,
-    TERRAIN_TYPE_ROCK,
-    TERRAIN_TYPE_ICE
-  };
-
   render_util::ImageGreyScale::Ptr generateTypeMap(render_util::ElevationMap::ConstPtr elevation_map);
 }
 

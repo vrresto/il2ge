@@ -16,7 +16,7 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "map_loader.h"
+#include "map_loader_private.h"
 #include "map_generator.h"
 #include "imf.h"
 #include "forest.h"
@@ -145,18 +145,6 @@ enum
 };
 
 
-unsigned getFieldIndex(const string &name)
-{
-  for (size_t i = 0; i < NUM_FIELDS; i++)
-  {
-    if (name == field_names[i])
-      return i;
-  }
-  assert(0);
-  return 0;
-}
-
-
 float elevation_table[256] =
 {
   #include "height_table"
@@ -224,52 +212,6 @@ void createWaterMap
 
     il2ge::convertWaterMap(water_map, map);
   }
-}
-
-
-ImageGreyScale::Ptr createBaseTypeMap(ElevationMap::ConstPtr elevation_map)
-{
-  using namespace map_generator;
-
-  auto map = il2ge::map_generator::generateTypeMap(elevation_map);
-
-  map->forEach([&] (auto &pixel)
-  {
-    switch (pixel)
-    {
-      case TERRAIN_TYPE_WATER:
-        assert(0);
-        break;
-      case TERRAIN_TYPE_GRASS:
-        assert(0);
-        pixel = getFieldIndex("LowLand0");
-        break;
-      case TERRAIN_TYPE_FIELD:
-        pixel = getFieldIndex("MidLand2");
-        break;
-      case TERRAIN_TYPE_FIELD2:
-        pixel = getFieldIndex("LowLand2");
-        break;
-      case TERRAIN_TYPE_FIELD3:
-        pixel = getFieldIndex("LowLand3");
-        break;
-      case TERRAIN_TYPE_FIELD4:
-        pixel = getFieldIndex("MidLand0");
-        break;
-      case TERRAIN_TYPE_FOREST:
-        pixel = getFieldIndex("Wood0");
-        break;
-      case TERRAIN_TYPE_ROCK:
-        pixel = getFieldIndex("Mount0");
-        break;
-      default:
-        assert(0);
-    }
-  });
-
-  map = image::flipY(map);
-
-  return map;
 }
 
 
@@ -528,7 +470,7 @@ void il2ge::createMapTextures(il2ge::RessourceLoader *loader,
 
   if (base_elevation_map)
   {
-    base_type_map = createBaseTypeMap(base_elevation_map);
+    base_type_map = map_generator::generateTypeMap(base_elevation_map);
 
     auto base_type_map_remapped = image::clone(base_type_map);
     base_type_map_remapped->forEach([&] (auto &pixel)
@@ -669,4 +611,16 @@ render_util::ElevationMap::Ptr il2ge::generateHeightMap()
   }
 
   return heightmap;
+}
+
+
+unsigned il2ge::getFieldIndex(const string &name)
+{
+  for (size_t i = 0; i < NUM_FIELDS; i++)
+  {
+    if (name == field_names[i])
+      return i;
+  }
+  assert(0);
+  return 0;
 }

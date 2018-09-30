@@ -17,7 +17,7 @@
  */
 
 #include "forest.h"
-#include "map_loader.h"
+#include "map_loader_private.h"
 #include <render_util/texture_util.h>
 #include <render_util/image_util.h>
 #include <render_util/image_resample.h>

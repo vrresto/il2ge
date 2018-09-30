@@ -17,6 +17,7 @@
  */
 
 #include "map_generator.h"
+#include "map_loader_private.h"
 #include <render_util/elevation_map.h>
 #include <render_util/image_loader.h>
 #include <render_util/image_resample.h>
@@ -36,15 +37,32 @@ using namespace render_util;
 using namespace il2ge::map_generator;
 
 
+namespace
+{
+
+
+enum
+{
+  TERRAIN_TYPE_WATER,
+  TERRAIN_TYPE_GRASS,
+  TERRAIN_TYPE_FIELD,
+  TERRAIN_TYPE_FIELD2,
+  TERRAIN_TYPE_FIELD3,
+  TERRAIN_TYPE_FIELD4,
+  TERRAIN_TYPE_FOREST,
+  TERRAIN_TYPE_TUNDRA,
+  TERRAIN_TYPE_TUNDRA2,
+  TERRAIN_TYPE_ROCK,
+  TERRAIN_TYPE_ICE
+};
+
 const glm::vec3 default_water_color = glm::vec3(0.140, 0.195, 0.230);
 const float sea_level = 0;
 const int type_map_meters_per_pixel = 200;
 const int meters_per_tile = 1600;
 
 
-
-
-ImageGreyScale::Ptr il2ge::map_generator::generateTypeMap(ElevationMap::ConstPtr elevation_map)
+ImageGreyScale::Ptr generateTypeMapPrivate(ElevationMap::ConstPtr elevation_map)
 {
   FastNoise noise_generator;
 //   noise_generator.SetFrequency(0.4);
@@ -153,4 +171,54 @@ ImageGreyScale::Ptr il2ge::map_generator::generateTypeMap(ElevationMap::ConstPtr
 
 
   return type_map;
+}
+
+
+} // namespace
+
+
+ImageGreyScale::Ptr il2ge::map_generator::generateTypeMap(ElevationMap::ConstPtr elevation_map)
+{
+  using namespace map_generator;
+  using namespace il2ge;
+
+  auto map = generateTypeMapPrivate(elevation_map);
+
+  map->forEach([&] (auto &pixel)
+  {
+    switch (pixel)
+    {
+      case TERRAIN_TYPE_WATER:
+        assert(0);
+        break;
+      case TERRAIN_TYPE_GRASS:
+        assert(0);
+        pixel = getFieldIndex("LowLand0");
+        break;
+      case TERRAIN_TYPE_FIELD:
+        pixel = getFieldIndex("MidLand2");
+        break;
+      case TERRAIN_TYPE_FIELD2:
+        pixel = getFieldIndex("LowLand2");
+        break;
+      case TERRAIN_TYPE_FIELD3:
+        pixel = getFieldIndex("LowLand3");
+        break;
+      case TERRAIN_TYPE_FIELD4:
+        pixel = getFieldIndex("MidLand0");
+        break;
+      case TERRAIN_TYPE_FOREST:
+        pixel = getFieldIndex("Wood0");
+        break;
+      case TERRAIN_TYPE_ROCK:
+        pixel = getFieldIndex("Mount0");
+        break;
+      default:
+        assert(0);
+    }
+  });
+
+  map = image::flipY(map);
+
+  return map;
 }
