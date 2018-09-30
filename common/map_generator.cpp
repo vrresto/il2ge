@@ -180,7 +180,7 @@ ImageGreyScale::Ptr generateTypeMapPrivate(ElevationMap::ConstPtr elevation_map)
 ImageGreyScale::Ptr il2ge::map_generator::generateTypeMap(ElevationMap::ConstPtr elevation_map)
 {
   using namespace map_generator;
-  using namespace il2ge;
+  using namespace il2ge::map_loader;
 
   auto map = generateTypeMapPrivate(elevation_map);
 

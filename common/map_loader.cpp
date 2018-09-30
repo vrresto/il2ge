@@ -60,6 +60,7 @@ using namespace render_util;
 using namespace glm;
 using namespace gl_wrapper::gl_functions;
 using namespace il2ge;
+using namespace il2ge::map_loader;
 
 namespace
 {
@@ -162,7 +163,7 @@ void createWaterMap
 
   render_util::ImageGreyScale::ConstPtr color_map;
 
-  color_map = il2ge::getTexture<ImageGreyScale>("MAP", "ColorMap", "map_c.tga", true, loader);
+  color_map = getTexture<ImageGreyScale>("MAP", "ColorMap", "map_c.tga", true, loader);
   assert(color_map);
   assert(color_map->w() == 1024);
 
@@ -366,7 +367,7 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
     {
       break;
     }
-    auto normal_map = il2ge::loadImageFromMemory(data, filename.c_str());
+    auto normal_map = loadImageFromMemory(data, filename.c_str());
     assert(normal_map);
     dump(normal_map, basename, loader->getDumpDir());
     normal_maps.push_back(normal_map);
@@ -395,7 +396,11 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
 } // namespace
 
 
-void il2ge::createMapTextures(il2ge::RessourceLoader *loader,
+namespace il2ge::map_loader
+{
+
+
+void createMapTextures(il2ge::RessourceLoader *loader,
              render_util::MapTextures *map_textures,
              render_util::WaterAnimation *water_animation,
              render_util::ElevationMap::ConstPtr base_elevation_map)
@@ -490,7 +495,7 @@ void il2ge::createMapTextures(il2ge::RessourceLoader *loader,
 }
 
 
-bool il2ge::isForest(unsigned int index)
+bool isForest(unsigned int index)
 {
   assert(index < NUM_FIELDS);
 
@@ -509,7 +514,7 @@ bool il2ge::isForest(unsigned int index)
 }
 
 
-ImageRGBA::Ptr il2ge::getTexture(const char *section,
+ImageRGBA::Ptr getTexture(const char *section,
                           const char *name,
                           const char *default_path,
                           il2ge::RessourceLoader *loader,
@@ -535,7 +540,7 @@ ImageRGBA::Ptr il2ge::getTexture(const char *section,
 }
 
 
-render_util::ImageRGBA::Ptr il2ge::loadImageFromMemory(const std::vector<char> &data,
+render_util::ImageRGBA::Ptr loadImageFromMemory(const std::vector<char> &data,
                                                        const char *name)
 {
   if (isIMF(data))
@@ -545,7 +550,7 @@ render_util::ImageRGBA::Ptr il2ge::loadImageFromMemory(const std::vector<char> &
 }
 
 
-void il2ge::createChunks(render_util::ImageGreyScale::ConstPtr image,
+void createChunks(render_util::ImageGreyScale::ConstPtr image,
                           int chunk_size,
                           std::vector<render_util::ImageGreyScale::ConstPtr> &chunks)
 {
@@ -566,7 +571,7 @@ void il2ge::createChunks(render_util::ImageGreyScale::ConstPtr image,
 }
 
 
-render_util::ElevationMap::Ptr il2ge::createElevationMap(il2ge::RessourceLoader *loader)
+render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader)
 {
   auto height_map =
     getTexture<ImageGreyScale>("MAP", "HeightMap", "map_h.tga", true, loader);
@@ -586,7 +591,7 @@ render_util::ElevationMap::Ptr il2ge::createElevationMap(il2ge::RessourceLoader 
 }
 
 
-render_util::ElevationMap::Ptr il2ge::generateHeightMap()
+render_util::ElevationMap::Ptr generateHeightMap()
 {
   FastNoise noise_generator;
 
@@ -614,7 +619,7 @@ render_util::ElevationMap::Ptr il2ge::generateHeightMap()
 }
 
 
-unsigned il2ge::getFieldIndex(const string &name)
+unsigned getFieldIndex(const string &name)
 {
   for (size_t i = 0; i < NUM_FIELDS; i++)
   {
@@ -624,3 +629,6 @@ unsigned il2ge::getFieldIndex(const string &name)
   assert(0);
   return 0;
 }
+
+
+} // namespace il2ge::map_loader

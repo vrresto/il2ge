@@ -35,6 +35,7 @@
 
 using namespace std;
 using namespace render_util;
+using namespace il2ge;
 using namespace glm;
 using namespace gl_wrapper::gl_functions;
 
@@ -79,14 +80,14 @@ Map::Map(const char *path) : p(new Private)
 
   render_util::ElevationMap::Ptr elevation_map_base;
   if (core::isBaseMapEnabled())
-    elevation_map_base = il2ge::generateHeightMap();
+    elevation_map_base = map_loader::generateHeightMap();
 
-  auto elevation_map = il2ge::createElevationMap(&res_loader);
+  auto elevation_map = map_loader::createElevationMap(&res_loader);
 
-  il2ge::createMapTextures(&res_loader,
-                           p->textures.get(),
-                           p->water_animation.get(),
-                           elevation_map_base);
+  map_loader::createMapTextures(&res_loader,
+                                p->textures.get(),
+                                p->water_animation.get(),
+                                elevation_map_base);
 
   p->size = glm::vec2(elevation_map->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
 

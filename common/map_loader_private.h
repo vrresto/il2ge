@@ -29,7 +29,8 @@
 #include <string>
 #include <vector>
 
-namespace il2ge
+
+namespace il2ge::map_loader
 {
 
 
@@ -100,6 +101,6 @@ void createChunks(render_util::ImageGreyScale::ConstPtr image, int chunk_size, s
 unsigned getFieldIndex(const std::string &name);
 
 
-} // namespace il2ge
+} // namespace il2ge::map_loader
 
 #endif

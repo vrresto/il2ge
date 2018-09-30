@@ -23,12 +23,14 @@
 
 #include <glm/glm.hpp>
 
+
 namespace render_util
 {
   class MapTextures;
   class TerrainBase;
   class WaterAnimation;
 }
+
 
 namespace il2ge
 {
@@ -39,7 +41,11 @@ namespace il2ge
     HEIGHT_MAP_METERS_PER_PIXEL = 200,
     TYPE_MAP_METERS_PER_PIXEL = 200
   };
+}
 
+
+namespace il2ge::map_loader
+{
   bool isDumpEnabled();
 
   void createMapTextures(il2ge::RessourceLoader *loader,
@@ -50,5 +56,6 @@ namespace il2ge
   render_util::ElevationMap::Ptr generateHeightMap();
   render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader);
 }
+
 
 #endif

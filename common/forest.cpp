@@ -25,6 +25,7 @@
 #include <render_util/texunits.h>
 
 using namespace il2ge;
+using namespace il2ge::map_loader;
 using namespace std;
 using namespace glm;
 using namespace render_util;
@@ -39,7 +40,7 @@ ImageGreyScale::Ptr createForestMap(ImageGreyScale::ConstPtr type_map)
 
   map->forEach([] (unsigned char &pixel)
   {
-    if (il2ge::isForest(pixel & 0x1F))
+    if (isForest(pixel & 0x1F))
       pixel = 255;
     else
       pixel = 0;
@@ -59,7 +60,7 @@ vector<ImageRGBA::ConstPtr> getForestLayers(il2ge::RessourceLoader *loader)
 
     auto name = string("Wood") + to_string(i);
 
-    ImageRGBA::Ptr texture = il2ge::getTexture("WOOD", name.c_str(), "", loader);
+    ImageRGBA::Ptr texture = getTexture("WOOD", name.c_str(), "", loader);
     if (!texture)
       continue;
 
@@ -91,7 +92,7 @@ ImageRGBA::Ptr createForestFarTexture(il2ge::RessourceLoader *loader)
 
       auto name = string("Wood") + to_string(i);
 
-      ImageRGBA::Ptr texture = il2ge::getTexture("WOOD", name.c_str(), "", loader);
+      ImageRGBA::Ptr texture = getTexture("WOOD", name.c_str(), "", loader);
       if (!texture)
         continue;
 
@@ -143,7 +144,7 @@ ImageRGBA::Ptr createForestFarTexture(il2ge::RessourceLoader *loader)
 
 ImageRGBA::Ptr createForestFarTexture_alt(il2ge::RessourceLoader *loader)
 {
-  ImageRGBA::Ptr texture = il2ge::getTexture("WOOD", "Wood1", "", loader);
+  ImageRGBA::Ptr texture = getTexture("WOOD", "Wood1", "", loader);
   assert(texture);
 
   texture->forEach(3, [] (unsigned char &alpha)
@@ -157,7 +158,7 @@ ImageRGBA::Ptr createForestFarTexture_alt(il2ge::RessourceLoader *loader)
 
 bool isForest(const ivec2 &pos, ImageGreyScale::ConstPtr type_map)
 {
-  return il2ge::isForest(type_map->get(pos) & 0x1F);
+  return map_loader::isForest(type_map->get(pos) & 0x1F);
 }
 
 

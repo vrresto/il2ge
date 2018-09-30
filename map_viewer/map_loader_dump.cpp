@@ -36,7 +36,7 @@ using namespace render_util;
 using namespace glm;
 
 
-namespace il2ge
+namespace il2ge::map_loader
 {
   bool isDumpEnabled() { return false; }
 }
@@ -119,15 +119,16 @@ void MapLoaderDump::loadMap(
   RessourceLoader res_loader(m_path.c_str());
 
   if (elevation_map_base)
-    *elevation_map_base = il2ge::generateHeightMap();
+    *elevation_map_base = il2ge::map_loader::generateHeightMap();
 
   if (elevation_map)
-    *elevation_map = il2ge::createElevationMap(&res_loader);
+    *elevation_map = il2ge::map_loader::createElevationMap(&res_loader);
 
-  il2ge::createMapTextures(&res_loader,
-                           map.textures.get(),
-                           map.water_animation.get(),
-                           elevation_map_base ? *elevation_map_base : render_util::ElevationMap::ConstPtr());
+  il2ge::map_loader::createMapTextures(&res_loader,
+                                       map.textures.get(),
+                                       map.water_animation.get(),
+                                       elevation_map_base ? *elevation_map_base :
+                                          render_util::ElevationMap::ConstPtr());
 
   map.size = glm::vec2((*elevation_map)->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
 }

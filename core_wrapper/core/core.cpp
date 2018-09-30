@@ -88,7 +88,7 @@ void refreshFile(const char *path,
 } // namespace
 
 
-namespace il2ge
+namespace il2ge::map_loader
 {
   bool isDumpEnabled() { return g_dump_enabled; }
 }
