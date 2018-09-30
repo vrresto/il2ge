@@ -186,9 +186,9 @@ render_util::ElevationMap::Ptr il2ge::map_generator::generateHeightMap()
   const float scale = 8;
   const float coarse_scale = 4;
 
-  for (int y = 0; y < heightmap->w(); y++)
+  for (int y = 0; y < heightmap->h(); y++)
   {
-    for (int x = 0; x < heightmap->h(); x++)
+    for (int x = 0; x < heightmap->w(); x++)
     {
       float height = noise_generator.GetValueFractal(x, y) * 1000;
       height += noise_generator.GetValueFractal(x * coarse_scale, y * coarse_scale) * 1500;
