@@ -227,16 +227,13 @@ void createWaterMap
 }
 
 
-ImageGreyScale::Ptr createBaseTypeMap(render_util::MapTextures *map_textures,
-                              map<unsigned, unsigned> mapping,
-                              ElevationMap::ConstPtr elevation_map,
-                              ImageGreyScale::Ptr &raw_map)
+ImageGreyScale::Ptr createBaseTypeMap(ElevationMap::ConstPtr elevation_map)
 {
   using namespace map_generator;
 
-  raw_map = il2ge::map_generator::generateTypeMap(elevation_map);
+  auto map = il2ge::map_generator::generateTypeMap(elevation_map);
 
-  raw_map->forEach([&] (auto &pixel)
+  map->forEach([&] (auto &pixel)
   {
     switch (pixel)
     {
@@ -270,16 +267,7 @@ ImageGreyScale::Ptr createBaseTypeMap(render_util::MapTextures *map_textures,
     }
   });
 
-  raw_map = image::flipY(raw_map);
-
-  auto map = image::clone(raw_map);
-  map->forEach([&] (auto &pixel)
-  {
-    //     auto it = mapping.find(pixel);
-    //     assert(it != mapping.end());
-    //     pixel = it->second;
-    pixel = mapping[pixel];
-  });
+  map = image::flipY(map);
 
   return map;
 }
@@ -288,14 +276,12 @@ ImageGreyScale::Ptr createBaseTypeMap(render_util::MapTextures *map_textures,
 void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
                          render_util::MapTextures *map_textures,
                          il2ge::RessourceLoader *loader,
-                         ElevationMap::ConstPtr base_elevation_map,
-                         ImageGreyScale::Ptr &base_type_map_raw)
+                         map<unsigned, unsigned> &mapping)
 {
   auto type_map = image::clone(type_map_);
 
   vector<ImageRGBA::ConstPtr> textures;
   vector<float> texture_scale;
-  map<unsigned, unsigned> mapping;
 
 //   ImageRGBA::Ptr default_normal_map(new ImageRGBA(ivec2(128,128)));
 //   RGBA default_normal = { 127, 127, 255, 255 };
@@ -374,11 +360,6 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
   map_textures->setTexture(TEXUNIT_TERRAIN_FAR, far_texture);
 
   dump(far_texture, "far_texture", loader->getDumpDir());
-
-  auto base_type_map = type_map;
-  if (base_elevation_map)
-    base_type_map = createBaseTypeMap(map_textures, mapping, base_elevation_map, base_type_map_raw);
-  map_textures->setTexture(TEXUNIT_TYPE_MAP_BASE, base_type_map);
 }
 
 
@@ -539,11 +520,29 @@ void il2ge::createMapTextures(il2ge::RessourceLoader *loader,
   map_textures->setWaterColor(loader->getWaterColor(default_water_color));
 #endif
 
-  ImageGreyScale::Ptr base_type_map_raw;
+  map<unsigned, unsigned> mapping;
 
-  createFieldTextures(type_map, map_textures, loader, base_elevation_map, base_type_map_raw);
+  createFieldTextures(type_map, map_textures, loader, mapping);
 
-  createForestTextures(type_map, map_textures, loader, base_type_map_raw);
+  ImageGreyScale::Ptr base_type_map;
+
+  if (base_elevation_map)
+  {
+    base_type_map = createBaseTypeMap(base_elevation_map);
+
+    auto base_type_map_remapped = image::clone(base_type_map);
+    base_type_map_remapped->forEach([&] (auto &pixel)
+    {
+      //     auto it = mapping.find(pixel);
+      //     assert(it != mapping.end());
+      //     pixel = it->second;
+      pixel = mapping[pixel];
+    });
+
+    map_textures->setTexture(TEXUNIT_TYPE_MAP_BASE, base_type_map_remapped);
+  }
+
+  createForestTextures(type_map, map_textures, loader, base_type_map);
 
   cout<<"creating map textures done."<<endl;
 }
@@ -643,6 +642,7 @@ render_util::ElevationMap::Ptr il2ge::createElevationMap(il2ge::RessourceLoader 
 
   return elevation_map;
 }
+
 
 render_util::ElevationMap::Ptr il2ge::generateHeightMap()
 {
