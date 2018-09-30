@@ -106,7 +106,10 @@ bool loadCrashHandlerLibrary()
   if (g_crash_handler_module)
     return true;
 
+  auto old_error_mode = GetThreadErrorMode();
+  SetThreadErrorMode(SEM_FAILCRITICALERRORS, nullptr);
   g_crash_handler_module = LoadLibraryA(crash_handler_library_name);
+  SetThreadErrorMode(old_error_mode, nullptr);
 
   if (!g_crash_handler_module)
   {
