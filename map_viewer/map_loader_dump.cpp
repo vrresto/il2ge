@@ -119,7 +119,7 @@ void MapLoaderDump::loadMap(
   RessourceLoader res_loader(m_path.c_str());
 
   if (elevation_map_base)
-    *elevation_map_base = il2ge::map_loader::generateHeightMap();
+    *elevation_map_base = il2ge::map_generator::generateHeightMap();
 
   if (elevation_map)
     *elevation_map = il2ge::map_loader::createElevationMap(&res_loader);

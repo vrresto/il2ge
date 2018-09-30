@@ -591,34 +591,6 @@ render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader
 }
 
 
-render_util::ElevationMap::Ptr generateHeightMap()
-{
-  FastNoise noise_generator;
-
-  auto heightmap = render_util::image::create<float>(0, ivec2(4096));
-
-  const float scale = 8;
-  const float coarse_scale = 4;
-
-  for (int y = 0; y < heightmap->w(); y++)
-  {
-    for (int x = 0; x < heightmap->h(); x++)
-    {
-      float height = noise_generator.GetValueFractal(x, y) * 1000;
-      height += noise_generator.GetValueFractal(x * coarse_scale, y * coarse_scale) * 1500;
-      height += noise_generator.GetValueFractal(x * scale, y * scale) * 400;
-      height += noise_generator.GetValueFractal(x * 30, y * 30) * 200;
-      height += 200;
-      height = glm::max(10.f, height);
-
-      heightmap->at(x,y) = height;
-    }
-  }
-
-  return heightmap;
-}
-
-
 unsigned getFieldIndex(const string &name)
 {
   for (size_t i = 0; i < NUM_FIELDS; i++)

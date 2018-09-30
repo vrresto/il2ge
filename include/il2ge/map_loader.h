@@ -53,9 +53,15 @@ namespace il2ge::map_loader
       render_util::WaterAnimation *water_animation,
       render_util::ElevationMap::ConstPtr base_elevation_map = {});
 
-  render_util::ElevationMap::Ptr generateHeightMap();
   render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader);
 }
+
+
+namespace il2ge::map_generator
+{
+  render_util::ElevationMap::Ptr generateHeightMap();
+}
+
 
 
 #endif

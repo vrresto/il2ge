@@ -80,7 +80,7 @@ Map::Map(const char *path) : p(new Private)
 
   render_util::ElevationMap::Ptr elevation_map_base;
   if (core::isBaseMapEnabled())
-    elevation_map_base = map_loader::generateHeightMap();
+    elevation_map_base = map_generator::generateHeightMap();
 
   auto elevation_map = map_loader::createElevationMap(&res_loader);
 
