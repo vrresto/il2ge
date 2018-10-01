@@ -64,6 +64,20 @@ std::ofstream g_logfile;
 
 void initLog()
 {
+  g_log.m_outputs.push_back(&cerr);
+
+//   g_logfile.open(getLogFileName(), ios_base::app);
+//   if (g_logfile.good())
+//     g_log.m_outputs.push_back(&g_logfile);
+
+  {
+    // clear previous contents
+    ofstream log(getLogFileName());
+  }
+
+  freopen(getLogFileName(), "a", stdout);
+  freopen(getLogFileName(), "a", stderr);
+
   auto out_fd = _fileno(stdout);
 
   auto res = _dup2(out_fd, 1);
@@ -242,19 +256,7 @@ void WINAPI il2ge_init()
 {
   std::atexit(atexitHandler);
 
-  {
-    // clear previous contents
-    ofstream all_log("il2ge_all.log");
-  }
-
-  freopen("il2ge_all.log", "a", stdout);
-  freopen("il2ge_all.log", "a", stderr);
-
-  g_log.m_outputs.push_back(&cerr);
-
-  g_logfile.open(getLogFileName(), ios_base::app);
-  if (g_logfile.good())
-    g_log.m_outputs.push_back(&g_logfile);
+  initLog();
 
   g_log.printSeparator();
   g_log << "*** il2ge.dll initialization ***\n";
@@ -273,7 +275,6 @@ void WINAPI il2ge_init()
     }
   }
 
-  initLog();
   installExceptionHandler();
 
   auto jvm_module = GetModuleHandle("jvm.dll");
