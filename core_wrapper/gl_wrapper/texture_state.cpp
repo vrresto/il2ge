@@ -18,6 +18,8 @@
 
 #include <misc.h>
 #include <wgl_wrapper.h>
+#include <core.h>
+#include <render_util/texunits.h>
 
 #include "gl_wrapper_private.h"
 
@@ -33,7 +35,7 @@ using namespace std;
 
 namespace
 {
-  enum { MAX_UNITS = 32 };
+  enum { MAX_UNITS = render_util::MAX_GL_TEXUNITS };
 
   struct Unit
   {
@@ -123,7 +125,9 @@ namespace core_gl_wrapper::texture_state
     TextureState *state = getState();
     assert(state->is_frozen);
 
-    for (size_t i = 0; i < state->units.size(); i++)
+    for (size_t i = core::textureManager().getLowestUnit();
+         i < state->units.size() && i <= core::textureManager().getHighestUnit();
+         i++)
     {
       gl::ActiveTexture(GL_TEXTURE0 + i);
 
