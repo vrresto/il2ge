@@ -61,6 +61,8 @@ namespace core
 
   void Scene::unloadMap()
   {
+    printf("unloadMap()\n");
+
     map.reset();
     gl::Finish();
     sfs::clearRedirections();

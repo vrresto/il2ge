@@ -144,14 +144,17 @@ Scene *getScene()
 
 void unloadMap()
 {
-  printf("unloadMap()\n");
+  FORCE_CHECK_GL_ERROR();
   getScene()->unloadMap();
+  FORCE_CHECK_GL_ERROR();
 }
 
 
 void loadMap(const char *path)
 {
+  FORCE_CHECK_GL_ERROR();
   getScene()->loadMap(path);
+  FORCE_CHECK_GL_ERROR();
 }
 
 

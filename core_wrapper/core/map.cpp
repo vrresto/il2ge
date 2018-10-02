@@ -62,9 +62,15 @@ struct Map::Private
 
 Map::Map(const char *path) : p(new Private)
 {
+  FORCE_CHECK_GL_ERROR();
+
   p->textures = make_shared<render_util::MapTextures>(core::textureManager());
 
+  FORCE_CHECK_GL_ERROR();
+
   p->water_animation = make_shared<render_util::WaterAnimation>();
+
+  FORCE_CHECK_GL_ERROR();
 
   string terrain_program_name;
 
@@ -73,6 +79,8 @@ Map::Map(const char *path) : p(new Private)
                                               g_shader_path,
                                               terrain_program_name,
                                               core::isBaseMapEnabled());
+
+  FORCE_CHECK_GL_ERROR();
 
   p->terrain_renderer.getProgram()->setUniform("terrain_color", glm::vec3(1,0,0));
 
@@ -97,6 +105,8 @@ Map::Map(const char *path) : p(new Private)
     p->terrain_renderer.getTerrain()->build(elevation_map);
 
   p->textures->bind();
+
+  FORCE_CHECK_GL_ERROR();
 }
 
 Map::~Map()
