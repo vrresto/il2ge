@@ -40,22 +40,27 @@ namespace core
 
   Scene::Scene() : Module("Scene")
   {
+    FORCE_CHECK_GL_ERROR();
     curvature_map = render_util::createCurvatureTexture(texture_manager, IL2GE_CACHE_DIR);
+    FORCE_CHECK_GL_ERROR();
     atmosphere_map = render_util::createAmosphereThicknessTexture(texture_manager, IL2GE_CACHE_DIR);
+    FORCE_CHECK_GL_ERROR();
 
     GLenum active_unit_save;
     gl::GetIntegerv(GL_ACTIVE_TEXTURE, reinterpret_cast<GLint*>(&active_unit_save));
+    FORCE_CHECK_GL_ERROR();
 
     int atmosphere_map_unit = texture_manager.getHighestUnit() + 1;
     assert(atmosphere_map_unit < MAX_GL_TEXUNITS);
 
     gl::ActiveTexture(GL_TEXTURE0 + atmosphere_map_unit); //FIXME
+    FORCE_CHECK_GL_ERROR();
 
     gl::BindTexture(atmosphere_map->getTarget(), atmosphere_map->getID());
 
     gl::ActiveTexture(active_unit_save);
 
-    CHECK_GL_ERROR();
+    FORCE_CHECK_GL_ERROR();
   }
 
 
