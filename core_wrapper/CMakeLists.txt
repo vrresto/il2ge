@@ -7,7 +7,8 @@ if(no_refresh_maps)
   add_definitions(-DNO_REFRESH_MAPS)
 endif(no_refresh_maps)
 
-add_definitions(-DINI_ALLOW_MULTILINE=0 -DINI_ALLOW_INLINE_COMMENTS=1 -DINI_INLINE_COMMENT_PREFIXES="//")
+add_definitions(-DINI_ALLOW_MULTILINE=0 -DINI_ALLOW_INLINE_COMMENTS=1)
+add_definitions("-DINI_INLINE_COMMENT_PREFIXES=\"\;//\"")
 
 include_directories(
   include

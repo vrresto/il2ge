@@ -138,8 +138,19 @@ bool core::RessourceLoader::readTextureFile(const char *section,
   if (scale && comma_pos != string::npos && value.size() > comma_pos+1)
   {
     string scale_str = value.substr(comma_pos+1, string::npos);
-//       cout<<"scale: "<<scale_str<<endl;
-    *scale = stof(scale_str);
+
+    try
+    {
+      *scale = stof(scale_str);
+    }
+    catch (...)
+    {
+      cerr<<"can't convert '"<<scale_str<<"' to float"<<endl;
+      cerr<<"section: "<<section<<endl;
+      cerr<<"key: "<<name<<endl;
+      cerr<<"value: "<<value<<endl;
+      *scale = 1;
+    }
   }
 
   string filename = value.substr(0, comma_pos);
