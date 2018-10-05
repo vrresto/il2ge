@@ -59,7 +59,9 @@ namespace il2ge::map_loader
 
 namespace il2ge::map_generator
 {
-  render_util::ElevationMap::Ptr generateHeightMap();
+  const std::string &getBaseLandMapFileName();
+
+  render_util::ElevationMap::Ptr generateHeightMap(render_util::ImageGreyScale::ConstPtr land_map = {});
 }
 
 

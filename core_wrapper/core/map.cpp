@@ -25,6 +25,8 @@
 #include <render_util/terrain_util.h>
 #include <render_util/map_textures.h>
 #include <render_util/image_loader.h>
+#include <render_util/image_util.h>
+#include <render_util/texunits.h>
 #include <render_util/water.h>
 #include <il2ge/map_loader.h>
 
@@ -57,11 +59,14 @@ struct Map::Private
   shared_ptr<render_util::MapTextures> textures;
   shared_ptr<render_util::WaterAnimation> water_animation;
   TerrainRenderer terrain_renderer;
+  glm::vec2 base_map_origin = glm::vec2(0);
 };
 
 
 Map::Map(const char *path) : p(new Private)
 {
+  bool enable_base_map = core::isBaseMapEnabled();
+
   FORCE_CHECK_GL_ERROR();
 
   p->textures = make_shared<render_util::MapTextures>(core::textureManager());
@@ -72,23 +77,37 @@ Map::Map(const char *path) : p(new Private)
 
   FORCE_CHECK_GL_ERROR();
 
-  string terrain_program_name;
+  string ini_path = "maps/";
+  ini_path += path;
 
-  p->terrain_renderer = createTerrainRenderer(textureManager(),
-                                              g_terrain_use_lod,
-                                              g_shader_path,
-                                              terrain_program_name,
-                                              core::isBaseMapEnabled());
+  string map_dir = ini_path.substr(0, ini_path.find_last_of('/')) + '/';
+  assert(!map_dir.empty());
 
-  FORCE_CHECK_GL_ERROR();
-
-  p->terrain_renderer.getProgram()->setUniform("terrain_color", glm::vec3(1,0,0));
-
-  RessourceLoader res_loader(path);
+  RessourceLoader res_loader(map_dir, ini_path);
 
   render_util::ElevationMap::Ptr elevation_map_base;
-  if (core::isBaseMapEnabled())
-    elevation_map_base = map_generator::generateHeightMap();
+  ImageGreyScale::Ptr land_map;
+  if (enable_base_map)
+  {
+    std::vector<char> il2ge_ini_content;
+    if (sfs::readFile((map_dir + "il2ge.ini").c_str(), il2ge_ini_content))
+    {
+      INIReader ini(il2ge_ini_content.data(), il2ge_ini_content.size());
+      if (!ini.ParseError())
+      {
+        p->base_map_origin.x = ini.GetReal("", "BaseMapOriginX", 0);
+        p->base_map_origin.y = ini.GetReal("", "BaseMapOriginY", 0);
+      }
+    }
+
+    std::vector<char> land_map_data;
+    if (sfs::readFile(map_dir + map_generator::getBaseLandMapFileName(), land_map_data))
+    {
+      land_map = render_util::loadImageFromMemory<ImageGreyScale>(land_map_data);
+    }
+
+    elevation_map_base = map_generator::generateHeightMap(land_map);
+  }
 
   auto elevation_map = map_loader::createElevationMap(&res_loader);
 
@@ -99,12 +118,30 @@ Map::Map(const char *path) : p(new Private)
 
   p->size = glm::vec2(elevation_map->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
 
+  if (land_map)
+    p->textures->setTexture(render_util::TEXUNIT_WATER_MAP_BASE, image::flipY(land_map));
+
+  p->textures->bind();
+
+  FORCE_CHECK_GL_ERROR();
+
+
+  string terrain_program_name;
+  p->terrain_renderer = createTerrainRenderer(textureManager(),
+                                              g_terrain_use_lod,
+                                              g_shader_path,
+                                              terrain_program_name,
+                                              enable_base_map,
+                                              land_map != nullptr);
+
+  FORCE_CHECK_GL_ERROR();
+
+  p->terrain_renderer.getProgram()->setUniform("terrain_color", glm::vec3(1,0,0));
+
   if (elevation_map_base)
     p->terrain_renderer.getTerrain()->build(elevation_map, elevation_map_base);
   else
     p->terrain_renderer.getTerrain()->build(elevation_map);
-
-  p->textures->bind();
 
   FORCE_CHECK_GL_ERROR();
 }
@@ -130,6 +167,7 @@ void Map::setUniforms(render_util::ShaderProgramPtr program)
 {
   program->setUniform("map_size", getSize());
   program->setUniform("terrain_height_offset", 0);
+  program->setUniform("height_map_base_origin", p->base_map_origin);
   p->textures->setUniforms(program);
   p->water_animation->updateUniforms(program);
 }

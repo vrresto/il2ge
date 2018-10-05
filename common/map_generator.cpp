@@ -41,6 +41,8 @@ namespace
 {
 
 
+const string g_base_land_map_file_name = "base_map_land.tga";
+
 enum
 {
   TERRAIN_TYPE_WATER,
@@ -80,7 +82,6 @@ ImageGreyScale::Ptr generateTypeMapPrivate(ElevationMap::ConstPtr elevation_map)
 
       if (height <= sea_level)
       {
-        assert(0);
         type = TERRAIN_TYPE_WATER;
       }
       else if (height < 1500)
@@ -177,11 +178,20 @@ ImageGreyScale::Ptr generateTypeMapPrivate(ElevationMap::ConstPtr elevation_map)
 } // namespace
 
 
-render_util::ElevationMap::Ptr il2ge::map_generator::generateHeightMap()
+render_util::ElevationMap::Ptr il2ge::map_generator::generateHeightMap(
+    render_util::ImageGreyScale::ConstPtr land_map)
 {
   FastNoise noise_generator;
 
   auto heightmap = render_util::image::create<float>(0, glm::ivec2(4096));
+
+  shared_ptr<Surface<ImageGreyScale>> land_map_surface;
+
+  if (land_map)
+  {
+    land_map_surface = make_shared<Surface<ImageGreyScale>>(land_map);
+    land_map_surface->setSize(heightmap->getSize());
+  }
 
   const float scale = 8;
   const float coarse_scale = 4;
@@ -196,6 +206,15 @@ render_util::ElevationMap::Ptr il2ge::map_generator::generateHeightMap()
       height += noise_generator.GetValueFractal(x * 30, y * 30) * 200;
       height += 200;
       height = glm::max(10.f, height);
+
+      if (land_map_surface)
+      {
+        float threshold = 0.2 + noise_generator.GetValueFractal(x * 8, y * 8) * 0.2;
+        float land_map_value = (float)land_map_surface->get(x,y) / 255.0;
+
+        land_map_value = glm::smoothstep(threshold, threshold + 0.3f, land_map_value);
+        height *= land_map_value;
+      }
 
       heightmap->at(x,y) = height;
     }
@@ -217,7 +236,7 @@ ImageGreyScale::Ptr il2ge::map_generator::generateTypeMap(ElevationMap::ConstPtr
     switch (pixel)
     {
       case TERRAIN_TYPE_WATER:
-        assert(0);
+        pixel = getFieldIndex("Water2");
         break;
       case TERRAIN_TYPE_GRASS:
         assert(0);
@@ -249,4 +268,9 @@ ImageGreyScale::Ptr il2ge::map_generator::generateTypeMap(ElevationMap::ConstPtr
   map = image::flipY(map);
 
   return map;
+}
+
+const std::string &il2ge::map_generator::getBaseLandMapFileName()
+{
+  return g_base_land_map_file_name;
 }

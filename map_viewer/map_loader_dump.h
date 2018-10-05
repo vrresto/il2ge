@@ -29,8 +29,8 @@ public:
   MapLoaderDump(const std::string &path) : m_path(path) {}
 
   void loadMap(render_util::Map &map,
-               bool load_terrain,
-               render_util::ElevationMap::Ptr *elevation_map,
+               bool &has_base_water_map,
+               render_util::ElevationMap::Ptr &elevation_map,
                render_util::ElevationMap::Ptr *elevation_map_base) override;
 };
 

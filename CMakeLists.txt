@@ -86,6 +86,7 @@ include_directories(
   ${PROJECT_BINARY_DIR}
   ${renderutil_dir}/include
   ${render_util_BINARY_DIR}
+  ${PROJECT_SOURCE_DIR}/_modules/inih/cpp
 )
 
 if(platform_mingw)

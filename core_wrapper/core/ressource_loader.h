@@ -33,7 +33,7 @@ namespace core
     std::string map_dir;
 
   public:
-    RessourceLoader(const char *path);
+    RessourceLoader(const std::string &map_dir, const std::string &ini_path);
 
     std::string getDumpDir() override;
 

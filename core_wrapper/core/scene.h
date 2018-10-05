@@ -38,7 +38,7 @@ namespace core
     std::unique_ptr<Map> map;
 
   public:
-    render_util::TextureManager texture_manager = render_util::TextureManager(0, 28);
+    render_util::TextureManager texture_manager = render_util::TextureManager(0, 29);
 
     Scene();
 

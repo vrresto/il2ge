@@ -20,10 +20,14 @@
 #include <render_util/map.h>
 #include <render_util/image.h>
 #include <render_util/image_loader.h>
+#include <render_util/image_util.h>
 #include <render_util/texture_util.h>
+#include <render_util/texunits.h>
 #include <il2ge/map_loader.h>
 #include <il2ge/ressource_loader.h>
 #include <util.h>
+
+#include <INIReader.h>
 
 #include <iostream>
 #include <fstream>
@@ -109,20 +113,27 @@ public:
 
 void MapLoaderDump::loadMap(
     render_util::Map &map,
-    bool load_terrain,
-    render_util::ElevationMap::Ptr *elevation_map,
+    bool &has_base_water_map,
+    render_util::ElevationMap::Ptr &elevation_map,
     render_util::ElevationMap::Ptr *elevation_map_base)
 {
-  assert(!load_terrain);
-  assert(elevation_map);
+  map.base_map_origin = glm::vec2(0);
 
   RessourceLoader res_loader(m_path.c_str());
+  INIReader ini(m_path + "/il2ge.ini");
+  if (!ini.ParseError())
+  {
+    map.base_map_origin.x = ini.GetReal("", "BaseMapOriginX", 0);
+    map.base_map_origin.y = ini.GetReal("", "BaseMapOriginY", 0);
+  }
+
+  auto land_map_path = m_path + '/' + il2ge::map_generator::getBaseLandMapFileName();
+  auto land_map = render_util::loadImageFromFile<ImageGreyScale>(land_map_path);
 
   if (elevation_map_base)
-    *elevation_map_base = il2ge::map_generator::generateHeightMap();
+    *elevation_map_base = il2ge::map_generator::generateHeightMap(land_map);
 
-  if (elevation_map)
-    *elevation_map = il2ge::map_loader::createElevationMap(&res_loader);
+  elevation_map = il2ge::map_loader::createElevationMap(&res_loader);
 
   il2ge::map_loader::createMapTextures(&res_loader,
                                        map.textures.get(),
@@ -130,5 +141,11 @@ void MapLoaderDump::loadMap(
                                        elevation_map_base ? *elevation_map_base :
                                           render_util::ElevationMap::ConstPtr());
 
-  map.size = glm::vec2((*elevation_map)->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
+  if (land_map)
+  {
+    has_base_water_map = true;
+    map.textures->setTexture(render_util::TEXUNIT_WATER_MAP_BASE, image::flipY(land_map));
+  }
+
+  map.size = glm::vec2(elevation_map->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
 }

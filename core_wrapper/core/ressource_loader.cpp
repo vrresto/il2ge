@@ -51,17 +51,12 @@ namespace
 }
 
 
-core::RessourceLoader::RessourceLoader(const char *path_)
+core::RessourceLoader::RessourceLoader(const string &map_dir, const string &ini_path) :
+  map_dir(map_dir)
 {
-  string path = "maps/";
-  path += path_;
-
-  map_dir = path.substr(0, path.find_last_of('/')) + '/';
-  assert(!map_dir.empty());
-
   cout<<"reading load.ini"<<endl;
   std::vector<char> ini_content;
-  if (!sfs::readFile(path.c_str(), ini_content)) {
+  if (!sfs::readFile(ini_path.c_str(), ini_content)) {
     assert(0);
   }
   cout<<"done reading load.ini"<<endl;
