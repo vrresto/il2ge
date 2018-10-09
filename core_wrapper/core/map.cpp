@@ -121,7 +121,7 @@ Map::Map(const char *path) : p(new Private)
   if (land_map)
     p->textures->setTexture(render_util::TEXUNIT_WATER_MAP_BASE, image::flipY(land_map));
 
-  p->textures->bind();
+  p->textures->bind(core::textureManager());
 
   FORCE_CHECK_GL_ERROR();
 
