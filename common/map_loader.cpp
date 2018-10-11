@@ -17,7 +17,6 @@
  */
 
 #include "map_loader_private.h"
-#include "map_generator.h"
 #include "imf.h"
 #include "forest.h"
 #include <render_util/image.h>
@@ -403,7 +402,7 @@ namespace il2ge::map_loader
 void createMapTextures(il2ge::RessourceLoader *loader,
              render_util::MapTextures *map_textures,
              render_util::WaterAnimation *water_animation,
-             render_util::ElevationMap::ConstPtr base_elevation_map)
+             map<unsigned, unsigned> &mapping)
 {
 //   getTexture("APPENDIX", "BeachFoam", "", reader);
 //   getTexture("APPENDIX", "BeachSurf", "", reader);
@@ -467,29 +466,8 @@ void createMapTextures(il2ge::RessourceLoader *loader,
   map_textures->setWaterColor(loader->getWaterColor(default_water_color));
 #endif
 
-  map<unsigned, unsigned> mapping;
-
   createFieldTextures(type_map, map_textures, loader, mapping);
-
-  ImageGreyScale::Ptr base_type_map;
-
-  if (base_elevation_map)
-  {
-    base_type_map = map_generator::generateTypeMap(base_elevation_map);
-
-    auto base_type_map_remapped = image::clone(base_type_map);
-    base_type_map_remapped->forEach([&] (auto &pixel)
-    {
-      //     auto it = mapping.find(pixel);
-      //     assert(it != mapping.end());
-      //     pixel = it->second;
-      pixel = mapping[pixel];
-    });
-
-    map_textures->setTexture(TEXUNIT_TYPE_MAP_BASE, base_type_map_remapped);
-  }
-
-  createForestTextures(type_map, map_textures, loader, base_type_map);
+  createForestTextures(type_map, map_textures, loader);
 
   cout<<"creating map textures done."<<endl;
 }

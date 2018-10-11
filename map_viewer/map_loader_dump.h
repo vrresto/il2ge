@@ -21,17 +21,25 @@
 
 #include <render_util/map_loader_base.h>
 
+
 class MapLoaderDump : public render_util::MapLoaderBase
 {
+  class RessourceLoader;
+
   std::string m_path;
+  const render_util::TextureManager &m_texture_mgr;
+  RessourceLoader *m_res_loader = nullptr;
 
 public:
-  MapLoaderDump(const std::string &path) : m_path(path) {}
+  MapLoaderDump(const std::string &path, const render_util::TextureManager &texture_mgr);
+  ~MapLoaderDump();
 
-  void loadMap(render_util::Map &map,
-               bool &has_base_water_map,
-               render_util::ElevationMap::Ptr &elevation_map,
-               render_util::ElevationMap::Ptr *elevation_map_base) override;
+  std::shared_ptr<render_util::MapBase> loadMap() const override;
+  render_util::ElevationMap::Ptr createElevationMap() const override;
+  render_util::ElevationMap::Ptr
+      createBaseElevationMap(render_util::ImageGreyScale::ConstPtr land_map) const override;
+  render_util::ImageGreyScale::Ptr createBaseLandMap() const override;
+  glm::vec2 getBaseMapOrigin() const override;
 };
 
 #endif

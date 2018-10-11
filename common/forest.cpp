@@ -34,22 +34,6 @@ namespace
 {
 
 
-ImageGreyScale::Ptr createForestMap(ImageGreyScale::ConstPtr type_map)
-{
-  auto map = image::clone(type_map);
-
-  map->forEach([] (unsigned char &pixel)
-  {
-    if (isForest(pixel & 0x1F))
-      pixel = 255;
-    else
-      pixel = 0;
-  });
-
-  return map;
-}
-
-
 vector<ImageRGBA::ConstPtr> getForestLayers(il2ge::RessourceLoader *loader)
 {
   vector<ImageRGBA::ConstPtr> textures;
@@ -166,26 +150,34 @@ bool isForest(const ivec2 &pos, ImageGreyScale::ConstPtr type_map)
 
 
 
-namespace il2ge
+namespace il2ge::map_loader
 {
+
+
+ImageGreyScale::Ptr createForestMap(ImageGreyScale::ConstPtr type_map)
+{
+  auto map = image::clone(type_map);
+
+  map->forEach([] (unsigned char &pixel)
+  {
+    if (isForest(pixel & 0x1F))
+      pixel = 255;
+    else
+      pixel = 0;
+  });
+
+  return map;
+}
 
 
 void createForestTextures(ImageGreyScale::ConstPtr type_map,
                           MapTextures *map_textures,
-                          il2ge::RessourceLoader *loader,
-                          ImageGreyScale::ConstPtr type_map_base)
+                          il2ge::RessourceLoader *loader)
 {
   cout<<"loading forest texture ..."<<endl;
   auto forest_map = createForestMap(type_map);
   assert(forest_map);
   map_textures->setForestMap(forest_map);
-
-  if (type_map_base)
-  {
-    auto forest_map_base = createForestMap(type_map_base);
-    assert(forest_map_base);
-    map_textures->setTexture(TEXUNIT_FOREST_MAP_BASE, forest_map_base);
-  }
 
 //   map_textures->setTexture(TEXUNIT_FOREST_FAR, createForestFarTexture(loader));
   map_textures->setTexture(TEXUNIT_FOREST_FAR, createForestFarTexture_alt(loader));

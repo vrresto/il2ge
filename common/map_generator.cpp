@@ -16,7 +16,6 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "map_generator.h"
 #include "map_loader_private.h"
 #include <render_util/elevation_map.h>
 #include <render_util/image_loader.h>
@@ -189,7 +188,8 @@ render_util::ElevationMap::Ptr il2ge::map_generator::generateHeightMap(
 
   if (land_map)
   {
-    land_map_surface = make_shared<Surface<ImageGreyScale>>(land_map);
+    auto flipped = image::flipY(land_map);
+    land_map_surface = make_shared<Surface<ImageGreyScale>>(flipped);
     land_map_surface->setSize(heightmap->getSize());
   }
 

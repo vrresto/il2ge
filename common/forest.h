@@ -31,11 +31,13 @@ namespace render_util
 namespace il2ge
 {
   class RessourceLoader;
+}
 
+namespace il2ge::map_loader
+{
   void createForestTextures(render_util::ImageGreyScale::ConstPtr type_map,
                             render_util::MapTextures *map_textures,
-                            il2ge::RessourceLoader *loader,
-                            render_util::ImageGreyScale::ConstPtr type_map_base = {});
+                            il2ge::RessourceLoader *loader);
 }
 
 #endif

@@ -22,6 +22,7 @@
 #include <render_util/elevation_map.h>
 
 #include <glm/glm.hpp>
+#include <map>
 
 
 namespace render_util
@@ -51,9 +52,10 @@ namespace il2ge::map_loader
   void createMapTextures(il2ge::RessourceLoader *loader,
       render_util::MapTextures *map_textures,
       render_util::WaterAnimation *water_animation,
-      render_util::ElevationMap::ConstPtr base_elevation_map = {});
+      std::map<unsigned, unsigned> &field_texture_mapping);
 
   render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader);
+  render_util::ImageGreyScale::Ptr createForestMap(render_util::ImageGreyScale::ConstPtr type_map);
 }
 
 
@@ -62,6 +64,8 @@ namespace il2ge::map_generator
   const std::string &getBaseLandMapFileName();
 
   render_util::ElevationMap::Ptr generateHeightMap(render_util::ImageGreyScale::ConstPtr land_map = {});
+
+  render_util::ImageGreyScale::Ptr generateTypeMap(render_util::ElevationMap::ConstPtr elevation_map);
 }
 
 

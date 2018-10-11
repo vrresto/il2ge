@@ -59,5 +59,11 @@ int main(int argc, char **argv)
 
   assert(!map_path.empty());
 
-  render_util::viewer::runViewer(make_shared<MapLoaderDump>(map_path));
+  render_util::viewer::CreateMapLoaderFunc
+    create_map_loader_func = [&map_path] (const render_util::TextureManager &texture_mgr)
+  {
+    return make_shared<MapLoaderDump>(map_path, texture_mgr);
+  };
+
+  render_util::viewer::runViewer(create_map_loader_func);
 }

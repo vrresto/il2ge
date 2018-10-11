@@ -111,15 +111,34 @@ Map::Map(const char *path) : p(new Private)
 
   auto elevation_map = map_loader::createElevationMap(&res_loader);
 
+
+  std::map<unsigned, unsigned> field_texture_mapping;
+
   map_loader::createMapTextures(&res_loader,
                                 p->textures.get(),
                                 p->water_animation.get(),
-                                elevation_map_base);
+                                field_texture_mapping);
 
   p->size = glm::vec2(elevation_map->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
 
   if (land_map)
-    p->textures->setTexture(render_util::TEXUNIT_WATER_MAP_BASE, image::flipY(land_map));
+    p->textures->setTexture(render_util::TEXUNIT_WATER_MAP_BASE, land_map);
+
+
+  {
+    assert(!field_texture_mapping.empty());
+
+    auto base_type_map = map_generator::generateTypeMap(elevation_map_base);
+    auto base_type_map_remapped = image::clone(base_type_map);
+    base_type_map_remapped->forEach([&] (auto &pixel)
+    {
+      pixel = field_texture_mapping[pixel];
+    });
+
+    p->textures->setTexture(TEXUNIT_TYPE_MAP_BASE, base_type_map_remapped);
+    p->textures->setTexture(TEXUNIT_FOREST_MAP_BASE, map_loader::createForestMap(base_type_map));
+  }
+
 
   p->textures->bind(core::textureManager());
 
