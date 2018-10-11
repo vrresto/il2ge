@@ -110,21 +110,18 @@ Map::Map(const char *path) : p(new Private)
   }
 
   auto elevation_map = map_loader::createElevationMap(&res_loader);
-
+  p->size = glm::vec2(elevation_map->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
 
   std::map<unsigned, unsigned> field_texture_mapping;
-
   map_loader::createMapTextures(&res_loader,
                                 p->textures.get(),
                                 p->water_animation.get(),
                                 field_texture_mapping);
 
-  p->size = glm::vec2(elevation_map->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
-
   if (land_map)
     p->textures->setTexture(render_util::TEXUNIT_WATER_MAP_BASE, land_map);
 
-
+  if (enable_base_map)
   {
     assert(!field_texture_mapping.empty());
 
@@ -139,11 +136,9 @@ Map::Map(const char *path) : p(new Private)
     p->textures->setTexture(TEXUNIT_FOREST_MAP_BASE, map_loader::createForestMap(base_type_map));
   }
 
-
   p->textures->bind(core::textureManager());
 
   FORCE_CHECK_GL_ERROR();
-
 
   string terrain_program_name;
   p->terrain_renderer = createTerrainRenderer(textureManager(),
@@ -164,6 +159,7 @@ Map::Map(const char *path) : p(new Private)
 
   FORCE_CHECK_GL_ERROR();
 }
+
 
 Map::~Map()
 {

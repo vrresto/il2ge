@@ -226,6 +226,8 @@ render_util::ElevationMap::Ptr il2ge::map_generator::generateHeightMap(
 
 ImageGreyScale::Ptr il2ge::map_generator::generateTypeMap(ElevationMap::ConstPtr elevation_map)
 {
+  assert(elevation_map);
+
   using namespace map_generator;
   using namespace il2ge::map_loader;
 
