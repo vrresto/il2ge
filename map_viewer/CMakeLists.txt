@@ -1,4 +1,5 @@
 set(SRCS
+  ${PROJECT_SOURCE_DIR}/common/exception_handler.cpp
   map_loader_dump.cpp
   main.cpp
 )

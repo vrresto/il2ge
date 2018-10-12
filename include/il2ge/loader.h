@@ -16,12 +16,12 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef IL2GE_LOADER_PRIVATE_H
-#define IL2GE_LOADER_PRIVATE_H
+#ifndef IL2GE_LOADER_H
+#define IL2GE_LOADER_H
 
 #include <windef.h>
 
-extern "C" void WINAPI il2ge_init();
-
+HMODULE getLoaderModule();
+HMODULE getCoreWrapperModule();
 
 #endif

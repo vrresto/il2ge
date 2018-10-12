@@ -1,18 +1,5 @@
 set(library_name "il2ge")
 
-set(build_job_id $ENV{CI_JOB_ID})
-set(commit_sha $ENV{CI_COMMIT_SHA})
-
-if(NOT build_job_id)
-  set(build_job_id "local")
-endif()
-
-if(NOT commit_sha)
-  set(commit_sha "unknown")
-endif()
-
-configure_file(version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
-
 include_directories(
   ${PROJECT_SOURCE_DIR}/_modules/inih/cpp
 )
@@ -24,14 +11,14 @@ set_source_files_properties(
 
 add_definitions(
   -DCORE_WRAPPER_LIBRARY_NAME="${core_wrapper_library_name}"
+  -DIL2GE_USE_CUSTOM_ASSERT
 )
 
 set(SRCS
+  ${PROJECT_SOURCE_DIR}/common/exception_handler.cpp
   il2ge.def
   src/iat.c
-  src/backtrace.cpp
   src/main.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
 )
 
 add_library(${library_name} SHARED ${SRCS})

@@ -17,11 +17,39 @@
  */
 
 #include "map_loader_dump.h"
+#include <il2ge/log.h>
+#include <il2ge/loader.h>
+#include <il2ge/exception_handler.h>
 #include <render_util/viewer.h>
 
 #include <iostream>
+#include <windows.h>
 
 using namespace std;
+
+
+const char* const g_log_file_name = "il2ge_map_viewer.log";
+
+Logger g_log;
+
+
+const char *getLogFileName()
+{
+  return g_log_file_name;
+}
+
+
+HMODULE getLoaderModule()
+{
+  return GetModuleHandle(0);
+}
+
+
+HMODULE getCoreWrapperModule()
+{
+  return GetModuleHandle(0);
+}
+
 
 namespace render_util
 {
@@ -39,8 +67,21 @@ namespace render_util
 }
 
 
+static void atexitHandler()
+{
+  g_log.flush();
+  g_log.m_outputs.clear();
+}
+
+
 int main(int argc, char **argv)
 {
+  std::atexit(atexitHandler);
+
+  g_log.m_outputs.push_back(&cerr);
+
+  installExceptionHandler();
+
   string map_path;
 
   if (argc == 1)

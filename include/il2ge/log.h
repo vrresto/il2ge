@@ -16,12 +16,38 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef IL2GE_LOADER_PRIVATE_H
-#define IL2GE_LOADER_PRIVATE_H
+#ifndef IL2GE_LOG_H
+#define IL2GE_LOG_H
 
-#include <windef.h>
+#include <vector>
+#include <fstream>
 
-extern "C" void WINAPI il2ge_init();
+struct Logger
+{
+  std::vector<std::ostream*> m_outputs;
 
+  template <typename T>
+  Logger &operator<<(T arg)
+  {
+    for (auto o : m_outputs)
+      *o << arg;
+    return *this;
+  }
+
+  void printSeparator()
+  {
+    *this << "-----------------------------------------------------------\n";
+  }
+
+  void flush()
+  {
+    for (auto o : m_outputs)
+      o->flush();
+  }
+};
+
+extern Logger g_log;
+
+const char *getLogFileName();
 
 #endif

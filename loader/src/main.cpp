@@ -19,6 +19,9 @@
 #include "loader.h"
 #include "iat.h"
 #include <loader_interface.h>
+#include <il2ge/log.h>
+#include <il2ge/loader.h>
+#include <il2ge/exception_handler.h>
 #include <il2ge/core_wrapper.h>
 #include <il2ge/version.h>
 #include <util.h>

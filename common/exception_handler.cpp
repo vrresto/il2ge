@@ -16,7 +16,10 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "loader.h"
+#include <il2ge/log.h>
+#include <il2ge/exception_handler.h>
+#include <il2ge/loader.h>
+
 #include <mingw_crash_handler.h>
 
 #include <iostream>
@@ -285,7 +288,7 @@ void terminateHandler()
 } // namespace
 
 
-void printBacktrace()
+static void printBacktrace()
 {
   printBacktracePrivate();
 }
@@ -306,7 +309,7 @@ void installExceptionHandler()
 extern "C"
 {
 
-
+#ifdef IL2GE_USE_CUSTOM_ASSERT
 void _assert(const char *_Message, const char *_File, unsigned _Line)
 {
   g_log.printSeparator();
@@ -316,6 +319,7 @@ void _assert(const char *_Message, const char *_File, unsigned _Line)
 
   abort();
 }
+#endif
 
 
 void abort()
