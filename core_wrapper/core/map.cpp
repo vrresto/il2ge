@@ -106,6 +106,9 @@ Map::Map(const char *path) : p(new Private)
       land_map = render_util::loadImageFromMemory<ImageGreyScale>(land_map_data);
     }
 
+    if (land_map)
+      land_map = image::flipY(land_map);
+
     elevation_map_base = map_generator::generateHeightMap(land_map);
   }
 

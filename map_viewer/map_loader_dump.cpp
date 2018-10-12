@@ -228,5 +228,7 @@ ImageGreyScale::Ptr MapLoaderDump::createBaseLandMap() const
 
   assert(land_map);
 
+  land_map = image::flipY(land_map);
+
   return land_map;
 }

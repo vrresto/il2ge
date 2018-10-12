@@ -191,6 +191,7 @@ render_util::ElevationMap::Ptr il2ge::map_generator::generateHeightMap(
     auto flipped = image::flipY(land_map);
     land_map_surface = make_shared<Surface<ImageGreyScale>>(flipped);
     land_map_surface->setSize(heightmap->getSize());
+    land_map_surface->setPixelOffset(glm::vec2(0.5));
   }
 
   const float scale = 8;
