@@ -18,7 +18,6 @@
 
 #include "map_loader_dump.h"
 #include <il2ge/log.h>
-#include <il2ge/loader.h>
 #include <il2ge/exception_handler.h>
 #include <render_util/viewer.h>
 
@@ -39,18 +38,6 @@ const char *getLogFileName()
 }
 
 
-HMODULE getLoaderModule()
-{
-  return GetModuleHandle(0);
-}
-
-
-HMODULE getCoreWrapperModule()
-{
-  return GetModuleHandle(0);
-}
-
-
 static void atexitHandler()
 {
   g_log.flush();
@@ -64,7 +51,8 @@ int main(int argc, char **argv)
 
   g_log.m_outputs.push_back(&cerr);
 
-  installExceptionHandler();
+  il2ge::exception_handler::install();
+  il2ge::exception_handler::watchModule(GetModuleHandle(0));
 
   string map_path;
 

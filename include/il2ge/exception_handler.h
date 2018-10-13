@@ -19,6 +19,15 @@
 #ifndef IL2GE_EXCEPTION_HANDLER_H
 #define IL2GE_EXCEPTION_HANDLER_H
 
-void installExceptionHandler();
+
+#include <windef.h>
+
+
+namespace il2ge::exception_handler
+{
+  void install();
+  void watchModule(HMODULE module);
+}
+
 
 #endif

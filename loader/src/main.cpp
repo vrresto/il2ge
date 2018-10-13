@@ -20,7 +20,6 @@
 #include "iat.h"
 #include <loader_interface.h>
 #include <il2ge/log.h>
-#include <il2ge/loader.h>
 #include <il2ge/exception_handler.h>
 #include <il2ge/core_wrapper.h>
 #include <il2ge/version.h>
@@ -150,6 +149,8 @@ void loadCoreWrapper(const char *core_library_filename)
 
   g_core_wrapper_module = wrapper_module;
 
+  il2ge::exception_handler::watchModule(wrapper_module);
+
   wrapper_init_f(core_module, &g_interface);
 }
 
@@ -225,18 +226,6 @@ void atexitHandler()
 } // namespace
 
 
-HMODULE getLoaderModule()
-{
-  return g_loader_module;
-}
-
-
-HMODULE getCoreWrapperModule()
-{
-  return g_core_wrapper_module;
-}
-
-
 const char *getLogFileName()
 {
   return g_log_file_name;
@@ -278,7 +267,8 @@ void WINAPI il2ge_init()
     }
   }
 
-  installExceptionHandler();
+  il2ge::exception_handler::install();
+  il2ge::exception_handler::watchModule(g_loader_module);
 
   auto jvm_module = GetModuleHandle("jvm.dll");
   assert(jvm_module);

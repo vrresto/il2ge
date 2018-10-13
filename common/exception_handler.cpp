@@ -18,12 +18,12 @@
 
 #include <il2ge/log.h>
 #include <il2ge/exception_handler.h>
-#include <il2ge/loader.h>
 
 #include <mingw_crash_handler.h>
 
 #include <iostream>
 #include <sstream>
+#include <unordered_set>
 #include <cstdio>
 #include <csignal>
 #include <cassert>
@@ -83,6 +83,7 @@ LONG g_handler_entered = 0;
 MingwCrashHandlerInterface *g_crash_handler = nullptr;
 HANDLE g_crash_handler_mutex = 0;
 HANDLE g_target_thread_mutex = 0;
+unordered_set<HMODULE> g_watched_modules;
 
 
 [[ noreturn ]] void die()
@@ -93,6 +94,12 @@ HANDLE g_target_thread_mutex = 0;
   {
     Sleep(1000);
   }
+}
+
+
+bool isModuleWatched(HMODULE module)
+{
+  return g_watched_modules.find(module) != g_watched_modules.end();
 }
 
 
@@ -235,7 +242,7 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
       HMODULE module = (HMODULE)
           g_crash_handler->getModuleBase(info->ExceptionRecord->ExceptionAddress);
 
-      if (!module || getLoaderModule() == module || getCoreWrapperModule() == module)
+      if (isModuleWatched(module))
       {
         g_log.printSeparator();
         g_log << std::hex;
@@ -294,7 +301,7 @@ static void printBacktrace()
 }
 
 
-void installExceptionHandler()
+void il2ge::exception_handler::install()
 {
   g_target_thread_mutex = CreateMutexA(nullptr, false, nullptr);
   assert(g_target_thread_mutex);
@@ -303,6 +310,12 @@ void installExceptionHandler()
 
   AddVectoredExceptionHandler(true, &vectoredExceptionHandler);
   std::set_terminate(&terminateHandler);
+}
+
+
+void il2ge::exception_handler::watchModule(HMODULE module)
+{
+  g_watched_modules.insert(module);
 }
 
 
