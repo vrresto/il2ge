@@ -51,22 +51,6 @@ HMODULE getCoreWrapperModule()
 }
 
 
-namespace render_util
-{
-  const std::string &getResourcePath()
-  {
-    static string path = IL2GE_DATA_DIR;
-    return path;
-  }
-
-  const std::string &getDataPath()
-  {
-    static string path = "";
-    return path;
-  }
-}
-
-
 static void atexitHandler()
 {
   g_log.flush();

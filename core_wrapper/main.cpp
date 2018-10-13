@@ -107,21 +107,6 @@ void *getOrigProcAddress(const char *name)
 }
 
 
-namespace render_util
-{
-  const std::string &getDataPath()
-  {
-    static std::string path = IL2GE_DATA_DIR;
-    return path;
-  }
-
-  const std::string &getResourcePath()
-  {
-    return getDataPath();
-  }
-}
-
-
 void Module::printSubmodules()
 {
   using namespace std;

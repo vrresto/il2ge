@@ -28,7 +28,7 @@
 #include <render_util/image_loader.h>
 #include <render_util/texunits.h>
 #include <render_util/terrain_util.h>
-#include <render_util/gl_context.h>
+#include <render_util/globals.h>
 
 #include <cstdlib>
 #include <cstdio>
@@ -52,6 +52,7 @@ using namespace std;
 #include <render_util/skybox.h>
 
 
+
 namespace
 {
 
@@ -59,7 +60,23 @@ namespace
 void drawTerrain();
 
 
+class Globals : public render_util::Globals
+{
+public:
+  std::shared_ptr<render_util::GLContext> getCurrentGLContext() override
+  {
+    auto context = core_gl_wrapper::getContext();
+    if (!context->render_util_gl_context)
+      context->render_util_gl_context = make_shared<render_util::GLContext>();
+
+    return context->render_util_gl_context;
+  }
+};
+
+
 const std::string SHADER_PATH = IL2GE_DATA_DIR "/shaders";
+
+shared_ptr<Globals> g_globals;
 
 unordered_map<string, void*> g_procs;
 int g_viewport_w = 0;
@@ -761,6 +778,8 @@ Context *getContext()
 
 void init()
 {
+  g_globals = make_shared<Globals>();
+
   #if 1
 //     setProc("glOrtho", (void*) &wrap_glOrtho);
 //     setProc("glCallList", (void*) &wrap_glCallList);
@@ -788,13 +807,3 @@ void init()
 
 
 } // namespace core_gl_wrapper
-
-
-shared_ptr<render_util::GLContext> render_util::getCurrentGLContext()
-{
-  auto context = core_gl_wrapper::getContext();
-  if (!context->render_util_gl_context)
-    context->render_util_gl_context = make_shared<render_util::GLContext>();
-
-  return context->render_util_gl_context;
-}
