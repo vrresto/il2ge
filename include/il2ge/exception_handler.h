@@ -20,12 +20,13 @@
 #define IL2GE_EXCEPTION_HANDLER_H
 
 
+#include <string>
 #include <windef.h>
 
 
 namespace il2ge::exception_handler
 {
-  void install();
+  void install(const std::string &log_file_name);
   void watchModule(HMODULE module);
 }
 

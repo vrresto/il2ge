@@ -48,6 +48,5 @@ struct Logger
 
 extern Logger g_log;
 
-const char *getLogFileName();
 
 #endif

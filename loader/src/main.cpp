@@ -16,7 +16,6 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "loader.h"
 #include "iat.h"
 #include <loader_interface.h>
 #include <il2ge/log.h>
@@ -37,6 +36,9 @@
 #ifndef _stricmp
 #define _stricmp strcasecmp
 #endif
+
+
+extern "C" void WINAPI il2ge_init();
 
 
 using namespace std;
@@ -68,17 +70,13 @@ void initLog()
 {
   g_log.m_outputs.push_back(&cerr);
 
-//   g_logfile.open(getLogFileName(), ios_base::app);
-//   if (g_logfile.good())
-//     g_log.m_outputs.push_back(&g_logfile);
-
   {
     // clear previous contents
-    ofstream log(getLogFileName());
+    ofstream log(g_log_file_name);
   }
 
-  freopen(getLogFileName(), "a", stdout);
-  freopen(getLogFileName(), "a", stderr);
+  freopen(g_log_file_name, "a", stdout);
+  freopen(g_log_file_name, "a", stderr);
 
   auto out_fd = _fileno(stdout);
 
@@ -226,12 +224,6 @@ void atexitHandler()
 } // namespace
 
 
-const char *getLogFileName()
-{
-  return g_log_file_name;
-}
-
-
 void fatalError(const std::string &message)
 {
   g_log << "ERROR: " << message << '\n';
@@ -267,7 +259,7 @@ void WINAPI il2ge_init()
     }
   }
 
-  il2ge::exception_handler::install();
+  il2ge::exception_handler::install(g_log_file_name);
   il2ge::exception_handler::watchModule(g_loader_module);
 
   auto jvm_module = GetModuleHandle("jvm.dll");

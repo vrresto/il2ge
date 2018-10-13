@@ -32,12 +32,6 @@ const char* const g_log_file_name = "il2ge_map_viewer.log";
 Logger g_log;
 
 
-const char *getLogFileName()
-{
-  return g_log_file_name;
-}
-
-
 static void atexitHandler()
 {
   g_log.flush();
@@ -51,7 +45,7 @@ int main(int argc, char **argv)
 
   g_log.m_outputs.push_back(&cerr);
 
-  il2ge::exception_handler::install();
+  il2ge::exception_handler::install(g_log_file_name);
   il2ge::exception_handler::watchModule(GetModuleHandle(0));
 
   string map_path;

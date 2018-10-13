@@ -84,6 +84,7 @@ MingwCrashHandlerInterface *g_crash_handler = nullptr;
 HANDLE g_crash_handler_mutex = 0;
 HANDLE g_target_thread_mutex = 0;
 unordered_set<HMODULE> g_watched_modules;
+std::string g_log_file_name;
 
 
 [[ noreturn ]] void die()
@@ -139,7 +140,7 @@ bool loadCrashHandlerLibrary()
       GetProcAddress(g_crash_handler_module, "mingw_crash_handler_interface");
   assert(g_crash_handler);
 
-  g_crash_handler->setLogFileName(getLogFileName());
+  g_crash_handler->setLogFileName(g_log_file_name.c_str());
 
   return true;
 }
@@ -301,8 +302,14 @@ static void printBacktrace()
 }
 
 
-void il2ge::exception_handler::install()
+void il2ge::exception_handler::install(const std::string &log_file_name)
 {
+  static bool installed = false;
+  assert(!installed);
+  installed = true;
+
+  g_log_file_name = log_file_name;
+
   g_target_thread_mutex = CreateMutexA(nullptr, false, nullptr);
   assert(g_target_thread_mutex);
   g_crash_handler_mutex = CreateMutexA(nullptr, false, nullptr);
