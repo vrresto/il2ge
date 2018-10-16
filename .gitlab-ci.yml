@@ -63,7 +63,7 @@ build:
 deploy:
   stage: deploy
   script:
-    - true
+    - /bin/true
   artifacts:
     name: "il2ge-build_$CI_JOB_ID"
     paths:
