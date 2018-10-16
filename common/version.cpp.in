@@ -17,7 +17,7 @@ namespace il2ge::version
 
   bool isDebugBuild()
   {
-    return ${enable_debug};
+    return ${is_debug_build};
   }
 
 

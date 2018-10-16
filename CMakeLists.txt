@@ -57,6 +57,11 @@ if(NOT commit_sha)
   set(commit_sha "unknown")
 endif()
 
+if(enable_debug)
+  set(is_debug_build true)
+else()
+  set(is_debug_build false)
+endif()
 
 add_definitions(-DIL2GE_DATA_DIR="${il2ge_data_dir}")
 add_definitions(-DIL2GE_LIB_DIR="${il2ge_lib_dir}")
