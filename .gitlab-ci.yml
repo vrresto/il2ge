@@ -23,6 +23,25 @@ debug_build:
     paths:
       - install
 
+map_viewer_build:
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  stage: build
+  before_script:
+     - dpkg --add-architecture i386
+     - apt-get update
+     - apt-get -y --no-install-recommends install gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python
+  script:
+    - mkdir build
+    - mkdir install
+    - cd build
+    - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Dno_tools=1 -Denable_viewer=1 -Ddisable_il2ge=1 ..
+    - make install
+  artifacts:
+    name: "il2ge_map_viewer-build_$CI_JOB_ID"
+    paths:
+      - install/map_viewer.exe
+
 build:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
