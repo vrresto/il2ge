@@ -35,7 +35,7 @@ map_viewer_build:
     - mkdir build
     - mkdir install
     - cd build
-    - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Dno_tools=1 -Denable_viewer=1 -Ddisable_il2ge=1 ..
+    - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Dno_tools=1 -Denable_map_viewer=1 -Ddisable_il2ge=1 ..
     - make install
   artifacts:
     name: "il2ge_map_viewer-build_$CI_JOB_ID"
