@@ -1,14 +1,3 @@
-set(build_job_id $ENV{CI_JOB_ID})
-set(commit_sha $ENV{CI_COMMIT_SHA})
-
-if(NOT build_job_id)
-  set(build_job_id "local")
-endif()
-
-if(NOT commit_sha)
-  set(commit_sha "unknown")
-endif()
-
 configure_file(version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
 
 add_definitions(-DINI_ALLOW_MULTILINE=0 -DINI_ALLOW_INLINE_COMMENTS=1)

@@ -245,6 +245,7 @@ void WINAPI il2ge_init()
   g_log.printSeparator();
   g_log << "*** il2ge.dll initialization ***\n";
   g_log << "Build: " << il2ge::version::getBuildJobID() << '\n';
+  g_log << "Debug: " << il2ge::version::isDebugBuild() << '\n';
   g_log << "Commit: " << il2ge::version::getCommitSHA() << '\n';
   g_log.flush();
 

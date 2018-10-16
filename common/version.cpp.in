@@ -15,4 +15,10 @@ namespace il2ge::version
     return sha;
   }
 
+  bool isDebugBuild()
+  {
+    return ${enable_debug};
+  }
+
+
 }

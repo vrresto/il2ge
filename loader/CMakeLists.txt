@@ -4,9 +4,27 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/_modules/inih/cpp
 )
 
+set(resource_script ${CMAKE_CURRENT_BINARY_DIR}/resources.rc)
+set(resource_obj ${CMAKE_CURRENT_BINARY_DIR}/resources.o)
+
+set(file_description "IL-2 Graphics Extender")
+set(file_version "build: ${build_job_id}")
+if(enable_debug)
+set(file_version "${file_version} (debug)")
+endif()
+
+configure_file(resources.rc.in ${resource_script})
+
 set_source_files_properties(
   il2ge.def
+  ${resource_obj}
   PROPERTIES EXTERNAL_OBJECT 1
+)
+
+add_custom_command(
+    OUTPUT ${resource_obj}
+    COMMAND ${COMPILER_PREFIX}-windres ${resource_script} ${resource_obj}
+    DEPENDS ${resource_script}
 )
 
 add_definitions(
@@ -16,6 +34,7 @@ add_definitions(
 
 set(SRCS
   ${PROJECT_SOURCE_DIR}/common/exception_handler.cpp
+  ${resource_obj}
   il2ge.def
   src/iat.c
   src/main.cpp

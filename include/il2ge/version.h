@@ -8,6 +8,7 @@ namespace il2ge::version
 
   const std::string &getBuildJobID();
   const std::string &getCommitSHA();
+  bool isDebugBuild();
 
 }
 

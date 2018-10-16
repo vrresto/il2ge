@@ -46,6 +46,18 @@ endif(platform STREQUAL "mingw")
 project(il2ge)
 
 
+set(build_job_id $ENV{CI_JOB_ID})
+set(commit_sha $ENV{CI_COMMIT_SHA})
+
+if(NOT build_job_id)
+  set(build_job_id "local")
+endif()
+
+if(NOT commit_sha)
+  set(commit_sha "unknown")
+endif()
+
+
 add_definitions(-DIL2GE_DATA_DIR="${il2ge_data_dir}")
 add_definitions(-DIL2GE_LIB_DIR="${il2ge_lib_dir}")
 add_definitions(-DIL2GE_CACHE_DIR="${il2ge_cache_dir}")
