@@ -112,7 +112,7 @@ if(platform_mingw)
 endif(platform_mingw)
 
 add_subdirectory(common)
-if(enable__map_viewer)
+if(enable_map_viewer)
   add_subdirectory(map_viewer)
 endif()
 if(platform_mingw AND NOT disable_il2ge)
