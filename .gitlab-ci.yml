@@ -4,10 +4,6 @@
 # see https://hub.docker.com/_/gcc/
 image: debian:buster-slim
 
-stages:
-  - build
-  - deploy
-
 debug_build:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
@@ -58,16 +54,6 @@ build:
   # cache:
   #   paths:
   #     - "*.o"
-
-
-deploy:
-  stage: deploy
-  script:
-    - /bin/true
-  artifacts:
-    name: "il2ge-build_$CI_JOB_ID"
-    paths:
-      - install
 
 # run tests using the binary built before
 #test:
