@@ -160,8 +160,8 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
 
   string module_name = util::makeLowercase(util::basename(libFileName, true));
 
-  if (module_name.compare("il2_core") == 0 ||
-      module_name.compare("il2_corep4") == 0)
+  if (module_name == "il2_core" ||
+      module_name == "il2_corep4")
   {
     loadCoreWrapper(libFileName);
     return g_core_wrapper_module;
@@ -169,11 +169,11 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
 
   HMODULE module = LoadLibraryA(libFileName);
 
-  if (module_name.compare("jvm") == 0 ||
-      module_name.compare("dt") == 0 ||
-      module_name.compare("jgl") == 0 ||
-      module_name.compare("hpi") == 0 ||
-      module_name.compare("wrapper") == 0)
+  if (module_name == "jvm" ||
+      module_name == "dt" ||
+      module_name == "jgl" ||
+      module_name == "hpi" ||
+      module_name == "wrapper")
   {
     installIATPatches(module);
   }
