@@ -32,35 +32,6 @@ namespace jni_wrapper
   void *getExport(const std::string &full_name);
 }
 
-
-class Module
-{
-  std::unordered_map<std::type_index, std::shared_ptr<Module>> sub_modules;
-  std::string name;
-
-public:
-  Module(const char *name) : name(name) {}
-  virtual ~Module() {}
-
-  bool hasSubmodules() { return !sub_modules.empty(); }
-  void clearSubmodules() { sub_modules.clear(); }
-  void printSubmodules();
-  const std::string &getName() { return name; }
-
-  template <class T>
-  T *getSubModule()
-  {
-    return dynamic_cast<T*>(sub_modules[std::type_index(typeid(T))].get());
-  }
-
-  template <class T>
-  void setSubModule(T *obj)
-  {
-    sub_modules[std::type_index(typeid(T))].reset(obj);
-  }
-};
-
-
 void *getOrigProcAddress(const char *name);
 std::string getCoreWrapperFilePath();
 

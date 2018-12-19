@@ -19,8 +19,29 @@
 #ifndef CORE_GL_WRAPPER_H
 #define CORE_GL_WRAPPER_H
 
+#include <render_util/texunits.h>
+#include <render_util/shader.h>
+#include <render_util/gl_context.h>
+
+#include <unordered_map>
+#include <map>
+
 namespace core_gl_wrapper
 {
+  class Context
+  {
+  public:
+    struct Impl;
+
+    Context();
+    ~Context();
+
+    Impl *getImpl() { return impl.get(); }
+
+  private:
+    std::unique_ptr<Impl> impl;
+  };
+
   void init();
   void *getProc(const char *name);
 }

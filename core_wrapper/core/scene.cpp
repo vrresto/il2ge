@@ -16,9 +16,9 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "scene.h"
 #include "core_p.h"
 #include <sfs.h>
+#include <core/scene.h>
 #include <render_util/terrain.h>
 #include <render_util/texture_util.h>
 #include <render_util/render_util.h>
@@ -38,7 +38,7 @@ using namespace std;
 namespace core
 {
 
-  Scene::Scene() : Module("Scene")
+  Scene::Scene()
   {
     FORCE_CHECK_GL_ERROR();
     curvature_map = render_util::createCurvatureTexture(texture_manager, IL2GE_CACHE_DIR);

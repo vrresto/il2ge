@@ -16,9 +16,9 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "scene.h"
 #include "core_p.h"
 #include <core.h>
+#include <core/scene.h>
 #include <wgl_wrapper.h>
 #include <misc.h>
 #include <il2ge/map_loader.h>
@@ -130,15 +130,7 @@ Scene *getScene()
 
   assert(current_context);
 
-  Scene *scene = current_context->getSubModule<Scene>();
-
-  if (!scene)
-  {
-    scene = new Scene;
-    current_context->setSubModule(scene);
-  }
-
-  return scene;
+  return current_context->getScene();
 }
 
 

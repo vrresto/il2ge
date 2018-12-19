@@ -17,9 +17,8 @@
  */
 
 #include "wgl_wrapper.h"
-#include <misc.h>
-#include <gl_wrapper.h>
 
+#include <misc.h>
 #include <gl_wrapper/gl_interface.h>
 
 #include <cassert>
@@ -42,14 +41,6 @@ typedef BOOL WINAPI wglDeleteContext_t(HGLRC);
 wglMakeCurrent_t *real_wglMakeCurrent = nullptr;
 wglDeleteContext_t *real_wglDeleteContext = nullptr;
 wglGetProcAddress_t *real_wglGetProcAddress = nullptr;
-
-
-struct ContextData : public Module
-{
-  ContextData() : Module("ContextData") {}
-
-  std::shared_ptr<gl_wrapper::GL_Interface> iface;
-};
 
 
 struct GlobalData
@@ -102,7 +93,7 @@ GlobalData g_data;
 
 void setCurrentContext(ContextData *c)
 {
-  gl_wrapper::GL_Interface *iface = c ? c->iface.get() : nullptr;
+  gl_wrapper::GL_Interface *iface = c ? c->getGLInterface() : nullptr;
   g_data.m_current_context_for_thread[GetCurrentThreadId()] = c;
   if (!g_data.m_main_context)
     g_data.m_main_context = c;
@@ -175,9 +166,8 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
     assert(g_data.m_main_context);
     assert(current_context);
     assert(current_context == g_data.m_main_context);
-    assert(current_context->hasSubmodules());
 
-    current_context->clearSubmodules();
+    current_context->freeResources();
 
     setCurrentContext(nullptr);
 
@@ -193,9 +183,8 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
 
     if (!d)
     {
-      d = new ContextData;
-
-      d->iface = std::make_shared<gl_wrapper::GL_Interface>(&getProcAddress_ext);
+      auto iface = std::make_shared<gl_wrapper::GL_Interface>(&getProcAddress_ext);
+      d = new ContextData(iface);
 
       g_data.m_data_for_context[hglrc] = d;
     }
@@ -223,9 +212,6 @@ BOOL WINAPI wrap_wglDeleteContext(HGLRC hglrc)
 
   if (c)
   {
-    c->printSubmodules();
-    assert(!c->hasSubmodules());
-
     if (c == g_data.m_main_context)
     {
       assert(g_data.m_in_shutdown);
@@ -343,7 +329,7 @@ void *getProcAddress(HMODULE module, LPCSTR name)
 }
 
 
-Module *getContext()
+ContextData *getContext()
 {
   Lock lock(g_data.m_mutex);
 
@@ -358,6 +344,37 @@ Module *getContext()
   assert(current_context == g_data.m_main_context);
 
   return current_context;
+}
+
+
+ContextData::ContextData(std::shared_ptr<gl_wrapper::GL_Interface> iface) :
+  m_iface(iface)
+{
+}
+
+
+core::Scene *ContextData::getScene()
+{
+  if (!m_scene)
+    m_scene = std::make_shared<core::Scene>();
+
+  return m_scene.get();
+}
+
+
+core_gl_wrapper::Context *ContextData::getGLWrapperContext()
+{
+  if (!m_gl_wrapper_context)
+    m_gl_wrapper_context = std::make_shared<core_gl_wrapper::Context>();
+
+  return m_gl_wrapper_context.get();
+}
+
+
+void ContextData::freeResources()
+{
+  m_scene.reset();
+  m_gl_wrapper_context.reset();
 }
 
 

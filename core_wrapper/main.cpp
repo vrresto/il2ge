@@ -107,16 +107,6 @@ void *getOrigProcAddress(const char *name)
 }
 
 
-void Module::printSubmodules()
-{
-  using namespace std;
-  for(auto m : sub_modules)
-  {
-    cout<<"submodule: " << m.second->getName() << endl;
-  }
-}
-
-
 extern "C"
 {
 

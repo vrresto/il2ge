@@ -16,12 +16,12 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "map.h"
 #include "ressource_loader.h"
 #include "core_p.h"
 
 #include <sfs.h>
 #include <core.h>
+#include <core/map.h>
 #include <render_util/terrain_util.h>
 #include <render_util/map_textures.h>
 #include <render_util/image_loader.h>

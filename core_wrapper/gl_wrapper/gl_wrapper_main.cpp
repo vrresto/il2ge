@@ -86,7 +86,7 @@ int g_viewport_h = 0;
 
 render_util::ShaderProgramPtr getRedProgram()
 {
-  core_gl_wrapper::Context *ctx = core_gl_wrapper::getContext();
+  auto ctx = core_gl_wrapper::getContext();
   if (!ctx->red_program)
     ctx->red_program = render_util::createShaderProgram("red", core::textureManager(), SHADER_PATH);
   return ctx->red_program;
@@ -95,7 +95,7 @@ render_util::ShaderProgramPtr getRedProgram()
 
 render_util::ShaderProgramPtr getInvisibleProgram()
 {
-  core_gl_wrapper::Context *ctx = core_gl_wrapper::getContext();
+  auto ctx = core_gl_wrapper::getContext();
   if (!ctx->invisible_program)
     ctx->invisible_program = render_util::createShaderProgram("invisible", core::textureManager(), SHADER_PATH);
   return ctx->invisible_program;
@@ -104,7 +104,7 @@ render_util::ShaderProgramPtr getInvisibleProgram()
 
 render_util::ShaderProgramPtr getSkyProgram()
 {
-  core_gl_wrapper::Context *ctx = core_gl_wrapper::getContext();
+  auto ctx = core_gl_wrapper::getContext();
   if (!ctx->sky_program)
     ctx->sky_program = render_util::createSkyProgram(core::textureManager(), SHADER_PATH);
   return ctx->sky_program;
@@ -113,7 +113,7 @@ render_util::ShaderProgramPtr getSkyProgram()
 
 render_util::ShaderProgramPtr getTreeProgram()
 {
-  core_gl_wrapper::Context *ctx = core_gl_wrapper::getContext();
+  auto ctx = core_gl_wrapper::getContext();
   if (!ctx->tree_program)
   {
     ctx->tree_program = render_util::createShaderProgram("tree", core::textureManager(), SHADER_PATH);
@@ -132,7 +132,7 @@ render_util::ShaderProgramPtr getTreeProgram()
 
 render_util::ShaderProgramPtr getForestProgram()
 {
-  core_gl_wrapper::Context *ctx = core_gl_wrapper::getContext();
+  auto ctx = core_gl_wrapper::getContext();
   if (!ctx->forest_program)
   {
     CHECK_GL_ERROR();
@@ -276,7 +276,7 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
     Il2RenderState state;
     getRenderState(&state);
 
-    core_gl_wrapper::updateARBProgram();
+    core_gl_wrapper::arb_program::update();
 
     bool is_cubemap = (g_viewport_w == 256 && g_viewport_h == 256);
 
@@ -401,7 +401,7 @@ void GLAPIENTRY wrap_glDrawElements(
   CHECK_GL_ERROR();
 #endif
 
-  core_gl_wrapper::updateARBProgram();
+  core_gl_wrapper::arb_program::update();
 
   CHECK_GL_ERROR();
 
@@ -462,7 +462,7 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   Il2RenderState state;
   getRenderState(&state);
 
-  core_gl_wrapper::updateARBProgram();
+  core_gl_wrapper::arb_program::update();
 
   if (state.camera_mode == IL2_CAMERA_MODE_2D
       || state.render_phase < IL2_Landscape0
@@ -476,7 +476,7 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   else if (core_gl_wrapper::isARBProgramActive())
   {
 
-    const string name = core_gl_wrapper::getFragmentProgramName();
+    const string name = core_gl_wrapper::arb_program::getFragmentProgramName();
 
     if (name == "fpObjectsL0_2L" || name == "fpObjectsL0")
     {
@@ -490,7 +490,7 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
     gl::Scissor(0, 0, 900, values[3]);
 
 
-    const string name = core_gl_wrapper::getFragmentProgramName();
+    const string name = core_gl_wrapper::arb_program::getFragmentProgramName();
     assert(!name.empty());
     if (g_forest_shader_names.find(name) != g_forest_shader_names.end() || false)
     {
@@ -760,17 +760,9 @@ bool isARBProgramActive()
 }
 
 
-Context *getContext()
+Context::Impl *getContext()
 {
-  auto *context = wgl_wrapper::getContext()->getSubModule<Context>();
-
-  if (!context)
-  {
-    context = new Context;
-    wgl_wrapper::getContext()->setSubModule(context);
-  }
-
-  return context;
+  return wgl_wrapper::getContext()->getGLWrapperContext()->getImpl();
 }
 
 
@@ -797,12 +789,36 @@ void init()
   setProc("glDrawRangeElementsEXT", (void*) wrap_glDrawRangeElements);
   #endif
 
-  arbProgramInit();
+  arb_program::init();
 
 //   g_forest_shader_names.insert("fpForestPlane");
 //   g_forest_shader_names.insert("fpForestPlaneNoise");
 //   g_forest_shader_names.insert("fpForestPlaneEdges");
 //   g_forest_shader_names.insert("fpForestPlaneEdgesNoise");
+}
+
+
+texture_state::TextureState *Context::Impl::getTextureState()
+{
+  if (!m_texture_state)
+    m_texture_state = make_unique<texture_state::TextureState>();
+
+  return m_texture_state.get();
+}
+
+
+Context::Context() : impl(make_unique<Context::Impl>()) {}
+Context::~Context() {}
+
+Context::Impl::Impl() {}
+Context::Impl::~Impl() {}
+
+arb_program::Context *Context::Impl::getARBProgramContext()
+{
+  if (!m_arb_program_context)
+    m_arb_program_context = std::make_unique<arb_program::Context>();
+
+  return m_arb_program_context.get();
 }
 
 

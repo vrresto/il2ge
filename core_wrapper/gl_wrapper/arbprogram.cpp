@@ -45,10 +45,6 @@
 
 // void replace_arb_program_string(const void **str, size_t *len, const char *extension);
 
-namespace core_gl_wrapper
-{
-  void arbProgramInit();
-}
 
 using std::cout;
 using std::cerr;
@@ -59,9 +55,13 @@ using namespace core;
 using namespace gl_wrapper::gl_functions;
 
 
-#if 1
 namespace
 {
+
+using Context = core_gl_wrapper::arb_program::Context::Impl;
+
+Context &getContext();
+
 
 std::unordered_set<std::string> enabled_shaders;
 
@@ -226,9 +226,6 @@ enum ProgramState
   PROGRAM_STATE_SOURCE_SET,
 };
 
-struct Context;
-
-Context &getContext();
 
 struct ProgramBase
 {
@@ -390,7 +387,11 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader,
   return program;
 }
 
-struct Context : public Module
+
+} // namespace
+
+
+struct core_gl_wrapper::arb_program::Context::Impl
 {
   ProgramBase *active_vertex_program = 0;
   FragmentProgram *active_fragment_program = 0;
@@ -407,12 +408,9 @@ struct Context : public Module
 //   GLint fragment_main_id = 0;
 
 
-  Context() : Module("arbprogram.cpp::Context") {}
-
-
   void enableVertexProgram(int enable)
   {
-    assert(&getContext() == this);
+    assert(&::getContext() == this);
 
     if (is_vertex_program_enabled == enable)
       return;
@@ -424,7 +422,7 @@ struct Context : public Module
 
   void enableFragmentProgram(int enable)
   {
-    assert(&getContext() == this);
+    assert(&::getContext() == this);
 
     if (is_fragment_program_enabled == enable)
       return;
@@ -436,7 +434,7 @@ struct Context : public Module
 
   ProgramBase *createProgram(GLint id, GLenum target)
   {
-    assert(&getContext() == this);
+    assert(&::getContext() == this);
 
     printf("createProgram: %d, %d\n", id, target);
 
@@ -466,7 +464,7 @@ struct Context : public Module
 
   ProgramBase *programForID(GLint id, GLenum target)
   {
-    assert(&getContext() == this);
+    assert(&::getContext() == this);
 
   //   printf("programForID: %d, %d\n", id, target);
     ProgramBase *p = 0;
@@ -492,7 +490,7 @@ struct Context : public Module
 
   ProgramBase *getActiveProgram(GLenum target)
   {
-    assert(&getContext() == this);
+    assert(&::getContext() == this);
 
     ProgramBase *p = 0;
 
@@ -512,7 +510,7 @@ struct Context : public Module
 
   void deleteProgram(GLuint id)
   {
-    assert(&getContext() == this);
+    assert(&::getContext() == this);
 
     ProgramBase *p = programForID(id, 0);
     assert(p);
@@ -536,7 +534,7 @@ struct Context : public Module
 
   void bindProgram(GLenum target, GLuint id)
   {
-    assert(&getContext() == this);
+    assert(&::getContext() == this);
   //   assert(id <= num_programs);
 
     ProgramBase *p = programForID(id, target);
@@ -572,7 +570,7 @@ struct Context : public Module
 
   void updateLocalParameters(render_util::ShaderProgramPtr program)
   {
-    assert(&getContext() == this);
+    assert(&::getContext() == this);
 
     if (active_vertex_program)
       active_vertex_program->updateParameters(program);
@@ -594,10 +592,7 @@ struct Context : public Module
 
   void doUpdate()
   {
-//     return;
-
-    assert(&getContext() == this);
-
+    assert(&::getContext() == this);
 
     bool is_arb_program_active = false;
 
@@ -648,17 +643,23 @@ struct Context : public Module
 
 };
 
+
+core_gl_wrapper::arb_program::Context::Context() :
+  impl(std::make_unique<core_gl_wrapper::arb_program::Context::Impl>())
+{
+}
+
+core_gl_wrapper::arb_program::Context::~Context() {}
+
+
+#if 1
+namespace
+{
+
+
 Context &getContext()
 {
-  Context *context = core_gl_wrapper::getContext()->getSubModule<Context>();
-
-  if (!context)
-  {
-    context = new Context;
-    core_gl_wrapper::getContext()->setSubModule(context);
-  }
-
-  return *context;
+  return *core_gl_wrapper::getContext()->getARBProgramContext()->impl.get();
 }
 
 
@@ -934,13 +935,14 @@ void GLAPIENTRY wrap_Disable(GLenum cap)
 #endif
 
 
-namespace core_gl_wrapper
+namespace core_gl_wrapper::arb_program
 {
 
-  void updateARBProgram()
+  void update()
   {
     ::getContext().doUpdate();
   }
+
 
   const std::string &getFragmentProgramName()
   {
@@ -955,9 +957,10 @@ namespace core_gl_wrapper
     }
   }
 
+
   #define SET_OVERRIDE(func) core_gl_wrapper::setProc("gl"#func, (void*) wrap_##func);
 
-  void arbProgramInit()
+  void init()
   {
     enabled_shaders.insert("fpObjectsL0");
 

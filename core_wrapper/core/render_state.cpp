@@ -19,8 +19,8 @@
 #include "core.h"
 #include "core_p.h"
 #include "il2_state.h"
-#include "scene.h"
 #include <render_util/water.h>
+#include <core/scene.h>
 
 #include <iostream>
 #include <GL/gl.h>

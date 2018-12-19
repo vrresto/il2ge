@@ -19,11 +19,9 @@
 #include <misc.h>
 #include <wgl_wrapper.h>
 #include <core.h>
-#include <render_util/texunits.h>
 
 #include "gl_wrapper_private.h"
 
-#include <map>
 #include <array>
 #include <cassert>
 #include <GL/gl.h>
@@ -31,49 +29,21 @@
 #include <gl_wrapper/gl_functions.h>
 
 using namespace gl_wrapper::gl_functions;
+using namespace core_gl_wrapper::texture_state;
 using namespace std;
 
 namespace
 {
-  enum { MAX_UNITS = render_util::MAX_GL_TEXUNITS };
-
-  struct Unit
-  {
-    // target, texture
-    map<unsigned int, unsigned int> bindings;
-  };
-
-
-  struct TextureState : public Module
-  {
-    TextureState() : Module("TextureState") {}
-
-    bool is_frozen = false;
-    unsigned int active_unit = 0;
-    array<Unit, MAX_UNITS> units;
-  };
-
-
   TextureState *getState()
   {
-    core_gl_wrapper::Context *ctx = core_gl_wrapper::getContext();
-
-    TextureState *state = ctx->getSubModule<TextureState>();
-
-    if (!state)
-    {
-      state = new TextureState;
-      ctx->setSubModule(state);
-    }
-
-    return state;
+    return core_gl_wrapper::getContext()->getTextureState();
   }
 
   void GLAPI wrap_glBindTexture(GLenum target, GLuint texture)
   {
     if (wgl_wrapper::isMainContextCurrent())
     {
-      TextureState *state = getState();
+      auto state = getState();
 
       assert(!state->is_frozen);
 
@@ -88,7 +58,7 @@ namespace
   {
     assert(wgl_wrapper::isMainContextCurrent());
 
-    TextureState *state = getState();
+    auto state = getState();
 
     assert(!state->is_frozen);
 
@@ -115,14 +85,14 @@ namespace core_gl_wrapper::texture_state
 
   void freeze()
   {
-    TextureState *state = getState();
+    auto state = getState();
     assert(!state->is_frozen);
     state->is_frozen = true;
   }
 
   void restore()
   {
-    TextureState *state = getState();
+    auto state = getState();
     assert(state->is_frozen);
 
     for (size_t i = core::textureManager().getLowestUnit();

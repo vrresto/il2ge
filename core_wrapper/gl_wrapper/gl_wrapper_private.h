@@ -17,15 +17,54 @@
  */
 
 #include <misc.h>
-#include <render_util/shader.h>
-#include <render_util/gl_context.h>
+#include <gl_wrapper.h>
 
 #include <string>
-#include <unordered_map>
 
 namespace core_gl_wrapper
 {
-  struct Context : public Module
+  Context::Impl *getContext();
+
+  namespace arb_program
+  {
+    struct Context
+    {
+      struct Impl;
+
+      std::unique_ptr<Impl> impl;
+
+      Context();
+      ~Context();
+    };
+
+    void init();
+    void update();
+    const std::string &getFragmentProgramName();
+  }
+
+  namespace texture_state
+  {
+    enum { MAX_UNITS = render_util::MAX_GL_TEXUNITS };
+
+    struct Unit
+    {
+      // target, texture
+      std::map<unsigned int, unsigned int> bindings;
+    };
+
+    struct TextureState
+    {
+      bool is_frozen = false;
+      unsigned int active_unit = 0;
+      std::array<Unit, MAX_UNITS> units;
+    };
+
+    void init();
+    void freeze();
+    void restore();
+  }
+
+  struct Context::Impl
   {
     render_util::ShaderProgramPtr sky_program;
     render_util::ShaderProgramPtr terrain_program;
@@ -41,15 +80,17 @@ namespace core_gl_wrapper
 
     std::shared_ptr<render_util::GLContext> render_util_gl_context;
 
-    Context() : Module("core_gl_wrapper::Context") {}
+    texture_state::TextureState *getTextureState();
+    arb_program::Context *getARBProgramContext();
+
+    Impl();
+    ~Impl();
+
+  private:
+    std::unique_ptr<texture_state::TextureState> m_texture_state;
+    std::unique_ptr<arb_program::Context> m_arb_program_context;
   };
 
-  Context *getContext();
-
-  const std::string &getFragmentProgramName();
-
-  void arbProgramInit();
-  void updateARBProgram();
 
   void updateUniforms(render_util::ShaderProgramPtr program);
 
@@ -61,13 +102,5 @@ namespace core_gl_wrapper
   void setActiveARBProgram(render_util::ShaderProgramPtr);
   void setIsARBProgramActive(bool active);
   bool isARBProgramActive();
-
-
-  namespace texture_state
-  {
-    void init();
-    void freeze();
-    void restore();
-  }
 
 }

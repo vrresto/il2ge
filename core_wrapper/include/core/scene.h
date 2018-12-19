@@ -19,9 +19,9 @@
 #ifndef CORE_SCENE_H
 #define CORE_SCENE_H
 
-#include "map.h"
 #include <misc.h>
 #include <core.h>
+#include <core/map.h>
 #include <render_util/camera.h>
 
 #include <memory>
@@ -31,7 +31,7 @@ namespace core
 {
   class Map;
 
-  class Scene : public Module
+  class Scene
   {
     render_util::TexturePtr atmosphere_map;
     render_util::TexturePtr curvature_map;

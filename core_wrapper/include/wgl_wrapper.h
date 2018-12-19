@@ -19,16 +19,37 @@
 #ifndef IL2GE_CORE_WGL_WRAPPER_H
 #define IL2GE_CORE_WGL_WRAPPER_H
 
+#include <misc.h>
+#include <gl_wrapper/gl_interface.h>
+#include <gl_wrapper.h>
+#include <core/scene.h>
+
 #include <windef.h>
 
 class Module;
 
 namespace wgl_wrapper
 {
+  struct ContextData
+  {
+    ContextData(std::shared_ptr<gl_wrapper::GL_Interface> iface);
+
+    gl_wrapper::GL_Interface *getGLInterface() { return m_iface.get(); }
+    core::Scene *getScene();
+    core_gl_wrapper::Context *getGLWrapperContext();
+
+    void freeResources();
+
+  private:
+    std::shared_ptr<gl_wrapper::GL_Interface> m_iface;
+    std::shared_ptr<core::Scene> m_scene;
+    std::shared_ptr<core_gl_wrapper::Context> m_gl_wrapper_context;
+  };
+
   bool isMainThread();
   bool isMainContextCurrent();
   void *getProcAddress(HMODULE module, LPCSTR name);
-  Module *getContext();
+  ContextData *getContext();
   HMODULE getGLModule();
   void init();
 }
