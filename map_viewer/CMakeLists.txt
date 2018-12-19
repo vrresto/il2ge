@@ -9,6 +9,7 @@ add_executable(map_viewer ${SRCS})
 target_link_libraries(map_viewer
   common
   viewer
+  ole32
 )
 
 install(TARGETS map_viewer

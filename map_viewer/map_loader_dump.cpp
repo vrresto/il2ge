@@ -224,11 +224,13 @@ glm::vec2 MapLoaderDump::getBaseMapOrigin() const
 ImageGreyScale::Ptr MapLoaderDump::createBaseLandMap() const
 {
   auto land_map_path = m_path + '/' + il2ge::map_generator::getBaseLandMapFileName();
+
+  cout << "creating land map from: " << land_map_path <<endl;
+
   auto land_map = render_util::loadImageFromFile<ImageGreyScale>(land_map_path);
 
-  assert(land_map);
-
-  land_map = image::flipY(land_map);
+  if (land_map)
+    land_map = image::flipY(land_map);
 
   return land_map;
 }
