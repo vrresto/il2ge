@@ -7,11 +7,11 @@ include_directories(
 set(resource_script ${CMAKE_CURRENT_BINARY_DIR}/resources.rc)
 set(resource_obj ${CMAKE_CURRENT_BINARY_DIR}/resources.o)
 
-set(file_description "IL-2 Graphics Extender")
 set(file_version "build: ${build_job_id}")
 if(enable_debug)
-set(file_version "${file_version} (debug)")
+  set(file_version "${file_version} (debug)")
 endif()
+set(file_description "IL-2 Graphics Extender - ${file_version}")
 
 configure_file(resources.rc.in ${resource_script})
 
