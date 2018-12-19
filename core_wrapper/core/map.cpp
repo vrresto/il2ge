@@ -46,6 +46,8 @@ namespace
 {
   const bool g_terrain_use_lod = true;
   const std::string g_shader_path = IL2GE_DATA_DIR "/shaders";
+
+  const string dump_base_dir = "il2ge_dump/"; //HACK
 }
 
 
@@ -77,13 +79,28 @@ Map::Map(const char *path) : p(new Private)
 
   FORCE_CHECK_GL_ERROR();
 
-  string ini_path = "maps/";
-  ini_path += path;
+  string ini_path = path;
 
   string map_dir = ini_path.substr(0, ini_path.find_last_of('/')) + '/';
   assert(!map_dir.empty());
 
-  RessourceLoader res_loader(map_dir, ini_path);
+  string dump_dir = dump_base_dir + util::makeLowercase(ini_path);
+  string dump_map_dir = dump_base_dir + map_dir;
+
+  if (il2ge::map_loader::isDumpEnabled())
+  {
+    auto res = util::mkdir(dump_base_dir.c_str());
+    assert(res);
+    res = util::mkdir(dump_map_dir.c_str());
+    assert(res);
+    res = util::mkdir(dump_dir.c_str());
+    assert(res);
+  }
+
+  map_dir = string("maps/") + map_dir;
+  ini_path = string("maps/") + path;
+
+  RessourceLoader res_loader(map_dir, ini_path, dump_dir);
 
   render_util::ElevationMap::Ptr elevation_map_base;
   ImageGreyScale::Ptr land_map;
@@ -92,6 +109,9 @@ Map::Map(const char *path) : p(new Private)
     std::vector<char> il2ge_ini_content;
     if (sfs::readFile((map_dir + "il2ge.ini").c_str(), il2ge_ini_content))
     {
+      if (il2ge::map_loader::isDumpEnabled())
+        util::writeFile(dump_dir + '/' + "il2ge.ini", il2ge_ini_content.data(), il2ge_ini_content.size());
+
       INIReader ini(il2ge_ini_content.data(), il2ge_ini_content.size());
       if (!ini.ParseError())
       {
@@ -103,6 +123,10 @@ Map::Map(const char *path) : p(new Private)
     std::vector<char> land_map_data;
     if (sfs::readFile(map_dir + map_generator::getBaseLandMapFileName(), land_map_data))
     {
+      if (il2ge::map_loader::isDumpEnabled())
+        util::writeFile(dump_dir + '/' + map_generator::getBaseLandMapFileName(),
+                        land_map_data.data(),
+                        land_map_data.size());
       land_map = render_util::loadImageFromMemory<ImageGreyScale>(land_map_data);
     }
 

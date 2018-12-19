@@ -31,9 +31,10 @@ namespace core
   {
     std::unique_ptr<INIReader> reader;
     std::string map_dir;
+    std::string dump_dir;
 
   public:
-    RessourceLoader(const std::string &map_dir, const std::string &ini_path);
+    RessourceLoader(const std::string &map_dir, const std::string &ini_path, const std::string &dump_path);
 
     std::string getDumpDir() override;
 

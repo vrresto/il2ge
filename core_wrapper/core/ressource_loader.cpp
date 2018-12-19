@@ -18,6 +18,7 @@
 
 #include "ressource_loader.h"
 #include "sfs.h"
+#include <il2ge/map_loader.h>
 #include <util.h>
 
 #include <cassert>
@@ -30,15 +31,13 @@ using namespace util;
 
 namespace
 {
-  const string dump_dir = "il2ge_dump/";
-  const bool dump_enabled = false;
 
-  void dumpFile(string name, const char *data, size_t data_size)
+  void dumpFile(string name, const char *data, size_t data_size, string dir)
   {
-    if (!dump_enabled)
+    if (!il2ge::map_loader::isDumpEnabled())
       return;
 
-    bool res = util::writeFile(dump_dir + name, data, data_size);
+    bool res = util::writeFile(dir + name, data, data_size);
     assert(res);
   }
 
@@ -51,8 +50,9 @@ namespace
 }
 
 
-core::RessourceLoader::RessourceLoader(const string &map_dir, const string &ini_path) :
-  map_dir(map_dir)
+core::RessourceLoader::RessourceLoader(const string &map_dir, const string &ini_path, const std::string &dump_path) :
+  map_dir(map_dir),
+  dump_dir(dump_path + '/')
 {
   cout<<"reading load.ini"<<endl;
   std::vector<char> ini_content;
@@ -61,7 +61,7 @@ core::RessourceLoader::RessourceLoader(const string &map_dir, const string &ini_
   }
   cout<<"done reading load.ini"<<endl;
 
-  dumpFile("load.ini", ini_content.data(), ini_content.size());
+  dumpFile("load.ini", ini_content.data(), ini_content.size(), dump_dir);
 
   cout<<"parsing load.ini"<<endl;
   reader = make_unique<INIReader>(ini_content.data(), ini_content.size());
