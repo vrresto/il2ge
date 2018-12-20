@@ -475,10 +475,7 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   }
   else if (core_gl_wrapper::isARBProgramActive())
   {
-
-    const string name = core_gl_wrapper::arb_program::getFragmentProgramName();
-
-    if (name == "fpObjectsL0_2L" || name == "fpObjectsL0")
+    if (core_gl_wrapper::arb_program::isObjectProgramActive())
     {
       gl::DrawRangeElements(mode, start, end, count, type, indices);
     }

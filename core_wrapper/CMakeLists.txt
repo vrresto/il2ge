@@ -27,7 +27,7 @@ set(CXX_SRCS
   gl_wrapper/wgl_interface.cpp
   gl_wrapper/gl_wrapper_main.cpp
   gl_wrapper/texture_state.cpp
-  gl_wrapper/arbprogram.cpp
+  gl_wrapper/arb_program.cpp
 )
 
 set_source_files_properties(

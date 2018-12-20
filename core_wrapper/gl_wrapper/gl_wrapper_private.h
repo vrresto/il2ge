@@ -39,7 +39,7 @@ namespace core_gl_wrapper
 
     void init();
     void update();
-    const std::string &getFragmentProgramName();
+    bool isObjectProgramActive();
   }
 
   namespace texture_state
