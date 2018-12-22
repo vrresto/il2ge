@@ -38,7 +38,6 @@ namespace core_gl_wrapper
     };
 
     void init();
-    void update();
     bool isObjectProgramActive();
   }
 
@@ -102,5 +101,4 @@ namespace core_gl_wrapper
   void setActiveARBProgram(render_util::ShaderProgramPtr);
   void setIsARBProgramActive(bool active);
   bool isARBProgramActive();
-
 }

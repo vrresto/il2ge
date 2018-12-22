@@ -276,8 +276,6 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
     Il2RenderState state;
     getRenderState(&state);
 
-    core_gl_wrapper::arb_program::update();
-
     bool is_cubemap = (g_viewport_w == 256 && g_viewport_h == 256);
 
 //       if (gl::IsEnabled(GL_DEPTH_TEST))
@@ -401,8 +399,6 @@ void GLAPIENTRY wrap_glDrawElements(
   CHECK_GL_ERROR();
 #endif
 
-  core_gl_wrapper::arb_program::update();
-
   CHECK_GL_ERROR();
 
 //     assert(!isARBProgramActive());
@@ -438,7 +434,7 @@ void GLAPIENTRY wrap_glDrawElements(
 
 //     gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-  core_gl_wrapper::setActiveShader(nullptr);
+//   core_gl_wrapper::setActiveShader(nullptr);
 }
 
 
@@ -461,8 +457,6 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
 
   Il2RenderState state;
   getRenderState(&state);
-
-  core_gl_wrapper::arb_program::update();
 
   if (state.camera_mode == IL2_CAMERA_MODE_2D
       || state.render_phase < IL2_Landscape0

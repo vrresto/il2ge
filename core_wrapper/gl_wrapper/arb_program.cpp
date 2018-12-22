@@ -357,11 +357,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
     return p;
   }
 
-  FragmentProgram *getActiveFragmentProgram()
-  {
-    return static_cast<FragmentProgram*>(getActiveProgram(GL_FRAGMENT_PROGRAM_ARB));
-  }
-
   void deleteProgram(GLuint id)
   {
     assert(&::getContext() == this);
@@ -384,6 +379,8 @@ struct core_gl_wrapper::arb_program::Context::Impl
     }
 
     delete p;
+
+    update();
   }
 
   void bindProgram(GLenum target, GLuint id)
@@ -417,10 +414,10 @@ struct core_gl_wrapper::arb_program::Context::Impl
       abort();
     }
 
+    update();
   }
 
-
-  void doUpdate()
+  void update()
   {
     assert(&::getContext() == this);
 
@@ -437,13 +434,10 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   bool isObjectProgramActive()
   {
-    if (is_fragment_program_enabled)
-    {
-      FragmentProgram *p = getActiveFragmentProgram();
-      if (p)
-        return p->is_object_program ;
-    }
-    return false;
+    if (is_fragment_program_enabled && active_fragment_program)
+        return active_fragment_program->is_object_program ;
+    else
+      return false;
   }
 
 };
@@ -706,11 +700,6 @@ void GLAPIENTRY wrap_Disable(GLenum cap)
 
 namespace core_gl_wrapper::arb_program
 {
-
-  void update()
-  {
-    ::getContext().doUpdate();
-  }
 
   bool isObjectProgramActive()
   {
