@@ -64,7 +64,7 @@ void registerMetaClass(const MetaClass &meta_class)
     assert(written >= 0);
     assert((size_t)written < sizeof(buf));
 
-    *method.import_addr = getOrigProcAddress(buf);
+    *method.import_addr = il2ge::core_wrapper::getOrigProcAddress(buf);
 
     g_exports[buf] = method.export_addr;
   }

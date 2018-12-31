@@ -50,7 +50,7 @@ void refreshFile(const char *path,
                  size_t size,
                  std::function<bool(const char*)> generate_func)
 {
-  string core_wrapper_file = getCoreWrapperFilePath();
+  string core_wrapper_file = il2ge::core_wrapper::getWrapperLibraryFilePath();
   cout<<"core wrapper library: "<<core_wrapper_file<<endl;
 
   struct stat stat_res;

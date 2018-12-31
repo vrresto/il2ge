@@ -23,7 +23,7 @@ struct LoaderInterface;
 
 namespace il2ge::core_wrapper
 {
-  void init(HMODULE core_module, const LoaderInterface *loader);
+  void init(HMODULE core_module);
   void *getProcAddress(const char* name);
   void *get_SFS_openf_wrapper();
 }

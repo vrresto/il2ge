@@ -17,7 +17,8 @@
  */
 
 #include "iat.h"
-#include <loader_interface.h>
+#include <wgl_wrapper.h>
+#include <misc.h>
 #include <il2ge/log.h>
 #include <il2ge/exception_handler.h>
 #include <il2ge/core_wrapper.h>
@@ -59,6 +60,7 @@ namespace
 const char* const g_log_file_name = "il2ge.log";
 
 void installIATPatches(HMODULE);
+void loadCoreWrapper(const char*);
 
 HMODULE g_loader_module = 0;
 HMODULE g_core_wrapper_module = 0;
@@ -83,53 +85,6 @@ void initLog()
   assert(res != -1);
   res = _dup2(out_fd, 2);
   assert(res != -1);
-}
-
-
-std::string getCoreWrapperFilePath()
-{
-  assert(g_core_wrapper_module);
-
-  char module_file_name[MAX_PATH];
-
-  if (!GetModuleFileNameA(g_core_wrapper_module,
-      module_file_name,
-      sizeof(module_file_name)))
-  {
-    abort();
-  }
-
-  return module_file_name;
-}
-
-
-LoaderInterface g_interface =
-{
-  &patchIAT,
-  &getCoreWrapperFilePath
-};
-
-
-void loadCoreWrapper(const char *core_library_filename)
-{
-  assert(!g_core_wrapper_module);
-
-  HMODULE core_module = LoadLibraryA(core_library_filename);
-  if (!core_module)
-  {
-    g_log << "Loading " << core_library_filename << " failed with error " << GetLastError() << '\n';
-    g_log.flush();
-    abort();
-  }
-  installIATPatches(core_module);
-
-  HMODULE wrapper_module = g_loader_module;
-
-  g_core_wrapper_module = wrapper_module;
-
-  il2ge::exception_handler::watchModule(wrapper_module);
-
-  il2ge::core_wrapper::init(core_module, &g_interface);
 }
 
 
@@ -186,10 +141,64 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
 }
 
 
+FARPROC WINAPI wrap_JGL_GetProcAddress(HMODULE module, LPCSTR name)
+{
+  printf("jgl => GetProcAddress: %s\n", name);
+
+  return (FARPROC) wgl_wrapper::getProcAddress(module, name);
+}
+
+
+HMODULE WINAPI wrap_JGL_LoadLibrary(LPCSTR libFileName)
+{
+  printf("jgl => LoadLibrary: %s\n", libFileName);
+
+  HMODULE module = LoadLibraryA(libFileName);
+
+  if (module != wgl_wrapper::getGLModule())
+  {
+    il2ge::core_wrapper::fatalError("DirectX mode is not supported.");
+  }
+
+  return module;
+}
+
+
 void installIATPatches(HMODULE module)
 {
   patchIAT("LoadLibraryA", "kernel32.dll", (void*) &wrap_LoadLibraryA, 0, module);
   patchIAT("GetProcAddress", "kernel32.dll", (void*) &wrap_GetProcAddress, 0, module);
+}
+
+
+void loadCoreWrapper(const char *core_library_filename)
+{
+  assert(!g_core_wrapper_module);
+
+  HMODULE core_module = LoadLibraryA(core_library_filename);
+  if (!core_module)
+  {
+    g_log << "Loading " << core_library_filename << " failed with error " << GetLastError() << '\n';
+    g_log.flush();
+    abort();
+  }
+  installIATPatches(core_module);
+
+  HMODULE wrapper_module = g_loader_module;
+
+  g_core_wrapper_module = wrapper_module;
+
+  il2ge::exception_handler::watchModule(wrapper_module);
+
+  il2ge::core_wrapper::init(core_module);
+
+  HMODULE jgl_module = GetModuleHandle("jgl.dll");
+  assert(jgl_module);
+
+  patchIAT("LoadLibraryA", "kernel32.dll",
+           (void*) &wrap_JGL_LoadLibrary, NULL, jgl_module);
+  patchIAT("GetProcAddress", "kernel32.dll",
+           (void*) &wrap_JGL_GetProcAddress, NULL, jgl_module);
 }
 
 
@@ -203,11 +212,28 @@ void atexitHandler()
 } // namespace
 
 
-void fatalError(const std::string &message)
+void il2ge::core_wrapper::fatalError(const std::string &message)
 {
   g_log << "ERROR: " << message << '\n';
   g_log.flush();
   _Exit(1);
+}
+
+
+std::string il2ge::core_wrapper::getWrapperLibraryFilePath()
+{
+  assert(g_core_wrapper_module);
+
+  char module_file_name[MAX_PATH];
+
+  if (!GetModuleFileNameA(g_core_wrapper_module,
+      module_file_name,
+      sizeof(module_file_name)))
+  {
+    abort();
+  }
+
+  return module_file_name;
 }
 
 

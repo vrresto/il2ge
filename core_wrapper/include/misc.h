@@ -32,8 +32,13 @@ namespace jni_wrapper
   void *getExport(const std::string &full_name);
 }
 
-void *getOrigProcAddress(const char *name);
-std::string getCoreWrapperFilePath();
+
+namespace il2ge::core_wrapper
+{
+  std::string getWrapperLibraryFilePath();
+  void *getOrigProcAddress(const char *name);
+  [[ noreturn ]] void fatalError(const std::string &message);
+}
 
 
 #endif

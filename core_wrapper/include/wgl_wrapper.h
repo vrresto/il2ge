@@ -26,8 +26,6 @@
 
 #include <windef.h>
 
-class Module;
-
 namespace wgl_wrapper
 {
   struct ContextData
