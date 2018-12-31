@@ -118,7 +118,7 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
 
 FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
 {
-  if (g_core_wrapper_module && hModule == g_core_wrapper_module)
+  if (hModule == g_core_wrapper_module)
   {
     return (FARPROC) il2ge::core_wrapper::getProcAddress(lpProcName);
   }
