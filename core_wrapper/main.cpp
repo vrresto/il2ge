@@ -62,7 +62,6 @@ const char* const g_log_file_name = "il2ge.log";
 void installIATPatches(HMODULE);
 void loadCoreWrapper(const char*);
 
-HMODULE g_loader_module = 0;
 HMODULE g_core_wrapper_module = 0;
 std::ofstream g_logfile;
 
@@ -184,12 +183,6 @@ void loadCoreWrapper(const char *core_library_filename)
   }
   installIATPatches(core_module);
 
-  HMODULE wrapper_module = g_loader_module;
-
-  g_core_wrapper_module = wrapper_module;
-
-  il2ge::exception_handler::watchModule(wrapper_module);
-
   il2ge::core_wrapper::init(core_module);
 
   HMODULE jgl_module = GetModuleHandle("jgl.dll");
@@ -266,7 +259,7 @@ void WINAPI il2ge_init()
   }
 
   il2ge::exception_handler::install(g_log_file_name);
-  il2ge::exception_handler::watchModule(g_loader_module);
+  il2ge::exception_handler::watchModule(g_core_wrapper_module);
 
   auto jvm_module = GetModuleHandle("jvm.dll");
   assert(jvm_module);
@@ -281,7 +274,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
   switch (reason)
   {
     case DLL_PROCESS_ATTACH:
-      g_loader_module = instance;
+      g_core_wrapper_module = instance;
       break;
     case DLL_PROCESS_DETACH:
       break;
