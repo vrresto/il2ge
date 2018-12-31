@@ -1,20 +1,28 @@
-set(library_name ${core_wrapper_library_name})
-if(NOT static_core_wrapper)
-  set(library_type SHARED)
-endif(NOT static_core_wrapper)
+set(library_name "il2ge")
 
-if(no_refresh_maps)
-  add_definitions(-DNO_REFRESH_MAPS)
-endif(no_refresh_maps)
+set(resource_script ${CMAKE_CURRENT_BINARY_DIR}/resources.rc)
+set(resource_obj ${CMAKE_CURRENT_BINARY_DIR}/resources.o)
 
-include_directories(
-  include
-  include/jni
-  jni
+set(file_version "build: ${build_job_id}")
+if(enable_debug)
+  set(file_version "${file_version} (debug)")
+endif()
+set(file_description "IL-2 Graphics Extender - ${file_version}")
+
+configure_file(resources.rc.in ${resource_script})
+
+set_source_files_properties(
+  il2ge.def
+  ${resource_obj}
+  PROPERTIES EXTERNAL_OBJECT 1
 )
 
-set(CXX_SRCS
+set(SRCS
+  ${resource_obj}
+  il2ge.def
   main.cpp
+  iat.c
+  core_wrapper.cpp
   wgl_wrapper.cpp
   sfs/sfs.cpp
   sfs/hash.cpp
@@ -28,13 +36,7 @@ set(CXX_SRCS
   gl_wrapper/gl_wrapper_main.cpp
   gl_wrapper/texture_state.cpp
   gl_wrapper/arb_program.cpp
-)
-
-set_source_files_properties(
-  sfs/sfs.cpp
-
-  PROPERTIES
-#     COMPILE_FLAGS "-O0"
+  ${PROJECT_SOURCE_DIR}/common/exception_handler.cpp
 )
 
 set(JNI_WRAPPER_CLASSES
@@ -45,6 +47,22 @@ set(JNI_WRAPPER_CLASSES
   Sun
 )
 
+include_directories(
+  include
+  include/jni
+  jni
+)
+
+add_definitions(-DIL2GE_USE_CUSTOM_ASSERT)
+if(no_refresh_maps)
+  add_definitions(-DNO_REFRESH_MAPS)
+endif(no_refresh_maps)
+
+add_custom_command(
+    OUTPUT ${resource_obj}
+    COMMAND ${COMPILER_PREFIX}-windres ${resource_script} ${resource_obj}
+    DEPENDS ${resource_script}
+)
 
 add_executable(jni_generator jni_wrapper/generate_meta_code.cpp)
 
@@ -57,7 +75,7 @@ if(platform_mingw)
 endif(platform_mingw)
 
 foreach(class_name ${JNI_WRAPPER_CLASSES})
-  set(CXX_SRCS ${CXX_SRCS} jni_wrapper/wrap_${class_name}.cpp)
+  set(SRCS ${SRCS} jni_wrapper/wrap_${class_name}.cpp)
   set(jni_wrapper_classes_string "${class_name} ${jni_wrapper_classes_string}")
 
   foreach(cmd definitions registration)
@@ -89,9 +107,7 @@ endforeach(name)
 
 add_custom_target(core_wrapper_generated DEPENDS ${generated_output})
 
-
-
-add_library(${library_name} ${library_type} ${CXX_SRCS})
+add_library(${library_name} SHARED ${SRCS})
 
 add_dependencies(${library_name} core_wrapper_generated)
 
@@ -100,15 +116,9 @@ target_link_libraries(${library_name}
   render_util
 )
 
-if(platform_wine AND NOT static_core_wrapper)
+if(platform_mingw)
   target_link_libraries(${library_name}
-    -Wb,--export=${CMAKE_CURRENT_SOURCE_DIR}/il2_core_wrapper.spec
+    -Wl,--enable-stdcall-fixup
+    -Wl,--add-stdcall-alias
   )
-endif(platform_wine AND NOT static_core_wrapper)
-
-if(NOT static_core_wrapper)
-  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${library_name}${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
-    DESTINATION ${il2ge_lib_dir}
-    RENAME ${library_name}.dll
-  )
-endif(NOT static_core_wrapper)
+endif(platform_mingw)

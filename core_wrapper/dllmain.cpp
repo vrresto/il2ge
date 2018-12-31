@@ -62,7 +62,6 @@ void installIATPatches(HMODULE);
 
 HMODULE g_loader_module = 0;
 HMODULE g_core_wrapper_module = 0;
-il2ge::CoreWrapperGetProcAddressFunc *g_core_wrapper_get_proc_address_f = 0;
 std::ofstream g_logfile;
 
 
@@ -124,32 +123,13 @@ void loadCoreWrapper(const char *core_library_filename)
   }
   installIATPatches(core_module);
 
-#ifdef STATIC_CORE_WRAPPER
   HMODULE wrapper_module = g_loader_module;
-  g_core_wrapper_get_proc_address_f = &il2ge_coreWrapperGetProcAddress;
-  il2ge::CoreWrapperInitFunc *wrapper_init_f = &il2ge_coreWrapperInit;
-#else
-  HMODULE wrapper_module = LoadLibraryA(IL2GE_LIB_DIR "/" CORE_WRAPPER_LIBRARY_NAME ".dll");
-  if (!wrapper_module)
-  {
-    printf("LoadLibraryA() failed with error %u.\n", GetLastError());
-    exit(1);
-  }
-
-  g_core_wrapper_get_proc_address_f =
-    (il2ge::CoreWrapperGetProcAddressFunc*) GetProcAddress(wrapper_module, "il2ge_coreWrapperGetProcAddress");
-  assert(g_core_wrapper_get_proc_address_f);
-
-  il2ge::CoreWrapperInitFunc *wrapper_init_f =
-    (il2ge::CoreWrapperInitFunc*) GetProcAddress(wrapper_module, "il2ge_coreWrapperInit");
-  assert(wrapper_init_f);
-#endif
 
   g_core_wrapper_module = wrapper_module;
 
   il2ge::exception_handler::watchModule(wrapper_module);
 
-  wrapper_init_f(core_module, &g_interface);
+  il2ge::core_wrapper::init(core_module, &g_interface);
 }
 
 
@@ -186,8 +166,7 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
 {
   if (g_core_wrapper_module && hModule == g_core_wrapper_module)
   {
-    assert(g_core_wrapper_get_proc_address_f);
-    return (FARPROC) g_core_wrapper_get_proc_address_f(lpProcName);
+    return (FARPROC) il2ge::core_wrapper::getProcAddress(lpProcName);
   }
 
   if (_stricmp(lpProcName, "LoadLibraryA") == 0)
@@ -200,7 +179,7 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
   }
   else if (_stricmp(lpProcName, "__SFS_openf") == 0)
   {
-    return (FARPROC) il2ge::get_SFS_openf_wrapper();
+    return (FARPROC) il2ge::core_wrapper::get_SFS_openf_wrapper();
   }
 
   return GetProcAddress(hModule, lpProcName);

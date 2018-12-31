@@ -8,7 +8,6 @@ if(platform STREQUAL "mingw")
   endif (mingw_crash_handler_dir)
 endif(platform STREQUAL "mingw")
 
-set(core_wrapper_library_name "il2_core_wrapper")
 set(il2ge_data_dir "il2ge")
 set(il2ge_lib_dir "${il2ge_data_dir}/lib")
 set(il2ge_cache_dir "${il2ge_data_dir}/cache")
@@ -70,11 +69,6 @@ if (enable_debug)
   add_definitions(-DRENDER_UTIL_ENABLE_DEBUG=1)
 endif()
 
-if(NOT no_static_core_wrapper)
-  set(static_core_wrapper 1)
-  add_definitions(-DSTATIC_CORE_WRAPPER)
-endif(NOT no_static_core_wrapper)
-
 if(platform_wine)
   set(CMAKE_C_FLAGS "-m32 ${CMAKE_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "-m32 ${CMAKE_CXX_FLAGS}")
@@ -117,7 +111,6 @@ if(enable_map_viewer)
 endif()
 if(platform_mingw AND NOT disable_il2ge)
   add_subdirectory(core_wrapper)
-  add_subdirectory(loader)
 endif()
 
 

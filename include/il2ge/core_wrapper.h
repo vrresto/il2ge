@@ -21,18 +21,11 @@
 
 struct LoaderInterface;
 
-namespace il2ge
+namespace il2ge::core_wrapper
 {
-  typedef void CoreWrapperInitFunc(HMODULE core_module, const LoaderInterface *loader);
-  typedef void* CoreWrapperGetProcAddressFunc(const char* name);
-
+  void init(HMODULE core_module, const LoaderInterface *loader);
+  void *getProcAddress(const char* name);
   void *get_SFS_openf_wrapper();
-}
-
-extern "C"
-{
-  il2ge::CoreWrapperInitFunc il2ge_coreWrapperInit;
-  il2ge::CoreWrapperGetProcAddressFunc il2ge_coreWrapperGetProcAddress;
 }
 
 #endif

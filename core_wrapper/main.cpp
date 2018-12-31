@@ -46,12 +46,6 @@
 #include <il2ge/core_wrapper.h>
 
 
-extern "C"
-{
-  BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
-}
-
-
 namespace
 {
 
@@ -107,11 +101,7 @@ void *getOrigProcAddress(const char *name)
 }
 
 
-extern "C"
-{
-
-
-void *il2ge_coreWrapperGetProcAddress(const char *name)
+void *il2ge::core_wrapper::getProcAddress(const char *name)
 {
   void *addr = nullptr;
 
@@ -125,7 +115,7 @@ void *il2ge_coreWrapperGetProcAddress(const char *name)
 }
 
 
-void il2ge_coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
+void il2ge::core_wrapper::init(HMODULE core_module_, const LoaderInterface *loader)
 {
   printf("*** il2_core wrapper initialisation ***\n");
 
@@ -157,23 +147,3 @@ void il2ge_coreWrapperInit(HMODULE core_module_, const LoaderInterface *loader)
 
   printf("*** il2_core wrapper initialisation finished ***\n");
 }
-
-
-#ifndef STATIC_CORE_WRAPPER
-BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved)
-{
-  switch (reason)
-  {
-    case DLL_PROCESS_ATTACH:
-        printf("*** il2_core wrapper process attach ***\n");
-      break;
-    case DLL_PROCESS_DETACH:
-      break;
-  }
-
-  return TRUE;
-}
-#endif
-
-
-} // extern "C"
