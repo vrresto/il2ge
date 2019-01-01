@@ -20,10 +20,10 @@ set_source_files_properties(
 set(SRCS
   ${resource_obj}
   il2ge.def
-  main.cpp
-  iat.c
-  core_wrapper.cpp
-  wgl_wrapper.cpp
+  main/main.cpp
+  main/iat.c
+  main/core_wrapper.cpp
+  main/wgl_wrapper.cpp
   sfs/sfs.cpp
   sfs/hash.cpp
   core/core.cpp
