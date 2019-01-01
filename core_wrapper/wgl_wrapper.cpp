@@ -252,6 +252,13 @@ void init()
       NULL);             // unnamed mutex
 
   assert(g_data.m_mutex);
+
+  real_wglGetProcAddress = (wglGetProcAddress_t*)
+    GetProcAddress(g_data.m_gl_module, "wglGetProcAddress");
+  real_wglMakeCurrent = (wglMakeCurrent_t*)
+    GetProcAddress(g_data.m_gl_module, "wglMakeCurrent");
+  real_wglDeleteContext = (wglDeleteContext_t*)
+    GetProcAddress(g_data.m_gl_module, "wglDeleteContext");
 }
 
 
@@ -302,19 +309,16 @@ void *getProcAddress(HMODULE module, LPCSTR name)
 
   if (strcmp(name, "wglGetProcAddress") == 0)
   {
-    real_wglGetProcAddress = (wglGetProcAddress_t*) proc;
     return (void*) &wrap_wglGetProcAddress;
   }
 
   if (strcmp(name, "wglMakeCurrent") == 0)
   {
-    real_wglMakeCurrent = (wglMakeCurrent_t*) proc;
     return (void*) &wrap_wglMakeCurrent;
   }
 
   if (strcmp(name, "wglDeleteContext") == 0)
   {
-    real_wglDeleteContext = (wglDeleteContext_t*) proc;
     return (void*) &wrap_wglDeleteContext;
   }
 
