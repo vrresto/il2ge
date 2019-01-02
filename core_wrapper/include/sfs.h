@@ -30,6 +30,7 @@ namespace sfs
   __int64 getHash(const char *filename);
   void redirect(__int64 hash, __int64 hash_redirection);
   void clearRedirections();
+  void *get_openf_wrapper();
 }
 
 #endif

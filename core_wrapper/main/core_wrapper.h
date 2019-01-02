@@ -19,13 +19,14 @@
 #ifndef IL2GE_CORE_WRAPPER_H
 #define IL2GE_CORE_WRAPPER_H
 
+#include <windef.h>
+
 struct LoaderInterface;
 
 namespace il2ge::core_wrapper
 {
   void init(HMODULE core_module);
   void *getProcAddress(const char* name);
-  void *get_SFS_openf_wrapper();
 }
 
 #endif

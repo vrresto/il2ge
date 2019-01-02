@@ -18,7 +18,6 @@
 
 #include "sfs.h"
 #include "sfs_p.h"
-#include <il2ge/core_wrapper.h>
 
 #include <iostream>
 #include <string>
@@ -155,11 +154,11 @@ void clearRedirections()
 }
 
 
-} // namespace sfs
-
-
-void *il2ge::core_wrapper::get_SFS_openf_wrapper()
+void *get_openf_wrapper()
 {
   sfs::init();
   return (void*) &wrap_SFS_openf;
 }
+
+
+} // namespace sfs

@@ -17,11 +17,12 @@
  */
 
 #include "iat.h"
+#include "core_wrapper.h"
+#include <sfs.h>
 #include <wgl_wrapper.h>
 #include <misc.h>
 #include <il2ge/log.h>
 #include <il2ge/exception_handler.h>
-#include <il2ge/core_wrapper.h>
 #include <il2ge/version.h>
 #include <util.h>
 
@@ -64,6 +65,7 @@ void loadCoreWrapper(const char*);
 
 HMODULE g_core_wrapper_module = 0;
 std::ofstream g_logfile;
+bool g_core_wrapper_loaded = false;
 
 
 void initLog()
@@ -133,7 +135,7 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
   }
   else if (_stricmp(lpProcName, "__SFS_openf") == 0)
   {
-    return (FARPROC) il2ge::core_wrapper::get_SFS_openf_wrapper();
+    return (FARPROC) sfs::get_openf_wrapper();
   }
 
   return GetProcAddress(hModule, lpProcName);
@@ -172,7 +174,7 @@ void installIATPatches(HMODULE module)
 
 void loadCoreWrapper(const char *core_library_filename)
 {
-  assert(!g_core_wrapper_module);
+  assert(!g_core_wrapper_loaded);
 
   HMODULE core_module = LoadLibraryA(core_library_filename);
   if (!core_module)
@@ -192,6 +194,8 @@ void loadCoreWrapper(const char *core_library_filename)
            (void*) &wrap_JGL_LoadLibrary, NULL, jgl_module);
   patchIAT("GetProcAddress", "kernel32.dll",
            (void*) &wrap_JGL_GetProcAddress, NULL, jgl_module);
+
+  g_core_wrapper_loaded = true;
 }
 
 
@@ -215,8 +219,6 @@ void il2ge::core_wrapper::fatalError(const std::string &message)
 
 std::string il2ge::core_wrapper::getWrapperLibraryFilePath()
 {
-  assert(g_core_wrapper_module);
-
   char module_file_name[MAX_PATH];
 
   if (!GetModuleFileNameA(g_core_wrapper_module,

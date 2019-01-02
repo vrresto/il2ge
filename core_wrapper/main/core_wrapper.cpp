@@ -17,6 +17,7 @@
  */
 
 
+#include "core_wrapper.h"
 #include "wgl_wrapper.h"
 #include <sfs.h>
 #include <misc.h>
@@ -42,7 +43,6 @@
 
 #include <gl_wrapper/gl_interface.h>
 #include <wgl_interface.h>
-#include <il2ge/core_wrapper.h>
 
 
 namespace
