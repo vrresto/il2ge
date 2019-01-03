@@ -122,3 +122,8 @@ if(platform_mingw)
     -Wl,--add-stdcall-alias
   )
 endif(platform_mingw)
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${library_name}${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
+  DESTINATION .
+  RENAME ${library_name}.dll
+)
