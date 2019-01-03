@@ -44,7 +44,6 @@ set(JNI_WRAPPER_CLASSES
   Landscape
   Render
   Renders
-  Sun
 )
 
 include_directories(

@@ -29,12 +29,20 @@ namespace
 
 Interface import;
 
+
 int JNICALL cPreRender(JNIEnv *env, jobject obj,
     jfloat arg0,
     jboolean arg1,
     jfloatArray arg2)
 {
+  const int sun_moon_num_elements = env->GetArrayLength(arg2);
+  assert(sun_moon_num_elements == 6);
+  float sun_moon[sun_moon_num_elements];
+  env->GetFloatArrayRegion(arg2, 0, sun_moon_num_elements, sun_moon);
+
+  core::setSunDir(glm::normalize(glm::vec3(sun_moon[0], sun_moon[1], sun_moon[2])));
   core::onLandscapePreRender();
+
   return import.cPreRender(env, obj, arg0, arg1, arg2);
 }
 

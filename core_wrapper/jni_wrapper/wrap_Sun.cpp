@@ -42,7 +42,6 @@ int JNICALL setNative(JNIEnv *env, jobject obj,
     jfloat arg7,
     jfloat arg8)
 {
-  core::setSunDir(glm::normalize(glm::vec3(arg0, arg1, arg2)));
   return import.setNative(env, obj, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 }
 
