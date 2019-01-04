@@ -351,6 +351,12 @@ ContextData *getContext()
 }
 
 
+core::Scene *getScene()
+{
+  return getContext()->getScene();
+}
+
+
 ContextData::ContextData(std::shared_ptr<gl_wrapper::GL_Interface> iface) :
   m_iface(iface)
 {

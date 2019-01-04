@@ -174,7 +174,7 @@ void GLAPIENTRY wrap_glClear(GLbitfield mask)
 
   if (mask & GL_COLOR_BUFFER_BIT && wgl_wrapper::isMainContextCurrent())
   {
-    onClear();
+    getContext()->onClear();
 //       is_skybox_finished = false;
   }
 }
@@ -250,13 +250,13 @@ void GLAPIENTRY wrap_glTexImage2D(GLenum target,
     case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
     case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
     case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
-      cout<<"wrap_glTexImage2D: "<<width<<"x"<<height<<endl;
-      if (state.render_phase == IL2_Landscape0_CubeMap)
-      {
-        assert(0);
-        onCubeMapFaceFinished();
-      }
-      break;
+//       cout<<"wrap_glTexImage2D: "<<width<<"x"<<height<<endl;
+//       if (state.render_phase == IL2_Landscape0_CubeMap)
+//       {
+//         assert(0);
+// //         onCubeMapFaceFinished();
+//       }
+//       break;
     default:
       break;
   }
@@ -290,16 +290,15 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 //       }
 
     if (
-        !is_cubemap &&
-        state.render_phase > IL2_Landscape0_CubeMap &&
+//         !is_cubemap &&
+        state.render_phase >= IL2_Landscape0 &&
         state.render_phase < IL2_Landscape0_Finished &&
-        state.num_rendered_objects == 0
+        getContext()->getNumRenderedObjects() == 0
         )
     {
 //       cout << "is cube updated: " << Core::isCubeUpdated() <<endl;
 //         if (!core::isCubeUpdated()) {
         drawTerrain();
-        onFarTerrainDone();
 //         }
     }
 
@@ -347,7 +346,7 @@ void GLAPIENTRY wrap_glEnd()
 
   core_gl_wrapper::setActiveShader(nullptr);
 
-  onObjectRendered();
+  getContext()->onObjectRendered();
 
 //     Il2RenderState state;
 //     getRenderState(&state);
@@ -810,6 +809,12 @@ arb_program::Context *Context::Impl::getARBProgramContext()
     m_arb_program_context = std::make_unique<arb_program::Context>();
 
   return m_arb_program_context.get();
+}
+
+
+void onRenderPhaseChanged(core::Il2RenderPhase phase)
+{
+  getContext()->onRenderPhaseChanged(phase);
 }
 
 

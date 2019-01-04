@@ -19,6 +19,7 @@
 #ifndef CORE_GL_WRAPPER_H
 #define CORE_GL_WRAPPER_H
 
+#include <core.h>
 #include <render_util/texunits.h>
 #include <render_util/shader.h>
 #include <render_util/gl_context.h>
@@ -44,6 +45,8 @@ namespace core_gl_wrapper
 
   void init();
   void *getProc(const char *name);
+
+  void onRenderPhaseChanged(core::Il2RenderPhase phase);
 }
 
 #endif

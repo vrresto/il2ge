@@ -17,6 +17,7 @@
  */
 
 #include <misc.h>
+#include <core.h>
 #include <gl_wrapper.h>
 
 #include <string>
@@ -85,9 +86,32 @@ namespace core_gl_wrapper
     Impl();
     ~Impl();
 
+    void onClear()
+    {
+      m_num_rendered_objects = 0;
+//       m_num_rendered_array_objects = 0;
+    }
+
+    void onRenderPhaseChanged(core::Il2RenderPhase phase)
+    {
+      m_num_rendered_objects = 0;
+//       m_num_rendered_array_objects = 0;
+    }
+
+    void onObjectRendered()
+    {
+      m_num_rendered_objects++;
+    }
+
+    void onArrayObjectRendered();
+
+    int getNumRenderedObjects() { return m_num_rendered_objects; }
+
   private:
     std::unique_ptr<texture_state::TextureState> m_texture_state;
     std::unique_ptr<arb_program::Context> m_arb_program_context;
+    int m_num_rendered_objects = 0;
+//     int m_num_rendered_array_objects = 0;
   };
 
 

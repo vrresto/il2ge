@@ -19,8 +19,9 @@
 #include "core.h"
 #include "core_p.h"
 #include "il2_state.h"
-#include <render_util/water.h>
+#include <gl_wrapper.h>
 #include <core/scene.h>
+#include <render_util/water.h>
 
 #include <iostream>
 #include <GL/gl.h>
@@ -56,6 +57,7 @@ namespace
   void setRenderPhase(core::Il2RenderPhase phase)
   {
     g_il2_state.render_state.render_phase = phase;
+    core_gl_wrapper::onRenderPhaseChanged(phase);
   }
 
 
@@ -79,29 +81,11 @@ namespace core
 //     return shore_wave_pos;
 //   }
 
-  void onObjectRendered()
-  {
-    g_il2_state.render_state.num_rendered_objects++;
-  }
-
-  void onArrayObjectRendered()
-  {
-    g_il2_state.render_state.num_rendered_array_objects++;
-  }
-
-  void onClear()
-  {
-    g_il2_state.render_state.num_rendered_objects = 0;
-    g_il2_state.render_state.num_rendered_array_objects = 0;
-  }
-
   void onClearStates()
   {
     switch (g_il2_state.render_state.render_phase)
     {
       case core::IL2_PostPreRenders:
-        g_il2_state.render_state.num_rendered_objects = 0;
-        g_il2_state.render_state.num_rendered_array_objects = 0;
         setRenderPhase(core::IL2_PreLandscape);
         break;
       case core::IL2_PostLandscape:
@@ -158,10 +142,6 @@ namespace core
 
   void onLandscapeRender0()
   {
-    g_il2_state.render_state.num_rendered_objects = 0;
-    g_il2_state.render_state.num_rendered_array_objects = 0;
-//     numRenderedCubeFaces = 0;
-
     setRenderPhase(IL2_Landscape0_PreTerrain);
 
 //     setRenderPhase(isCubeUpdated() ? IL2_Landscape0_CubeMap : IL2_Landscape0_PreTerrain);
@@ -169,23 +149,6 @@ namespace core
     //   core::updateWaterAnimation();
     //   getWaterAnimation()->update();
     //   core::bindGroundTexture();
-  }
-
-  void onCubeMapBegin()
-  {
-    setRenderPhase(IL2_Landscape0_CubeMap);
-  }
-
-  void onCubeMapFaceFinished()
-  {
-//     numRenderedCubeFaces++;
-//     if (numRenderedCubeFaces == 6)
-//       onCubeMapFinished();
-  }
-
-  void onFarTerrainDone()
-  {
-    setRenderPhase(IL2_Landscape0_TerrainNear);
   }
 
   void onLandscapeRender0Done()

@@ -126,11 +126,7 @@ bool isBaseMapEnabled()
 
 Scene *getScene()
 {
-  auto current_context = wgl_wrapper::getContext();
-
-  assert(current_context);
-
-  return current_context->getScene();
+  return wgl_wrapper::getScene();
 }
 
 

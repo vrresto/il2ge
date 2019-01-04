@@ -48,6 +48,7 @@ namespace wgl_wrapper
   bool isMainContextCurrent();
   void *getProcAddress(HMODULE module, LPCSTR name);
   ContextData *getContext();
+  core::Scene *getScene();
   HMODULE getGLModule();
   void init();
 }

@@ -50,11 +50,7 @@ namespace core
   {
     Il2CameraMode camera_mode = IL2_CAMERA_MODE_UNKNOWN;
     Il2RenderPhase render_phase = IL2_RENDER_PHASE_UNKNOWN;
-    int num_rendered_objects = 0;
-    int num_rendered_array_objects = 0;
   };
-
-  bool isCubeUpdated();
 
   Il2CameraMode getCameraMode();
   void setCameraMode(Il2CameraMode);
@@ -74,11 +70,6 @@ namespace core
 
   render_util::TerrainRenderer &getTerrainRenderer();
 
-  void onCubeMapBegin();
-  void onCubeMapFaceFinished();
-  void onObjectRendered();
-  void onArrayObjectRendered();
-  void onClear();
   void onClearStates();
   void onPrePreRenders();
   void onPostPreRenders();
