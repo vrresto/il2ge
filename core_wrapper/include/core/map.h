@@ -32,13 +32,15 @@ namespace render_util
 
 namespace core
 {
+  class ProgressReporter;
+
   class Map
   {
     struct Private;
     Private *p = 0;
 
   public:
-    Map(const char *path);
+    Map(const char *path, ProgressReporter*);
     ~Map();
 
     glm::vec2 getSize();

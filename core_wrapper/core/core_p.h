@@ -20,6 +20,7 @@
 #define CORE_CORE_P_H
 
 #include <core.h>
+#include <jni.h>
 
 namespace core
 {
@@ -35,6 +36,18 @@ namespace core
   Scene *getScene();
 
   bool isBaseMapEnabled();
+
+  class ProgressReporter
+  {
+    JNIEnv *env = nullptr;
+    jclass class_id {};
+    jmethodID method_id {};
+
+  public:
+    ProgressReporter(JNIEnv *env);
+
+    void report(float percent, const std::string &description, bool is_il2ge = true);
+  };
 }
 
 #endif

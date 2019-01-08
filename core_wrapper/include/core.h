@@ -24,6 +24,7 @@
 #include <render_util/texture_manager.h>
 #include <render_util/terrain_util.h>
 
+
 namespace render_util
 {
   class Camera;
@@ -59,7 +60,7 @@ namespace core
 
   void updateUniforms(render_util::ShaderProgramPtr program);
 
-  void loadMap(const char *path);
+  void loadMap(const char *path, void*);
   void unloadMap();
 
   const glm::vec3 &getSunDir();

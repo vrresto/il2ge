@@ -30,6 +30,7 @@
 namespace core
 {
   class Map;
+  class ProgressReporter;
 
   class Scene
   {
@@ -43,7 +44,7 @@ namespace core
     Scene();
 
     void unloadMap();
-    void loadMap(const char *path);
+    void loadMap(const char *path, ProgressReporter*);
     void update();
     void updateUniforms(render_util::ShaderProgramPtr program);
     render_util::TerrainRenderer &getTerrainRenderer();

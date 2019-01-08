@@ -65,7 +65,7 @@ struct Map::Private
 };
 
 
-Map::Map(const char *path) : p(new Private)
+Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
 {
   bool enable_base_map = core::isBaseMapEnabled();
 
@@ -106,6 +106,8 @@ Map::Map(const char *path) : p(new Private)
   ImageGreyScale::Ptr land_map;
   if (enable_base_map)
   {
+    progress->report(1, "Creating base map");
+
     std::vector<char> il2ge_ini_content;
     if (sfs::readFile((map_dir + "il2ge.ini").c_str(), il2ge_ini_content))
     {
@@ -139,6 +141,7 @@ Map::Map(const char *path) : p(new Private)
   auto elevation_map = map_loader::createElevationMap(&res_loader);
   p->size = glm::vec2(elevation_map->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
 
+  progress->report(3, "Creating textures");
   std::map<unsigned, unsigned> field_texture_mapping;
   map_loader::createMapTextures(&res_loader,
                                 p->textures.get(),
@@ -146,10 +149,14 @@ Map::Map(const char *path) : p(new Private)
                                 field_texture_mapping);
 
   if (land_map)
+  {
+    progress->report(4, "Creating land map texture");
     p->textures->setTexture(render_util::TEXUNIT_WATER_MAP_BASE, land_map);
+  }
 
   if (enable_base_map)
   {
+    progress->report(5, "Generating type map");
     assert(!field_texture_mapping.empty());
 
     auto base_type_map = map_generator::generateTypeMap(elevation_map_base);
@@ -179,12 +186,17 @@ Map::Map(const char *path) : p(new Private)
 
   p->terrain_renderer.getProgram()->setUniform("terrain_color", glm::vec3(1,0,0));
 
+  progress->report(7, "Creating terrain");
   p->terrain_renderer.getTerrain()->build(elevation_map);
 
   if (elevation_map_base)
+  {
     p->terrain_renderer.getTerrain()->setBaseElevationMap(elevation_map_base);
+  }
 
   FORCE_CHECK_GL_ERROR();
+
+  progress->report(10, "task.Load_landscape", false);
 }
 
 

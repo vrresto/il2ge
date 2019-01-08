@@ -73,13 +73,13 @@ namespace core
     sfs::clearRedirections();
   }
 
-  void Scene::loadMap(const char *path)
+  void Scene::loadMap(const char *path, ProgressReporter *progress)
   {
     printf("load map: %s\n", path);
 
     unloadMap();
 
-    map = make_unique<Map>(path);
+    map = make_unique<Map>(path, progress);
   }
 
 

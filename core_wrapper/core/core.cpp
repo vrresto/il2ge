@@ -21,6 +21,7 @@
 #include <core/scene.h>
 #include <wgl_wrapper.h>
 #include <misc.h>
+#include <jni.h>
 #include <il2ge/map_loader.h>
 
 #include <atmosphere_map.h>
@@ -138,10 +139,14 @@ void unloadMap()
 }
 
 
-void loadMap(const char *path)
+void loadMap(const char *path, void *env_)
 {
   FORCE_CHECK_GL_ERROR();
-  getScene()->loadMap(path);
+
+  ProgressReporter progress((JNIEnv*)env_);
+
+  getScene()->loadMap(path, &progress);
+
   FORCE_CHECK_GL_ERROR();
 }
 
@@ -176,6 +181,24 @@ render_util::TerrainRenderer &getTerrainRenderer()
 // {
 //   return getScene()->getTerrainRendererLOD();
 // }
+
+
+ProgressReporter::ProgressReporter(JNIEnv *env) : env(env)
+{
+  class_id = env->FindClass("com/maddox/rts/BackgroundTask");
+  assert(class_id);
+  method_id = env->GetStaticMethodID(class_id, "step", "(FLjava/lang/String;)Z");
+  assert(method_id);
+}
+
+
+void ProgressReporter::report(float percent, const string &description_, bool is_il2ge)
+{
+  string description = description_;
+  if (is_il2ge)
+    description += " (IL2GE)";
+  env->CallStaticBooleanMethod(class_id, method_id, percent, env->NewStringUTF(description.c_str()));
+}
 
 
 } // namespace core

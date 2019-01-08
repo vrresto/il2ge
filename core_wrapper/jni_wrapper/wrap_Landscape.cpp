@@ -76,7 +76,7 @@ int JNICALL cLoadMap(JNIEnv *env, jobject obj,
   char buf[len+1];
   env->GetStringUTFRegion(arg0, 0, len, buf);
 
-  core::loadMap(buf);
+  core::loadMap(buf, env);
 
   return import.cLoadMap(env, obj, arg0, arg1, arg2, arg3);
 }
