@@ -77,10 +77,7 @@ public:
 const std::string SHADER_PATH = IL2GE_DATA_DIR "/shaders";
 
 shared_ptr<Globals> g_globals;
-
 unordered_map<string, void*> g_procs;
-int g_viewport_w = 0;
-int g_viewport_h = 0;
 //   unordered_set<string> g_forest_shader_names;
 
 
@@ -164,20 +161,17 @@ void GLAPIENTRY wrap_glCallList(GLuint list)
 ////////////////////////////////////////////
 
 
-void GLAPIENTRY wrap_glClear(GLbitfield mask)
-{
-  assert(wgl_wrapper::isMainThread());
-
-  gl::Clear(mask);
-
-//     onClear();
-
-  if (mask & GL_COLOR_BUFFER_BIT && wgl_wrapper::isMainContextCurrent())
-  {
-    getContext()->onClear();
-//       is_skybox_finished = false;
-  }
-}
+// void GLAPIENTRY wrap_glClear(GLbitfield mask)
+// {
+//   assert(wgl_wrapper::isMainThread());
+//
+//   if (mask & GL_COLOR_BUFFER_BIT && wgl_wrapper::isMainContextCurrent())
+//   {
+//     getContext()->onClear();
+//   }
+//
+//   gl::Clear(mask);
+// }
 
 
 void GLAPIENTRY wrap_glViewport(GLint x,  GLint y,  GLsizei width,  GLsizei height)
@@ -187,22 +181,7 @@ void GLAPIENTRY wrap_glViewport(GLint x,  GLint y,  GLsizei width,  GLsizei heig
 
   gl::Viewport(x, y, width, height);
 
-  g_viewport_w = width;
-  g_viewport_h = height;
-
-  Il2RenderState state;
-  getRenderState(&state);
-
-//     cout<<"glViewport: "<<width<<"x"<<height<<" phase: "<<state.render_phase<<endl;
-
-  if (state.render_phase == IL2_Landscape0_PreTerrain)
-  {
-    if (width == 256 && height == 256)
-    {
-//         onCubeMapBegin();
-    }
-  }
-
+  getContext()->setViewport(width, height);
 }
 
 
@@ -276,52 +255,22 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
     Il2RenderState state;
     getRenderState(&state);
 
-    bool is_cubemap = (g_viewport_w == 256 && g_viewport_h == 256);
 
-//       if (gl::IsEnabled(GL_DEPTH_TEST))
-//       {
-//         is_skybox_finished = false;
-//       }
-//       else if (state.render_phase < IL2_Landscape0_Finished && !is_skybox_finished)
-//       {
-//           core_gl_wrapper::drawTerrain();
-//           onFarTerrainDone();
-//           is_skybox_finished = true;
-//       }
-
-    if (
-//         !is_cubemap &&
-        state.render_phase >= IL2_Landscape0 &&
-        state.render_phase < IL2_Landscape0_Finished &&
-        getContext()->getNumRenderedObjects() == 0
-        )
+    if (state.render_phase == IL2_Landscape0 &&
+        !getContext()->wasTerrainDrawn() &&
+        !getContext()->isRenderingCubeMap())
     {
-//       cout << "is cube updated: " << Core::isCubeUpdated() <<endl;
-//         if (!core::isCubeUpdated()) {
-        drawTerrain();
-//         }
+      drawTerrain();
+      getContext()->onTerrainDrawn();
     }
 
 
-    if (state.render_phase >= IL2_Landscape0_PreTerrain &&
-        state.render_phase < IL2_Landscape0_Finished
-//           && state.num_rendered_objects < 6
-//             || true
-        )
+    if (state.render_phase == IL2_Landscape0)
     {
-//         core_gl_wrapper::setActiveShader(getSkyProgram());
-//         updateUniforms(getSkyProgram());
-//       }
-//       else {
       core_gl_wrapper::setActiveShader(getInvisibleProgram());
-//         core_gl_wrapper::setActiveShader(getRedProgram());
     }
   }
 
-//     discardGlCalls(true);
-
-//     core_gl_wrapper::setActiveShader(getRedProgram());
-//     gl::PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   gl::Begin(mode);
 }
 
@@ -345,8 +294,6 @@ void GLAPIENTRY wrap_glEnd()
 //       gl::UseProgram(0);
 
   core_gl_wrapper::setActiveShader(nullptr);
-
-  getContext()->onObjectRendered();
 
 //     Il2RenderState state;
 //     getRenderState(&state);
@@ -769,7 +716,7 @@ void init()
 
   setProc("glBegin", (void*) &wrap_glBegin);
   setProc("glEnd", (void*) &wrap_glEnd);
-  setProc("glClear", (void*) &wrap_glClear);
+//   setProc("glClear", (void*) &wrap_glClear);
   setProc("glViewport", (void*) &wrap_glViewport);
   setProc("glTexImage2D", (void*) &wrap_glTexImage2D);
 
@@ -812,9 +759,9 @@ arb_program::Context *Context::Impl::getARBProgramContext()
 }
 
 
-void onRenderPhaseChanged(core::Il2RenderPhase phase)
+void onRenderPhaseChanged(const core::Il2RenderState &state)
 {
-  getContext()->onRenderPhaseChanged(phase);
+  getContext()->onRenderPhaseChanged(state);
 }
 
 

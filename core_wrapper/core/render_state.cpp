@@ -57,7 +57,7 @@ namespace
   void setRenderPhase(core::Il2RenderPhase phase)
   {
     g_il2_state.render_state.render_phase = phase;
-    core_gl_wrapper::onRenderPhaseChanged(phase);
+    core_gl_wrapper::onRenderPhaseChanged(g_il2_state.render_state);
   }
 
 
@@ -142,9 +142,7 @@ namespace core
 
   void onLandscapeRender0()
   {
-    setRenderPhase(IL2_Landscape0_PreTerrain);
-
-//     setRenderPhase(isCubeUpdated() ? IL2_Landscape0_CubeMap : IL2_Landscape0_PreTerrain);
+    setRenderPhase(IL2_Landscape0);
 
     //   core::updateWaterAnimation();
     //   getWaterAnimation()->update();

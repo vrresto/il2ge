@@ -86,32 +86,33 @@ namespace core_gl_wrapper
     Impl();
     ~Impl();
 
-    void onClear()
+    void onRenderPhaseChanged(const core::Il2RenderState &state)
     {
-      m_num_rendered_objects = 0;
-//       m_num_rendered_array_objects = 0;
+        m_was_terrain_drawn = false;
     }
 
-    void onRenderPhaseChanged(core::Il2RenderPhase phase)
+    bool isRenderingCubeMap()
     {
-      m_num_rendered_objects = 0;
-//       m_num_rendered_array_objects = 0;
+      auto vp_size = core::getCamera()->getViewportSize();
+      return m_viewport_w != vp_size.x || m_viewport_h != vp_size.y;
     }
 
-    void onObjectRendered()
+    bool wasTerrainDrawn() { return m_was_terrain_drawn; }
+    void onTerrainDrawn() { m_was_terrain_drawn = true; }
+
+    void setViewport(int w, int h)
     {
-      m_num_rendered_objects++;
+//       std::cout<<"setViewport: "<<w<<","<<h<<"\n";
+      m_viewport_w = w;
+      m_viewport_h = h;
     }
-
-    void onArrayObjectRendered();
-
-    int getNumRenderedObjects() { return m_num_rendered_objects; }
 
   private:
     std::unique_ptr<texture_state::TextureState> m_texture_state;
     std::unique_ptr<arb_program::Context> m_arb_program_context;
-    int m_num_rendered_objects = 0;
-//     int m_num_rendered_array_objects = 0;
+    bool m_was_terrain_drawn = false;
+    int m_viewport_w = 0;
+    int m_viewport_h = 0;
   };
 
 

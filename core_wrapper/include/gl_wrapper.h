@@ -46,7 +46,7 @@ namespace core_gl_wrapper
   void init();
   void *getProc(const char *name);
 
-  void onRenderPhaseChanged(core::Il2RenderPhase phase);
+  void onRenderPhaseChanged(const core::Il2RenderState &state);
 }
 
 #endif
