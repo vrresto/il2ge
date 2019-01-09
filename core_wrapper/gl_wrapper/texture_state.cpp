@@ -41,8 +41,6 @@ namespace
 
   void GLAPIENTRY wrap_glBindTexture(GLenum target, GLuint texture)
   {
-    assert(wgl_wrapper::isMainContextCurrent());
-
     if (wgl_wrapper::isMainContextCurrent())
     {
       auto state = getState();
