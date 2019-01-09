@@ -726,6 +726,7 @@ void init()
   setProc("glDrawRangeElementsEXT", (void*) wrap_glDrawRangeElements);
   #endif
 
+  texture_state::init();
   arb_program::init();
 
 //   g_forest_shader_names.insert("fpForestPlane");

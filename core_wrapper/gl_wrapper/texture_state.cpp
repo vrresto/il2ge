@@ -39,8 +39,10 @@ namespace
     return core_gl_wrapper::getContext()->getTextureState();
   }
 
-  void GLAPI wrap_glBindTexture(GLenum target, GLuint texture)
+  void GLAPIENTRY wrap_glBindTexture(GLenum target, GLuint texture)
   {
+    assert(wgl_wrapper::isMainContextCurrent());
+
     if (wgl_wrapper::isMainContextCurrent())
     {
       auto state = getState();
@@ -54,7 +56,7 @@ namespace
     gl::BindTexture(target, texture);
   }
 
-  void GLAPI wrap_glActiveTexture(GLenum texture)
+  void GLAPIENTRY wrap_glActiveTexture(GLenum texture)
   {
     assert(wgl_wrapper::isMainContextCurrent());
 
