@@ -177,11 +177,13 @@ void GLAPIENTRY wrap_glCallList(GLuint list)
 void GLAPIENTRY wrap_glViewport(GLint x,  GLint y,  GLsizei width,  GLsizei height)
 {
   assert(wgl_wrapper::isMainThread());
-  assert(wgl_wrapper::isMainContextCurrent());
 
   gl::Viewport(x, y, width, height);
 
-  getContext()->setViewport(width, height);
+  if (wgl_wrapper::isMainContextCurrent())
+  {
+    getContext()->setViewport(width, height);
+  }
 }
 
 
