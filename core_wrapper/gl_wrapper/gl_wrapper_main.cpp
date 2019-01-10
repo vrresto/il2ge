@@ -205,43 +205,43 @@ void GLAPIENTRY wrap_glViewport(GLint x,  GLint y,  GLsizei width,  GLsizei heig
 //   }
 
 
-void GLAPIENTRY wrap_glTexImage2D(GLenum target,
-  GLint level,
-  GLint internalFormat,
-  GLsizei width,
-  GLsizei height,
-  GLint border,
-  GLenum format,
-  GLenum type,
-  const GLvoid* data)
-{
-  assert(wgl_wrapper::isMainThread());
-  assert(wgl_wrapper::isMainContextCurrent());
-
-  gl::TexImage2D(target, level, internalFormat, width, height, border, format, type, data);
-
-  Il2RenderState state;
-  getRenderState(&state);
-
-  switch (target)
-  {
-    case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
-    case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
-    case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
-    case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
-    case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
-    case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
-//       cout<<"wrap_glTexImage2D: "<<width<<"x"<<height<<endl;
-//       if (state.render_phase == IL2_Landscape0_CubeMap)
-//       {
-//         assert(0);
-// //         onCubeMapFaceFinished();
-//       }
+// void GLAPIENTRY wrap_glTexImage2D(GLenum target,
+//   GLint level,
+//   GLint internalFormat,
+//   GLsizei width,
+//   GLsizei height,
+//   GLint border,
+//   GLenum format,
+//   GLenum type,
+//   const GLvoid* data)
+// {
+//   assert(wgl_wrapper::isMainThread());
+//   assert(wgl_wrapper::isMainContextCurrent());
+//
+//   gl::TexImage2D(target, level, internalFormat, width, height, border, format, type, data);
+//
+//   Il2RenderState state;
+//   getRenderState(&state);
+//
+//   switch (target)
+//   {
+//     case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
+//     case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
+//     case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
+//     case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
+//     case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
+//     case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
+// //       cout<<"wrap_glTexImage2D: "<<width<<"x"<<height<<endl;
+// //       if (state.render_phase == IL2_Landscape0_CubeMap)
+// //       {
+// //         assert(0);
+// // //         onCubeMapFaceFinished();
+// //       }
+// //       break;
+//     default:
 //       break;
-    default:
-      break;
-  }
-}
+//   }
+// }
 
 
 void GLAPIENTRY wrap_glBegin(GLenum mode)
@@ -720,7 +720,7 @@ void init()
   setProc("glEnd", (void*) &wrap_glEnd);
 //   setProc("glClear", (void*) &wrap_glClear);
   setProc("glViewport", (void*) &wrap_glViewport);
-  setProc("glTexImage2D", (void*) &wrap_glTexImage2D);
+//   setProc("glTexImage2D", (void*) &wrap_glTexImage2D);
 
 //   SET_PROC(glDrawElements);
 //   SET_PROC(glDrawArrays);
