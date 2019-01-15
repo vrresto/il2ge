@@ -22,6 +22,7 @@
 #include "core.h"
 #include <wgl_wrapper.h>
 
+#include <render_util/render_util.h>
 #include <render_util/shader_util.h>
 #include <render_util/texture_manager.h>
 #include <render_util/image.h>
@@ -505,10 +506,7 @@ void updateShaderState()
 void updateUniforms(render_util::ShaderProgramPtr program, const render_util::Camera &camera)
 {
   core::updateUniforms(program);
-  program->setUniform("cameraPosWorld", camera.getPos());
-  program->setUniform("projectionMatrixFar", camera.getProjectionMatrixFar());
-  program->setUniform("world2ViewMatrix", camera.getWorld2ViewMatrix());
-  program->setUniform("view2WorldMatrix", camera.getView2WorldMatrix());
+  render_util::updateUniforms(program, camera);
 }
 
 
@@ -518,7 +516,7 @@ void doDrawTerrain(render_util::TerrainRenderer &renderer,
 {
   auto program = renderer.getProgram();
 
-  updateUniforms(program, camera);
+  ::updateUniforms(program, camera);
 
   program->setUniform("draw_near_forest", enable_details);
   program->setUniform("enable_waves", enable_details);
