@@ -43,8 +43,48 @@ namespace
 {
 
 
+class GameState
+{
+  int m_builder_id = 0;
+  int m_id = 0;
+
+public:
+  GameState(JNIEnv*);
+  bool isBuilder() { return m_id == m_builder_id; }
+};
+
+
 bool g_dump_enabled = false;
 bool g_base_map_enabled = false;
+
+
+GameState::GameState(JNIEnv *env)
+{
+  auto class_id_main = env->FindClass("com/maddox/il2/game/Main");
+  assert(class_id_main);
+  auto method_id_main_state =
+    env->GetStaticMethodID(class_id_main, "state", "()Lcom/maddox/il2/game/GameState;");
+  assert(method_id_main_state);
+
+  auto class_id_game_state = env->FindClass("com/maddox/il2/game/GameState");
+  assert(class_id_game_state);
+  auto method_id_game_state_id =
+    env->GetMethodID(class_id_game_state, "id", "()I");
+  assert(method_id_game_state_id);
+
+  auto field_id_game_state_builder =
+    env->GetStaticFieldID(class_id_game_state, "BUILDER", "I");
+  assert(field_id_game_state_builder);
+
+  m_builder_id = env->GetStaticIntField(class_id_game_state, field_id_game_state_builder);
+  assert(m_builder_id);
+
+  auto state_obj = env->CallStaticObjectMethod(class_id_main, method_id_main_state);
+  assert(state_obj);
+
+  m_id = env->CallIntMethod(state_obj, method_id_game_state_id);
+  assert(m_id);
+}
 
 
 void refreshFile(const char *path,
@@ -136,6 +176,8 @@ void unloadMap()
   FORCE_CHECK_GL_ERROR();
   getScene()->unloadMap();
   FORCE_CHECK_GL_ERROR();
+
+  core::setFMBActive(false);
 }
 
 
@@ -145,7 +187,12 @@ void loadMap(const char *path, void *env_)
 
   ProgressReporter progress((JNIEnv*)env_);
 
-  getScene()->loadMap(path, &progress);
+  GameState game_state((JNIEnv*)env_);
+
+  core::setFMBActive(game_state.isBuilder());
+
+  if (!game_state.isBuilder())
+    getScene()->loadMap(path, &progress);
 
   FORCE_CHECK_GL_ERROR();
 }

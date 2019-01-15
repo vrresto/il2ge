@@ -65,6 +65,15 @@ namespace
 
 namespace core
 {
+  void setFMBActive(bool active)
+  {
+    g_il2_state.is_fmb_active = active;
+  }
+
+  bool isFMBActive()
+  {
+    return g_il2_state.is_fmb_active;
+  }
 
   void getRenderState(Il2RenderState *state)
   {

@@ -37,6 +37,8 @@ namespace core
 
   bool isBaseMapEnabled();
 
+  void setFMBActive(bool);
+
   class ProgressReporter
   {
     JNIEnv *env = nullptr;

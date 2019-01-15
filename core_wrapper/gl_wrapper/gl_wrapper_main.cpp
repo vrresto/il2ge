@@ -249,7 +249,7 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 {
   assert(wgl_wrapper::isMainThread());
 
-  if (!wgl_wrapper::isMainContextCurrent())
+  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive())
   {
     return gl::Begin(mode);
   }
@@ -284,7 +284,7 @@ void GLAPIENTRY wrap_glEnd()
 
   gl::End();
 
-  if (!wgl_wrapper::isMainContextCurrent())
+  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive())
   {
     return;
   }
@@ -407,7 +407,8 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   Il2RenderState state;
   getRenderState(&state);
 
-  if (state.camera_mode == IL2_CAMERA_MODE_2D
+  if (core::isFMBActive()
+      || state.camera_mode == IL2_CAMERA_MODE_2D
       || state.render_phase < IL2_Landscape0
       || state.render_phase >= IL2_PostLandscape
 //         || state.render_phase < IL2_Landscape0_Finished
@@ -473,7 +474,7 @@ void updateShaderState()
   {
     new_active_shader = ctx->current_shader;
   }
-  else if (is_arb_program_active)
+  else if (is_arb_program_active && !core::isFMBActive())
   {
     new_active_shader = ctx->current_arb_program;
   }

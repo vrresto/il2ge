@@ -53,6 +53,8 @@ namespace core
     Il2RenderPhase render_phase = IL2_RENDER_PHASE_UNKNOWN;
   };
 
+  bool isFMBActive();
+
   Il2CameraMode getCameraMode();
   void setCameraMode(Il2CameraMode);
 
