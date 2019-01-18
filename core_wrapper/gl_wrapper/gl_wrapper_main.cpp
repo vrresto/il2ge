@@ -25,6 +25,7 @@
 #include <render_util/render_util.h>
 #include <render_util/shader_util.h>
 #include <render_util/texture_manager.h>
+#include <render_util/terrain_base.h>
 #include <render_util/image.h>
 #include <render_util/image_loader.h>
 #include <render_util/texunits.h>
@@ -59,6 +60,7 @@ namespace
 
 
 void drawTerrain();
+void updateUniforms(render_util::ShaderProgramPtr program, const render_util::Camera &camera);
 
 
 class Globals : public render_util::Globals
@@ -72,6 +74,21 @@ public:
 
     return context->render_util_gl_context;
   }
+};
+
+
+class TerrainClient : public render_util::TerrainBase::Client
+{
+  const render_util::Camera &m_camera;
+
+  void setActiveProgram(render_util::ShaderProgramPtr p) override
+  {
+    core_gl_wrapper::setActiveShader(p);
+    ::updateUniforms(p, m_camera);
+  }
+
+public:
+  TerrainClient(const render_util::Camera &camera) : m_camera(camera) {}
 };
 
 
@@ -512,16 +529,13 @@ void updateUniforms(render_util::ShaderProgramPtr program, const render_util::Ca
 
 
 void doDrawTerrain(render_util::TerrainRenderer &renderer,
-                   render_util::ShaderProgramPtr program,
                    const render_util::Camera &camera,
-                   bool enable_details)
+                   bool low_detail)
 {
-  core_gl_wrapper::setActiveShader(program);
+  TerrainClient client(camera);
 
-  ::updateUniforms(program, camera);
-
-  renderer.getTerrain()->update(camera);
-  renderer.getTerrain()->draw();
+  renderer.getTerrain()->update(camera, low_detail);
+  renderer.getTerrain()->draw(&client);
 }
 
 
@@ -540,11 +554,11 @@ void doDrawTerrain(render_util::TerrainRenderer &renderer)
   gl::FrontFace(GL_CCW);
   gl::DepthFunc(GL_LEQUAL);
 
-  doDrawTerrain(renderer, renderer.getLowDetailProgram(), far_camera, false);
+  doDrawTerrain(renderer, far_camera, true);
 
   gl::Clear(GL_DEPTH_BUFFER_BIT);
 
-  doDrawTerrain(renderer, renderer.getProgram(), *core::getCamera(), true);
+  doDrawTerrain(renderer, *core::getCamera(), false);
 
 #if 0
   const int forest_layers = 5;

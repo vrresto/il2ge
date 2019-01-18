@@ -20,6 +20,7 @@
 #define IL2GE_MAP_LOADER_H
 
 #include <render_util/elevation_map.h>
+#include <render_util/terrain_base.h>
 
 #include <glm/glm.hpp>
 #include <map>
@@ -28,7 +29,6 @@
 namespace render_util
 {
   class MapTextures;
-  class TerrainBase;
   class WaterAnimation;
 }
 
@@ -52,7 +52,8 @@ namespace il2ge::map_loader
   void createMapTextures(il2ge::RessourceLoader *loader,
       render_util::MapTextures *map_textures,
       render_util::WaterAnimation *water_animation,
-      std::map<unsigned, unsigned> &field_texture_mapping);
+      std::map<unsigned, unsigned> &field_texture_mapping,
+      render_util::TerrainBase::MaterialMap::Ptr &material_map);
 
   render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader);
   render_util::ImageGreyScale::Ptr createForestMap(render_util::ImageGreyScale::ConstPtr type_map);

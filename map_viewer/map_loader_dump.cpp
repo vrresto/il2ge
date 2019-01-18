@@ -122,11 +122,13 @@ class Map : public render_util::MapBase
   std::shared_ptr<MapTextures> m_textures;
   std::shared_ptr<WaterAnimation> m_water_animation;
   map<unsigned, unsigned> m_field_texture_mapping;
+  render_util::TerrainBase::MaterialMap::Ptr m_material_map;
 
 public:
   Map(const render_util::TextureManager &texture_mgr, RessourceLoader*);
   MapTextures &getTextures() override { return *m_textures; }
   WaterAnimation &getWaterAnimation() override { return *m_water_animation; }
+  TerrainBase::MaterialMap::ConstPtr getMaterialMap() const override { return m_material_map; }
 
   getHeightMapMetersPerPixel() const override
   {
@@ -148,7 +150,8 @@ Map::Map(const render_util::TextureManager &texture_mgr, RessourceLoader *res_lo
   il2ge::map_loader::createMapTextures(res_loader,
                                        m_textures.get(),
                                        m_water_animation.get(),
-                                       m_field_texture_mapping);
+                                       m_field_texture_mapping,
+                                       m_material_map);
 }
 
 

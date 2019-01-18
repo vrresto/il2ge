@@ -143,10 +143,12 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
 
   progress->report(3, "Creating textures");
   std::map<unsigned, unsigned> field_texture_mapping;
+  render_util::TerrainBase::MaterialMap::Ptr material_map;
   map_loader::createMapTextures(&res_loader,
                                 p->textures.get(),
                                 p->water_animation.get(),
-                                field_texture_mapping);
+                                field_texture_mapping,
+                                material_map);
 
   if (land_map)
   {
@@ -187,7 +189,7 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
   p->terrain_renderer.getProgram()->setUniform("terrain_color", glm::vec3(1,0,0));
 
   progress->report(7, "Creating terrain");
-  p->terrain_renderer.getTerrain()->build(elevation_map);
+  p->terrain_renderer.getTerrain()->build(elevation_map, material_map);
 
   if (elevation_map_base)
   {

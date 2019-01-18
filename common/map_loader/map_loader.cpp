@@ -65,6 +65,8 @@ namespace
 {
 
 
+bool isWater(unsigned int index);
+
 const vec3 default_water_color = vec3(45,51,40) / vec3(255);
 
 void dumpFile(string name, const char *data, size_t data_size, const string &dump_dir)
@@ -149,6 +151,25 @@ float elevation_table[256] =
 {
   #include "height_table"
 };
+
+
+bool isWater(unsigned int index)
+{
+  assert(index < NUM_FIELDS);
+
+  if (index < NUM_FIELDS)
+    return
+      strcmp(field_names[index], "Water0") == 0
+      ||
+      strcmp(field_names[index], "Water1") == 0
+      ||
+      strcmp(field_names[index], "Water2") == 0
+      ||
+      strcmp(field_names[index], "Water3") == 0
+      ;
+  else
+    return false;
+}
 
 
 void createWaterMap
@@ -402,7 +423,8 @@ namespace il2ge::map_loader
 void createMapTextures(il2ge::RessourceLoader *loader,
              render_util::MapTextures *map_textures,
              render_util::WaterAnimation *water_animation,
-             map<unsigned, unsigned> &mapping)
+             map<unsigned, unsigned> &mapping,
+             render_util::TerrainBase::MaterialMap::Ptr &material_map)
 {
 //   getTexture("APPENDIX", "BeachFoam", "", reader);
 //   getTexture("APPENDIX", "BeachSurf", "", reader);
@@ -468,6 +490,26 @@ void createMapTextures(il2ge::RessourceLoader *loader,
 
   createFieldTextures(type_map, map_textures, loader, mapping);
   createForestTextures(type_map, map_textures, loader);
+
+  assert(!material_map);
+
+  material_map = image::convert<TerrainBase::MaterialMap::ComponentType>(type_map);
+
+  material_map->forEach
+  (
+    [] (auto &pixel)
+    {
+      unsigned int material = 0;
+      if (isForest(pixel & 0x1F))
+        material = TerrainBase::MaterialID::FOREST;
+      else if (isWater(pixel & 0x1F))
+        material = TerrainBase::MaterialID::WATER;
+      else
+        material = TerrainBase::MaterialID::LAND;
+      pixel = material;
+    }
+  );
+
 
   cout<<"creating map textures done."<<endl;
 }
