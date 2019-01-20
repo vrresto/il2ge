@@ -18,6 +18,7 @@
 
 #include "map_loader_private.h"
 #include "imf.h"
+#include "water_map.h"
 #include "forest.h"
 #include <render_util/image.h>
 #include <render_util/image_util.h>
@@ -31,7 +32,6 @@
 #include <render_util/elevation_map.h>
 #include <render_util/water.h>
 #include <il2ge/map_loader.h>
-#include <il2ge/water_map.h>
 #include <il2ge/ressource_loader.h>
 
 #include <FastNoise.h>
@@ -64,8 +64,6 @@ using namespace il2ge::map_loader;
 namespace
 {
 
-
-bool isWater(unsigned int index);
 
 const vec3 default_water_color = vec3(45,51,40) / vec3(255);
 
@@ -153,30 +151,12 @@ float elevation_table[256] =
 };
 
 
-bool isWater(unsigned int index)
-{
-  assert(index < NUM_FIELDS);
-
-  if (index < NUM_FIELDS)
-    return
-      strcmp(field_names[index], "Water0") == 0
-      ||
-      strcmp(field_names[index], "Water1") == 0
-      ||
-      strcmp(field_names[index], "Water2") == 0
-      ||
-      strcmp(field_names[index], "Water3") == 0
-      ;
-  else
-    return false;
-}
-
-
 void createWaterMap
   (
     ivec2 type_map_size,
     il2ge::RessourceLoader *loader,
-    il2ge::WaterMap &map
+    il2ge::WaterMap &map,
+    render_util::ImageGreyScale::Ptr &small_water_map
   )
 {
   il2ge::WaterMap water_map;
@@ -231,7 +211,7 @@ void createWaterMap
                                                           reinterpret_cast<unsigned char*>(data.data())));
     water_map.table = image::flipY(water_map.table);
 
-    il2ge::convertWaterMap(water_map, map);
+    il2ge::convertWaterMap(water_map, map, small_water_map);
   }
 }
 
@@ -447,10 +427,12 @@ void createMapTextures(il2ge::RessourceLoader *loader,
 #if 1
   cout<<"creating water map ..."<<endl;
   il2ge::WaterMap water_map;
+  render_util::ImageGreyScale::Ptr small_water_map;
   createWaterMap(
     type_map->size(),
     loader,
-    water_map);
+    water_map,
+    small_water_map);
   cout<<"creating water map done."<<endl;
   map_textures->setWaterMap(water_map.chunks, water_map.table);
 #endif
@@ -502,14 +484,25 @@ void createMapTextures(il2ge::RessourceLoader *loader,
       unsigned int material = 0;
       if (isForest(pixel & 0x1F))
         material = TerrainBase::MaterialID::FOREST;
-      else if (isWater(pixel & 0x1F))
-        material = TerrainBase::MaterialID::WATER;
       else
         material = TerrainBase::MaterialID::LAND;
       pixel = material;
     }
   );
 
+  assert(material_map->w() <= small_water_map->w());
+  assert(material_map->h() <= small_water_map->h());
+
+  for (int y = 0; y < material_map->h(); y++)
+  {
+    for (int x = 0; x < material_map->w(); x++)
+    {
+      if (small_water_map->get(x,y))
+      {
+        material_map->at(x,y) |= TerrainBase::MaterialID::WATER;
+      }
+    }
+  }
 
   cout<<"creating map textures done."<<endl;
 }

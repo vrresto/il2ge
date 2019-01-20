@@ -16,9 +16,9 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <il2ge/water_map.h>
+#include "water_map.h"
 #include <render_util/image_util.h>
-
+#include <render_util/terrain_base.h>
 
 #include <glm/glm.hpp>
 #include <iostream>
@@ -36,7 +36,8 @@ enum
 {
   ORIG_CHUNK_SIZE = 32,
   SUPER_CHUNK_SIZE = 4,
-  CHUNK_SIZE = ORIG_CHUNK_SIZE * SUPER_CHUNK_SIZE
+  CHUNK_SIZE = ORIG_CHUNK_SIZE * SUPER_CHUNK_SIZE,
+  ORIG_CHUNK_SIZE_M = 1600,
 };
 
 enum ChunkType
@@ -383,6 +384,34 @@ void fillWaterMap(Map &src, WaterMap &dst)
 }
 
 
+render_util::ImageGreyScale::Ptr createSmallMap(Map &map)
+{
+  constexpr int pixel_per_chunk = ORIG_CHUNK_SIZE_M / render_util::TerrainBase::GRID_RESOLUTION_M;
+  static_assert(ORIG_CHUNK_SIZE_M % render_util::TerrainBase::GRID_RESOLUTION_M == 0);
+  static_assert(pixel_per_chunk == 8);
+
+  const ivec2 size = ivec2(map.w(), map.h()) * pixel_per_chunk;
+
+  auto dst_map = make_shared<render_util::ImageGreyScale>(size);
+
+  for (int y = 0; y < dst_map->h(); y++)
+  {
+    for (int x = 0; x < dst_map->w(); x++)
+    {
+      ivec2 chunk_coords = ivec2(x,y) / pixel_per_chunk;
+      Chunk *chunk = map.getChunk(chunk_coords);
+      if (chunk->isFull())
+        dst_map->at(x,y) = 0;
+      else
+        dst_map->at(x,y) = 1;
+    }
+
+  }
+
+  return dst_map;
+}
+
+
 } // namespace
 
 
@@ -390,7 +419,9 @@ namespace il2ge
 {
 
 
-void convertWaterMap(const WaterMap &src, WaterMap &dst)
+void convertWaterMap(const WaterMap &src,
+                     WaterMap &dst,
+                     render_util::ImageGreyScale::Ptr &small_map)
 {
   Map src_map(src);
 
@@ -421,6 +452,7 @@ void convertWaterMap(const WaterMap &src, WaterMap &dst)
   }
 
   fillWaterMap(dst_map, dst);
+  small_map = createSmallMap(src_map);
 }
 
 

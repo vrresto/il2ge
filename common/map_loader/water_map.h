@@ -29,6 +29,8 @@ namespace il2ge
     render_util::Image<unsigned int>::ConstPtr table;
   };
 
-  void convertWaterMap(const WaterMap &src, WaterMap &dst);
+  void convertWaterMap(const WaterMap &src,
+                       WaterMap &dst,
+                       render_util::ImageGreyScale::Ptr &small_map);
 
 }
