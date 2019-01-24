@@ -156,7 +156,7 @@ void createWaterMap
     ivec2 type_map_size,
     il2ge::RessourceLoader *loader,
     il2ge::WaterMap &map,
-    render_util::ImageGreyScale::Ptr &small_water_map
+    render_util::Image<water_map::ChunkType>::Ptr &small_water_map
   )
 {
   il2ge::WaterMap water_map;
@@ -427,7 +427,7 @@ void createMapTextures(il2ge::RessourceLoader *loader,
 #if 1
   cout<<"creating water map ..."<<endl;
   il2ge::WaterMap water_map;
-  render_util::ImageGreyScale::Ptr small_water_map;
+  render_util::Image<water_map::ChunkType>::Ptr small_water_map;
   createWaterMap(
     type_map->size(),
     loader,
@@ -497,10 +497,18 @@ void createMapTextures(il2ge::RessourceLoader *loader,
   {
     for (int x = 0; x < material_map->w(); x++)
     {
-      if (small_water_map->get(x,y))
+      unsigned int material = material_map->get(x,y);
+      switch (small_water_map->get(x,y))
       {
-        material_map->at(x,y) |= TerrainBase::MaterialID::WATER;
+        case water_map::CHUNK_EMPTY:
+          material = TerrainBase::MaterialID::WATER;
+          break;
+        case water_map::CHUNK_MIXED:
+          material |= TerrainBase::MaterialID::WATER;
+        case water_map::CHUNK_FULL:
+          break;
       }
+      material_map->at(x,y) = material;
     }
   }
 

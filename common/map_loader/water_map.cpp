@@ -31,6 +31,7 @@ namespace
 
 
 using namespace il2ge;
+using namespace il2ge::water_map;
 
 enum
 {
@@ -39,14 +40,6 @@ enum
   CHUNK_SIZE = ORIG_CHUNK_SIZE * SUPER_CHUNK_SIZE,
   ORIG_CHUNK_SIZE_M = 1600,
 };
-
-enum ChunkType
-{
-  CHUNK_EMPTY,
-  CHUNK_FULL,
-  CHUNK_MIXED
-};
-
 
 render_util::ImageGreyScale::Ptr createEmptyImage(int size)
 {
@@ -101,6 +94,8 @@ class Chunk
   ChunkType m_type = CHUNK_MIXED;
 
 public:
+  ChunkType getType() { return m_type; }
+
   bool isEmpty() const
   {
     return m_type == CHUNK_EMPTY;
@@ -384,7 +379,7 @@ void fillWaterMap(Map &src, WaterMap &dst)
 }
 
 
-render_util::ImageGreyScale::Ptr createSmallMap(Map &map)
+render_util::Image<ChunkType>::Ptr createSmallMap(Map &map)
 {
   constexpr int pixel_per_chunk = ORIG_CHUNK_SIZE_M / render_util::TerrainBase::GRID_RESOLUTION_M;
   static_assert(ORIG_CHUNK_SIZE_M % render_util::TerrainBase::GRID_RESOLUTION_M == 0);
@@ -392,7 +387,7 @@ render_util::ImageGreyScale::Ptr createSmallMap(Map &map)
 
   const ivec2 size = ivec2(map.w(), map.h()) * pixel_per_chunk;
 
-  auto dst_map = make_shared<render_util::ImageGreyScale>(size);
+  auto dst_map = make_shared<render_util::Image<ChunkType>>(size);
 
   for (int y = 0; y < dst_map->h(); y++)
   {
@@ -400,10 +395,8 @@ render_util::ImageGreyScale::Ptr createSmallMap(Map &map)
     {
       ivec2 chunk_coords = ivec2(x,y) / pixel_per_chunk;
       Chunk *chunk = map.getChunk(chunk_coords);
-      if (chunk->isFull())
-        dst_map->at(x,y) = 0;
-      else
-        dst_map->at(x,y) = 1;
+
+      dst_map->at(x,y) = chunk->getType();
     }
 
   }
@@ -421,7 +414,7 @@ namespace il2ge
 
 void convertWaterMap(const WaterMap &src,
                      WaterMap &dst,
-                     render_util::ImageGreyScale::Ptr &small_map)
+                     render_util::Image<ChunkType>::Ptr &small_map)
 {
   Map src_map(src);
 

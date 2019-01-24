@@ -23,6 +23,16 @@
 namespace il2ge
 {
 
+  namespace water_map
+  {
+    enum ChunkType
+    {
+      CHUNK_EMPTY = 0,
+      CHUNK_FULL,
+      CHUNK_MIXED
+    };
+  }
+
   struct WaterMap
   {
     std::vector<render_util::ImageGreyScale::ConstPtr> chunks;
@@ -31,6 +41,6 @@ namespace il2ge
 
   void convertWaterMap(const WaterMap &src,
                        WaterMap &dst,
-                       render_util::ImageGreyScale::Ptr &small_map);
+                       render_util::Image<water_map::ChunkType>::Ptr &small_map);
 
 }
