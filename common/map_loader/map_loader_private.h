@@ -37,6 +37,13 @@ namespace il2ge::map_loader
 bool isForest(unsigned int index);
 
 
+inline void dump(const std::string &content, const std::string &name, const std::string &dump_dir)
+{
+  if (isDumpEnabled() && !dump_dir.empty())
+    util::writeFile(dump_dir + name, content.c_str(), content.size());
+}
+
+
 template <typename T>
 void dump(std::shared_ptr<T> image, const std::string &name, const std::string &dump_dir)
 {

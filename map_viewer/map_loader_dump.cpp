@@ -61,7 +61,7 @@ public:
 
   std::string getDumpDir() override
   {
-    static string dir = "/dev/null";
+    static string dir = "/dev/null/";
     return dir;
   }
 
@@ -91,6 +91,27 @@ public:
             bool redirect,
             float *scale) override
   {
+    if (scale)
+    {
+      string scale_path = map_dir + '/' + section + '_' + name + "_scale";
+      vector<char> scale_content;
+      if (util::readFile(scale_path, scale_content, false))
+      {
+        string scale_str(scale_content.data(), scale_content.size());
+        try
+        {
+          *scale = stof(scale_str);
+        }
+        catch (...)
+        {
+          cerr<<"can't convert '"<<scale_str<<"' to float"<<endl;
+          cerr<<"section: "<<section<<endl;
+          cerr<<"key: "<<name<<endl;
+          *scale = 1;
+        }
+      }
+    }
+
     string path = map_dir + '/' + section + '_' + name + ".tga";
 
     return util::readFile(path, content);

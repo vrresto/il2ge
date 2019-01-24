@@ -555,6 +555,9 @@ ImageRGBA::Ptr getTexture(const char *section,
       image = render_util::loadImageFromMemory<ImageRGBA>(data);
 
     dump<ImageRGBA>(image, dump_name, loader->getDumpDir());
+    if (scale)
+      dump(to_string(*scale), dump_name + "_scale", loader->getDumpDir());
+
   }
 
   return image;
