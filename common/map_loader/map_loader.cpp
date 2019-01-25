@@ -35,6 +35,7 @@
 #include <il2ge/ressource_loader.h>
 
 #include <FastNoise.h>
+#include <glm/glm.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -216,15 +217,34 @@ void createWaterMap
 }
 
 
+int getTerrainTextureArrayIndex(int size)
+{
+  constexpr double SMALLEST_SIZE = 256;
+
+  int index = glm::log2(double(size)) - glm::log2(SMALLEST_SIZE);
+  assert(index >= 0);
+  assert(index < MAX_TERRAIN_TEXUNITS);
+  return index;
+}
+
+
 void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
                          render_util::MapTextures *map_textures,
-                         il2ge::RessourceLoader *loader,
-                         map<unsigned, unsigned> &mapping)
+                         il2ge::RessourceLoader *loader)
 {
-  auto type_map = image::clone(type_map_);
+  using TextureArray = vector<ImageRGBA::ConstPtr>;
 
-  vector<ImageRGBA::ConstPtr> textures;
-  vector<float> texture_scale;
+  std::array<TextureArray, MAX_TERRAIN_TEXUNITS> texture_arrays;
+  TextureArray textures_single_array;
+#if 0
+  auto red_texture = make_shared<ImageRGBA>(ivec2(512));
+  image::fill(red_texture, ImageRGBA::PixelType{255, 0, 0, 255});
+
+  texture_arrays[getTerrainTextureArrayIndex(red_texture->w())].push_back(red_texture);
+  textures_single_array.push_back(red_texture);
+#endif
+  map<unsigned, glm::uvec3> mapping;
+  map<unsigned, unsigned> orig_to_single_array_mapping;
 
 //   ImageRGBA::Ptr default_normal_map(new ImageRGBA(ivec2(128,128)));
 //   RGBA default_normal = { 127, 127, 255, 255 };
@@ -264,45 +284,110 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
     if (!image)
       continue;
 
-    assert(scale != 0);
-    if (scale < 0)
-      scale = 1 / abs(scale);
-    cout<<"scale: "<<scale<<endl;
+    image = image::flipY(image);
+    assert(image->w() == image->h());
 
+    assert(scale != 0);
+    assert(fract(scale) == 0);
     assert(scale <= render_util::MapTextures::MAX_TERRAIN_TEXTURE_SCALE);
 
-    texture_scale.push_back(scale);
-    textures.push_back(image);
+    scale += 128;
 
-    mapping.insert(make_pair(i, textures.size() - 1));
+    assert(scale >= 0);
+    assert(scale <= 255);
+
+    auto index = getTerrainTextureArrayIndex(image->w());
+    assert(index < MAX_TERRAIN_TEXUNITS);
+
+    texture_arrays[index].push_back(image);
+    textures_single_array.push_back(image);
+
+    mapping.insert(make_pair(i, glm::uvec3{index, texture_arrays[index].size()-1, scale}));
+
+    orig_to_single_array_mapping.insert(make_pair(i, textures_single_array.size()-1));
   }
 
-  assert(textures.size());
+  auto type_map = make_shared<ImageRGBA>(type_map_->getSize());
+  auto type_map_single_array = make_shared<ImageGreyScale>(type_map_->getSize());
 
   cout << "uploading textures ..." <<endl;
-  map_textures->setTextures(textures, texture_scale);
+  for (size_t i = 0; i < MAX_TERRAIN_TEXUNITS; i++)
+  {
+    if (!texture_arrays[i].empty())
+      map_textures->setTextures(texture_arrays[i], i);
+  }
   cout << "uploading textures ... done." <<endl;
 
   for (int y = 0; y < type_map->h(); y++)
   {
     for (int x = 0; x < type_map->w(); x++)
     {
-      unsigned int orig_index = type_map->get(x,y) & 0x1F;
-      unsigned int new_index = mapping[orig_index];
+      unsigned int orig_index = type_map_->get(x,y) & 0x1F;
 
-      assert(new_index <= 0x1F);
+      if (strcmp(field_names[orig_index], "Wood1") == 0 ||
+          strcmp(field_names[orig_index], "Wood3") == 0)
+      {
+        orig_index -= 1;
+      }
 
-      type_map->at(x,y) = new_index;
+#if 0
+      uvec3 new_index{getTerrainTextureArrayIndex(red_texture->w()), 0, 1};
+#else
+      uvec3 new_index{0};
+#endif
+      try
+      {
+        new_index = mapping.at(orig_index);
+      }
+      catch(...)
+      {
+        for (int i = 0; i < 4; i++)
+        {
+          try
+          {
+            new_index = mapping.at(orig_index - (orig_index % 4) + i);
+            break;
+          }
+          catch(...) {}
+        }
+      }
+      assert(new_index.y <= 0x1F+1);
+      type_map->at(x,y,0) = new_index.x;
+      type_map->at(x,y,1) = new_index.y;
+      type_map->at(x,y,2) = new_index.z;
+      type_map->at(x,y,3) = 255;
+
+      unsigned new_index_single_array = 0;
+      try
+      {
+        new_index_single_array = orig_to_single_array_mapping.at(orig_index);
+      }
+      catch (...)
+      {
+        for (int i = 0; i < 4; i++)
+        {
+          try
+          {
+            new_index_single_array = orig_to_single_array_mapping.at(orig_index - (orig_index % 4) + i);
+            break;
+          }
+          catch(...) {}
+        }
+      }
+      assert(new_index_single_array <= 0x1F+1);
+      type_map_single_array->at(x,y) = new_index_single_array;
     }
   }
+
+  dump(type_map, "type_map", loader->getDumpDir());
 
   map_textures->setTypeMap(type_map);
 
   cout << "generating far texture ..." <<endl;
 
   ImageRGBA::Ptr far_texture =
-    createMapFarTexture(type_map,
-                        textures,
+    createMapFarTexture(type_map_single_array,
+                        textures_single_array,
                         TYPE_MAP_METERS_PER_PIXEL,
                         METERS_PER_TILE);
   map_textures->setTexture(TEXUNIT_TERRAIN_FAR, far_texture);
@@ -408,7 +493,6 @@ namespace il2ge::map_loader
 void createMapTextures(il2ge::RessourceLoader *loader,
              render_util::MapTextures *map_textures,
              render_util::WaterAnimation *water_animation,
-             map<unsigned, unsigned> &mapping,
              render_util::TerrainBase::MaterialMap::Ptr &material_map)
 {
 //   getTexture("APPENDIX", "BeachFoam", "", reader);
@@ -475,7 +559,7 @@ void createMapTextures(il2ge::RessourceLoader *loader,
   map_textures->setWaterColor(loader->getWaterColor(default_water_color));
 #endif
 
-  createFieldTextures(type_map, map_textures, loader, mapping);
+  createFieldTextures(type_map, map_textures, loader);
   createForestTextures(type_map, map_textures, loader);
 
   assert(!material_map);

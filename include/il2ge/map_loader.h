@@ -52,7 +52,6 @@ namespace il2ge::map_loader
   void createMapTextures(il2ge::RessourceLoader *loader,
       render_util::MapTextures *map_textures,
       render_util::WaterAnimation *water_animation,
-      std::map<unsigned, unsigned> &field_texture_mapping,
       render_util::TerrainBase::MaterialMap::Ptr &material_map);
 
   render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader);

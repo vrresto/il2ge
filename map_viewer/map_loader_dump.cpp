@@ -171,7 +171,6 @@ Map::Map(const render_util::TextureManager &texture_mgr, RessourceLoader *res_lo
   il2ge::map_loader::createMapTextures(res_loader,
                                        m_textures.get(),
                                        m_water_animation.get(),
-                                       m_field_texture_mapping,
                                        m_material_map);
 }
 
