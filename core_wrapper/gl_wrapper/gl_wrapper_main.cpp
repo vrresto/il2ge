@@ -275,7 +275,6 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
     Il2RenderState state;
     getRenderState(&state);
 
-
     if (state.render_phase == IL2_Landscape0 &&
         !getContext()->wasTerrainDrawn() &&
         !getContext()->isRenderingCubeMap())
@@ -283,7 +282,6 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
       drawTerrain();
       getContext()->onTerrainDrawn();
     }
-
 
     if (state.render_phase == IL2_Landscape0)
     {
@@ -490,13 +488,16 @@ void updateShaderState()
 //       setRenderPhase(IL2_Landscape0_TerrainFar);
 //     }
 
+  Il2RenderState state;
+  getRenderState(&state);
+
   render_util::ShaderProgramPtr new_active_shader;
 
   if (ctx->current_shader)
   {
     new_active_shader = ctx->current_shader;
   }
-  else if (is_arb_program_active && !core::isFMBActive())
+  else if (is_arb_program_active && !core::isFMBActive() && (state.render_phase != IL2_Cockpit))
   {
     new_active_shader = ctx->current_arb_program;
   }
@@ -735,8 +736,8 @@ void init()
   setProc("glViewport", (void*) &wrap_glViewport);
 //   setProc("glTexImage2D", (void*) &wrap_glTexImage2D);
 
-//   SET_PROC(glDrawElements);
-//   SET_PROC(glDrawArrays);
+  SET_PROC(glDrawElements);
+  SET_PROC(glDrawArrays);
   SET_PROC(glDrawRangeElements);
   setProc("glDrawRangeElementsEXT", (void*) wrap_glDrawRangeElements);
   #endif
