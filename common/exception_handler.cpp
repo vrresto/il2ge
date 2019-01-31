@@ -85,6 +85,14 @@ HANDLE g_crash_handler_mutex = 0;
 HANDLE g_target_thread_mutex = 0;
 unordered_set<HMODULE> g_watched_modules;
 std::string g_log_file_name;
+std::function<void(const char*)> g_fatal_error_handler;
+
+
+void fatalError(const char *msg)
+{
+  if (g_fatal_error_handler)
+    g_fatal_error_handler(msg);
+}
 
 
 [[ noreturn ]] void die()
@@ -170,7 +178,7 @@ DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
     fprintf(stderr, "ERROR: GetThreadContext() failed.\n");
   }
 
-  die();
+  return 0;
 }
 
 
@@ -238,10 +246,13 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 
     if (loadCrashHandlerLibrary())
     {
-      Lock lock(g_crash_handler_mutex);
+      HMODULE module = 0;
 
-      HMODULE module = (HMODULE)
+      {
+        Lock lock(g_crash_handler_mutex);
+        module = (HMODULE)
           g_crash_handler->getModuleBase(info->ExceptionRecord->ExceptionAddress);
+      }
 
       if (isModuleWatched(module))
       {
@@ -252,8 +263,12 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
         g_log << std::dec;
         g_log.flush();
 
-        g_crash_handler->crashHandler(info);
+        {
+          Lock lock(g_crash_handler_mutex);
+          g_crash_handler->crashHandler(info);
+        }
 
+        fatalError("Unhandled exception");
         die();
       }
     }
@@ -302,13 +317,15 @@ static void printBacktrace()
 }
 
 
-void il2ge::exception_handler::install(const std::string &log_file_name)
+void il2ge::exception_handler::install(const std::string &log_file_name,
+                                       std::function<void(const char*)> fatal_error_handler)
 {
   static bool installed = false;
   assert(!installed);
   installed = true;
 
   g_log_file_name = log_file_name;
+  g_fatal_error_handler = fatal_error_handler;
 
   g_target_thread_mutex = CreateMutexA(nullptr, false, nullptr);
   assert(g_target_thread_mutex);
@@ -353,6 +370,8 @@ void abort()
     g_log.flush();
     printBacktrace();
     g_log.flush();
+
+    fatalError("Aborted");
   }
 
   die();

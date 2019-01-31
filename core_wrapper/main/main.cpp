@@ -28,6 +28,8 @@
 
 #include <INIReader.h>
 
+#include <jni.h>
+
 #include <iostream>
 #include <windows.h>
 #include <stdio.h>
@@ -58,14 +60,21 @@ namespace
 {
 
 
-const char* const g_log_file_name = "il2ge.log";
+typedef jint JNICALL JNI_GetCreatedJavaVMs_t(JavaVM **, jsize, jsize *);
 
 void installIATPatches(HMODULE);
 void loadCoreWrapper(const char*);
 
+
+constexpr jint g_jni_version = JNI_VERSION_1_2;
+constexpr const char* const g_log_file_name = "il2ge.log";
+
+
 HMODULE g_core_wrapper_module = 0;
 std::ofstream g_logfile;
 bool g_core_wrapper_loaded = false;
+JNI_GetCreatedJavaVMs_t *p_JNI_GetCreatedJavaVMs = nullptr;
+JavaVM *g_java_vm = nullptr;
 
 
 void initLog()
@@ -176,6 +185,11 @@ void loadCoreWrapper(const char *core_library_filename)
 {
   assert(!g_core_wrapper_loaded);
 
+  jsize num = 0;
+  p_JNI_GetCreatedJavaVMs(&g_java_vm, 1, &num);
+  assert(num == 1);
+  assert(g_java_vm);
+
   HMODULE core_module = LoadLibraryA(core_library_filename);
   if (!core_module)
   {
@@ -196,6 +210,19 @@ void loadCoreWrapper(const char *core_library_filename)
            (void*) &wrap_JGL_GetProcAddress, NULL, jgl_module);
 
   g_core_wrapper_loaded = true;
+}
+
+
+void fatalErrorHandler(const char *msg)
+{
+  if (g_java_vm)
+  {
+    JNIEnv *env = nullptr;
+    g_java_vm->GetEnv((void**)&env, g_jni_version);
+
+    if (env)
+      env->FatalError(msg);
+  }
 }
 
 
@@ -260,11 +287,15 @@ void WINAPI il2ge_init()
     }
   }
 
-  il2ge::exception_handler::install(g_log_file_name);
+  il2ge::exception_handler::install(g_log_file_name, &fatalErrorHandler);
   il2ge::exception_handler::watchModule(g_core_wrapper_module);
 
   auto jvm_module = GetModuleHandle("jvm.dll");
   assert(jvm_module);
+
+  p_JNI_GetCreatedJavaVMs = (JNI_GetCreatedJavaVMs_t*)
+      GetProcAddress(jvm_module, "JNI_GetCreatedJavaVMs");
+  assert(p_JNI_GetCreatedJavaVMs);
 
   installIATPatches(GetModuleHandle(0));
   installIATPatches(jvm_module);
