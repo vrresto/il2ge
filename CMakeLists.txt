@@ -62,6 +62,12 @@ else()
   set(is_debug_build false)
 endif()
 
+if (enable_map_viewer)
+  set(render_util_build_viewer true)
+else()
+  set(render_util_build_viewer false)
+endif()
+
 add_definitions(-DIL2GE_DATA_DIR="${il2ge_data_dir}")
 add_definitions(-DIL2GE_LIB_DIR="${il2ge_lib_dir}")
 add_definitions(-DIL2GE_CACHE_DIR="${il2ge_cache_dir}")
