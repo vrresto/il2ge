@@ -90,10 +90,17 @@ public:
 #endif
 
 
-void *getProcAddress_ext(const char *name);
-
-
 GlobalData g_data;
+
+
+void *getProcAddress_ext(const char *name)
+{
+  void *func = (void*) GetProcAddress(g_data.m_gl_module, name);
+  if (!func)
+    func = (void*) real_wglGetProcAddress(name);
+
+  return func;
+}
 
 
 ContextData *getContextData(HGLRC handle)
@@ -134,16 +141,6 @@ BOOL WINAPI wrap_wglMakeContextCurrentARB(HDC hDrawDC, HDC hReadDC, HGLRC hglrc)
 {
   printf("wglMakeContextCurrentARB\n");
   _Exit(0);
-}
-
-
-void *getProcAddress_ext(const char *name)
-{
-  void *func = (void*) GetProcAddress(g_data.m_gl_module, name);
-  if (!func)
-    func = (void*) real_wglGetProcAddress(name);
-
-  return func;
 }
 
 
