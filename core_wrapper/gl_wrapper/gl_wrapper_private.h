@@ -39,6 +39,7 @@ namespace core_gl_wrapper
     };
 
     void init();
+    void update();
     bool isObjectProgramActive();
   }
 

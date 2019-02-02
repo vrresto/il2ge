@@ -271,6 +271,9 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
     return gl::Begin(mode);
   }
 
+
+  arb_program::update();
+
   {
     Il2RenderState state;
     getRenderState(&state);
@@ -342,6 +345,12 @@ void GLAPIENTRY wrap_glDrawElements(
   assert(wgl_wrapper::isMainThread());
   assert(wgl_wrapper::isMainContextCurrent());
 
+
+  arb_program::update();
+  gl::DrawElements(mode, count, type, indices);
+  return;
+
+
   gl::GetError();
 //   	return;
 
@@ -406,6 +415,8 @@ void GLAPIENTRY wrap_glDrawArrays(GLenum mode,
     GLint first,
     GLsizei count)
 {
+  arb_program::update();
+  gl::DrawArrays(mode, first, count);
 }
 
 
@@ -423,6 +434,8 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
     gl::DrawRangeElements(mode, start, end, count, type, indices);
     return;
   }
+
+  arb_program::update();
 
   Il2RenderState state;
   getRenderState(&state);

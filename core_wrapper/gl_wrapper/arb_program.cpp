@@ -484,8 +484,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
     is_vertex_program_enabled = enable;
 
     program_needs_update = true;
-
-    update();
   }
 
   void enableFragmentProgram(int enable)
@@ -498,8 +496,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
     is_fragment_program_enabled = enable;
 
     program_needs_update = true;
-
-    update();
   }
 
   void createProgram(GLint id, GLenum target)
@@ -597,8 +593,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
     programs.erase(id);
 
     program_needs_update = true;
-
-    update();
   }
 
   void bindProgram(GLenum target, GLuint id)
@@ -633,8 +627,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
     }
 
     program_needs_update = true;
-
-    update();
   }
 
   void updateLocalParameters(ProgramBase *program)
@@ -835,8 +827,6 @@ wrap_ProgramLocalParameter4fARB(GLenum target, GLuint index,
   glm::vec4 value(x,y,z,w);
 
   p->params.set(index, value);
-
-  getContext().update();
 }
 
 
@@ -997,6 +987,11 @@ void GLAPIENTRY wrap_Disable(GLenum cap)
 
 namespace core_gl_wrapper::arb_program
 {
+  void update()
+  {
+    ::getContext().update();
+  }
+
 
   bool isObjectProgramActive()
   {
