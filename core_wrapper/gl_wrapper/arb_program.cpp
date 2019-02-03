@@ -386,6 +386,14 @@ struct ProgramBase
       {
         default_glsl_program = createGLSLProgram(name, "fpTexUVTex2D");
       }
+      else if (name == "vp4Tex2D")
+      {
+        default_glsl_program = createGLSLProgram(name, "fp4Tex2D");
+      }
+      else if (name == "vpFogFar2Tex2D")
+      {
+        default_glsl_program = createGLSLProgram(name, "fpFogFar2Tex2D");
+      }
       else
       {
         cout<<"no default program for "<<name<<endl;
