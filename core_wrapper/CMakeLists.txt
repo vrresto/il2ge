@@ -9,7 +9,12 @@ if(enable_debug)
 endif()
 set(file_description "IL-2 Graphics Extender - ${file_version}")
 
+if(NOT enable_shortcuts)
+  set(enable_shortcuts 0)
+endif()
+
 configure_file(resources.rc.in ${resource_script})
+configure_file(include/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/config.h)
 
 set_source_files_properties(
   il2ge.def
@@ -50,6 +55,7 @@ include_directories(
   include
   include/jni
   jni
+  ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
 add_definitions(-DIL2GE_USE_CUSTOM_ASSERT)

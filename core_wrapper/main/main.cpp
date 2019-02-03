@@ -25,10 +25,10 @@
 #include <il2ge/exception_handler.h>
 #include <il2ge/version.h>
 #include <util.h>
+#include <jni.h>
+#include <config.h>
 
 #include <INIReader.h>
-
-#include <jni.h>
 
 #include <iostream>
 #include <windows.h>
@@ -51,7 +51,6 @@ extern "C"
 {
   BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
 }
-
 
 Logger g_log;
 
@@ -96,6 +95,63 @@ void initLog()
   res = _dup2(out_fd, 2);
   assert(res != -1);
 }
+
+
+#if ENABLE_SHORTCUTS
+BOOL WINAPI wrap_PeekMessageA(
+  LPMSG lpMsg,
+  HWND  hWnd,
+  UINT  wMsgFilterMin,
+  UINT  wMsgFilterMax,
+  UINT  wRemoveMsg)
+{
+  auto ret = PeekMessageA(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
+  if (ret)
+  {
+    if (lpMsg->message == WM_KEYDOWN)
+    {
+      cout<<"wrap_PeekMessageA\n";
+      cout<<"WM_KEYDOWN arrived\n";
+      exit(0);
+    }
+  }
+
+  return ret;
+}
+
+
+BOOL WINAPI wrap_PeekMessageW(
+  LPMSG lpMsg,
+  HWND  hWnd,
+  UINT  wMsgFilterMin,
+  UINT  wMsgFilterMax,
+  UINT  wRemoveMsg)
+{
+  auto ret = PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_NOREMOVE);
+
+  if (ret)
+  {
+    if (lpMsg->message == WM_KEYDOWN)
+    {
+      switch(lpMsg->wParam)
+      {
+        case 'E':
+          PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_REMOVE);
+          core_gl_wrapper::toggleEnable();
+          return false;
+        case 'O':
+          PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_REMOVE);
+          core_gl_wrapper::toggleObjectShaders();
+          return false;
+      }
+    }
+
+    return PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
+  }
+
+  return ret;
+}
+#endif
 
 
 HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
@@ -146,6 +202,16 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
   {
     return (FARPROC) sfs::get_openf_wrapper();
   }
+#if ENABLE_SHORTCUTS
+  else if (_stricmp(lpProcName, "PeekMessageA") == 0)
+  {
+    return (FARPROC) &wrap_PeekMessageA;
+  }
+  else if (_stricmp(lpProcName, "PeekMessageW") == 0)
+  {
+    return (FARPROC) &wrap_PeekMessageW;
+  }
+#endif
 
   return GetProcAddress(hModule, lpProcName);
 }
@@ -299,6 +365,13 @@ void WINAPI il2ge_init()
 
   installIATPatches(GetModuleHandle(0));
   installIATPatches(jvm_module);
+
+#if ENABLE_SHORTCUTS
+  patchIAT("PeekMessageA", "user32.dll",
+           (void*) &wrap_PeekMessageA, NULL, GetModuleHandle(0));
+  patchIAT("PeekMessageW", "user32.dll",
+           (void*) &wrap_PeekMessageW, NULL, GetModuleHandle(0));
+#endif
 }
 
 

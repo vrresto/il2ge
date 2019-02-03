@@ -21,6 +21,7 @@
 #include "misc.h"
 #include "core.h"
 #include <wgl_wrapper.h>
+#include <config.h>
 
 #include <render_util/render_util.h>
 #include <render_util/shader_util.h>
@@ -102,7 +103,16 @@ const std::string SHADER_PATH = IL2GE_DATA_DIR "/shaders";
 
 shared_ptr<Globals> g_globals;
 unordered_map<string, void*> g_procs;
-//   unordered_set<string> g_forest_shader_names;
+
+#if ENABLE_SHORTCUTS
+bool g_enable = true;
+bool g_enable_object_shaders = true;
+bool isEnabled() { return g_enable; }
+bool isObjectShadersEnabled() { return g_enable && g_enable_object_shaders; }
+#else
+constexpr bool isEnabled() { return true; }
+constexpr bool isObjectShadersEnabled() { return true; }
+#endif
 
 
 render_util::ShaderProgramPtr getRedProgram()
@@ -272,7 +282,7 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 {
   assert(wgl_wrapper::isMainThread());
 
-  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive())
+  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive() || !isEnabled())
   {
     return gl::Begin(mode);
   }
@@ -327,7 +337,7 @@ void GLAPIENTRY wrap_glEnd()
 
   gl::End();
 
-  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive())
+  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive() || !isEnabled())
   {
     return;
   }
@@ -466,6 +476,7 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   getRenderState(&state);
 
   if (core::isFMBActive()
+      || !isEnabled()
       || state.camera_mode == IL2_CAMERA_MODE_2D
       || state.render_phase < IL2_Landscape0
       || state.render_phase >= IL2_PostLandscape
@@ -530,7 +541,8 @@ void updateShaderState()
   {
     new_active_shader = ctx->current_shader;
   }
-  else if (is_arb_program_active && !core::isFMBActive() && (state.render_phase != IL2_Cockpit))
+  else if (isObjectShadersEnabled() && is_arb_program_active && !core::isFMBActive() &&
+      (state.render_phase != IL2_Cockpit))
   {
     new_active_shader = ctx->current_arb_program;
   }
@@ -805,6 +817,20 @@ void onRenderPhaseChanged(const core::Il2RenderState &state)
 {
   getContext()->onRenderPhaseChanged(state);
 }
+
+
+#if ENABLE_SHORTCUTS
+void toggleEnable()
+{
+  g_enable = !g_enable;
+}
+
+
+void toggleObjectShaders()
+{
+  g_enable_object_shaders = !g_enable_object_shaders;
+}
+#endif
 
 
 } // namespace core_gl_wrapper
