@@ -483,11 +483,6 @@ void updateShaderState()
 
   bool is_arb_program_active = ctx->is_arb_program_active;
 
-//     if (is_arb_program_active && render_state.render_phase == IL2_Landscape0_PreTerrain)
-//     {
-//       setRenderPhase(IL2_Landscape0_TerrainFar);
-//     }
-
   Il2RenderState state;
   getRenderState(&state);
 
@@ -501,14 +496,6 @@ void updateShaderState()
   {
     new_active_shader = ctx->current_arb_program;
   }
-//     if (is_arb_program_active)
-//     {
-//       new_active_shader = ctx->current_arb_program;
-//     }
-//     else
-//     {
-//       new_active_shader = ctx->current_shader;
-//     }
 
   if (new_active_shader)
   {
