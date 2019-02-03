@@ -36,9 +36,11 @@ namespace
 
 typedef PROC WINAPI wglGetProcAddress_t(LPCSTR);
 typedef BOOL WINAPI wglMakeCurrent_t(HDC, HGLRC);
+typedef HGLRC WINAPI wglCreateContext_t(HDC);
 typedef BOOL WINAPI wglDeleteContext_t(HGLRC);
 
 wglMakeCurrent_t *real_wglMakeCurrent = nullptr;
+wglCreateContext_t *real_wglCreateContext = nullptr;
 wglDeleteContext_t *real_wglDeleteContext = nullptr;
 wglGetProcAddress_t *real_wglGetProcAddress = nullptr;
 
@@ -91,12 +93,46 @@ public:
 GlobalData g_data;
 
 
-void setCurrentContext(ContextData *c)
+void *getProcAddress_ext(const char *name)
 {
-  gl_wrapper::GL_Interface *iface = c ? c->getGLInterface() : nullptr;
-  g_data.m_current_context_for_thread[GetCurrentThreadId()] = c;
-  if (!g_data.m_main_context)
-    g_data.m_main_context = c;
+  void *func = (void*) GetProcAddress(g_data.m_gl_module, name);
+  if (!func)
+    func = (void*) real_wglGetProcAddress(name);
+
+  return func;
+}
+
+
+ContextData *getContextData(HGLRC handle)
+{
+  auto d = g_data.m_data_for_context[handle];
+
+  if (!d)
+  {
+    d = new ContextData;
+    g_data.m_data_for_context[handle] = d;
+  }
+
+  return d;
+}
+
+
+void currentContextChanged(ContextData *new_current)
+{
+  gl_wrapper::GL_Interface *iface = nullptr;
+
+  if (new_current)
+  {
+    if (!new_current->getGLInterface())
+    {
+      auto iface = std::make_shared<gl_wrapper::GL_Interface>(&getProcAddress_ext);
+      new_current->setGLInterface(iface);
+    }
+
+    iface = new_current->getGLInterface();
+  }
+
+  g_data.m_current_context_for_thread[GetCurrentThreadId()] = new_current;
   gl_wrapper::GL_Interface::setCurrent(iface);
 }
 
@@ -105,16 +141,6 @@ BOOL WINAPI wrap_wglMakeContextCurrentARB(HDC hDrawDC, HDC hReadDC, HGLRC hglrc)
 {
   printf("wglMakeContextCurrentARB\n");
   _Exit(0);
-}
-
-
-void *getProcAddress_ext(const char *name)
-{
-  void *func = (void*) GetProcAddress(g_data.m_gl_module, name);
-  if (!func)
-    func = (void*) real_wglGetProcAddress(name);
-
-  return func;
 }
 
 
@@ -169,7 +195,7 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
 
     current_context->freeResources();
 
-    setCurrentContext(nullptr);
+    currentContextChanged(nullptr);
 
     bool res = real_wglMakeCurrent(hdc, hglrc);
     assert(res);
@@ -179,22 +205,29 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
 
   if (real_wglMakeCurrent(hdc, hglrc))
   {
-    auto d = g_data.m_data_for_context[hglrc];
+    auto d = getContextData(hglrc);
 
-    if (!d)
-    {
-      auto iface = std::make_shared<gl_wrapper::GL_Interface>(&getProcAddress_ext);
-      d = new ContextData(iface);
-
-      g_data.m_data_for_context[hglrc] = d;
-    }
-
-    setCurrentContext(d);
+    currentContextChanged(d);
 
     return true;
   }
   else
     return false;
+}
+
+
+HGLRC WINAPI wrap_wglCreateContext(HDC dc)
+{
+  Lock lock(g_data.m_mutex);
+
+  auto handle = real_wglCreateContext(dc);
+
+  if (!g_data.m_main_context)
+  {
+    g_data.m_main_context = getContextData(handle);
+  }
+
+  return handle;
 }
 
 
@@ -220,7 +253,7 @@ BOOL WINAPI wrap_wglDeleteContext(HGLRC hglrc)
 
     if (c == current_context)
     {
-      setCurrentContext(nullptr);
+      currentContextChanged(nullptr);
     }
   }
 
@@ -257,6 +290,8 @@ void init()
     GetProcAddress(g_data.m_gl_module, "wglGetProcAddress");
   real_wglMakeCurrent = (wglMakeCurrent_t*)
     GetProcAddress(g_data.m_gl_module, "wglMakeCurrent");
+  real_wglCreateContext = (wglCreateContext_t*)
+    GetProcAddress(g_data.m_gl_module, "wglCreateContext");
   real_wglDeleteContext = (wglDeleteContext_t*)
     GetProcAddress(g_data.m_gl_module, "wglDeleteContext");
 }
@@ -317,6 +352,11 @@ void *getProcAddress(HMODULE module, LPCSTR name)
     return (void*) &wrap_wglMakeCurrent;
   }
 
+  if (strcmp(name, "wglCreateContext") == 0)
+  {
+    return (void*) &wrap_wglCreateContext;
+  }
+
   if (strcmp(name, "wglDeleteContext") == 0)
   {
     return (void*) &wrap_wglDeleteContext;
@@ -354,12 +394,6 @@ ContextData *getContext()
 core::Scene *getScene()
 {
   return getContext()->getScene();
-}
-
-
-ContextData::ContextData(std::shared_ptr<gl_wrapper::GL_Interface> iface) :
-  m_iface(iface)
-{
 }
 
 

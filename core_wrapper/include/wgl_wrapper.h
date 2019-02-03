@@ -30,9 +30,14 @@ namespace wgl_wrapper
 {
   struct ContextData
   {
-    ContextData(std::shared_ptr<gl_wrapper::GL_Interface> iface);
+    void setGLInterface(std::shared_ptr<gl_wrapper::GL_Interface> iface)
+    {
+      assert(!m_iface);
+      m_iface = iface;
+    }
 
     gl_wrapper::GL_Interface *getGLInterface() { return m_iface.get(); }
+
     core::Scene *getScene();
     core_gl_wrapper::Context *getGLWrapperContext();
 
