@@ -264,7 +264,12 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
     if (!image)
       continue;
 
+    assert(scale != 0);
+    if (scale < 0)
+      scale = 1 / abs(scale);
     cout<<"scale: "<<scale<<endl;
+
+    assert(scale <= render_util::MapTextures::MAX_TERRAIN_TEXTURE_SCALE);
 
     texture_scale.push_back(scale);
     textures.push_back(image);
