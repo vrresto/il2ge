@@ -104,6 +104,7 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader,
 
   //FIXME
   program->setUniformi("sampler_atmosphere_thickness_map", core::textureManager().getHighestUnit() + 1);
+  program->setUniformi("sampler_terrain_normal_map", 25);
 
   auto vertex_uniform_block_index =
     gl::GetUniformBlockIndex(program->getId(), "local_vertex_parameters");

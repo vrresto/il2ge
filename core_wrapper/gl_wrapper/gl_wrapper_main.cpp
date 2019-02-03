@@ -63,6 +63,12 @@ void drawTerrain();
 void updateUniforms(render_util::ShaderProgramPtr program, const render_util::Camera &camera);
 
 
+render_util::TerrainBase *getTerrain()
+{
+  return core::getTerrainRenderer().getTerrain().get();
+}
+
+
 class Globals : public render_util::Globals
 {
 public:
@@ -284,6 +290,25 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
     {
       drawTerrain();
       getContext()->onTerrainDrawn();
+
+
+      GLenum active_unit_save;
+      gl::GetIntegerv(GL_ACTIVE_TEXTURE, reinterpret_cast<GLint*>(&active_unit_save));
+      FORCE_CHECK_GL_ERROR();
+
+      gl::ActiveTexture(GL_TEXTURE0 + 25); //FIXME
+      FORCE_CHECK_GL_ERROR();
+
+      auto terrain = getTerrain();
+      if (terrain)
+      {
+        auto texture = terrain->getNormalMapTexture();
+        if (texture)
+          gl::BindTexture(texture->getTarget(), texture->getID());
+      }
+
+      gl::ActiveTexture(active_unit_save);
+
     }
 
     if (state.render_phase == IL2_Landscape0)
