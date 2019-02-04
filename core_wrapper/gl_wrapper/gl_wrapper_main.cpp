@@ -378,10 +378,10 @@ void GLAPIENTRY wrap_glDrawElements(
     const GLvoid * indices)
 {
   assert(wgl_wrapper::isMainThread());
-  assert(wgl_wrapper::isMainContextCurrent());
 
+  if (wgl_wrapper::isMainContextCurrent())
+    arb_program::update();
 
-  arb_program::update();
   gl::DrawElements(mode, count, type, indices);
   return;
 
@@ -450,7 +450,8 @@ void GLAPIENTRY wrap_glDrawArrays(GLenum mode,
     GLint first,
     GLsizei count)
 {
-  arb_program::update();
+  if (wgl_wrapper::isMainContextCurrent())
+    arb_program::update();
   gl::DrawArrays(mode, first, count);
 }
 

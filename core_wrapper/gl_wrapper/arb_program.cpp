@@ -830,6 +830,9 @@ wrap_ProgramLocalParameter4fARB(GLenum target, GLuint index,
 {
   gl::ProgramLocalParameter4fARB(target, index, x, y, z, w);
 
+  if (!wgl_wrapper::isMainContextCurrent())
+    return;
+
   ProgramBase *p = getActiveProgram(target);
   assert(p);
 
