@@ -49,6 +49,7 @@ namespace core_gl_wrapper
   void onRenderPhaseChanged(const core::Il2RenderState &state);
 
   void toggleEnable();
+  void toggleTerrain();
   void toggleObjectShaders();
 }
 

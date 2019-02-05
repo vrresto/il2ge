@@ -143,6 +143,10 @@ BOOL WINAPI wrap_PeekMessageW(
           PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_REMOVE);
           core_gl_wrapper::toggleObjectShaders();
           return false;
+        case 'T':
+          PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_REMOVE);
+          core_gl_wrapper::toggleTerrain();
+          return false;
       }
     }
 

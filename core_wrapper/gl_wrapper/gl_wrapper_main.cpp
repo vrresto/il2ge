@@ -107,11 +107,14 @@ unordered_map<string, void*> g_procs;
 #if ENABLE_SHORTCUTS
 bool g_enable = true;
 bool g_enable_object_shaders = true;
+bool g_enable_terrain = true;
 bool isEnabled() { return g_enable; }
 bool isObjectShadersEnabled() { return g_enable && g_enable_object_shaders; }
+bool isTerrainEnabled() { return g_enable && g_enable_terrain; }
 #else
 constexpr bool isEnabled() { return true; }
 constexpr bool isObjectShadersEnabled() { return true; }
+constexpr bool isTerrainEnabled() { return true; }
 #endif
 
 
@@ -294,7 +297,8 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
     Il2RenderState state;
     getRenderState(&state);
 
-    if (state.render_phase == IL2_Landscape0 &&
+    if (isTerrainEnabled() &&
+        state.render_phase == IL2_Landscape0 &&
         !getContext()->wasTerrainDrawn() &&
         !getContext()->isRenderingCubeMap())
     {
@@ -477,7 +481,7 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   getRenderState(&state);
 
   if (core::isFMBActive()
-      || !isEnabled()
+      || !isTerrainEnabled()
       || state.camera_mode == IL2_CAMERA_MODE_2D
       || state.render_phase < IL2_Landscape0
       || state.render_phase >= IL2_PostLandscape
@@ -826,10 +830,14 @@ void toggleEnable()
   g_enable = !g_enable;
 }
 
-
 void toggleObjectShaders()
 {
   g_enable_object_shaders = !g_enable_object_shaders;
+}
+
+void toggleTerrain()
+{
+  g_enable_terrain = !g_enable_terrain;
 }
 #endif
 
