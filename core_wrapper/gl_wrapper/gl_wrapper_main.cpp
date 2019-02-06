@@ -419,7 +419,12 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
       const GLvoid * indices)
 {
   assert(wgl_wrapper::isMainThread());
-  assert(wgl_wrapper::isMainContextCurrent());
+
+  if (!wgl_wrapper::isMainContextCurrent())
+  {
+    gl::DrawRangeElements(mode, start, end, count, type, indices);
+    return;
+  }
 
   Il2RenderState state;
   getRenderState(&state);

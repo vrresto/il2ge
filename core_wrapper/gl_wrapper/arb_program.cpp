@@ -496,7 +496,10 @@ wrap_IsProgramARB(GLuint id)
 void GLAPIENTRY
 wrap_BindProgramARB(GLenum target, GLuint id)
 {
-  getContext().bindProgram(target, id);
+  if (wgl_wrapper::isMainContextCurrent())
+    getContext().bindProgram(target, id);
+  else
+    gl::BindProgramARB(target, id);
 }
 
 void GLAPIENTRY
