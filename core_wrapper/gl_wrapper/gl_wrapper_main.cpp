@@ -313,10 +313,8 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 
       GLenum active_unit_save;
       gl::GetIntegerv(GL_ACTIVE_TEXTURE, reinterpret_cast<GLint*>(&active_unit_save));
-      FORCE_CHECK_GL_ERROR();
 
       gl::ActiveTexture(GL_TEXTURE0 + 25); //FIXME
-      FORCE_CHECK_GL_ERROR();
 
       auto terrain = getTerrain();
       if (terrain)

@@ -799,12 +799,7 @@ wrap_IsProgramARB(GLuint id)
 void GLAPIENTRY
 wrap_BindProgramARB(GLenum target, GLuint id)
 {
-  assert(wgl_wrapper::isMainContextCurrent());
-
-  if (wgl_wrapper::isMainContextCurrent())
-    getContext().bindProgram(target, id);
-  else
-    gl::BindProgramARB(target, id);
+  getContext().bindProgram(target, id);
 }
 
 void GLAPIENTRY
@@ -848,9 +843,6 @@ wrap_ProgramLocalParameter4fARB(GLenum target, GLuint index,
                                  GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
   gl::ProgramLocalParameter4fARB(target, index, x, y, z, w);
-
-  if (!wgl_wrapper::isMainContextCurrent())
-    return;
 
   ProgramBase *p = getActiveProgram(target);
   assert(p);
