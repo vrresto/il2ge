@@ -19,13 +19,12 @@
 #include <misc.h>
 #include <core.h>
 #include <gl_wrapper.h>
+#include <render_util/render_util.h>
 
 #include <string>
 
 namespace core_gl_wrapper
 {
-  Context::Impl *getContext();
-
   namespace arb_program
   {
     struct Context
@@ -34,13 +33,14 @@ namespace core_gl_wrapper
 
       std::unique_ptr<Impl> impl;
 
-      Context();
+      void update();
+      bool isObjectProgramActive();
+
+      Context(core_gl_wrapper::Context::Impl&);
       ~Context();
     };
 
     void init();
-    void update();
-    bool isObjectProgramActive();
   }
 
   namespace texture_state
@@ -81,11 +81,18 @@ namespace core_gl_wrapper
 
     std::shared_ptr<render_util::GLContext> render_util_gl_context;
 
-    texture_state::TextureState *getTextureState();
-    arb_program::Context *getARBProgramContext();
 
     Impl();
     ~Impl();
+
+    texture_state::TextureState *getTextureState();
+
+    arb_program::Context *getARBProgramContext()
+    {
+      if (!m_arb_program_context)
+        m_arb_program_context = std::make_unique<arb_program::Context>(*this);
+      return m_arb_program_context.get();
+    }
 
     void onRenderPhaseChanged(const core::Il2RenderState &state)
     {
@@ -112,6 +119,45 @@ namespace core_gl_wrapper
 
     unsigned long long getFrameNumber() { return m_frame_nr; }
 
+    void updateUniforms(render_util::ShaderProgramPtr program,
+                        const render_util::Camera &camera,
+                        bool is_far_camera)
+    {
+      if (program->frame_nr != getFrameNumber() || program->is_far_camera != is_far_camera)
+      {
+        core::updateUniforms(program);
+        render_util::updateUniforms(program, camera);
+
+        program->frame_nr = getFrameNumber();
+        program->is_far_camera = is_far_camera;
+      }
+    }
+
+    void updateUniforms(render_util::ShaderProgramPtr program)
+    {
+      updateUniforms(program, *core::getCamera(), false);
+    }
+
+    void setActiveShader(render_util::ShaderProgramPtr shader)
+    {
+      current_shader = shader;
+      updateShaderState();
+    }
+
+    void setActiveARBProgram(render_util::ShaderProgramPtr prog)
+    {
+      current_arb_program = prog;
+      updateShaderState();
+    }
+
+    void setIsARBProgramActive(bool active)
+    {
+      is_arb_program_active = active;
+      updateShaderState();
+    }
+
+    void updateShaderState();
+
   private:
     std::unique_ptr<texture_state::TextureState> m_texture_state;
     std::unique_ptr<arb_program::Context> m_arb_program_context;
@@ -121,15 +167,6 @@ namespace core_gl_wrapper
     unsigned long long m_frame_nr = 0;
   };
 
-
-  void updateUniforms(render_util::ShaderProgramPtr program);
-
+  Context::Impl *getContext();
   void setProc(const char *name, void *func);
-
-  render_util::ShaderProgramPtr activeShader();
-  void setActiveShader(render_util::ShaderProgramPtr);
-  render_util::ShaderProgramPtr activeARBProgram();
-  void setActiveARBProgram(render_util::ShaderProgramPtr);
-  void setIsARBProgramActive(bool active);
-  bool isARBProgramActive();
 }

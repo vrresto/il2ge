@@ -483,6 +483,8 @@ const char * getShaderName(const void *source, size_t len)
 
 struct core_gl_wrapper::arb_program::Context::Impl
 {
+  core_gl_wrapper::Context::Impl &main_context;
+
   ProgramBase *active_vertex_program = 0;
   FragmentProgram *active_fragment_program = 0;
   bool is_vertex_program_enabled = false;
@@ -491,7 +493,7 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   std::vector<std::unique_ptr<ProgramBase>> programs;
 
-  Impl()
+  Impl(core_gl_wrapper::Context::Impl &main_context) : main_context(main_context)
   {
     programs.resize(500);
     programs[0] = std::make_unique<ProgramBase>(this);
@@ -725,17 +727,17 @@ struct core_gl_wrapper::arb_program::Context::Impl
       }
     }
 
-    core_gl_wrapper::setIsARBProgramActive(is_arb_program_active);
+    main_context.setIsARBProgramActive(is_arb_program_active);
 
     if (glsl_program && glsl_program->isValid())
     {
-      core_gl_wrapper::setActiveARBProgram(glsl_program);
-      core_gl_wrapper::updateUniforms(glsl_program);
+      main_context.setActiveARBProgram(glsl_program);
+      main_context.updateUniforms(glsl_program);
       glsl_program->assertUniformsAreSet();
     }
     else
     {
-      core_gl_wrapper::setActiveARBProgram(nullptr);
+      main_context.setActiveARBProgram(nullptr);
     }
 
     bindUniformBuffers();
@@ -745,12 +747,18 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   void update()
   {
+    if (!g_initialized)
+      return;
+
     updateProgram();
     updateLocalParameters();
   }
 
   bool isObjectProgramActive()
   {
+    if (!g_initialized)
+      return false;
+
     if (is_fragment_program_enabled && active_fragment_program)
         return active_fragment_program->is_object_program ;
     else
@@ -758,14 +766,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
   }
 
 };
-
-
-core_gl_wrapper::arb_program::Context::Context() :
-  impl(std::make_unique<core_gl_wrapper::arb_program::Context::Impl>())
-{
-}
-
-core_gl_wrapper::arb_program::Context::~Context() {}
 
 
 namespace
@@ -1031,17 +1031,27 @@ void GLAPIENTRY wrap_Disable(GLenum cap)
 
 namespace core_gl_wrapper::arb_program
 {
-  void update()
+
+  Context::Context(core_gl_wrapper::Context::Impl &main_context) :
+    impl(std::make_unique<core_gl_wrapper::arb_program::Context::Impl>(main_context))
   {
-    if (g_initialized)
-      ::getContext().update();
   }
 
 
-  bool isObjectProgramActive()
+  Context::~Context() {}
+
+
+  void Context::update()
   {
-    return g_initialized ? ::getContext().isObjectProgramActive() : false;
+    impl->update();
   }
+
+
+  bool Context::isObjectProgramActive()
+  {
+    return impl->isObjectProgramActive();
+  }
+
 
   #define SET_OVERRIDE(func) core_gl_wrapper::setProc("gl"#func, (void*) wrap_##func);
 
