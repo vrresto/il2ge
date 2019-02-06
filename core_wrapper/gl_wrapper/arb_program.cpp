@@ -55,6 +55,8 @@ using namespace render_util::gl_binding;
 namespace
 {
 
+bool g_initialized = false;
+
 using Context = core_gl_wrapper::arb_program::Context::Impl;
 
 Context &getContext();
@@ -408,24 +410,30 @@ struct ProgramBase
 
 struct FragmentProgram : public ProgramBase
 {
-  std::unordered_map<size_t, render_util::ShaderProgramPtr> glsl_program_for_vertex_shader;
+  std::vector<render_util::ShaderProgramPtr> glsl_program_for_vertex_shader;
+
   bool is_object_program = false;
 
   FragmentProgram(Context *ctx) : ProgramBase(ctx) {}
 
   render_util::ShaderProgramPtr getGLSLProgram(ProgramBase *vertex_program)
   {
-    auto it = glsl_program_for_vertex_shader.find(vertex_program->getNameID());
-    if (it != glsl_program_for_vertex_shader.end())
+    CHECK_GL_ERROR();
+
+    if (glsl_program_for_vertex_shader.size() <= vertex_program->getNameID())
     {
-      return it->second;
+      glsl_program_for_vertex_shader.resize(vertex_program->getNameID() + 100);
     }
-    else
+
+    auto program = glsl_program_for_vertex_shader.at(vertex_program->getNameID());
+
+    if (!program)
     {
-      auto program = createGLSLProgram(vertex_program->name, name);
-      glsl_program_for_vertex_shader[vertex_program->getNameID()] = program;
-      return program;
+      program = createGLSLProgram(vertex_program->name, name);
+      glsl_program_for_vertex_shader.at(vertex_program->getNameID()) = program;
     }
+
+    return program;
   }
 };
 
@@ -481,7 +489,28 @@ struct core_gl_wrapper::arb_program::Context::Impl
   bool is_fragment_program_enabled = false;
   bool program_needs_update = false;
 
-  std::unordered_map<GLuint, std::unique_ptr<ProgramBase>> programs;
+  std::vector<std::unique_ptr<ProgramBase>> programs;
+
+  Impl()
+  {
+    programs.resize(500);
+    programs[0] = std::make_unique<ProgramBase>(this);
+  }
+
+  void getFreeIDs(GLsizei n, GLuint *ids)
+  {
+    GLsizei num_found = 0;
+    for (size_t i = 0; i < programs.size() && num_found < n; i++)
+    {
+      if (!programs[i])
+      {
+        num_found++;
+        *ids = i;
+        ids++;
+      }
+    }
+    assert(num_found == n);
+  }
 
   void enableVertexProgram(int enable)
   {
@@ -513,6 +542,8 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
     printf("createProgram: %d, %d\n", id, target);
 
+    assert(!programs.at(id));
+
     std::unique_ptr<ProgramBase> p;
     if (target == GL_VERTEX_PROGRAM_ARB) {
       p = std::make_unique<ProgramBase>(this);
@@ -529,29 +560,24 @@ struct core_gl_wrapper::arb_program::Context::Impl
       abort();
     }
 
-    p->real_id = id;
     p->target = target;
 
-    programs.insert(std::make_pair(id, std::move(p)));
+    programs.at(id) = std::move(p);
   }
 
   ProgramBase *programForID(GLint id, GLenum target)
   {
     assert(&::getContext() == this);
 
-    ProgramBase *p = 0;
+    assert(id > 0);
+    assert(id < programs.size());
 
-    auto it = programs.find(id);
-    if (it != programs.end())
-    {
-      p = it->second.get();
-    }
+    ProgramBase *p = programs.at(id).get();
 
     if (!p)
     {
-      assert(target);
       createProgram(id, target);
-      p = programs[id].get();
+      p = programs.at(id).get();
     }
 
     assert(!target || p->target == target);
@@ -599,7 +625,9 @@ struct core_gl_wrapper::arb_program::Context::Impl
       abort();
     }
 
-    programs.erase(id);
+    gl::DeleteProgramsARB(1, &p->real_id);
+
+    programs.at(id).reset();
 
     program_needs_update = true;
   }
@@ -617,9 +645,12 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
     assert(p->target == target);
 
-    gl::BindProgramARB(target, p->real_id);
+    if (!p->real_id)
+      gl::GenProgramsARB(1, &p->real_id);
 
-    assert(target == GL_VERTEX_PROGRAM_ARB || target == GL_FRAGMENT_PROGRAM_ARB);
+    assert(p->real_id);
+
+    gl::BindProgramARB(target, p->real_id);
 
     if (target == GL_VERTEX_PROGRAM_ARB)
     {
@@ -759,7 +790,7 @@ ProgramBase *getActiveProgram(GLenum target)
 void GLAPIENTRY
 wrap_GenProgramsARB(GLsizei n, GLuint *ids)
 {
-  gl::GenProgramsARB(n, ids);
+  getContext().getFreeIDs(n, ids);
 }
 
 void GLAPIENTRY
@@ -769,7 +800,6 @@ wrap_DeleteProgramsARB(GLsizei n, const GLuint *ids)
   {
     getContext().deleteProgram(ids[i]);
   }
-  gl::DeleteProgramsARB(n, ids);
 }
 
 GLboolean GLAPIENTRY
@@ -782,6 +812,8 @@ wrap_IsProgramARB(GLuint id)
 void GLAPIENTRY
 wrap_BindProgramARB(GLenum target, GLuint id)
 {
+  assert(wgl_wrapper::isMainContextCurrent());
+
   if (wgl_wrapper::isMainContextCurrent())
     getContext().bindProgram(target, id);
   else
@@ -1001,13 +1033,14 @@ namespace core_gl_wrapper::arb_program
 {
   void update()
   {
-    ::getContext().update();
+    if (g_initialized)
+      ::getContext().update();
   }
 
 
   bool isObjectProgramActive()
   {
-    return ::getContext().isObjectProgramActive();
+    return g_initialized ? ::getContext().isObjectProgramActive() : false;
   }
 
   #define SET_OVERRIDE(func) core_gl_wrapper::setProc("gl"#func, (void*) wrap_##func);
@@ -1038,6 +1071,8 @@ namespace core_gl_wrapper::arb_program
     SET_OVERRIDE(GetProgramLocalParameterfvARB)
     SET_OVERRIDE(GetProgramivARB)
     SET_OVERRIDE(GetProgramStringARB)
+
+    g_initialized = true;
   }
 
 }

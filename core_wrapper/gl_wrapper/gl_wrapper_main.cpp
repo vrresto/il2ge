@@ -61,7 +61,9 @@ namespace
 
 
 void drawTerrain();
-void updateUniforms(render_util::ShaderProgramPtr program, const render_util::Camera &camera);
+void updateUniforms(render_util::ShaderProgramPtr program,
+                    const render_util::Camera &camera,
+                    bool is_far_camera);
 
 
 render_util::TerrainBase *getTerrain()
@@ -87,15 +89,19 @@ public:
 class TerrainClient : public render_util::TerrainBase::Client
 {
   const render_util::Camera &m_camera;
+  const bool m_is_far_camera = 0;
 
   void setActiveProgram(render_util::ShaderProgramPtr p) override
   {
     core_gl_wrapper::setActiveShader(p);
-    ::updateUniforms(p, m_camera);
+    ::updateUniforms(p, m_camera, m_is_far_camera);
   }
 
 public:
-  TerrainClient(const render_util::Camera &camera) : m_camera(camera) {}
+  TerrainClient(const render_util::Camera &camera, bool is_far_camera) :
+      m_camera(camera),
+      m_is_far_camera(is_far_camera)
+  {}
 };
 
 
@@ -569,20 +575,28 @@ void updateShaderState()
 }
 
 
-void updateUniforms(render_util::ShaderProgramPtr program, const render_util::Camera &camera)
+void updateUniforms(render_util::ShaderProgramPtr program,
+                    const render_util::Camera &camera,
+                    bool is_far_camera)
 {
-  core::updateUniforms(program);
-  render_util::updateUniforms(program, camera);
+  if (program->frame_nr != getContext()->getFrameNumber() || program->is_far_camera != is_far_camera)
+  {
+    core::updateUniforms(program);
+    render_util::updateUniforms(program, camera);
+
+    program->frame_nr = getContext()->getFrameNumber();
+    program->is_far_camera = is_far_camera;
+  }
 }
 
 
 void doDrawTerrain(render_util::TerrainRenderer &renderer,
                    const render_util::Camera &camera,
-                   bool low_detail)
+                   bool is_far_camera)
 {
-  TerrainClient client(camera);
+  TerrainClient client(camera, is_far_camera);
 
-  renderer.getTerrain()->update(camera, low_detail);
+  renderer.getTerrain()->update(camera, is_far_camera);
   renderer.getTerrain()->draw(&client);
 }
 
@@ -698,7 +712,7 @@ namespace core_gl_wrapper
 
 void updateUniforms(render_util::ShaderProgramPtr program)
 {
-  ::updateUniforms(program, *core::getCamera());
+  ::updateUniforms(program, *core::getCamera(), false);
 }
 
 

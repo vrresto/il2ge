@@ -89,7 +89,9 @@ namespace core_gl_wrapper
 
     void onRenderPhaseChanged(const core::Il2RenderState &state)
     {
-        m_was_terrain_drawn = false;
+      if (state.render_phase == core::IL2_PrePreRenders)
+        m_frame_nr++;
+      m_was_terrain_drawn = false;
     }
 
     bool isRenderingCubeMap()
@@ -108,12 +110,15 @@ namespace core_gl_wrapper
       m_viewport_h = h;
     }
 
+    unsigned long long getFrameNumber() { return m_frame_nr; }
+
   private:
     std::unique_ptr<texture_state::TextureState> m_texture_state;
     std::unique_ptr<arb_program::Context> m_arb_program_context;
     bool m_was_terrain_drawn = false;
     int m_viewport_w = 0;
     int m_viewport_h = 0;
+    unsigned long long m_frame_nr = 0;
   };
 
 
