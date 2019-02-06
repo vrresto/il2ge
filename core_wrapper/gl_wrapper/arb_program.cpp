@@ -516,8 +516,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   void enableVertexProgram(int enable)
   {
-    assert(&::getContext() == this);
-
     if (is_vertex_program_enabled == enable)
       return;
 
@@ -528,8 +526,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   void enableFragmentProgram(int enable)
   {
-    assert(&::getContext() == this);
-
     if (is_fragment_program_enabled == enable)
       return;
 
@@ -540,8 +536,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   void createProgram(GLint id, GLenum target)
   {
-    assert(&::getContext() == this);
-
     printf("createProgram: %d, %d\n", id, target);
 
     assert(!programs.at(id));
@@ -569,8 +563,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   ProgramBase *programForID(GLint id, GLenum target)
   {
-    assert(&::getContext() == this);
-
     assert(id > 0);
     assert(id < programs.size());
 
@@ -589,8 +581,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   ProgramBase *getActiveProgram(GLenum target)
   {
-    assert(&::getContext() == this);
-
     ProgramBase *p = 0;
 
     if (target == GL_VERTEX_PROGRAM_ARB)
@@ -609,8 +599,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   void deleteProgram(GLuint id)
   {
-    assert(&::getContext() == this);
-
     ProgramBase *p = programForID(id, 0);
     assert(p);
 
@@ -636,8 +624,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   void bindProgram(GLenum target, GLuint id)
   {
-    assert(&::getContext() == this);
-
     ProgramBase *p = programForID(id, target);
     if (!p)
     {
@@ -698,8 +684,6 @@ struct core_gl_wrapper::arb_program::Context::Impl
   {
     if (!program_needs_update)
       return;
-
-    assert(&::getContext() == this);
 
     bool is_arb_program_active = false;
 
