@@ -762,8 +762,6 @@ texture_state::TextureState *Context::Impl::getTextureState()
 
 void Context::Impl::updateShaderState()
 {
-  bool is_arb_program_active = is_arb_program_active;
-
   Il2RenderState state;
   getRenderState(&state);
 
