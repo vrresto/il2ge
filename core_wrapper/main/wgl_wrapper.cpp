@@ -48,46 +48,11 @@ wglGetProcAddress_t *real_wglGetProcAddress = nullptr;
 struct GlobalData
 {
   std::unordered_map<HGLRC, ContextData*> m_data_for_context;
-  std::unordered_map<DWORD, ContextData*> m_current_context_for_thread;
+  ContextData *m_current_context;
   ContextData *m_main_context = nullptr;
-  DWORD m_main_thread = 0;
   bool m_in_shutdown = false;
-  HANDLE m_mutex = 0;
   HMODULE m_gl_module = 0;
 };
-
-
-#if 0
-class Lock
-{
-  HANDLE m_mutex;
-
-public:
-  Lock(HANDLE mutex) : m_mutex(mutex)
-  {
-    SetLastError(ERROR_SUCCESS);
-    auto wait_res = WAIT_FAILED;
-
-    while (wait_res != WAIT_OBJECT_0)
-    {
-      wait_res = WaitForSingleObject(m_mutex, INFINITE);
-      if (wait_res != WAIT_OBJECT_0)
-        printf("WaitForSingleObject() failed - wait_res: 0x%x - error: 0x%x\n", wait_res, GetLastError());
-    }
-  }
-  ~Lock()
-  {
-    auto release_res = ReleaseMutex(m_mutex);
-    assert(release_res);
-  }
-};
-#else
-class Lock
-{
-public:
-  Lock(HANDLE mutex) {}
-};
-#endif
 
 
 GlobalData g_data;
@@ -132,7 +97,7 @@ void currentContextChanged(ContextData *new_current)
     iface = new_current->getGLInterface();
   }
 
-  g_data.m_current_context_for_thread[GetCurrentThreadId()] = new_current;
+  g_data.m_current_context = new_current;
   render_util::gl_binding::GL_Interface::setCurrent(iface);
 }
 
@@ -150,8 +115,6 @@ PROC WINAPI wrap_wglGetProcAddress(LPCSTR name)
 
   if (isMainContextCurrent())
   {
-    Lock lock(g_data.m_mutex);
-
     if (strcmp(name, "wglMakeContextCurrentARB") == 0)
     {
       return (PROC) &wrap_wglMakeContextCurrentARB;
@@ -174,11 +137,7 @@ PROC WINAPI wrap_wglGetProcAddress(LPCSTR name)
 
 BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
 {
-  Lock lock(g_data.m_mutex);
-
   assert(!g_data.m_in_shutdown);
-  assert(GetCurrentThreadId() == g_data.m_main_thread);
-  assert(g_data.m_current_context_for_thread.size() <= 1);
 
   if (!hglrc)
   {
@@ -187,13 +146,11 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
 
     g_data.m_in_shutdown = true;
 
-    auto current_context = g_data.m_current_context_for_thread[GetCurrentThreadId()];
-
     assert(g_data.m_main_context);
-    assert(current_context);
-    assert(current_context == g_data.m_main_context);
+    assert(g_data.m_current_context);
+    assert(g_data.m_current_context == g_data.m_main_context);
 
-    current_context->freeResources();
+    g_data.m_current_context->freeResources();
 
     currentContextChanged(nullptr);
 
@@ -218,8 +175,6 @@ BOOL WINAPI wrap_wglMakeCurrent(HDC hdc, HGLRC hglrc)
 
 HGLRC WINAPI wrap_wglCreateContext(HDC dc)
 {
-  Lock lock(g_data.m_mutex);
-
   auto handle = real_wglCreateContext(dc);
 
   if (!g_data.m_main_context)
@@ -233,15 +188,9 @@ HGLRC WINAPI wrap_wglCreateContext(HDC dc)
 
 BOOL WINAPI wrap_wglDeleteContext(HGLRC hglrc)
 {
-  Lock lock(g_data.m_mutex);
-
-  assert(GetCurrentThreadId() == g_data.m_main_thread);
-
   ContextData *c = g_data.m_data_for_context[hglrc];
 
   g_data.m_data_for_context.erase(hglrc);
-
-  auto current_context = g_data.m_current_context_for_thread[GetCurrentThreadId()];
 
   if (c)
   {
@@ -251,7 +200,7 @@ BOOL WINAPI wrap_wglDeleteContext(HGLRC hglrc)
       g_data.m_main_context = nullptr;
     }
 
-    if (c == current_context)
+    if (c == g_data.m_current_context)
     {
       currentContextChanged(nullptr);
     }
@@ -279,13 +228,6 @@ void init()
   g_data.m_gl_module = LoadLibrary("opengl32.dll");
   assert(g_data.m_gl_module);
 
-  g_data.m_mutex = CreateMutexA(
-      NULL,              // default security attributes
-      FALSE,             // initially not owned
-      NULL);             // unnamed mutex
-
-  assert(g_data.m_mutex);
-
   real_wglGetProcAddress = (wglGetProcAddress_t*)
     GetProcAddress(g_data.m_gl_module, "wglGetProcAddress");
   real_wglMakeCurrent = (wglMakeCurrent_t*)
@@ -305,41 +247,12 @@ HMODULE getGLModule()
 
 bool isMainContextCurrent()
 {
-  Lock lock(g_data.m_mutex);
-
-  auto current_thread = GetCurrentThreadId();
-
-  ContextData *c = g_data.m_current_context_for_thread[current_thread];
-
-  if (c && c == g_data.m_main_context)
-  {
-    assert(current_thread == g_data.m_main_thread);
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-
-bool isMainThread()
-{
-  Lock lock(g_data.m_mutex);
-  return GetCurrentThreadId() == g_data.m_main_thread;
+  return g_data.m_current_context && (g_data.m_current_context == g_data.m_main_context);
 }
 
 
 void *getProcAddress(HMODULE module, LPCSTR name)
 {
-  {
-    Lock lock(g_data.m_mutex);
-    if (!g_data.m_main_thread)
-      g_data.m_main_thread = GetCurrentThreadId();
-
-    assert(GetCurrentThreadId() == g_data.m_main_thread);
-  }
-
   void *proc = (void*) GetProcAddress(module, name);
 
   if (strcmp(name, "wglGetProcAddress") == 0)
@@ -362,7 +275,6 @@ void *getProcAddress(HMODULE module, LPCSTR name)
     return (void*) &wrap_wglDeleteContext;
   }
 
-
   assert(!isMainContextCurrent());
 
   void *wrap_proc = core_gl_wrapper::getProc(name);
@@ -375,19 +287,10 @@ void *getProcAddress(HMODULE module, LPCSTR name)
 
 ContextData *getContext()
 {
-  Lock lock(g_data.m_mutex);
-
-  assert(GetCurrentThreadId() == g_data.m_main_thread);
-
   assert(!g_data.m_in_shutdown);
-  assert(g_data.m_main_context);
+  assert(isMainContextCurrent());
 
-  auto current_context = g_data.m_current_context_for_thread[GetCurrentThreadId()];
-
-  assert(current_context);
-  assert(current_context == g_data.m_main_context);
-
-  return current_context;
+  return g_data.m_current_context;
 }
 
 

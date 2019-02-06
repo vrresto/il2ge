@@ -55,7 +55,7 @@ namespace wgl_wrapper
     std::shared_ptr<core_gl_wrapper::Context> m_gl_wrapper_context;
   };
 
-  bool isMainThread();
+  static constexpr bool isMainThread() { return true; }
   bool isMainContextCurrent();
   void *getProcAddress(HMODULE module, LPCSTR name);
   ContextData *getContext();
