@@ -633,19 +633,16 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
     assert(p->target == target);
 
-    if (!p->real_id)
-      gl::GenProgramsARB(1, &p->real_id);
-
-    assert(p->real_id);
-
-    gl::BindProgramARB(target, p->real_id);
-
     if (target == GL_VERTEX_PROGRAM_ARB)
     {
+      if (active_vertex_program == p)
+        return;
       active_vertex_program = p;
     }
     else if(target == GL_FRAGMENT_PROGRAM_ARB)
     {
+      if (active_fragment_program == p)
+        return;
       active_fragment_program = static_cast<FragmentProgram*>(p);
     }
     else
@@ -653,6 +650,13 @@ struct core_gl_wrapper::arb_program::Context::Impl
       assert(0);
       abort();
     }
+
+    if (!p->real_id)
+      gl::GenProgramsARB(1, &p->real_id);
+
+    assert(p->real_id);
+
+    gl::BindProgramARB(target, p->real_id);
 
     program_needs_update = true;
   }
@@ -718,13 +722,12 @@ struct core_gl_wrapper::arb_program::Context::Impl
       main_context.setActiveARBProgram(glsl_program);
       main_context.updateUniforms(glsl_program);
       glsl_program->assertUniformsAreSet();
+      bindUniformBuffers();
     }
     else
     {
       main_context.setActiveARBProgram(nullptr);
     }
-
-    bindUniformBuffers();
 
     program_needs_update = false;
   }

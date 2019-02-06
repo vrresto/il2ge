@@ -19,6 +19,7 @@
 #include <misc.h>
 #include <core.h>
 #include <gl_wrapper.h>
+#include <wgl_wrapper.h>
 #include <render_util/render_util.h>
 
 #include <string>
@@ -153,7 +154,6 @@ namespace core_gl_wrapper
     void setIsARBProgramActive(bool active)
     {
       is_arb_program_active = active;
-      updateShaderState();
     }
 
     void updateShaderState();
@@ -167,6 +167,13 @@ namespace core_gl_wrapper
     unsigned long long m_frame_nr = 0;
   };
 
-  Context::Impl *getContext();
+
+  inline Context::Impl *getContext()
+  {
+    return wgl_wrapper::getContext()->getGLWrapperContext()->getImpl();
+  }
+
+
   void setProc(const char *name, void *func);
+
 }

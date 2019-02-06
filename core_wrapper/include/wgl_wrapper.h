@@ -39,7 +39,13 @@ namespace wgl_wrapper
     render_util::gl_binding::GL_Interface *getGLInterface() { return m_iface.get(); }
 
     core::Scene *getScene();
-    core_gl_wrapper::Context *getGLWrapperContext();
+
+    core_gl_wrapper::Context *getGLWrapperContext()
+    {
+      if (!m_gl_wrapper_context)
+        m_gl_wrapper_context = std::make_shared<core_gl_wrapper::Context>();
+      return m_gl_wrapper_context.get();
+    }
 
     void freeResources();
 

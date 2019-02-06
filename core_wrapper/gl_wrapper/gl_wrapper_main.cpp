@@ -712,12 +712,6 @@ void *getProc(const char *name)
 }
 
 
-Context::Impl *getContext()
-{
-  return wgl_wrapper::getContext()->getGLWrapperContext()->getImpl();
-}
-
-
 #define SET_PROC(name) setProc(#name, (void*) &wrap_##name)
 
 void init()

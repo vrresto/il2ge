@@ -406,15 +406,6 @@ core::Scene *ContextData::getScene()
 }
 
 
-core_gl_wrapper::Context *ContextData::getGLWrapperContext()
-{
-  if (!m_gl_wrapper_context)
-    m_gl_wrapper_context = std::make_shared<core_gl_wrapper::Context>();
-
-  return m_gl_wrapper_context.get();
-}
-
-
 void ContextData::freeResources()
 {
   m_scene.reset();
