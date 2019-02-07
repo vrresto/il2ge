@@ -41,7 +41,7 @@
 #include <GL/gl.h>
 #include <GL/glext.h>
 
-#include <gl_wrapper/gl_functions.h>
+#include <render_util/gl_binding/gl_functions.h>
 
 using std::cout;
 using std::cerr;
@@ -49,7 +49,7 @@ using std::endl;
 using std::string;
 
 using namespace core;
-using namespace gl_wrapper::gl_functions;
+using namespace render_util::gl_binding;
 
 
 namespace

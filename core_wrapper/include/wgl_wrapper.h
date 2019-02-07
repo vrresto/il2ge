@@ -20,7 +20,7 @@
 #define IL2GE_CORE_WGL_WRAPPER_H
 
 #include <misc.h>
-#include <gl_wrapper/gl_interface.h>
+#include <render_util/gl_binding/gl_interface.h>
 #include <gl_wrapper.h>
 #include <core/scene.h>
 
@@ -30,13 +30,13 @@ namespace wgl_wrapper
 {
   struct ContextData
   {
-    void setGLInterface(std::shared_ptr<gl_wrapper::GL_Interface> iface)
+    void setGLInterface(std::shared_ptr<render_util::gl_binding::GL_Interface> iface)
     {
       assert(!m_iface);
       m_iface = iface;
     }
 
-    gl_wrapper::GL_Interface *getGLInterface() { return m_iface.get(); }
+    render_util::gl_binding::GL_Interface *getGLInterface() { return m_iface.get(); }
 
     core::Scene *getScene();
     core_gl_wrapper::Context *getGLWrapperContext();
@@ -44,7 +44,7 @@ namespace wgl_wrapper
     void freeResources();
 
   private:
-    std::shared_ptr<gl_wrapper::GL_Interface> m_iface;
+    std::shared_ptr<render_util::gl_binding::GL_Interface> m_iface;
     std::shared_ptr<core::Scene> m_scene;
     std::shared_ptr<core_gl_wrapper::Context> m_gl_wrapper_context;
   };

@@ -43,12 +43,12 @@
 #include <GL/gl.h>
 
 #include "wgl_interface.h"
-#include <gl_wrapper/gl_functions.h>
+#include <render_util/gl_binding/gl_functions.h>
 
 
 using namespace core;
 using namespace core_gl_wrapper;
-using namespace gl_wrapper::gl_functions;
+using namespace render_util::gl_binding;
 using namespace std;
 
 #include <render_util/skybox.h>

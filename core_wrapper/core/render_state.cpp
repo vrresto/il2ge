@@ -24,11 +24,7 @@
 #include <render_util/water.h>
 
 #include <iostream>
-#include <GL/gl.h>
 
-#include <gl_wrapper/gl_functions.h>
-
-using namespace gl_wrapper::gl_functions;
 using namespace glm;
 using namespace core;
 using namespace std;

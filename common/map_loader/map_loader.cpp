@@ -49,8 +49,6 @@
 #include <GL/gl.h>
 #include <GL/glext.h>
 
-#include <gl_wrapper/gl_functions.h>
-
 #ifdef max
 #undef max
 #endif
@@ -58,7 +56,6 @@
 using namespace std;
 using namespace render_util;
 using namespace glm;
-using namespace gl_wrapper::gl_functions;
 using namespace il2ge;
 using namespace il2ge::map_loader;
 

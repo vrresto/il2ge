@@ -19,7 +19,7 @@
 #include "wgl_wrapper.h"
 
 #include <misc.h>
-#include <gl_wrapper/gl_interface.h>
+#include <render_util/gl_binding/gl_interface.h>
 
 #include <cassert>
 #include <cstdio>
@@ -119,13 +119,13 @@ ContextData *getContextData(HGLRC handle)
 
 void currentContextChanged(ContextData *new_current)
 {
-  gl_wrapper::GL_Interface *iface = nullptr;
+  render_util::gl_binding::GL_Interface *iface = nullptr;
 
   if (new_current)
   {
     if (!new_current->getGLInterface())
     {
-      auto iface = std::make_shared<gl_wrapper::GL_Interface>(&getProcAddress_ext);
+      auto iface = std::make_shared<render_util::gl_binding::GL_Interface>(&getProcAddress_ext);
       new_current->setGLInterface(iface);
     }
 
@@ -133,7 +133,7 @@ void currentContextChanged(ContextData *new_current)
   }
 
   g_data.m_current_context_for_thread[GetCurrentThreadId()] = new_current;
-  gl_wrapper::GL_Interface::setCurrent(iface);
+  render_util::gl_binding::GL_Interface::setCurrent(iface);
 }
 
 

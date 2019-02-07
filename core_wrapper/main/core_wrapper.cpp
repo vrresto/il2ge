@@ -24,8 +24,6 @@
 #include <core.h>
 #include <render_util/render_util.h>
 
-#include <gl_wrapper.h>
-#include <gl_wrapper/gl_wrapper.h>
 
 #include <iostream>
 #include <unordered_map>
@@ -38,11 +36,6 @@
 
 #include <windef.h>
 #include <winbase.h>
-#include <GL/gl.h>
-#include <GL/glext.h>
-
-#include <gl_wrapper/gl_interface.h>
-#include <wgl_interface.h>
 
 
 namespace

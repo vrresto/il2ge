@@ -33,13 +33,12 @@
 #include <GL/gl.h>
 #include <GL/glext.h>
 
-#include <gl_wrapper/gl_functions.h>
+#include <render_util/gl_binding/gl_functions.h>
 
 using namespace std;
 using namespace render_util;
 using namespace il2ge;
 using namespace glm;
-using namespace gl_wrapper::gl_functions;
 
 
 namespace
