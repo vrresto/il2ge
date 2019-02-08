@@ -32,7 +32,17 @@ struct MethodSpec
 {
   typedef __stdcall int Signature (JNIEnv*, jobject, Types...);
 
-  enum { N_ARGS = sizeof...(Types) };
+  static constexpr size_t SIZE_ARGS = (std::max(sizeof(Types), sizeof(int)) + ...);
+  static constexpr size_t N_ARGS = sizeof...(Types);
+};
+
+template <>
+struct MethodSpec<>
+{
+  typedef __stdcall int Signature (JNIEnv*, jobject);
+
+  static constexpr size_t SIZE_ARGS = 0;
+  static constexpr size_t N_ARGS = 0;
 };
 
 
@@ -40,11 +50,12 @@ struct MetaMethod
 {
   std::string name;
   unsigned int num_args = 0;
+  unsigned int size_args = 0;
   void **import_addr = nullptr;
   void *export_addr = nullptr;
 
-  MetaMethod(const std::string &name, unsigned int num_args, void **import_addr, void *export_addr) :
-      name(name), num_args(num_args), import_addr(import_addr), export_addr(export_addr) {}
+  MetaMethod(const std::string &name, unsigned int num_args, unsigned int size_args, void **import_addr, void *export_addr) :
+      name(name), num_args(num_args), size_args(size_args), import_addr(import_addr), export_addr(export_addr) {}
 };
 
 
@@ -59,7 +70,7 @@ struct MetaClass
       typename T::Signature **import_addr,
       typename T::Signature *export_addr)
   {
-    methods.push_back(MetaMethod(name, T::N_ARGS, (void**)import_addr, (void*)export_addr));
+    methods.push_back(MetaMethod(name, T::N_ARGS, T::SIZE_ARGS, (void**)import_addr, (void*)export_addr));
   }
 };
 

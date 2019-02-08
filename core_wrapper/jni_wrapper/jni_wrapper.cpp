@@ -59,8 +59,10 @@ void registerMetaClass(const MetaClass &meta_class)
 
     string full_name = "_Java_" + package + '_' + meta_class.name + '_' + method.name;
 
+    size_t size_args = method.size_args + 2 * sizeof(void*);
+
     char buf[1024];
-    int written = snprintf(buf, sizeof(buf), "%s@%d", full_name.c_str(), (method.num_args + 2) * 4);
+    int written = snprintf(buf, sizeof(buf), "%s@%d", full_name.c_str(), size_args);
     assert(written >= 0);
     assert((size_t)written < sizeof(buf));
 
