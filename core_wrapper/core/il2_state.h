@@ -35,8 +35,6 @@ struct IL2State
   glm::vec3 sun_dir;
   Il2RenderState render_state;
   bool is_fmb_active = false;
-//   std::chrono::steady_clock Clock::time_point last_frame_time; // = Clock::time_point(std::chrono::seconds(0));
-//   float frame_delta = 0;
 };
 
 

@@ -107,12 +107,8 @@ namespace core
 
   void onPrePreRenders()
   {
-//     Clock::time_point frame_time =  Clock::now();
 
-//     std::chrono::microseconds delta = std::chrono::duration_cast<std::chrono::microseconds>(frame_time - last_frame_time);
-//     frame_delta = ((float)delta.count()) / 1000000.0;
 
-//     last_frame_time = frame_time;
 
 //     shore_wave_pos.x = shore_wave_pos.x + (frame_delta * shore_wave_hz.x);
 //     shore_wave_pos.y = shore_wave_pos.y + (frame_delta * shore_wave_hz.y);
