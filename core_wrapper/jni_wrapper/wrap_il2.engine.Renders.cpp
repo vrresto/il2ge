@@ -25,7 +25,7 @@ using namespace jni_wrapper;
 namespace
 {
 
-#include <_generated/jni_wrapper/Renders_definitions>
+#include <_generated/jni_wrapper/il2.engine.Renders_definitions>
 
 Interface import;
 
@@ -50,4 +50,4 @@ int JNICALL PostRenders(JNIEnv *env, jobject obj)
 
 } // namespace
 
-#include <_generated/jni_wrapper/Renders_registration>
+#include <_generated/jni_wrapper/il2.engine.Renders_registration>

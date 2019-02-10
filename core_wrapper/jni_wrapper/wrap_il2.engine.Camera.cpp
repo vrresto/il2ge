@@ -30,7 +30,7 @@ using namespace jni_wrapper;
 namespace
 {
 
-#include <_generated/jni_wrapper/Camera_definitions>
+#include <_generated/jni_wrapper/il2.engine.Camera_definitions>
 
 Interface import;
 
@@ -92,7 +92,7 @@ int JNICALL SetFOV(JNIEnv *env, jobject obj, jfloat arg0, jfloat arg1, jfloat ar
 } // namespace
 
 
-void jni_wrapper::initializeMetaClass_Camera(MetaClass &meta_class)
+void jni_wrapper::registrator::il2::engine::Camera(MetaClass &meta_class)
 {
   meta_class.package = "com.maddox.il2.engine";
   meta_class.name = "Camera";

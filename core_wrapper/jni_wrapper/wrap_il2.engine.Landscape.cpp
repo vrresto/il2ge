@@ -25,7 +25,7 @@ using namespace jni_wrapper;
 namespace
 {
 
-#include <_generated/jni_wrapper/Landscape_definitions>
+#include <_generated/jni_wrapper/il2.engine.Landscape_definitions>
 
 Interface import;
 
@@ -90,4 +90,4 @@ int JNICALL cUnloadMap(JNIEnv *env, jobject obj)
 
 } // namespace
 
-#include <_generated/jni_wrapper/Landscape_registration>
+#include <_generated/jni_wrapper/il2.engine.Landscape_registration>

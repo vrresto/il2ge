@@ -21,9 +21,6 @@
 
 #include "jni_wrapper.h"
 
-namespace jni_wrapper
-{
-  #include <_generated/jni_wrapper/registrator_definitions>
-}
+#include <_generated/jni_wrapper/registrator_definitions>
 
 #endif

@@ -25,7 +25,7 @@ using namespace jni_wrapper;
 namespace
 {
 
-#include <_generated/jni_wrapper/Render_definitions>
+#include <_generated/jni_wrapper/il2.engine.Render_definitions>
 
 Interface import;
 
@@ -118,4 +118,4 @@ int JNICALL vertexArraysUnLock(JNIEnv *env, jobject obj)
 
 } // namespace
 
-#include <_generated/jni_wrapper/Render_registration>
+#include <_generated/jni_wrapper/il2.engine.Render_registration>

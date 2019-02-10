@@ -45,10 +45,10 @@ set(SRCS
 )
 
 set(JNI_WRAPPER_CLASSES
-  Camera
-  Landscape
-  Render
-  Renders
+  il2.engine.Camera
+  il2.engine.Landscape
+  il2.engine.Render
+  il2.engine.Renders
 )
 
 include_directories(

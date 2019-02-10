@@ -27,7 +27,7 @@ using namespace jni_wrapper;
 namespace
 {
 
-#include <_generated/jni_wrapper/Sun_definitions>
+#include <_generated/jni_wrapper/il2.engine.Sun_definitions>
 
 Interface import;
 
@@ -47,4 +47,4 @@ int JNICALL setNative(JNIEnv *env, jobject obj,
 
 } // namespace
 
-#include <_generated/jni_wrapper/Sun_registration>
+#include <_generated/jni_wrapper/il2.engine.Sun_registration>

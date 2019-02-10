@@ -97,4 +97,3 @@ void *getExport(const string &full_name)
 
 
 } // namespace jni_wrapper
-
