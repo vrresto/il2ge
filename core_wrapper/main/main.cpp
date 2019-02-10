@@ -62,7 +62,7 @@ namespace
 typedef jint JNICALL JNI_GetCreatedJavaVMs_t(JavaVM **, jsize, jsize *);
 
 void installIATPatches(HMODULE);
-void loadCoreWrapper(const char*);
+HMODULE loadCoreWrapper(const char*);
 
 
 constexpr jint g_jni_version = JNI_VERSION_1_2;
@@ -168,8 +168,7 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
   if (module_name == "il2_core" ||
       module_name == "il2_corep4")
   {
-    loadCoreWrapper(libFileName);
-    return g_core_wrapper_module;
+    return loadCoreWrapper(libFileName);
   }
 
   HMODULE module = LoadLibraryA(libFileName);
@@ -183,16 +182,20 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
     installIATPatches(module);
   }
 
+  if (module_name == "dt")
+  {
+    jni_wrapper::resolveImports((void*)module);
+  }
+
   return module;
 }
 
 
 FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
 {
-  if (hModule == g_core_wrapper_module)
-  {
-    return (FARPROC) il2ge::core_wrapper::getProcAddress(lpProcName);
-  }
+  void *addr = jni_wrapper::getExport(lpProcName);
+  if (addr)
+    return (FARPROC) addr;
 
   if (_stricmp(lpProcName, "LoadLibraryA") == 0)
   {
@@ -251,7 +254,7 @@ void installIATPatches(HMODULE module)
 }
 
 
-void loadCoreWrapper(const char *core_library_filename)
+HMODULE loadCoreWrapper(const char *core_library_filename)
 {
   assert(!g_core_wrapper_loaded);
 
@@ -267,7 +270,9 @@ void loadCoreWrapper(const char *core_library_filename)
     g_log.flush();
     abort();
   }
+
   installIATPatches(core_module);
+  jni_wrapper::resolveImports((void*)core_module);
 
   il2ge::core_wrapper::init(core_module);
 
@@ -280,6 +285,8 @@ void loadCoreWrapper(const char *core_library_filename)
            (void*) &wrap_JGL_GetProcAddress, NULL, jgl_module);
 
   g_core_wrapper_loaded = true;
+
+  return core_module;
 }
 
 
@@ -376,6 +383,9 @@ void WINAPI il2ge_init()
   patchIAT("PeekMessageW", "user32.dll",
            (void*) &wrap_PeekMessageW, NULL, GetModuleHandle(0));
 #endif
+
+  jni_wrapper::init();
+  jni_wrapper::resolveImports((void*)GetModuleHandle(0));
 }
 
 

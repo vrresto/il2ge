@@ -53,6 +53,7 @@ struct MetaMethod
   unsigned int size_args = 0;
   void **import_addr = nullptr;
   void *export_addr = nullptr;
+  std::vector<std::string> name_aliases;
 
   MetaMethod(const std::string &name, unsigned int num_args, unsigned int size_args, void **import_addr, void *export_addr) :
       name(name), num_args(num_args), size_args(size_args), import_addr(import_addr), export_addr(export_addr) {}

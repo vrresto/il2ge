@@ -50,33 +50,7 @@ HMODULE g_core_module = 0;
 // isCubeUpdated_T *is_cube_updated_func = nullptr;
 
 
-
 } // namespace
-
-
-
-void *il2ge::core_wrapper::getOrigProcAddress(const char *name)
-{
-  void *func = reinterpret_cast<void*>(GetProcAddress(g_core_module, name));
-  if (func)
-    return func;
-  else
-    return 0;
-}
-
-
-void *il2ge::core_wrapper::getProcAddress(const char *name)
-{
-  void *addr = nullptr;
-
-  if (g_initialized)
-    addr = jni_wrapper::getExport(name);
-
-  if (!addr)
-    addr = getOrigProcAddress(name);
-
-  return addr;
-}
 
 
 void il2ge::core_wrapper::init(HMODULE core_module_)
@@ -90,7 +64,6 @@ void il2ge::core_wrapper::init(HMODULE core_module_)
   wgl_wrapper::init();
   core_gl_wrapper::init();
   core::init();
-  jni_wrapper::init();
 
 //   is_cube_updated_func = (isCubeUpdated_T*) GetProcAddress(g_core_module,
 //                  "_Java_com_maddox_il2_engine_Landscape_cIsCubeUpdated@8");

@@ -29,6 +29,7 @@
 namespace jni_wrapper
 {
   void init();
+  void resolveImports(void *module);
   void *getExport(const std::string &full_name);
 }
 
@@ -36,7 +37,6 @@ namespace jni_wrapper
 namespace il2ge::core_wrapper
 {
   std::string getWrapperLibraryFilePath();
-  void *getOrigProcAddress(const char *name);
   [[ noreturn ]] void fatalError(const std::string &message);
 }
 
