@@ -27,19 +27,20 @@ namespace jni_wrapper
 {
 
 
-template <typename ... Types>
+template <typename ReturnType, typename ... Types>
 struct MethodSpec
 {
-  typedef __stdcall int Signature (JNIEnv*, jobject, Types...);
+  typedef __stdcall ReturnType Signature (JNIEnv*, jobject, Types...);
 
   static constexpr size_t SIZE_ARGS = (std::max(sizeof(Types), sizeof(int)) + ...);
   static constexpr size_t N_ARGS = sizeof...(Types);
 };
 
-template <>
-struct MethodSpec<>
+
+template <typename T>
+struct MethodSpec<T>
 {
-  typedef __stdcall int Signature (JNIEnv*, jobject);
+  typedef __stdcall T Signature (JNIEnv*, jobject);
 
   static constexpr size_t SIZE_ARGS = 0;
   static constexpr size_t N_ARGS = 0;

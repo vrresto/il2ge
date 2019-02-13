@@ -29,19 +29,19 @@ namespace
 
 Interface import;
 
-int JNICALL PrePreRenders(JNIEnv *env, jobject obj)
+jint JNICALL PrePreRenders(JNIEnv *env, jobject obj)
 {
   core::onPrePreRenders();
   return import.PrePreRenders(env, obj);
 }
 
-int JNICALL PostPreRenders(JNIEnv *env, jobject obj)
+jint JNICALL PostPreRenders(JNIEnv *env, jobject obj)
 {
   core::onPostPreRenders();
   return import.PostPreRenders(env, obj);
 }
 
-int JNICALL PostRenders(JNIEnv *env, jobject obj)
+jint JNICALL PostRenders(JNIEnv *env, jobject obj)
 {
   core::onPostRenders();
   return import.PostRenders(env, obj);

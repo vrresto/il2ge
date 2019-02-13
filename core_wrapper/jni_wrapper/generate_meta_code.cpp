@@ -36,6 +36,7 @@ namespace
 struct MethodInfo
 {
   string name;
+  string return_type;
   vector<string> arg_types;
 };
 
@@ -59,15 +60,20 @@ void parseSignatures(istream &in)
     getline(in, line);
     istringstream line_stream(line);
 
+    MethodInfo mi;
+
+    line_stream >> mi.return_type;
+//     cerr<<"mi.return_type: "<<mi.return_type<<endl;
+    if(mi.return_type.empty())
+      continue;
+
     string class_name;
     line_stream >> class_name;
-
+//     cerr<<"class name: "<<class_name<<endl;
     if (class_name.empty())
       continue;
 
-    MethodInfo mi;
     line_stream >> mi.name;
-
     if (mi.name.empty())
       continue;
 
@@ -87,12 +93,10 @@ void emitMethodDefinitions(const ClassInfo &info, ostream &out)
 {
   for (const MethodInfo &m : info.methods)
   {
-    out << "typedef MethodSpec<";
+    out << "typedef MethodSpec<" << m.return_type;
     for (size_t i = 0; i < m.arg_types.size(); i++)
     {
-      if (i > 0)
-        out << ", ";
-      out << m.arg_types[i];
+      out << ", " << m.arg_types[i];
     }
     out << "> " << m.name << "_t;" << endl;
   }
@@ -149,7 +153,7 @@ void emitMetaClassRegistration(const string &name, ostream &out)
 void emitMethodImplementation(const MethodInfo &mi, ostream &out)
 {
   // head
-  out << "int JNICALL " << mi.name << "(JNIEnv *env, jobject obj";
+  out << mi.return_type << " JNICALL " << mi.name << "(JNIEnv *env, jobject obj";
   for (size_t i = 0; i < mi.arg_types.size(); i++)
   {
     out << "," << endl << "\t\t" << mi.arg_types[i] << " arg" << i;

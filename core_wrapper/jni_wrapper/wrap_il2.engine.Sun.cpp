@@ -31,7 +31,7 @@ namespace
 
 Interface import;
 
-int JNICALL setNative(JNIEnv *env, jobject obj,
+jint JNICALL setNative(JNIEnv *env, jobject obj,
     jfloat arg0,
     jfloat arg1,
     jfloat arg2,
