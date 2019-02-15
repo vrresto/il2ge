@@ -28,3 +28,15 @@ jint il2.engine.Landscape cUnloadMap
 jint il2.engine.HierMesh Render jint
 jint il2.engine.Mesh Render jint
 jint il2.engine.MeshShared RenderArray jboolean jint jintArray jdoubleArray jfloatArray
+
+void il2.engine.LightPoint setPos jint jfloat jfloat jfloat
+void il2.engine.LightPoint setColor jint jfloat jfloat jfloat
+void il2.engine.LightPoint setEmit jint jfloat jfloat
+void il2.engine.LightPoint getPos jint jfloatArray
+void il2.engine.LightPoint getColor jint jfloatArray
+void il2.engine.LightPoint getEmit jint jfloatArray
+void il2.engine.LightPoint setOffset jfloat jfloat jfloat
+void il2.engine.LightPoint addToRender jint
+void il2.engine.LightPoint clearRender
+void il2.engine.LightPoint Finalize jint
+jint il2.engine.LightPoint New

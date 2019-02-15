@@ -69,6 +69,7 @@ constexpr jint g_jni_version = JNI_VERSION_1_2;
 constexpr const char* const g_log_file_name = "il2ge.log";
 
 
+il2ge::core_wrapper::Config g_config;
 HMODULE g_core_wrapper_module = 0;
 std::ofstream g_logfile;
 bool g_core_wrapper_loaded = false;
@@ -336,6 +337,12 @@ std::string il2ge::core_wrapper::getWrapperLibraryFilePath()
 }
 
 
+const il2ge::core_wrapper::Config &il2ge::core_wrapper::getConfig()
+{
+  return g_config;
+}
+
+
 extern "C"
 {
 
@@ -362,6 +369,10 @@ void WINAPI il2ge_init()
       g_log.flush();
       return;
     }
+
+    g_config.enable_dump = ini.GetBoolean("", "EnableDump", g_config.enable_dump);
+    g_config.enable_base_map = ini.GetBoolean("", "EnableBaseMap", g_config.enable_base_map);
+    g_config.enable_light_point = ini.GetBoolean("", "EnableLightPoint", g_config.enable_light_point);
   }
 
   il2ge::exception_handler::install(g_log_file_name, &fatalErrorHandler);

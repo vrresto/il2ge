@@ -40,10 +40,6 @@ namespace
 bool g_initialized  = false;
 map<string, MetaMethod&> g_exports;
 vector<MetaClass> g_meta_classes;
-vector<MetaClassInitFunc*> g_registrator_table =
-{
-  #include <_generated/jni_wrapper/registrator_table>
-};
 
 
 void resolveImports(HMODULE module)
@@ -88,7 +84,19 @@ void init()
   if (g_initialized)
     return;
 
-  for (auto registrator : g_registrator_table)
+
+  vector<MetaClassInitFunc*> registrators
+  {
+    registrator::il2::engine::Renders,
+    registrator::il2::engine::Render,
+    registrator::il2::engine::Landscape,
+    registrator::il2::engine::Camera,
+  };
+
+  if (il2ge::core_wrapper::getConfig().enable_light_point)
+    registrators.push_back(registrator::il2::engine::LightPoint);
+
+  for (auto registrator : registrators)
   {
     g_meta_classes.resize(g_meta_classes.size() + 1);
 

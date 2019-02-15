@@ -49,6 +49,7 @@ set(JNI_WRAPPER_CLASSES
   il2.engine.Landscape
   il2.engine.Render
   il2.engine.Renders
+  il2.engine.LightPoint
 )
 
 include_directories(

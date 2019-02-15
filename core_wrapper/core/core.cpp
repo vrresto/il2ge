@@ -54,10 +54,6 @@ public:
 };
 
 
-bool g_dump_enabled = false;
-bool g_base_map_enabled = false;
-
-
 GameState::GameState(JNIEnv *env)
 {
   auto class_id_main = env->FindClass("com/maddox/il2/game/Main");
@@ -131,7 +127,7 @@ void refreshFile(const char *path,
 
 namespace il2ge::map_loader
 {
-  bool isDumpEnabled() { return g_dump_enabled; }
+  bool isDumpEnabled() { return il2ge::core_wrapper::getConfig().enable_dump; }
 }
 
 
@@ -141,27 +137,12 @@ namespace core
 
 void init()
 {
-  INIReader ini("il2ge.ini");
-  if (!ini.ParseError())
-  {
-    g_dump_enabled = ini.GetBoolean("", "EnableDump", g_dump_enabled);
-    g_base_map_enabled = ini.GetBoolean("", "EnableBaseMap", g_base_map_enabled);
-  }
-
-  cout << "IL2GE: enable dump: " << g_dump_enabled << endl;
-
 #ifndef NO_REFRESH_MAPS
   auto res = util::mkdir(IL2GE_CACHE_DIR);
   assert(res);
   refreshFile(IL2GE_CACHE_DIR "/atmosphere_map", atmosphere_map_size_bytes, render_util::createAtmosphereMap);
   refreshFile(IL2GE_CACHE_DIR "/curvature_map", curvature_map_size_bytes, render_util::createCurvatureMap);
 #endif
-}
-
-
-bool isBaseMapEnabled()
-{
-  return g_base_map_enabled;
 }
 
 
