@@ -77,15 +77,8 @@ JNI_GetCreatedJavaVMs_t *p_JNI_GetCreatedJavaVMs = nullptr;
 JavaVM *g_java_vm = nullptr;
 
 
-void initLog()
+void redirectOutput()
 {
-  g_log.m_outputs.push_back(&cerr);
-
-  {
-    // clear previous contents
-    ofstream log(g_log_file_name);
-  }
-
   freopen(g_log_file_name, "a", stdout);
   freopen(g_log_file_name, "a", stderr);
 
@@ -351,7 +344,10 @@ void WINAPI il2ge_init()
 {
   std::atexit(atexitHandler);
 
-  initLog();
+  ofstream log(g_log_file_name);
+
+  g_log.m_outputs.push_back(&cerr);
+  g_log.m_outputs.push_back(&log);
 
   g_log.printSeparator();
   g_log << "*** il2ge.dll initialization ***\n";
@@ -374,6 +370,11 @@ void WINAPI il2ge_init()
     g_config.enable_base_map = ini.GetBoolean("", "EnableBaseMap", g_config.enable_base_map);
     g_config.enable_light_point = ini.GetBoolean("", "EnableLightPoint", g_config.enable_light_point);
   }
+
+  g_log.m_outputs.pop_back();
+  log.close();
+
+  redirectOutput();
 
   il2ge::exception_handler::install(g_log_file_name, &fatalErrorHandler);
   il2ge::exception_handler::watchModule(g_core_wrapper_module);
