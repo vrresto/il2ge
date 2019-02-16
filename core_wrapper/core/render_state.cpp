@@ -107,8 +107,13 @@ namespace core
 
   void onPrePreRenders()
   {
+    if (!g_il2_state.last_frame_time)
+      g_il2_state.last_frame_time = g_il2_state.current_time;
 
+    auto delta = g_il2_state.current_time - g_il2_state.last_frame_time;
 
+    g_il2_state.last_frame_time = g_il2_state.current_time;
+    g_il2_state.frame_delta = (float)delta / 1000.f;
 
 //     shore_wave_pos.x = shore_wave_pos.x + (frame_delta * shore_wave_hz.x);
 //     shore_wave_pos.y = shore_wave_pos.y + (frame_delta * shore_wave_hz.y);
@@ -200,6 +205,12 @@ namespace core
 //   {
 //     return frame_delta;
 //   }
+
+  void setTime(uint64_t time)
+  {
+    g_il2_state.current_time = time;
+  }
+
 
   void setWindSpeed(const glm::vec2 &speed)
   {

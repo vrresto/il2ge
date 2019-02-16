@@ -45,6 +45,7 @@ set(SRCS
 )
 
 set(JNI_WRAPPER_CLASSES
+  rts.Time
   il2.engine.Camera
   il2.engine.Landscape
   il2.engine.Render

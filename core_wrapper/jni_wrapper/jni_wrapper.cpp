@@ -87,6 +87,7 @@ void init()
 
   vector<MetaClassInitFunc*> registrators
   {
+    registrator::rts::Time,
     registrator::il2::engine::Renders,
     registrator::il2::engine::Render,
     registrator::il2::engine::Landscape,

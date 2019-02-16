@@ -73,6 +73,7 @@ namespace core
 
   render_util::TerrainRenderer &getTerrainRenderer();
 
+  void setTime(uint64_t);
   void setWindSpeed(const glm::vec2&);
 
   void onClearStates();

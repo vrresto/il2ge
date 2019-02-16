@@ -35,6 +35,9 @@ struct IL2State
   glm::vec3 sun_dir;
   Il2RenderState render_state;
   bool is_fmb_active = false;
+  float frame_delta = 0;
+  uint64_t current_time = 0;
+  uint64_t last_frame_time = 0;
   glm::vec2 wind_speed {0};
 };
 
