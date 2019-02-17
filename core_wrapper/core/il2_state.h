@@ -31,9 +31,9 @@ namespace core
 
 struct IL2State
 {
+  Il2RenderState render_state;
   render_util::Camera camera;
   glm::vec3 sun_dir;
-  Il2RenderState render_state;
   bool is_fmb_active = false;
   float frame_delta = 0;
   uint64_t current_time = 0;

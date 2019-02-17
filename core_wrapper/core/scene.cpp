@@ -92,8 +92,8 @@ namespace core
 
   void Scene::updateUniforms(render_util::ShaderProgramPtr program)
   {
-    assert(map);
-    map->setUniforms(program);
+    if (map)
+      map->setUniforms(program);
   }
 
 
