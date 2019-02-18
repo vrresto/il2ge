@@ -21,7 +21,11 @@
 #include <render_util/shader_util.h>
 #include <render_util/gl_binding/gl_functions.h>
 
+
+
 using namespace render_util::gl_binding;
+
+void ParticleSystem_renderAll(const render_util::Camera &camera);
 
 namespace core
 {
@@ -81,11 +85,13 @@ void Effects::render()
   gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   gl::DepthMask(false);
 
-  for (auto &it : m_map)
-  {
-    gl::PointSize(2);
-    it.second->render();
-  }
+//   for (auto &it : m_map)
+//   {
+//     gl::PointSize(2);
+//     it.second->render();
+//   }
+
+  ParticleSystem_renderAll(*core::getCamera());
 
   core_gl_wrapper::setShader(nullptr);
 

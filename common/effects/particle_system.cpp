@@ -19,6 +19,7 @@
 
 #include "factory.h"
 #include <render_util/gl_binding/gl_functions.h>
+#include <render_util/camera.h>
 
 // #define GLM_FORCE_SSE2
 // #define GLM_FORCE_AVX
@@ -32,6 +33,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <random>
+#include <set>
+#include <algorithm>
 
 static_assert(glm::vec4::length() == 4);
 
@@ -44,6 +47,100 @@ using namespace render_util::gl_binding;
 
 namespace
 {
+
+
+struct ParticleBase
+{
+  dvec3 pos{0};
+  float size = 0;
+  float rotation = 0;
+  vec4 color{0};
+  unsigned long dist_from_camera_cm = 0;
+};
+
+
+class RenderList
+{
+  std::vector<const ParticleBase*> m_list;
+
+public:
+  void reserve(size_t size)
+  {
+    m_list.reserve(size);
+  }
+
+  void clear()
+  {
+    m_list.clear();
+  }
+
+  void add(const ParticleBase &particle)
+  {
+    m_list.push_back(&particle);
+  }
+
+  void sort()
+  {
+    struct
+    {
+      bool operator()(const ParticleBase *a, const ParticleBase *b) const
+      {
+        return (a->dist_from_camera_cm > b->dist_from_camera_cm);
+      }
+    }
+    customLess;
+
+    std::sort(m_list.begin(),
+              m_list.end(),
+              customLess);
+  }
+
+  void render(const render_util::Camera &camera)
+  {
+    auto ViewMatrix = camera.getWorld2ViewMatrix();
+
+    vec3 CameraRight_worldspace {ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]};
+    vec3 CameraUp_worldspace {ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]};
+
+    for (auto p : m_list)
+    {
+
+      vec3 pos = p->pos;
+      auto size = p->size;
+      auto &color = p->color;
+
+      gl::Color4f(color.x, color.y, color.z, color.w);
+
+      vec3 v0 =
+          pos
+          + CameraRight_worldspace * -0.5f * size
+          + CameraUp_worldspace * -0.5f * size;
+
+      vec3 v1 =
+          pos
+          + CameraRight_worldspace * 0.5f * size
+          + CameraUp_worldspace * -0.5f * size;
+
+      vec3 v2 =
+          pos
+          + CameraRight_worldspace * 0.5f * size
+          + CameraUp_worldspace * 0.5f * size;
+
+      vec3 v3 =
+          pos
+          + CameraRight_worldspace * -0.5f * size
+          + CameraUp_worldspace * 0.5f * size;
+
+      gl::Begin(GL_POLYGON);
+      gl::Vertex3f(v0.x, v0.y, v0.z);
+      gl::Vertex3f(v1.x, v1.y, v1.z);
+      gl::Vertex3f(v2.x, v2.y, v2.z);
+      gl::Vertex3f(v3.x, v3.y, v3.z);
+      gl::End();
+    }
+  }
+
+};
 
 
 struct ParticleSystemParameters : public Effect3DParameters
@@ -112,12 +209,9 @@ struct ParticleSystemParameters : public Effect3DParameters
 
 class ParticleSystem : public Effect3D
 {
-  struct Particle
+  struct Particle : public ParticleBase
   {
-    vec3 pos;
     float age = 0;
-    float size = 0;
-    vec4 color {0};
     vec3 speed {0};
   };
 
@@ -142,11 +236,32 @@ class ParticleSystem : public Effect3D
 
   std::uniform_real_distribution<float> m_rand_yaw_dist {glm::radians(0.f), glm::radians(360.f)};
 
+
+  static std::set<ParticleSystem*> s_all_effects;
+
+  static size_t getNumParticles()
+  {
+    size_t num = 0;
+    for (auto e : s_all_effects)
+    {
+      num += e->m_num_particles;
+    }
+    return num;
+  }
+
+
 public:
   ParticleSystem(const ParticleSystemParameters &params) : Effect3D(params), m_params(params)
   {
     m_particles.resize(m_params.nParticles);
+    s_all_effects.insert(this);
   }
+
+  ~ParticleSystem()
+  {
+    s_all_effects.erase(s_all_effects.find(this));
+  }
+
 
 
   void initParticle(Particle &p, const glm::vec2 &wind_speed)
@@ -163,7 +278,7 @@ public:
 
     float rand_speed = m_rand_speed_dist(m_rand_engine);
 
-    p.speed = dir * vec3{rand_speed};
+    p.speed = dir * rand_speed;
   }
 
 
@@ -280,6 +395,43 @@ public:
     }
   }
 
+
+  void addToRenderList(RenderList &list, const render_util::Camera &camera)
+  {
+    for (size_t i = 0; i < m_num_particles; i++)
+    {
+      auto &p = m_particles[(m_oldest_particle + i) % m_particles.size()];
+
+      if (p.age >= m_params.LiveTime)
+        continue;
+
+      p.dist_from_camera_cm = distance(camera.getPosD(), p.pos) * 1000;
+
+      list.add(p);
+    }
+  }
+
+
+  static void renderAll(const render_util::Camera &camera)
+  {
+    RenderList render_list;
+
+    render_list.clear();
+
+    auto render_list_size = getNumParticles();
+
+    render_list.reserve(render_list_size);
+
+    for (auto e : s_all_effects)
+    {
+      if (e->getIntensity() > 0)
+        e->addToRenderList(render_list, camera);
+    }
+
+    render_list.sort();
+    render_list.render(camera);
+  }
+
 };
 
 
@@ -289,7 +441,10 @@ std::unique_ptr<Effect3D> ParticleSystemParameters::createEffect() const
 }
 
 
-}
+std::set<ParticleSystem*> ParticleSystem::s_all_effects;
+
+
+} // namespace
 
 
 namespace il2ge
@@ -298,4 +453,10 @@ namespace il2ge
   {
     return std::make_unique<ParticleSystemParameters>();
   }
+}
+
+void ParticleSystem_renderAll(const render_util::Camera &camera);
+void ParticleSystem_renderAll(const render_util::Camera &camera)
+{
+  ParticleSystem::renderAll(camera);
 }
