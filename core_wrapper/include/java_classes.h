@@ -26,6 +26,82 @@ namespace il2ge::java
 {
 
 
+namespace il2::engine
+{
+
+  class ClassRenders : public java::Class
+  {
+    jfieldID m_currentRender_id =
+        getEnv()->GetStaticFieldID(getID(), "currentRender", "Lcom/maddox/il2/engine/Render;");
+
+  public:
+    ClassRenders(JNIEnv *env) : java::Class("com/maddox/il2/engine/Renders", env)
+    {
+      assert(m_currentRender_id);
+    }
+
+    jobject current()
+    {
+      return getEnv()->GetStaticObjectField(getID(), m_currentRender_id);
+    }
+  };
+
+
+  class Renders : public Object<ClassRenders> {};
+
+
+  class ClassActor : public java::Class
+  {
+    friend class Actor;
+
+    jfieldID m_name_id =
+      getEnv()->GetFieldID(getID(), "name", "Ljava/lang/String;");
+    jmethodID m_getByName_id =
+      getStaticMethodID("getByName", "(Ljava/lang/String;)Lcom/maddox/il2/engine/Actor;");
+
+  public:
+    ClassActor(JNIEnv *env) : java::Class("com/maddox/il2/engine/Actor", env) {}
+
+    jobject getByName(const std::string &name)
+    {
+      return getEnv()->CallStaticObjectMethod(getID(),
+                                              m_getByName_id,
+                                              getEnv()->NewStringUTF(name.c_str()));
+    }
+
+  };
+
+  class Actor : public Object<ClassActor>
+  {
+  public:
+    Actor(jobject id, JNIEnv *env = nullptr) : Object(id, env) {}
+
+    std::string getName()
+    {
+      auto name = getEnv()->GetObjectField(getID(), getClass().m_name_id);
+      return std::move(javaStringToStd(getEnv(), name));
+    }
+  };
+
+
+
+//   class RendersMain : public Class
+//   {
+//     ClassMethod<jobject> method_glContext =
+//         getMethod<jobject>("glContext", "()Lcom/maddox/opengl/GLContext;");
+//
+//   public:
+//     RendersMain(JNIEnv *env) : Class("com/maddox/il2/engine/RendersMain", env) {}
+//
+//     java_object::opengl::GLContext glContext()
+//     {
+//       return java_object::opengl::GLContext(method_glContext());
+//     }
+//   };
+
+}
+
+
 // namespace il2::game
 // {
 //   class Main : public Class
@@ -33,96 +109,6 @@ namespace il2ge::java
 //     ClassMethod<jobject> method_state;
 //   };
 // }
-
-namespace il2::engine
-{
-
-  class Renders : public Object
-  {
-  public:
-    class Class;
-  };
-
-  class Renders::Class : public java::Class
-  {
-//     ClassField<jobject> m_currentRender =
-//         getField<jobject>("currentRender", "Lcom/maddox/il2/engine/Render;");
-
-    jfieldID m_currentRender_id =
-        getEnv()->GetStaticFieldID(getID(), "currentRender", "Lcom/maddox/il2/engine/Render;");
-
-  public:
-    Class(JNIEnv *env) : java::Class("com/maddox/il2/engine/Renders", env)
-    {
-      assert(m_currentRender_id);
-    }
-
-    jobject current()
-    {
-//       return field_currentRender.get();
-      return getEnv()->GetStaticObjectField(getID(), m_currentRender_id);
-    }
-  };
-
-
-  class Actor : public Object
-  {
-//     ObjectField<jobject> field_name = getField<jobject>("name", "Ljava/lang/String;");
-  public:
-    class Class;
-//     Actor(jobject id, JNIEnv *env) : Object(id, env) {}
-//     std::string getName() {  return std::move(javaStringToStd(getEnv(), field_name.get())); }
-  };
-
-
-  class Actor::Class : public java::Class
-  {
-    jmethodID m_getByName_id =
-        getEnv()->GetStaticMethodID(getID(),
-                                    "getByName",
-                                    "(Ljava/lang/String;)Lcom/maddox/il2/engine/Actor;");
-//     ClassMethod<jobject, jstring> m_getByName =
-//         getMethod<jobject, jstring>("getByName",
-//                                     "(Ljava/lang/String;)Lcom/maddox/il2/engine/Actor;");
-
-  public:
-    Class(JNIEnv *env) : java::Class("com/maddox/il2/engine/Actor", env) {}
-
-    jobject getByName(const std::string &name)
-    {
-      return getEnv()->CallStaticObjectMethod(getID(),
-                                              m_getByName_id,
-                                              getEnv()->NewStringUTF(name.c_str()));
-//       return m_getByName.call(getEnv()->NewStringUTF(name.c_str()));
-    }
-
-  };
-
-
-//   class RendersMain : public Class
-//   {
-// //     ClassMethod<jobject> method_glContext =
-// //         getMethod<jobject>("glContext", "()Lcom/maddox/opengl/GLContext;");
-//     ClassMethod<jobject, jint> method_get =
-//         getMethod<jobject, jint>("get", "(I)Lcom/maddox/il2/engine/Render;");
-//
-//   public:
-//     RendersMain(JNIEnv *env) : Class("com/maddox/il2/engine/RendersMain", env) {}
-//
-//     jobject get(jint i)
-//     {
-//       return method_get.call(i);
-//     }
-//
-// //     java_object::opengl::GLContext glContext()
-// //     {
-// //       return java_object::opengl::GLContext(method_glContext());
-// //     }
-//   };
-
-}
-
-
 
 // namespace il2::game
 // {
