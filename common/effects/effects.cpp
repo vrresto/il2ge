@@ -19,7 +19,8 @@
 #include <il2ge/effects.h>
 #include <render_util/gl_binding/gl_functions.h>
 
-
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/rotate_vector.hpp>
 #include <list>
 #include <unordered_map>
 
@@ -65,38 +66,44 @@ struct RenderList : public Effect3DRenderListBase
 
   void render(const render_util::Camera &camera)
   {
-    auto ViewMatrix = camera.getWorld2ViewMatrix();
+//     auto ViewMatrix = camera.getWorld2ViewMatrix();
+//     vec3 CameraRight_worldspace {ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]};
+//     vec3 CameraUp_worldspace {ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]};
 
-    vec3 CameraRight_worldspace {ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]};
-    vec3 CameraUp_worldspace {ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]};
+    auto view_to_world_rot_mat = inverse(camera.getWorldToViewRotation());
 
     for (auto p : m_list)
     {
       vec3 pos = p->pos;
       auto size = p->size;
       auto &color = p->color;
+      auto rotation = p->rotation;
 
       gl::Color4f(color.x, color.y, color.z, color.w);
 
-      vec3 v0 =
-          pos
-          + CameraRight_worldspace * -0.5f * size
-          + CameraUp_worldspace * -0.5f * size;
 
-      vec3 v1 =
-          pos
-          + CameraRight_worldspace * 0.5f * size
-          + CameraUp_worldspace * -0.5f * size;
+      vec3 v0 = size * vec3{-0.5f, -0.5f, 0};
+      vec3 v1 = size * vec3{+0.5f, -0.5f, 0};
+      vec3 v2 = size * vec3{+0.5f, +0.5f, 0};
+      vec3 v3 = size * vec3{-0.5f, +0.5f, 0};
 
-      vec3 v2 =
-          pos
-          + CameraRight_worldspace * 0.5f * size
-          + CameraUp_worldspace * 0.5f * size;
 
-      vec3 v3 =
-          pos
-          + CameraRight_worldspace * -0.5f * size
-          + CameraUp_worldspace * 0.5f * size;
+      v0 = rotate(v0, rotation, vec3{0,0,1});
+      v1 = rotate(v1, rotation, vec3{0,0,1});
+      v2 = rotate(v2, rotation, vec3{0,0,1});
+      v3 = rotate(v3, rotation, vec3{0,0,1});
+
+
+      v0 = view_to_world_rot_mat * vec4(v0, 1);
+      v1 = view_to_world_rot_mat * vec4(v1, 1);
+      v2 = view_to_world_rot_mat * vec4(v2, 1);
+      v3 = view_to_world_rot_mat * vec4(v3, 1);
+
+      v0 += pos;
+      v1 += pos;
+      v2 += pos;
+      v3 += pos;
+
 
       gl::Begin(GL_POLYGON);
       gl::Vertex3f(v0.x, v0.y, v0.z);
@@ -104,6 +111,33 @@ struct RenderList : public Effect3DRenderListBase
       gl::Vertex3f(v2.x, v2.y, v2.z);
       gl::Vertex3f(v3.x, v3.y, v3.z);
       gl::End();
+
+//       vec3 v0 =
+//           pos
+//           + CameraRight_worldspace * -0.5f * size
+//           + CameraUp_worldspace * -0.5f * size;
+//
+//       vec3 v1 =
+//           pos
+//           + CameraRight_worldspace * 0.5f * size
+//           + CameraUp_worldspace * -0.5f * size;
+//
+//       vec3 v2 =
+//           pos
+//           + CameraRight_worldspace * 0.5f * size
+//           + CameraUp_worldspace * 0.5f * size;
+//
+//       vec3 v3 =
+//           pos
+//           + CameraRight_worldspace * -0.5f * size
+//           + CameraUp_worldspace * 0.5f * size;
+//
+//       gl::Begin(GL_POLYGON);
+//       gl::Vertex3f(v0.x, v0.y, v0.z);
+//       gl::Vertex3f(v1.x, v1.y, v1.z);
+//       gl::Vertex3f(v2.x, v2.y, v2.z);
+//       gl::Vertex3f(v3.x, v3.y, v3.z);
+//       gl::End();
     }
   }
 

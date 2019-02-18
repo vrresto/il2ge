@@ -20,6 +20,7 @@
 #include "factory.h"
 #include <render_util/gl_binding/gl_functions.h>
 #include <render_util/camera.h>
+#include <util.h>
 
 // #define GLM_FORCE_SSE2
 // #define GLM_FORCE_AVX
@@ -62,6 +63,7 @@ struct ParticleSystemParameters : public Effect3DParameters
   vec4 Color1 {0};
   vec2 EmitTheta {0};
   float Rnd = 0;
+  float PsiN = 0;
 
 
   const char *getJavaClassName() const override
@@ -96,6 +98,7 @@ struct ParticleSystemParameters : public Effect3DParameters
     general.get("Wind", Wind);
     general.get("Rnd", Rnd);
     general.get("EmitTheta", EmitTheta);
+    general.get("PsiN", PsiN);
 
 
 //     if (!nParticles)
@@ -249,6 +252,10 @@ public:
       p.size = mix(m_params.Size.x, m_params.Size.y, relative_age);
 
       p.color = mix(m_params.Color0, m_params.Color1, relative_age);
+
+      float turns = relative_age * m_params.PsiN;
+
+      p.rotation = 2 * util::PI * turns;
     }
 
     if (!isFinished())
@@ -298,6 +305,7 @@ public:
         continue;
 
       p.dist_from_camera_cm = distance(camera.getPosD(), p.pos) * 1000;
+
 
       list.add(p);
     }
