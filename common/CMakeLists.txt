@@ -10,6 +10,7 @@ set(CXX_SRCS
   map_loader/imf.cpp
   map_loader/forest.cpp
   map_loader/map_generator.cpp
+  effects/effects.cpp
   effects/factory.cpp
   effects/particle_system.cpp
   ${PROJECT_SOURCE_DIR}/_modules/inih/cpp/INIReader.cpp

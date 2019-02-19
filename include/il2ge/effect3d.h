@@ -20,6 +20,7 @@
 #define IL2GE_EFFECT3D_H
 
 #include <il2ge/parameter_file.h>
+#include <render_util/camera.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
@@ -30,6 +31,29 @@ namespace il2ge
 
 
 class Effect3D;
+
+
+struct Effect3DParticleBase
+{
+  glm::dvec3 pos{0};
+  float size = 0;
+  float rotation = 0;
+  glm::vec4 color{0};
+  unsigned long dist_from_camera_cm = 0;
+};
+
+
+class Effect3DRenderListBase
+{
+protected:
+  std::vector<const Effect3DParticleBase*> m_list;
+
+public:
+  void add(const Effect3DParticleBase &particle)
+  {
+    m_list.push_back(&particle);
+  }
+};
 
 
 class Effect3DParameters
@@ -92,6 +116,8 @@ public:
   virtual ~Effect3D() {}
 
   virtual void render() = 0;
+  virtual void addToRenderList(Effect3DRenderListBase&, const render_util::Camera&) = 0;
+  virtual size_t getNumParticles() = 0;
   virtual void update(float delta, const glm::vec2 &wind_speed) {}
 
   float getLifeTime() const { return m_params.LiveTime; }

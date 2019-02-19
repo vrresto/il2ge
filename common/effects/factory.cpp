@@ -46,6 +46,12 @@ public:
     gl::Vertex3f(getPos().x, getPos().y, getPos().z);
     gl::End();
   }
+
+  void addToRenderList(Effect3DRenderListBase&, const render_util::Camera&) override
+  {
+  }
+
+  size_t getNumParticles() override { return 0; }
 };
 
 

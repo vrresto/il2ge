@@ -16,31 +16,27 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EFFECTS_H
-#define CORE_EFFECTS_H
+#ifndef IL2GE_EFFECTS_H
+#define IL2GE_EFFECTS_H
 
-#include <il2ge/effects.h>
-#include <render_util/shader.h>
+#include <il2ge/effect3d.h>
 
-#include <unordered_map>
-
-namespace core
+namespace il2ge
 {
 
 
-class Effects : public il2ge::Effects
+class Effects
 {
-  std::unordered_map<int, il2ge::Effect3D*> m_map;
-  render_util::ShaderProgramPtr m_default_shader;
-
-  render_util::ShaderProgramPtr getDefaultShader();
+  struct Impl;
+  std::unique_ptr<Impl> p;
 
 public:
-  void add(std::unique_ptr<il2ge::Effect3D> effect, int cpp_obj);
-  bool remove(int cpp_obj);
-  il2ge::Effect3D *get(int cpp_obj);
-
-  void render();
+  Effects();
+  ~Effects();
+  void add(std::unique_ptr<il2ge::Effect3D>);
+  void remove(il2ge::Effect3D*);
+  void update(float delta, const glm::vec2 &wind_speed);
+  void render(const render_util::Camera &camera);
 };
 
 

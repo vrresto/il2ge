@@ -25,7 +25,6 @@
 
 using namespace render_util::gl_binding;
 
-void ParticleSystem_renderAll(const render_util::Camera &camera);
 
 namespace core
 {
@@ -45,28 +44,28 @@ render_util::ShaderProgramPtr Effects::getDefaultShader()
 
 void Effects::add(std::unique_ptr<il2ge::Effect3D> effect, int cpp_obj)
 {
-  m_map[cpp_obj] = std::move(effect);
+  m_map[cpp_obj] = effect.get();
+  il2ge::Effects::add(std::move(effect));
 }
 
 
 bool Effects::remove(int cpp_obj)
 {
-  return m_map.erase(cpp_obj);
+  auto e = m_map[cpp_obj];
+  if (e)
+  {
+    m_map.erase(cpp_obj);
+    il2ge::Effects::remove(e);
+    return true;
+  }
+  else
+    return false;
 }
 
 
 il2ge::Effect3D *Effects::get(int cpp_obj)
 {
-  return m_map[cpp_obj].get();
-}
-
-
-void Effects::update(float delta, const glm::vec2 &wind_speed)
-{
-  for (auto &it : m_map)
-  {
-    it.second->update(delta, wind_speed);
-  }
+  return m_map[cpp_obj];
 }
 
 
@@ -85,13 +84,7 @@ void Effects::render()
   gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   gl::DepthMask(false);
 
-//   for (auto &it : m_map)
-//   {
-//     gl::PointSize(2);
-//     it.second->render();
-//   }
-
-  ParticleSystem_renderAll(*core::getCamera());
+  il2ge::Effects::render(*core::getCamera());
 
   core_gl_wrapper::setShader(nullptr);
 
