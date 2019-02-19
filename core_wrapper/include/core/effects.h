@@ -1,6 +1,6 @@
 /**
  *    IL-2 Graphics Extender
- *    Copyright (C) 2018 Jan Lepper
+ *    Copyright (C) 2019 Jan Lepper
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU Lesser General Public License as published by
@@ -16,44 +16,36 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_GL_WRAPPER_H
-#define CORE_GL_WRAPPER_H
+#ifndef CORE_EFFECTS_H
+#define CORE_EFFECTS_H
 
-#include <core.h>
-#include <render_util/texunits.h>
+#include <il2ge/effect3d.h>
 #include <render_util/shader.h>
-#include <render_util/gl_context.h>
 
 #include <unordered_map>
-#include <map>
 
-namespace core_gl_wrapper
+namespace core
 {
-  class Context
-  {
-  public:
-    struct Impl;
 
-    Context();
-    ~Context();
 
-    Impl *getImpl() { return impl.get(); }
+class Effects
+{
+  std::unordered_map<int, std::unique_ptr<il2ge::Effect3D>> m_map;
+  render_util::ShaderProgramPtr m_default_shader;
 
-  private:
-    std::unique_ptr<Impl> impl;
-  };
+  render_util::ShaderProgramPtr getDefaultShader();
 
-  void init();
-  void *getProc(const char *name);
+public:
+  void add(std::unique_ptr<il2ge::Effect3D> effect, int cpp_obj);
+  bool remove(int cpp_obj);
+  il2ge::Effect3D *get(int cpp_obj);
 
-  void onRenderPhaseChanged(const core::Il2RenderState &state);
+  void update(float delta, const glm::vec2 &wind_speed);
+  void render();
+};
 
-  void toggleEnable();
-  void toggleTerrain();
-  void toggleObjectShaders();
 
-  void setShader(render_util::ShaderProgramPtr);
-  void updateUniforms(render_util::ShaderProgramPtr);
 }
+
 
 #endif

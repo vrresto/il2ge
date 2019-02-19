@@ -179,6 +179,11 @@ void loadMap(const char *path, void *env_)
 }
 
 
+bool isMapLoaded()
+{
+  return getScene()->isMapLoaded();
+}
+
 void updateUniforms(render_util::ShaderProgramPtr program)
 {
   program->setUniform("terrainColor", glm::vec3(0,1,0));
@@ -202,6 +207,31 @@ render_util::TextureManager &textureManager()
 render_util::TerrainRenderer &getTerrainRenderer()
 {
   return getScene()->getTerrainRenderer();
+}
+
+
+il2ge::Effect3D *getEffect(int cpp_obj)
+{
+  assert(getScene()->effects.get(cpp_obj));
+  return getScene()->effects.get(cpp_obj);
+}
+
+
+void addEffect(std::unique_ptr<il2ge::Effect3D> effect, int cpp_obj)
+{
+  getScene()->effects.add(std::move(effect), cpp_obj);
+}
+
+
+bool removeEffect(int cpp_obj)
+{
+  return getScene()->effects.remove(cpp_obj);
+}
+
+
+void renderEffects()
+{
+  getScene()->effects.render();
 }
 
 

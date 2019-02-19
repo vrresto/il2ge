@@ -33,7 +33,10 @@ Interface import;
 void JNICALL Finalize(JNIEnv *env, jobject obj,
     jint arg0)
 {
-  import.Finalize(env, obj, arg0);
+  if (!core::removeEffect(arg0))
+  {
+    import.Finalize(env, obj, arg0);
+  }
 }
 
 

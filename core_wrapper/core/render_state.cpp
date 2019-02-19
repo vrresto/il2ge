@@ -107,6 +107,8 @@ namespace core
 
   void onPrePreRenders()
   {
+    g_il2_state.render_state.render3d1_flushed = false;
+
     if (!g_il2_state.last_frame_time)
       g_il2_state.last_frame_time = g_il2_state.current_time;
 
@@ -120,7 +122,7 @@ namespace core
 
     setRenderPhase(IL2_PrePreRenders);
 
-    getScene()->update();
+    getScene()->update(g_il2_state.frame_delta, g_il2_state.wind_speed);
   }
 
   void onPostPreRenders()
@@ -174,6 +176,15 @@ namespace core
   void onLandscapePostRender()
   {
     setRenderPhase(IL2_PostLandscape);
+  }
+
+  void onRender3D1Flush()
+  {
+    if (!g_il2_state.render_state.render3d1_flushed)
+    {
+      renderEffects();
+      g_il2_state.render_state.render3d1_flushed = true;
+    }
   }
 
   const vec3 &getSunDir()

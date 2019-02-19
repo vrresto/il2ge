@@ -84,7 +84,6 @@ void init()
   if (g_initialized)
     return;
 
-
   vector<MetaClassInitFunc*> registrators
   {
     registrator::rts::Time,
@@ -93,6 +92,7 @@ void init()
     registrator::il2::engine::Landscape,
     registrator::il2::engine::Camera,
     registrator::il2::engine::GObj,
+    registrator::il2::engine::Eff3D,
     registrator::il2::fm::Wind,
   };
 

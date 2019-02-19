@@ -25,6 +25,7 @@
 #include <typeindex>
 #include <memory>
 
+struct JNIEnv_;
 
 namespace jni_wrapper
 {
@@ -44,7 +45,7 @@ namespace il2ge::core_wrapper
   };
 
   const Config &getConfig();
-
+  JNIEnv_ *getJNIEnv();
   std::string getWrapperLibraryFilePath();
   [[ noreturn ]] void fatalError(const std::string &message);
 }

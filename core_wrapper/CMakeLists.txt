@@ -36,6 +36,7 @@ set(SRCS
   core/map.cpp
   core/render_state.cpp
   core/scene.cpp
+  core/effects.cpp
   jni_wrapper/jni_wrapper.cpp
   gl_wrapper/wgl_interface.cpp
   gl_wrapper/gl_wrapper_main.cpp
@@ -52,6 +53,7 @@ set(JNI_WRAPPER_CLASSES
   il2.engine.Renders
   il2.engine.LightPoint
   il2.engine.GObj
+  il2.engine.Eff3D
   il2.fm.Wind
 )
 

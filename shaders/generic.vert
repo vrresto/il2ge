@@ -2,8 +2,9 @@
 
 // varying vec3 passViewPos;
 
-// uniform mat4 projectionMatrixFar;
-// uniform mat4 world2ViewMatrix;
+uniform mat4 projectionMatrixFar;
+uniform mat4 world2ViewMatrix;
+uniform vec3 cameraPosWorld;
 
 void main(void)
 {
@@ -17,5 +18,9 @@ void main(void)
 //   vec4 pos = gl_Vertex;
 //   pos.xyz *= 1000;
 
-//   gl_Position = mvp * pos;
+  gl_Position = world2ViewMatrix * gl_Vertex;
+  gl_Position = projectionMatrixFar * gl_Position;
+
+  gl_FrontColor = gl_Color;
+  gl_BackColor = gl_Color;
 }

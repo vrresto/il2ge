@@ -336,6 +336,15 @@ const il2ge::core_wrapper::Config &il2ge::core_wrapper::getConfig()
 }
 
 
+JNIEnv_ *il2ge::core_wrapper::getJNIEnv()
+{
+  JNIEnv_ *env = nullptr;
+  if (g_java_vm)
+    g_java_vm->GetEnv((void**)&env, g_jni_version);
+  return env;
+}
+
+
 extern "C"
 {
 

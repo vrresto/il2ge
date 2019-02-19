@@ -41,6 +41,30 @@ void il2.engine.LightPoint clearRender
 void il2.engine.LightPoint Finalize jint
 jint il2.engine.LightPoint New
 
+jobject il2.engine.Eff3D New
+void il2.engine.Eff3D SetPos jint jfloatArray
+void il2.engine.Eff3D SetAnglesATK jint jfloatArray
+void il2.engine.Eff3D SetXYZATK jint jfloat jfloat jfloat jfloat jfloat jfloat
+jint il2.engine.Eff3D PreRender jint
+void il2.engine.Eff3D Render jint
+void il2.engine.Eff3D Pause jint jboolean
+jboolean il2.engine.Eff3D IsPaused jint
+void il2.engine.Eff3D SetIntesity jint jfloat
+jfloat il2.engine.Eff3D GetIntesity jint
+void il2.engine.Eff3D Finish jint
+jfloat il2.engine.Eff3D TimeLife jint
+jfloat il2.engine.Eff3D TimeFinish jint
+jboolean il2.engine.Eff3D IsTimeReal jint
+void il2.engine.Eff3D initSetProcessTime jfloat
+void il2.engine.Eff3D initSetTypeTimer jboolean
+void il2.engine.Eff3D initSetBoundBox jfloat jfloat jfloat jfloat jfloat jfloat
+void il2.engine.Eff3D initSetPos jfloat jfloat jfloat
+void il2.engine.Eff3D initSetSize jfloat
+void il2.engine.Eff3D initSetAnglesATK jfloat jfloat jfloat
+void il2.engine.Eff3D initSetSubType jint
+void il2.engine.Eff3D initSetMaterialName jstring
+void il2.engine.Eff3D initSetParamFileName jstring
+
 void il2.engine.GObj Finalize jint
 
 jfloat il2.fm.Wind SetWind jfloat jfloat jfloat jfloat jfloat

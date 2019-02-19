@@ -83,8 +83,9 @@ namespace core
   }
 
 
-  void Scene::update()
+  void Scene::update(float delta, const glm::vec2 &wind_speed)
   {
+    effects.update(delta, wind_speed);
     if (map)
       map->getWaterAnimation()->update();
   }

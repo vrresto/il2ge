@@ -19,8 +19,13 @@
 #include "jni_wrapper.h"
 #include "meta_class_registrators.h"
 #include <core.h>
+#include <java_classes.h>
 
+#include <iostream>
+
+using namespace il2ge;
 using namespace jni_wrapper;
+using namespace std;
 
 namespace
 {
@@ -28,7 +33,47 @@ namespace
 
 #include <_generated/jni_wrapper/il2.engine.Render_definitions>
 
+
+struct RenderWrapper;
+
+
+unordered_map<string, unique_ptr<RenderWrapper>> createWrappers();
+
+
 Interface import;
+unordered_map<string, unique_ptr<RenderWrapper>> g_render_wrappers = createWrappers();
+
+
+struct RenderWrapper
+{
+  virtual void flush() = 0;
+};
+
+
+struct RenderWrapper3D1 : public RenderWrapper
+{
+  void flush() override
+  {
+    core::onRender3D1Flush();
+  }
+};
+
+
+unordered_map<string, unique_ptr<RenderWrapper>> createWrappers()
+{
+  unordered_map<string, unique_ptr<RenderWrapper>> map;
+
+  map["render3D1"] = make_unique<RenderWrapper3D1>();
+
+  return move(map);
+}
+
+
+RenderWrapper *getRenderWrapper(jobject obj)
+{
+  java::il2::engine::Actor actor(obj);
+  return g_render_wrappers[actor.getName()].get();
+}
 
 
 jint JNICALL prepareStates(JNIEnv *env, jobject obj)
@@ -44,7 +89,13 @@ jint JNICALL clearStates(JNIEnv *env, jobject obj)
 
 jint JNICALL flush(JNIEnv *env, jobject obj)
 {
-  return import.flush(env, obj);
+  import.flush(env, obj);
+
+  auto wrapper = getRenderWrapper(java::getClass<java::il2::engine::Renders>().current());
+  if (wrapper)
+    wrapper->flush();
+
+  return 0;
 }
 
 jint JNICALL shadows(JNIEnv *env, jobject obj)

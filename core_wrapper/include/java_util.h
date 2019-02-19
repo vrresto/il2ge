@@ -19,10 +19,18 @@
 #ifndef IL2GE_CORE_WRAPPER_JAVA_UTIL_H
 #define IL2GE_CORE_WRAPPER_JAVA_UTIL_H
 
+#include <misc.h>
+
 #include <jni.h>
 
 namespace il2ge::java
 {
+
+
+inline JNIEnv *getEnv()
+{
+  return il2ge::core_wrapper::getJNIEnv();
+}
 
 
 class ClassNotFoundException : public std::exception
@@ -119,7 +127,7 @@ public:
 template <class T>
 T &getSingleton()
 {
-  static T instance {getEnv()};
+  static T instance {il2ge::core_wrapper::getJNIEnv()};
   return instance;
 }
 
@@ -146,8 +154,8 @@ public:
   Object(jobject id, JNIEnv *env = nullptr)
   {
     m_env = env;
-//     if (!m_env)
-//       m_env = il2ge::core_wrapper::getJNIEnv();
+    if (!m_env)
+      m_env = il2ge::core_wrapper::getJNIEnv();
     if (!m_env)
       throw NoJNIEnvException();
 

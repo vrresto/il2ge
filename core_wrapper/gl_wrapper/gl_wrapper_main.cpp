@@ -817,4 +817,16 @@ void toggleTerrain()
 #endif
 
 
+void setShader(render_util::ShaderProgramPtr shader)
+{
+  getContext()->setActiveShader(shader);
+}
+
+
+void updateUniforms(render_util::ShaderProgramPtr shader)
+{
+  getContext()->updateUniforms(shader);
+}
+
+
 } // namespace core_gl_wrapper

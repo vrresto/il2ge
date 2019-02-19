@@ -19,10 +19,11 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include <glm/glm.hpp>
+#include <il2ge/effect3d.h>
 #include <render_util/shader.h>
 #include <render_util/texture_manager.h>
 #include <render_util/terrain_util.h>
+#include <glm/glm.hpp>
 
 
 namespace render_util
@@ -51,9 +52,11 @@ namespace core
   {
     Il2CameraMode camera_mode = IL2_CAMERA_MODE_UNKNOWN;
     Il2RenderPhase render_phase = IL2_RENDER_PHASE_UNKNOWN;
+    bool render3d1_flushed = false;
   };
 
   bool isFMBActive();
+  bool isMapLoaded();
 
   Il2CameraMode getCameraMode();
   void setCameraMode(Il2CameraMode);
@@ -73,6 +76,11 @@ namespace core
 
   render_util::TerrainRenderer &getTerrainRenderer();
 
+  il2ge::Effect3D *getEffect(int cpp_obj);
+  void addEffect(std::unique_ptr<il2ge::Effect3D> effect, int cpp_obj);
+  bool removeEffect(int cpp_obj);
+  void renderEffects();
+
   void setTime(uint64_t);
   void setWindSpeed(const glm::vec2&);
 
@@ -86,6 +94,7 @@ namespace core
   void onLandscapeRender0Done();
   void onLandscapeRender1();
   void onLandscapePostRender();
+  void onRender3D1Flush();
 
   void init();
 }
