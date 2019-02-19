@@ -201,5 +201,9 @@ namespace core
 //     return frame_delta;
 //   }
 
+  void setWindSpeed(const glm::vec2 &speed)
+  {
+    g_il2_state.wind_speed = speed;
+  }
 
 }

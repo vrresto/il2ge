@@ -40,3 +40,5 @@ void il2.engine.LightPoint addToRender jint
 void il2.engine.LightPoint clearRender
 void il2.engine.LightPoint Finalize jint
 jint il2.engine.LightPoint New
+
+jfloat il2.fm.Wind SetWind jfloat jfloat jfloat jfloat jfloat
