@@ -71,10 +71,15 @@ public:
 
 inline std::string javaStringToStd(JNIEnv *env, jstring java_string)
 {
-  jsize len = env->GetStringUTFLength(java_string);
-  char buf[len+1];
-  env->GetStringUTFRegion(java_string, 0, len, buf);
-  return std::move(std::string(buf, len));
+  if (java_string)
+  {
+    jsize len = env->GetStringUTFLength(java_string);
+    char buf[len+1];
+    env->GetStringUTFRegion(java_string, 0, len, buf);
+    return std::move(std::string(buf, len));
+  }
+  else
+    return {};
 }
 
 
