@@ -91,6 +91,7 @@ void init()
     registrator::il2::engine::Render,
     registrator::il2::engine::Landscape,
     registrator::il2::engine::Camera,
+    registrator::il2::engine::GObj,
     registrator::il2::fm::Wind,
   };
 

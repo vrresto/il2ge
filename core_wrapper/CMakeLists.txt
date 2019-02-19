@@ -50,6 +50,7 @@ set(JNI_WRAPPER_CLASSES
   il2.engine.Render
   il2.engine.Renders
   il2.engine.LightPoint
+  il2.engine.GObj
   il2.fm.Wind
 )
 
