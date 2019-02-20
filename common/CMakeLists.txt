@@ -5,6 +5,7 @@ add_definitions("-DINI_INLINE_COMMENT_PREFIXES=\"\;/\"")
 
 set(CXX_SRCS
   parameter_file.cpp
+  material.cpp
   image_loader.cpp
   imf.cpp
   map_loader/water_map.cpp
