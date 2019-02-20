@@ -56,6 +56,7 @@ namespace
 {
 
 bool g_initialized = false;
+bool g_enable_object_shaders = false;
 
 using Context = core_gl_wrapper::arb_program::Context::Impl;
 
@@ -698,35 +699,41 @@ struct core_gl_wrapper::arb_program::Context::Impl
     {
       is_arb_program_active = true;
 
-      if (is_fragment_program_enabled && active_fragment_program)
+      if (g_enable_object_shaders)
       {
-        if (is_vertex_program_enabled && active_vertex_program)
+        if (is_fragment_program_enabled && active_fragment_program)
         {
-          glsl_program = active_fragment_program->getGLSLProgram(active_vertex_program);
+          if (is_vertex_program_enabled && active_vertex_program)
+          {
+            glsl_program = active_fragment_program->getGLSLProgram(active_vertex_program);
+          }
+          else
+          {
+            glsl_program = active_fragment_program->getDefaultGLSLProgram();
+          }
         }
-        else
+        else if (is_vertex_program_enabled && active_vertex_program)
         {
-          glsl_program = active_fragment_program->getDefaultGLSLProgram();
+          glsl_program = active_vertex_program->getDefaultGLSLProgram();
         }
-      }
-      else if (is_vertex_program_enabled && active_vertex_program)
-      {
-        glsl_program = active_vertex_program->getDefaultGLSLProgram();
       }
     }
 
     main_context.setIsARBProgramActive(is_arb_program_active);
 
-    if (glsl_program && glsl_program->isValid())
+    if (g_enable_object_shaders)
     {
-      main_context.setActiveARBProgram(glsl_program);
-      main_context.updateUniforms(glsl_program);
-      glsl_program->assertUniformsAreSet();
-      bindUniformBuffers();
-    }
-    else
-    {
-      main_context.setActiveARBProgram(nullptr);
+      if (glsl_program && glsl_program->isValid())
+      {
+        main_context.setActiveARBProgram(glsl_program);
+        main_context.updateUniforms(glsl_program);
+        glsl_program->assertUniformsAreSet();
+        bindUniformBuffers();
+      }
+      else
+      {
+        main_context.setActiveARBProgram(nullptr);
+      }
     }
 
     program_needs_update = false;
@@ -738,7 +745,9 @@ struct core_gl_wrapper::arb_program::Context::Impl
       return;
 
     updateProgram();
-    updateLocalParameters();
+
+    if (g_enable_object_shaders)
+      updateLocalParameters();
   }
 
   bool isObjectProgramActive()
@@ -844,12 +853,15 @@ wrap_ProgramLocalParameter4fARB(GLenum target, GLuint index,
 {
   gl::ProgramLocalParameter4fARB(target, index, x, y, z, w);
 
-  ProgramBase *p = getActiveProgram(target);
-  assert(p);
+  if (g_enable_object_shaders)
+  {
+    ProgramBase *p = getActiveProgram(target);
+    assert(p);
 
-  glm::vec4 value(x,y,z,w);
+    glm::vec4 value(x,y,z,w);
 
-  p->params.set(index, value);
+    p->params.set(index, value);
+  }
 }
 
 
@@ -1036,6 +1048,8 @@ namespace core_gl_wrapper::arb_program
 
   void init()
   {
+    g_enable_object_shaders = il2ge::core_wrapper::getConfig().enable_object_shaders;
+
     SET_OVERRIDE(Enable)
     SET_OVERRIDE(Disable)
 

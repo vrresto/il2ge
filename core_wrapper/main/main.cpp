@@ -379,6 +379,8 @@ void WINAPI il2ge_init()
     g_config.enable_base_map = ini.GetBoolean("", "EnableBaseMap", g_config.enable_base_map);
     g_config.enable_light_point = ini.GetBoolean("", "EnableLightPoint", g_config.enable_light_point);
     g_config.enable_effects = ini.GetBoolean("", "EnableEffects", g_config.enable_effects);
+    g_config.enable_object_shaders =
+      ini.GetBoolean("", "EnableObjectShaders", g_config.enable_object_shaders);
   }
 
   g_log.m_outputs.pop_back();
