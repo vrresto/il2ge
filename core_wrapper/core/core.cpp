@@ -231,7 +231,8 @@ bool removeEffect(int cpp_obj)
 
 void renderEffects()
 {
-  getScene()->effects.render();
+  if (il2ge::core_wrapper::getConfig().enable_effects)
+    getScene()->effects.render();
 }
 
 

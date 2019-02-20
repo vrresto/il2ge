@@ -92,9 +92,11 @@ void init()
     registrator::il2::engine::Landscape,
     registrator::il2::engine::Camera,
     registrator::il2::engine::GObj,
-    registrator::il2::engine::Eff3D,
     registrator::il2::fm::Wind,
   };
+
+  if (il2ge::core_wrapper::getConfig().enable_effects)
+    registrators.push_back(registrator::il2::engine::Eff3D);
 
   if (il2ge::core_wrapper::getConfig().enable_light_point)
     registrators.push_back(registrator::il2::engine::LightPoint);

@@ -40,6 +40,7 @@ namespace il2ge::core_wrapper
   struct Config
   {
     bool enable_dump = false;
+    bool enable_effects = false;
     bool enable_light_point = false;
     bool enable_base_map = false;
   };
