@@ -222,7 +222,7 @@ glm::vec2 Map::getSize()
 void Map::setUniforms(render_util::ShaderProgramPtr program)
 {
   program->setUniform("map_size", getSize());
-  program->setUniform("terrain_height_offset", 0);
+  program->setUniform("terrain_height_offset", 0.f);
   program->setUniform("height_map_base_origin", p->base_map_origin);
   p->textures->setUniforms(program);
   p->water_animation->updateUniforms(program);

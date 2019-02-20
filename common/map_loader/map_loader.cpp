@@ -91,7 +91,7 @@ ImageRGBA::Ptr loadImageFromIMF(const vector<char> &data, const char *field_name
   int width, height;
   loadIMF(data, rgba_data, width, height, field_name);
 
-  return make_shared<ImageRGBA>(width, height, std::move(rgba_data));
+  return make_shared<ImageRGBA>(glm::ivec2(width, height), std::move(rgba_data));
 }
 
 
@@ -203,10 +203,7 @@ void createWaterMap
 
     assert(data.size() == data_size);
 
-    water_map.table.reset(new Image<unsigned int>(table_size.x,
-                                                          table_size.y,
-                                                          data_size * sizeof(unsigned int),
-                                                          reinterpret_cast<unsigned char*>(data.data())));
+    water_map.table = std::make_shared<Image<unsigned int>>(table_size, data);
     water_map.table = image::flipY(water_map.table);
 
     il2ge::convertWaterMap(water_map, map, small_water_map);
