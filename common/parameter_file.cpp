@@ -24,6 +24,30 @@
 
 using namespace std;
 
+
+namespace
+{
+
+
+void stripComment(string &line)
+{
+  static const std::vector<string> prefixes { "//" };
+
+  for (auto &p : prefixes)
+  {
+    auto comment_start = line.find(p);
+    if (comment_start != string::npos)
+    {
+      line = move(line.substr(0, comment_start));
+      return;
+    }
+  }
+}
+
+
+} // namespace
+
+
 namespace il2ge
 {
 
@@ -91,13 +115,21 @@ ParameterFile::ParameterFile(const char *content, size_t size)
     string line;
     getline(in, line);
 
+    stripComment(line);
     line = util::trim(line);
 
-    if (line.front() == '[')
+    if (line.empty())
+    {
+      continue;
+    }
+    else if (line.front() == '[')
     {
       if (line.back() != ']')
-        cout<<"line: "<<line<<endl;
-      assert(line.back() == ']');
+      {
+        cout<<"unterminated section: "<<line<<endl;
+        throw std::exception();
+      }
+
       string section_name = line.substr(1, line.size()-2);
       section = &m_sections[section_name];
     }
