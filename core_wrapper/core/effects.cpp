@@ -17,13 +17,23 @@
  */
 
 #include <core/effects.h>
+#include <il2ge/image_loader.h>
 #include <gl_wrapper.h>
+#include <sfs.h>
 #include <render_util/shader_util.h>
 #include <render_util/gl_binding/gl_functions.h>
 
 
-
 using namespace render_util::gl_binding;
+
+
+namespace
+{
+  inline std::shared_ptr<render_util::GenericImage> createDummyTexture()
+  {
+    return std::make_shared<render_util::GenericImage>(glm::ivec2(2), 1);
+  }
+}
 
 
 namespace core
@@ -36,8 +46,12 @@ const std::string SHADER_PATH = IL2GE_DATA_DIR "/shaders";
 render_util::ShaderProgramPtr Effects::getDefaultShader()
 {
   if (!m_default_shader)
+  {
     m_default_shader = render_util::createShaderProgram("generic", core::textureManager(), SHADER_PATH);
-  assert(m_default_shader);
+    assert(m_default_shader);
+    m_default_shader->setUniformi("sampler_0", 0);
+  }
+
   return m_default_shader;
 }
 
@@ -94,4 +108,33 @@ void Effects::render()
 }
 
 
+std::shared_ptr<render_util::GenericImage> Effects::createTexture(const il2ge::Material &mat)
+{
+  if (mat.getLayers().empty())
+    return createDummyTexture();
+
+  auto path = mat.getLayers().front().texture_path;
+  if (path.empty())
+    return createDummyTexture();
+
+  std::vector<char> content;
+  if (sfs::readFile(path, content))
+  {
+//     util::writeFile("il2ge_dump/" + util::basename(path), content.data(), content.size());
+
+    auto image = il2ge::loadImageFromMemory(content, path.c_str());
+    if (!image)
+    {
+//       std::cout<<"path: "<<path<<std::endl;
+//       util::writeFile("failed_image.tga", content.data(), content.size());
+      return createDummyTexture();
+    }
+    else
+      return image;
+  }
+  else
+    return createDummyTexture();
 }
+
+
+} // namespace core

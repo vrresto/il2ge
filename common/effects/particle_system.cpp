@@ -150,6 +150,8 @@ public:
   ParticleSystem(const ParticleSystemParameters &params) : Effect3D(params), m_params(params)
   {
     m_particles.resize(m_params.nParticles);
+    for (auto &p : m_particles)
+      p.effect = this;
   }
 
 

@@ -39,8 +39,9 @@ public:
   void add(std::unique_ptr<il2ge::Effect3D> effect, int cpp_obj);
   bool remove(int cpp_obj);
   il2ge::Effect3D *get(int cpp_obj);
-
   void render();
+
+  std::shared_ptr<render_util::GenericImage> createTexture(const il2ge::Material&) override;
 };
 
 

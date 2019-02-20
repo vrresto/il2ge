@@ -20,6 +20,8 @@
 #define IL2GE_EFFECTS_H
 
 #include <il2ge/effect3d.h>
+#include <render_util/texture_manager.h>
+#include <render_util/image.h>
 
 namespace il2ge
 {
@@ -37,6 +39,8 @@ public:
   void remove(il2ge::Effect3D*);
   void update(float delta, const glm::vec2 &wind_speed);
   void render(const render_util::Camera &camera);
+
+  virtual std::shared_ptr<render_util::GenericImage> createTexture(const Material&) = 0;
 };
 
 

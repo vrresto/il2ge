@@ -20,6 +20,7 @@
 #define IL2GE_EFFECT3D_H
 
 #include <il2ge/parameter_file.h>
+#include <il2ge/material.h>
 #include <render_util/camera.h>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -35,6 +36,8 @@ class Effect3D;
 
 struct Effect3DParticleBase
 {
+  Effect3D *effect = nullptr;
+
   glm::dvec3 pos{0};
   float size = 0;
   float rotation = 0;
@@ -112,6 +115,9 @@ class Effect3D
   }
 
 public:
+  std::shared_ptr<const Material> material;
+
+
   Effect3D(const Effect3DParameters &params) : m_params(params) {}
   virtual ~Effect3D() {}
 

@@ -18,6 +18,9 @@
 
 #include <il2ge/effects.h>
 #include <render_util/gl_binding/gl_functions.h>
+#include <render_util/texture_manager.h>
+#include <render_util/texture_util.h>
+#include <render_util/globals.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
@@ -34,7 +37,17 @@ namespace
 
 struct RenderList : public Effect3DRenderListBase
 {
+  std::unordered_map<const Material*, render_util::TexturePtr> &m_textures;
+  std::unordered_map<const Material*, bool> &m_texture_is_greyscale;
+
+
+  RenderList(std::unordered_map<const Material*, render_util::TexturePtr> &textures,
+             std::unordered_map<const Material*, bool> &texture_is_greyscale) :
+    m_textures(textures), m_texture_is_greyscale(texture_is_greyscale) {}
+
+
   bool isEmpty() { return m_list.empty(); }
+
 
   void reserve(size_t size)
   {
@@ -77,23 +90,44 @@ struct RenderList : public Effect3DRenderListBase
       vec3{-0.5f, +0.5f, 0},
     };
 
-    gl::Begin(GL_QUADS);
+    gl::ActiveTexture(GL_TEXTURE0);
+
     for (auto p : m_list)
     {
       auto &color = p->color;
       gl::Color4f(color.x, color.y, color.z, color.w);
 
+      assert(p->effect);
+      assert(p->effect->material);
+
+      auto &texture = m_textures[p->effect->material.get()];
+      bool is_greyscale = m_texture_is_greyscale[p->effect->material.get()];
+
+      assert(texture);
+
+      gl::BindTexture(GL_TEXTURE_2D, texture->getID());
+      auto prog = render_util::getCurrentGLContext()->getCurrentProgram();
+      assert(prog);
+      prog->setUniform("is_alpha_texture", is_greyscale);
+
+      gl::Begin(GL_QUADS);
       for (auto v : vertices)
       {
+        vec2 texcoord {v};
+        texcoord += vec2(0.5);
+
         v *= p->size;
         v = rotate(v, p->rotation, vec3{0,0,1});
         v = view_to_world_rot_mat * vec4{v, 1};
         v += p->pos;
 
+        gl::TexCoord4f(texcoord.x, texcoord.y, texcoord.x, texcoord.y);
+        gl::MultiTexCoord4f(GL_TEXTURE0, texcoord.x, texcoord.y, texcoord.x, texcoord.y);
         gl::Vertex3f(v.x, v.y, v.z);
+
       }
+      gl::End();
     }
-    gl::End();
   }
 
 };
@@ -108,9 +142,11 @@ namespace il2ge
 
 struct Effects::Impl
 {
-  RenderList m_render_list;
   std::list<std::unique_ptr<Effect3D>> m_effects;
   std::unordered_map<Effect3D*, std::list<std::unique_ptr<Effect3D>>::iterator> m_map;
+  std::unordered_map<const Material*, render_util::TexturePtr> m_textures;
+  std::unordered_map<const Material*, bool> m_texture_is_greyscale;
+  RenderList m_render_list { m_textures, m_texture_is_greyscale };
 
   size_t getNumParticles()
   {
@@ -132,6 +168,15 @@ Effects::~Effects() {}
 
 void Effects::add(std::unique_ptr<il2ge::Effect3D> effect)
 {
+  assert(effect->material);
+  if (!p->m_textures[effect->material.get()])
+  {
+    auto image = createTexture(*effect->material);
+
+    p->m_textures[effect->material.get()] = render_util::createTexture(image);
+    p->m_texture_is_greyscale[effect->material.get()] = image->numComponents() == 1;
+  }
+
   auto key = effect.get();
   auto pos = p->m_effects.insert(p->m_effects.end(), std::move(effect));
   p->m_map[key] = pos;

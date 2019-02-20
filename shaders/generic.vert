@@ -6,6 +6,8 @@ uniform mat4 projectionMatrixFar;
 uniform mat4 world2ViewMatrix;
 uniform vec3 cameraPosWorld;
 
+varying vec2 pass_texcoord;
+
 void main(void)
 {
 //   passViewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
@@ -23,4 +25,6 @@ void main(void)
 
   gl_FrontColor = gl_Color;
   gl_BackColor = gl_Color;
+
+  pass_texcoord = gl_MultiTexCoord0.xy;
 }
