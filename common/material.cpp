@@ -34,11 +34,13 @@ Material::Material(const ParameterFile &params, const std::string &dir)
   {
     string layer_name = "Layer" + to_string(i);
     string texture_name;
+    bool tfBlendAdd = false;
 
     try
     {
       auto &section = params.getSection(layer_name.c_str());
-      texture_name = section.get("TextureName");
+      section.get("TextureName", texture_name);
+      section.get("tfBlendAdd", tfBlendAdd);
     }
     catch(...)
     {
@@ -48,7 +50,7 @@ Material::Material(const ParameterFile &params, const std::string &dir)
     if (texture_name.empty())
       break;
 
-    Layer layer { util::resolveRelativePathComponents(dir + '/' + texture_name) };
+    Layer layer { util::resolveRelativePathComponents(dir + '/' + texture_name), tfBlendAdd };
 
     m_layers.push_back(layer);
   }

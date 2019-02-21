@@ -72,6 +72,11 @@ public:
       value = std::stoi(m_values.at(name).at(0));
     }
 
+    void getImp(const char *name, bool &value) const
+    {
+      value = std::stoi(m_values.at(name).at(0));
+    }
+
     void getImp(const char *name, float &value) const
     {
       value = std::stof(m_values.at(name).at(0));

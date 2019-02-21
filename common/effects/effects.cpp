@@ -106,9 +106,20 @@ struct RenderList : public Effect3DRenderListBase
       assert(texture);
 
       gl::BindTexture(GL_TEXTURE_2D, texture->getID());
+
       auto prog = render_util::getCurrentGLContext()->getCurrentProgram();
       assert(prog);
       prog->setUniform("is_alpha_texture", is_greyscale);
+
+      if (!p->effect->material->getLayers().empty() &&
+          p->effect->material->getLayers().front().tfBlendAdd)
+      {
+        gl::BlendFunc(GL_SRC_ALPHA, GL_ONE);
+      }
+      else
+      {
+        gl::BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      }
 
       gl::Begin(GL_QUADS);
       for (auto v : vertices)

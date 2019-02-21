@@ -36,6 +36,7 @@ public:
   struct Layer
   {
     std::string texture_path;
+    bool tfBlendAdd = false;
   };
 
   Material(const ParameterFile&, const std::string &dir);
