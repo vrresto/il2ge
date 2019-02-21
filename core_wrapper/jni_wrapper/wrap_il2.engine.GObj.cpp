@@ -38,34 +38,23 @@ namespace
 
 class MutexLocker
 {
-  HANDLE m_mutex;
+  CRITICAL_SECTION &m_mutex;
 
 public:
-  MutexLocker(HANDLE mutex) : m_mutex(mutex)
+  MutexLocker(CRITICAL_SECTION &mutex) : m_mutex(mutex)
   {
-    assert(m_mutex);
-
-    SetLastError(ERROR_SUCCESS);
-    auto wait_res = WAIT_FAILED;
-
-    while (wait_res != WAIT_OBJECT_0)
-    {
-      wait_res = WaitForSingleObject(m_mutex, INFINITE);
-      if (wait_res != WAIT_OBJECT_0)
-        printf("WaitForSingleObject() failed - wait_res: 0x%x - error: 0x%x\n", wait_res, GetLastError());
-    }
+    EnterCriticalSection(&m_mutex);
   }
   ~MutexLocker()
   {
-    auto release_res = ReleaseMutex(m_mutex);
-    assert(release_res);
+    LeaveCriticalSection(&m_mutex);
   }
 };
 
 
 unordered_set<jint> g_objects;
 list<jint> g_garbage;
-HANDLE g_mutex = 0;
+CRITICAL_SECTION g_mutex;
 Interface import;
 
 
@@ -102,12 +91,7 @@ namespace jni_wrapper
 
 void initGObj()
 {
-  g_mutex = CreateMutexA(
-      NULL,              // default security attributes
-      FALSE,             // initially not owned
-      NULL);             // unnamed mutex
-
-  assert(g_mutex);
+  InitializeCriticalSection(&g_mutex);
 }
 
 
