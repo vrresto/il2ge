@@ -79,6 +79,9 @@ struct MetaClass
 
 typedef void MetaClassInitFunc(jni_wrapper::MetaClass&);
 
+void addGObj(jint cpp_obj);
+void initGObj();
+
 
 } // namespace jni_wrapper
 

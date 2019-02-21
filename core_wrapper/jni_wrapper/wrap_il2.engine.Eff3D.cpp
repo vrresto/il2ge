@@ -257,6 +257,8 @@ jobject JNICALL New(JNIEnv *env, jobject obj)
 
   int cpp_obj = (int)effect.get();
 
+  addGObj(cpp_obj);
+
   auto new_obj = factory.createJavaObject(cpp_obj);
   assert(new_obj);
 

@@ -142,6 +142,8 @@ void init()
     }
   }
 
+  initGObj();
+
   g_initialized = true;
 }
 

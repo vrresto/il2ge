@@ -75,6 +75,7 @@ std::ofstream g_logfile;
 bool g_core_wrapper_loaded = false;
 JNI_GetCreatedJavaVMs_t *p_JNI_GetCreatedJavaVMs = nullptr;
 JavaVM *g_java_vm = nullptr;
+DWORD g_main_thread = 0;
 
 
 void redirectOutput()
@@ -345,6 +346,13 @@ JNIEnv_ *il2ge::core_wrapper::getJNIEnv()
 }
 
 
+bool il2ge::core_wrapper::isMainThread()
+{
+  assert(g_main_thread);
+  return GetCurrentThreadId() == g_main_thread;
+}
+
+
 extern "C"
 {
 
@@ -387,6 +395,8 @@ void WINAPI il2ge_init()
   log.close();
 
   redirectOutput();
+
+  g_main_thread = GetCurrentThreadId();
 
   il2ge::exception_handler::install(g_log_file_name, &fatalErrorHandler);
   il2ge::exception_handler::watchModule(g_core_wrapper_module);

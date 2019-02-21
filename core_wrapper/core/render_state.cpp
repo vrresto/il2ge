@@ -122,6 +122,8 @@ namespace core
 
     setRenderPhase(IL2_PrePreRenders);
 
+    jni_wrapper::cleanGarbage();
+
     getScene()->update(g_il2_state.frame_delta, g_il2_state.wind_speed);
   }
 

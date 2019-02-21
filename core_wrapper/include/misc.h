@@ -32,6 +32,7 @@ namespace jni_wrapper
   void init();
   void resolveImports(void *module);
   void *getExport(const std::string &full_name);
+  void cleanGarbage();
 }
 
 
@@ -49,6 +50,7 @@ namespace il2ge::core_wrapper
   const Config &getConfig();
   JNIEnv_ *getJNIEnv();
   std::string getWrapperLibraryFilePath();
+  bool isMainThread();
   [[ noreturn ]] void fatalError(const std::string &message);
 }
 
