@@ -18,6 +18,7 @@
 
 #include "sfs.h"
 #include "sfs_p.h"
+#include <util.h>
 
 #include <iostream>
 #include <string>
@@ -124,7 +125,9 @@ __int64 getHash(const char *filename)
 
 bool readFile(const std::string &filename, std::vector<char> &out)
 {
-  auto fd = open(filename.c_str());
+  auto path = util::resolveRelativePathComponents(filename);
+
+  auto fd = open(path.c_str());
 
   if (fd == -1)
     return false;

@@ -25,10 +25,10 @@
 #include <il2ge/exception_handler.h>
 #include <il2ge/version.h>
 #include <util.h>
+#include <jni.h>
+#include <config.h>
 
 #include <INIReader.h>
-
-#include <jni.h>
 
 #include <iostream>
 #include <windows.h>
@@ -52,7 +52,6 @@ extern "C"
   BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
 }
 
-
 Logger g_log;
 
 
@@ -63,29 +62,24 @@ namespace
 typedef jint JNICALL JNI_GetCreatedJavaVMs_t(JavaVM **, jsize, jsize *);
 
 void installIATPatches(HMODULE);
-void loadCoreWrapper(const char*);
+HMODULE loadCoreWrapper(const char*);
 
 
 constexpr jint g_jni_version = JNI_VERSION_1_2;
 constexpr const char* const g_log_file_name = "il2ge.log";
 
 
+il2ge::core_wrapper::Config g_config;
 HMODULE g_core_wrapper_module = 0;
 std::ofstream g_logfile;
 bool g_core_wrapper_loaded = false;
 JNI_GetCreatedJavaVMs_t *p_JNI_GetCreatedJavaVMs = nullptr;
 JavaVM *g_java_vm = nullptr;
+DWORD g_main_thread = 0;
 
 
-void initLog()
+void redirectOutput()
 {
-  g_log.m_outputs.push_back(&cerr);
-
-  {
-    // clear previous contents
-    ofstream log(g_log_file_name);
-  }
-
   freopen(g_log_file_name, "a", stdout);
   freopen(g_log_file_name, "a", stderr);
 
@@ -98,6 +92,67 @@ void initLog()
 }
 
 
+#if ENABLE_SHORTCUTS
+BOOL WINAPI wrap_PeekMessageA(
+  LPMSG lpMsg,
+  HWND  hWnd,
+  UINT  wMsgFilterMin,
+  UINT  wMsgFilterMax,
+  UINT  wRemoveMsg)
+{
+  auto ret = PeekMessageA(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
+  if (ret)
+  {
+    if (lpMsg->message == WM_KEYDOWN)
+    {
+      cout<<"wrap_PeekMessageA\n";
+      cout<<"WM_KEYDOWN arrived\n";
+      exit(0);
+    }
+  }
+
+  return ret;
+}
+
+
+BOOL WINAPI wrap_PeekMessageW(
+  LPMSG lpMsg,
+  HWND  hWnd,
+  UINT  wMsgFilterMin,
+  UINT  wMsgFilterMax,
+  UINT  wRemoveMsg)
+{
+  auto ret = PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_NOREMOVE);
+
+  if (ret)
+  {
+    if (lpMsg->message == WM_KEYDOWN)
+    {
+      switch(lpMsg->wParam)
+      {
+        case 'E':
+          PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_REMOVE);
+          core_gl_wrapper::toggleEnable();
+          return false;
+        case 'O':
+          PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_REMOVE);
+          core_gl_wrapper::toggleObjectShaders();
+          return false;
+        case 'T':
+          PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_REMOVE);
+          core_gl_wrapper::toggleTerrain();
+          return false;
+      }
+    }
+
+    return PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
+  }
+
+  return ret;
+}
+#endif
+
+
 HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
 {
   g_log << "LoadLibrary: " << libFileName << '\n';
@@ -108,8 +163,7 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
   if (module_name == "il2_core" ||
       module_name == "il2_corep4")
   {
-    loadCoreWrapper(libFileName);
-    return g_core_wrapper_module;
+    return loadCoreWrapper(libFileName);
   }
 
   HMODULE module = LoadLibraryA(libFileName);
@@ -123,16 +177,20 @@ HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
     installIATPatches(module);
   }
 
+  if (module_name == "dt")
+  {
+    jni_wrapper::resolveImports((void*)module);
+  }
+
   return module;
 }
 
 
 FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
 {
-  if (hModule == g_core_wrapper_module)
-  {
-    return (FARPROC) il2ge::core_wrapper::getProcAddress(lpProcName);
-  }
+  void *addr = jni_wrapper::getExport(lpProcName);
+  if (addr)
+    return (FARPROC) addr;
 
   if (_stricmp(lpProcName, "LoadLibraryA") == 0)
   {
@@ -146,6 +204,16 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
   {
     return (FARPROC) sfs::get_openf_wrapper();
   }
+#if ENABLE_SHORTCUTS
+  else if (_stricmp(lpProcName, "PeekMessageA") == 0)
+  {
+    return (FARPROC) &wrap_PeekMessageA;
+  }
+  else if (_stricmp(lpProcName, "PeekMessageW") == 0)
+  {
+    return (FARPROC) &wrap_PeekMessageW;
+  }
+#endif
 
   return GetProcAddress(hModule, lpProcName);
 }
@@ -181,7 +249,7 @@ void installIATPatches(HMODULE module)
 }
 
 
-void loadCoreWrapper(const char *core_library_filename)
+HMODULE loadCoreWrapper(const char *core_library_filename)
 {
   assert(!g_core_wrapper_loaded);
 
@@ -197,7 +265,9 @@ void loadCoreWrapper(const char *core_library_filename)
     g_log.flush();
     abort();
   }
+
   installIATPatches(core_module);
+  jni_wrapper::resolveImports((void*)core_module);
 
   il2ge::core_wrapper::init(core_module);
 
@@ -210,6 +280,8 @@ void loadCoreWrapper(const char *core_library_filename)
            (void*) &wrap_JGL_GetProcAddress, NULL, jgl_module);
 
   g_core_wrapper_loaded = true;
+
+  return core_module;
 }
 
 
@@ -259,6 +331,28 @@ std::string il2ge::core_wrapper::getWrapperLibraryFilePath()
 }
 
 
+const il2ge::core_wrapper::Config &il2ge::core_wrapper::getConfig()
+{
+  return g_config;
+}
+
+
+JNIEnv_ *il2ge::core_wrapper::getJNIEnv()
+{
+  JNIEnv_ *env = nullptr;
+  if (g_java_vm)
+    g_java_vm->GetEnv((void**)&env, g_jni_version);
+  return env;
+}
+
+
+bool il2ge::core_wrapper::isMainThread()
+{
+  assert(g_main_thread);
+  return GetCurrentThreadId() == g_main_thread;
+}
+
+
 extern "C"
 {
 
@@ -267,7 +361,10 @@ void WINAPI il2ge_init()
 {
   std::atexit(atexitHandler);
 
-  initLog();
+  ofstream log(g_log_file_name);
+
+  g_log.m_outputs.push_back(&cerr);
+  g_log.m_outputs.push_back(&log);
 
   g_log.printSeparator();
   g_log << "*** il2ge.dll initialization ***\n";
@@ -285,7 +382,21 @@ void WINAPI il2ge_init()
       g_log.flush();
       return;
     }
+
+    g_config.enable_dump = ini.GetBoolean("", "EnableDump", g_config.enable_dump);
+    g_config.enable_base_map = ini.GetBoolean("", "EnableBaseMap", g_config.enable_base_map);
+    g_config.enable_light_point = ini.GetBoolean("", "EnableLightPoint", g_config.enable_light_point);
+    g_config.enable_effects = ini.GetBoolean("", "EnableEffects", g_config.enable_effects);
+    g_config.enable_object_shaders =
+      ini.GetBoolean("", "EnableObjectShaders", g_config.enable_object_shaders);
   }
+
+  g_log.m_outputs.pop_back();
+  log.close();
+
+  redirectOutput();
+
+  g_main_thread = GetCurrentThreadId();
 
   il2ge::exception_handler::install(g_log_file_name, &fatalErrorHandler);
   il2ge::exception_handler::watchModule(g_core_wrapper_module);
@@ -299,6 +410,16 @@ void WINAPI il2ge_init()
 
   installIATPatches(GetModuleHandle(0));
   installIATPatches(jvm_module);
+
+#if ENABLE_SHORTCUTS
+  patchIAT("PeekMessageA", "user32.dll",
+           (void*) &wrap_PeekMessageA, NULL, GetModuleHandle(0));
+  patchIAT("PeekMessageW", "user32.dll",
+           (void*) &wrap_PeekMessageW, NULL, GetModuleHandle(0));
+#endif
+
+  jni_wrapper::init();
+  jni_wrapper::resolveImports((void*)GetModuleHandle(0));
 }
 
 

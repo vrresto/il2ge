@@ -36,6 +36,7 @@ namespace
 struct MethodInfo
 {
   string name;
+  string return_type;
   vector<string> arg_types;
 };
 
@@ -59,15 +60,20 @@ void parseSignatures(istream &in)
     getline(in, line);
     istringstream line_stream(line);
 
+    MethodInfo mi;
+
+    line_stream >> mi.return_type;
+//     cerr<<"mi.return_type: "<<mi.return_type<<endl;
+    if(mi.return_type.empty())
+      continue;
+
     string class_name;
     line_stream >> class_name;
-
+//     cerr<<"class name: "<<class_name<<endl;
     if (class_name.empty())
       continue;
 
-    MethodInfo mi;
     line_stream >> mi.name;
-
     if (mi.name.empty())
       continue;
 
@@ -87,12 +93,10 @@ void emitMethodDefinitions(const ClassInfo &info, ostream &out)
 {
   for (const MethodInfo &m : info.methods)
   {
-    out << "typedef MethodSpec<";
+    out << "typedef MethodSpec<" << m.return_type;
     for (size_t i = 0; i < m.arg_types.size(); i++)
     {
-      if (i > 0)
-        out << ", ";
-      out << m.arg_types[i];
+      out << ", " << m.arg_types[i];
     }
     out << "> " << m.name << "_t;" << endl;
   }
@@ -113,15 +117,33 @@ void emitMetaClassRegistration(const string &name, ostream &out)
 {
   ClassInfo &info = getClassInfo(name);
 
-  out << "void jni_wrapper::initializeMetaClass_" << name << "(MetaClass &meta_class)" << endl;
+  size_t pos = name.find_last_of('.');
+  assert(pos != std::string::npos);
+  assert(pos < name.size()-1);
+
+  string package = name.substr(0, pos);
+  string class_name = name.substr(pos + 1);
+
+  auto path_tokens = util::tokenize(package, '.');
+  assert(!path_tokens.empty());
+
+  out << "void ::jni_wrapper::registrator::";
+
+  for (size_t i = 0; i < path_tokens.size(); i++)
+  {
+    out << path_tokens[i] << "::";
+  }
+
+  out << class_name << "(MetaClass &meta_class)" << endl;
+
   out << "{" << endl;
-  out << '\t' << "meta_class.package = \"com.maddox.il2.engine\";" <<endl;
-  out << '\t' << "meta_class.name = \"" << name << "\";" << endl;
+  out << '\t' << "meta_class.package = \"com.maddox." << package << "\";" <<endl;
+  out << '\t' << "meta_class.name = \"" << class_name << "\";" << endl;
 
   for (MethodInfo &mi : info.methods)
   {
     out << '\t' << "meta_class.addMethod<" << mi.name <<
-      "_t>(\"" << mi.name << "\", &import." << mi.name << ", &" << mi.name << ");" << endl;
+      "_t>(\"" << mi.name << "\", &::import." << mi.name << ", &::" << mi.name << ");" << endl;
   }
 
   out << "}" << endl;
@@ -131,7 +153,7 @@ void emitMetaClassRegistration(const string &name, ostream &out)
 void emitMethodImplementation(const MethodInfo &mi, ostream &out)
 {
   // head
-  out << "int JNICALL " << mi.name << "(JNIEnv *env, jobject obj";
+  out << mi.return_type << " JNICALL " << mi.name << "(JNIEnv *env, jobject obj";
   for (size_t i = 0; i < mi.arg_types.size(); i++)
   {
     out << "," << endl << "\t\t" << mi.arg_types[i] << " arg" << i;
@@ -205,12 +227,39 @@ int main(int argc, char **argv)
   if(cmd == "registrator-table")
   {
     for (auto name : util::tokenize(cmd_arg))
-      cout << "&initializeMetaClass_" << name << "," << endl;
+    {
+      auto path_tokens = util::tokenize(name, '.');
+      assert(!path_tokens.empty());
+
+      cout << "&::jni_wrapper::registrator::";
+
+      for (size_t i = 0; i < path_tokens.size() - 1; i++)
+      {
+        cout << path_tokens[i] << "::";
+      }
+
+      cout << path_tokens.back() << "," << endl;
+    }
   }
   else if(cmd == "registrator-definitions")
   {
     for (auto name : util::tokenize(cmd_arg))
-      cout << "MetaClassInitFunc initializeMetaClass_" << name << ";" << endl;
+    {
+      auto path_tokens = util::tokenize(name, '.');
+      assert(!path_tokens.empty());
+      assert(path_tokens.size() > 1);
+
+      cout << "namespace jni_wrapper::registrator";
+
+      for (size_t i = 0; i < path_tokens.size() - 1; i++)
+      {
+        cout << "::" << path_tokens[i];
+      }
+
+      cout << " { ";
+      cout << "MetaClassInitFunc " << path_tokens.back() << ";";
+      cout << " }" << endl;
+    }
   }
   else if (cmd == "definitions")
   {
@@ -227,7 +276,7 @@ int main(int argc, char **argv)
     parseSignatures(cin);
 
     string class_name = cmd_arg;
-    class_name[0] = toupper(class_name[0]);
+//     class_name[0] = toupper(class_name[0]);
 
     emitMetaClassRegistration(class_name, cout);
   }

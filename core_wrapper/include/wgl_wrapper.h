@@ -39,7 +39,13 @@ namespace wgl_wrapper
     render_util::gl_binding::GL_Interface *getGLInterface() { return m_iface.get(); }
 
     core::Scene *getScene();
-    core_gl_wrapper::Context *getGLWrapperContext();
+
+    core_gl_wrapper::Context *getGLWrapperContext()
+    {
+      if (!m_gl_wrapper_context)
+        m_gl_wrapper_context = std::make_shared<core_gl_wrapper::Context>();
+      return m_gl_wrapper_context.get();
+    }
 
     void freeResources();
 
@@ -49,10 +55,11 @@ namespace wgl_wrapper
     std::shared_ptr<core_gl_wrapper::Context> m_gl_wrapper_context;
   };
 
-  bool isMainThread();
+  static constexpr bool isMainThread() { return true; }
   bool isMainContextCurrent();
   void *getProcAddress(HMODULE module, LPCSTR name);
   ContextData *getContext();
+  ContextData *getMainContext();
   core::Scene *getScene();
   HMODULE getGLModule();
   void init();

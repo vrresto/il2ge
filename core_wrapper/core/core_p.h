@@ -35,8 +35,6 @@ namespace core
 
   Scene *getScene();
 
-  bool isBaseMapEnabled();
-
   void setFMBActive(bool);
 
   class ProgressReporter

@@ -1,6 +1,6 @@
 /**
  *    IL-2 Graphics Extender
- *    Copyright (C) 2018 Jan Lepper
+ *    Copyright (C) 2019 Jan Lepper
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU Lesser General Public License as published by
@@ -16,11 +16,36 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef JNI_WRAPPER_META_CLASS_REGISTRATORS_H
-#define JNI_WRAPPER_META_CLASS_REGISTRATORS_H
+#ifndef CORE_EFFECTS_H
+#define CORE_EFFECTS_H
 
-#include "jni_wrapper.h"
+#include <il2ge/effects.h>
+#include <render_util/shader.h>
 
-#include <_generated/jni_wrapper/registrator_definitions>
+#include <unordered_map>
+
+namespace core
+{
+
+
+class Effects : public il2ge::Effects
+{
+  std::unordered_map<int, il2ge::Effect3D*> m_map;
+  render_util::ShaderProgramPtr m_default_shader;
+
+  render_util::ShaderProgramPtr getDefaultShader();
+
+public:
+  void add(std::unique_ptr<il2ge::Effect3D> effect, int cpp_obj);
+  bool remove(int cpp_obj);
+  il2ge::Effect3D *get(int cpp_obj);
+  void render();
+
+  std::shared_ptr<render_util::GenericImage> createTexture(const il2ge::Material&) override;
+};
+
+
+}
+
 
 #endif

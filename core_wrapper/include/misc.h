@@ -25,18 +25,32 @@
 #include <typeindex>
 #include <memory>
 
+struct JNIEnv_;
 
 namespace jni_wrapper
 {
   void init();
+  void resolveImports(void *module);
   void *getExport(const std::string &full_name);
+  void cleanGarbage();
 }
 
 
 namespace il2ge::core_wrapper
 {
+  struct Config
+  {
+    bool enable_dump = false;
+    bool enable_effects = false;
+    bool enable_light_point = false;
+    bool enable_base_map = false;
+    bool enable_object_shaders = false;
+  };
+
+  const Config &getConfig();
+  JNIEnv_ *getJNIEnv();
   std::string getWrapperLibraryFilePath();
-  void *getOrigProcAddress(const char *name);
+  bool isMainThread();
   [[ noreturn ]] void fatalError(const std::string &message);
 }
 

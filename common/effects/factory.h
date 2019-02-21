@@ -1,6 +1,6 @@
 /**
  *    IL-2 Graphics Extender
- *    Copyright (C) 2018 Jan Lepper
+ *    Copyright (C) 2019 Jan Lepper
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU Lesser General Public License as published by
@@ -16,11 +16,16 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef JNI_WRAPPER_META_CLASS_REGISTRATORS_H
-#define JNI_WRAPPER_META_CLASS_REGISTRATORS_H
+#ifndef IL2GE_EFFECTS_FACTORY_H
+#define IL2GE_EFFECTS_FACTORY_H
 
-#include "jni_wrapper.h"
+#include <il2ge/effect3d.h>
 
-#include <_generated/jni_wrapper/registrator_definitions>
+namespace il2ge
+{
+  typedef std::unique_ptr<Effect3DParameters> Effect3DParametersFactory();
+
+  Effect3DParametersFactory create_TParticlesSystemParams;
+}
 
 #endif

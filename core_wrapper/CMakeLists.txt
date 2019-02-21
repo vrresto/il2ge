@@ -9,7 +9,12 @@ if(enable_debug)
 endif()
 set(file_description "IL-2 Graphics Extender - ${file_version}")
 
+if(NOT enable_shortcuts)
+  set(enable_shortcuts 0)
+endif()
+
 configure_file(resources.rc.in ${resource_script})
+configure_file(include/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/config.h)
 
 set_source_files_properties(
   il2ge.def
@@ -31,6 +36,7 @@ set(SRCS
   core/map.cpp
   core/render_state.cpp
   core/scene.cpp
+  core/effects.cpp
   jni_wrapper/jni_wrapper.cpp
   gl_wrapper/wgl_interface.cpp
   gl_wrapper/gl_wrapper_main.cpp
@@ -40,16 +46,22 @@ set(SRCS
 )
 
 set(JNI_WRAPPER_CLASSES
-  Camera
-  Landscape
-  Render
-  Renders
+  rts.Time
+  il2.engine.Camera
+  il2.engine.Landscape
+  il2.engine.Render
+  il2.engine.Renders
+  il2.engine.LightPoint
+  il2.engine.GObj
+  il2.engine.Eff3D
+  il2.fm.Wind
 )
 
 include_directories(
   include
   include/jni
   jni
+  ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
 add_definitions(-DIL2GE_USE_CUSTOM_ASSERT)

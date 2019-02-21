@@ -31,12 +31,14 @@ namespace core
 
 struct IL2State
 {
+  Il2RenderState render_state;
   render_util::Camera camera;
   glm::vec3 sun_dir;
-  Il2RenderState render_state;
   bool is_fmb_active = false;
-//   std::chrono::steady_clock Clock::time_point last_frame_time; // = Clock::time_point(std::chrono::seconds(0));
-//   float frame_delta = 0;
+  float frame_delta = 0;
+  uint64_t current_time = 0;
+  uint64_t last_frame_time = 0;
+  glm::vec2 wind_speed {0};
 };
 
 

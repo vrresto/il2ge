@@ -20,6 +20,7 @@
 #include "core_p.h"
 
 #include <sfs.h>
+#include <misc.h>
 #include <core.h>
 #include <core/map.h>
 #include <render_util/terrain_util.h>
@@ -66,7 +67,7 @@ struct Map::Private
 
 Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
 {
-  bool enable_base_map = core::isBaseMapEnabled();
+  const bool enable_base_map = il2ge::core_wrapper::getConfig().enable_base_map;
 
   FORCE_CHECK_GL_ERROR();
 
@@ -221,7 +222,7 @@ glm::vec2 Map::getSize()
 void Map::setUniforms(render_util::ShaderProgramPtr program)
 {
   program->setUniform("map_size", getSize());
-  program->setUniform("terrain_height_offset", 0);
+  program->setUniform("terrain_height_offset", 0.f);
   program->setUniform("height_map_base_origin", p->base_map_origin);
   p->textures->setUniforms(program);
   p->water_animation->updateUniforms(program);

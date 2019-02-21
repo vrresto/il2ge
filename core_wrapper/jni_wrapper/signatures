@@ -1,40 +1,73 @@
-Camera SetCameraPos jdoubleArray
-Camera transform3f jobject jobject
-Camera transformVirt3f jobject jobject
-Camera ActivateWorldMode jobject
-Camera DeactivateWorldMode
-Camera SetOrtho2D jobject jobject jobject jobject jobject jobject
-Camera SetOrtho jobject jobject jobject
-Camera SetFOV jfloat jfloat jfloat
-Camera SetZOrder jobject
-Camera SetViewportCrop jfloat jint jint jint jint jint jint jint jint jint jint
-Render transform3f jobject jobject
-Render transform3fInv jobject jobject
-Render transformVirt3f jobject jobject
-Render prepareStates
-Render clearStates
-Render flush
-Render shadows
-Render drawBeginTriangleLists jobject
-Render drawEnd
-Render drawTriangleList___3FIII_3II jobject jobject jobject jobject jobject jobject
-Render drawTriangleList___3F_3II_3II jobject jobject jobject jobject jobject
-Render vertexArraysTransformAndLock jobject jobject
-Render vertexArraysUnLock
-Landscape cPreRender jfloat jboolean jfloatArray
-Landscape cRender0 jint
-Landscape cRender1 jint
-Mat PreRender__I jobject
-Mat PreRender__IFFFF jobject jobject jobject jobject jobject
-Renders PrePreRenders
-Renders PostPreRenders
-Renders PostRenders
-Mesh Render jobject
-Mesh renderMeshes jobject
-RenderContext SetDrawMesh jobject
-MeshShared RenderArray jobject jobject jobject jobject jobject
-SMesh Render jobject
-HierMesh Render jobject
-Sun setNative jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat
-Landscape cLoadMap jstring jintArray jint jboolean
-Landscape cUnloadMap
+jint il2.engine.Camera SetCameraPos jdoubleArray
+jint il2.engine.Camera transform3f jobject jobject
+jint il2.engine.Camera transformVirt3f jobject jobject
+jint il2.engine.Camera ActivateWorldMode jobject
+jint il2.engine.Camera DeactivateWorldMode
+jint il2.engine.Camera SetOrtho2D jobject jobject jobject jobject jobject jobject
+jint il2.engine.Camera SetOrtho jobject jobject jobject
+jint il2.engine.Camera SetFOV jfloat jfloat jfloat
+jint il2.engine.Camera SetZOrder jobject
+jint il2.engine.Camera SetViewportCrop jfloat jint jint jint jint jint jint jint jint jint jint
+jint il2.engine.Render prepareStates
+jint il2.engine.Render clearStates
+jint il2.engine.Render flush
+jint il2.engine.Render shadows
+jint il2.engine.Landscape cPreRender jfloat jboolean jfloatArray
+jint il2.engine.Landscape cRender0 jint
+jint il2.engine.Landscape cRender1 jint
+jint il2.engine.Mat PreRender__I jobject
+jint il2.engine.Mat PreRender__IFFFF jobject jobject jobject jobject jobject
+jint il2.engine.Renders PrePreRenders
+jint il2.engine.Renders PostPreRenders
+jint il2.engine.Renders PostRenders
+jint il2.engine.RenderContext SetDrawMesh jobject
+jint il2.engine.SMesh Render jobject
+jint il2.engine.Sun setNative jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat
+jint il2.engine.Landscape cLoadMap jstring jintArray jint jboolean
+jint il2.engine.Landscape cUnloadMap
+jint il2.engine.HierMesh Render jint
+jint il2.engine.Mesh Render jint
+jint il2.engine.MeshShared RenderArray jboolean jint jintArray jdoubleArray jfloatArray
+
+void il2.engine.LightPoint setPos jint jfloat jfloat jfloat
+void il2.engine.LightPoint setColor jint jfloat jfloat jfloat
+void il2.engine.LightPoint setEmit jint jfloat jfloat
+void il2.engine.LightPoint getPos jint jfloatArray
+void il2.engine.LightPoint getColor jint jfloatArray
+void il2.engine.LightPoint getEmit jint jfloatArray
+void il2.engine.LightPoint setOffset jfloat jfloat jfloat
+void il2.engine.LightPoint addToRender jint
+void il2.engine.LightPoint clearRender
+void il2.engine.LightPoint Finalize jint
+jint il2.engine.LightPoint New
+
+jobject il2.engine.Eff3D New
+void il2.engine.Eff3D SetPos jint jfloatArray
+void il2.engine.Eff3D SetAnglesATK jint jfloatArray
+void il2.engine.Eff3D SetXYZATK jint jfloat jfloat jfloat jfloat jfloat jfloat
+jint il2.engine.Eff3D PreRender jint
+void il2.engine.Eff3D Render jint
+void il2.engine.Eff3D Pause jint jboolean
+jboolean il2.engine.Eff3D IsPaused jint
+void il2.engine.Eff3D SetIntesity jint jfloat
+jfloat il2.engine.Eff3D GetIntesity jint
+void il2.engine.Eff3D Finish jint
+jfloat il2.engine.Eff3D TimeLife jint
+jfloat il2.engine.Eff3D TimeFinish jint
+jboolean il2.engine.Eff3D IsTimeReal jint
+void il2.engine.Eff3D initSetProcessTime jfloat
+void il2.engine.Eff3D initSetTypeTimer jboolean
+void il2.engine.Eff3D initSetBoundBox jfloat jfloat jfloat jfloat jfloat jfloat
+void il2.engine.Eff3D initSetPos jfloat jfloat jfloat
+void il2.engine.Eff3D initSetSize jfloat
+void il2.engine.Eff3D initSetAnglesATK jfloat jfloat jfloat
+void il2.engine.Eff3D initSetSubType jint
+void il2.engine.Eff3D initSetMaterialName jstring
+void il2.engine.Eff3D initSetParamFileName jstring
+
+void il2.engine.GObj Finalize jint
+
+jfloat il2.fm.Wind SetWind jfloat jfloat jfloat jfloat jfloat
+
+void rts.Time setSpeedReal jfloat
+void rts.Time setCurrent jlong jlong

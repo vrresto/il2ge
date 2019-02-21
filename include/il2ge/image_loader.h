@@ -1,6 +1,6 @@
 /**
  *    IL-2 Graphics Extender
- *    Copyright (C) 2018 Jan Lepper
+ *    Copyright (C) 2019 Jan Lepper
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU Lesser General Public License as published by
@@ -16,11 +16,20 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef JNI_WRAPPER_META_CLASS_REGISTRATORS_H
-#define JNI_WRAPPER_META_CLASS_REGISTRATORS_H
+#ifndef IL2GE_IMAGE_LOADER_H
+#define IL2GE_IMAGE_LOADER_H
 
-#include "jni_wrapper.h"
+#include <render_util/image.h>
 
-#include <_generated/jni_wrapper/registrator_definitions>
+namespace il2ge
+{
+
+std::shared_ptr<render_util::GenericImage> loadImageFromMemory(const std::vector<char> &data,
+                                                               const char *name);
+
+std::shared_ptr<render_util::ImageRGBA> loadImageRGBAFromMemory(const std::vector<char> &data,
+                                                                const char *name);
+
+}
 
 #endif

@@ -30,15 +30,15 @@ using namespace jni_wrapper;
 namespace
 {
 
-#include <_generated/jni_wrapper/Camera_definitions>
+#include <_generated/jni_wrapper/il2.engine.Camera_definitions>
 
 Interface import;
 
-int JNICALL SetCameraPos(JNIEnv *env, jobject obj, jdoubleArray arg0)
+jint JNICALL SetCameraPos(JNIEnv *env, jobject obj, jdoubleArray arg0)
 {
   if (core::getCameraMode() == core::IL2_CAMERA_MODE_3D)
   {
-    const int pos_num_elements = env->GetArrayLength(arg0);
+    const jint pos_num_elements = env->GetArrayLength(arg0);
     assert(pos_num_elements > 6);
     double pos[pos_num_elements];
     env->GetDoubleArrayRegion(arg0, 0, pos_num_elements, pos);
@@ -49,7 +49,7 @@ int JNICALL SetCameraPos(JNIEnv *env, jobject obj, jdoubleArray arg0)
   return import.SetCameraPos(env, obj, arg0);
 }
 
-int JNICALL SetOrtho2D(JNIEnv *env, jobject obj,
+jint JNICALL SetOrtho2D(JNIEnv *env, jobject obj,
                        jobject arg0,
                        jobject arg1,
                        jobject arg2,
@@ -62,7 +62,7 @@ int JNICALL SetOrtho2D(JNIEnv *env, jobject obj,
   return import.SetOrtho2D(env, obj, arg0, arg1, arg2, arg3, arg4, arg5);
 }
 
-int JNICALL SetViewportCrop(JNIEnv *env, jobject obj,
+jint JNICALL SetViewportCrop(JNIEnv *env, jobject obj,
                             jfloat arg0,
                             jint arg1,
                             jint arg2,
@@ -79,7 +79,7 @@ int JNICALL SetViewportCrop(JNIEnv *env, jobject obj,
   return import.SetViewportCrop(env, obj, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 }
 
-int JNICALL SetFOV(JNIEnv *env, jobject obj, jfloat arg0, jfloat arg1, jfloat arg2)
+jint JNICALL SetFOV(JNIEnv *env, jobject obj, jfloat arg0, jfloat arg1, jfloat arg2)
 {
   core::setCameraMode(core::IL2_CAMERA_MODE_3D);
   core::getCamera()->setProjection(arg0, arg1, arg2);
@@ -92,7 +92,7 @@ int JNICALL SetFOV(JNIEnv *env, jobject obj, jfloat arg0, jfloat arg1, jfloat ar
 } // namespace
 
 
-void jni_wrapper::initializeMetaClass_Camera(MetaClass &meta_class)
+void jni_wrapper::registrator::il2::engine::Camera(MetaClass &meta_class)
 {
   meta_class.package = "com.maddox.il2.engine";
   meta_class.name = "Camera";

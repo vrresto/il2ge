@@ -21,8 +21,8 @@
 #include "misc.h"
 #include "core.h"
 #include <wgl_wrapper.h>
+#include <config.h>
 
-#include <render_util/render_util.h>
 #include <render_util/shader_util.h>
 #include <render_util/texture_manager.h>
 #include <render_util/terrain_base.h>
@@ -54,13 +54,17 @@ using namespace std;
 #include <render_util/skybox.h>
 
 
-
 namespace
 {
 
 
 void drawTerrain();
-void updateUniforms(render_util::ShaderProgramPtr program, const render_util::Camera &camera);
+
+
+render_util::TerrainBase *getTerrain()
+{
+  return core::getTerrainRenderer().getTerrain().get();
+}
 
 
 class Globals : public render_util::Globals
@@ -79,16 +83,24 @@ public:
 
 class TerrainClient : public render_util::TerrainBase::Client
 {
+  core_gl_wrapper::Context::Impl &m_context;
   const render_util::Camera &m_camera;
+  const bool m_is_far_camera = 0;
 
   void setActiveProgram(render_util::ShaderProgramPtr p) override
   {
-    core_gl_wrapper::setActiveShader(p);
-    ::updateUniforms(p, m_camera);
+    m_context.setActiveShader(p);
+    m_context.updateUniforms(p, m_camera, m_is_far_camera);
   }
 
 public:
-  TerrainClient(const render_util::Camera &camera) : m_camera(camera) {}
+  TerrainClient(core_gl_wrapper::Context::Impl &context,
+                const render_util::Camera &camera,
+                bool is_far_camera) :
+      m_context(context),
+      m_camera(camera),
+      m_is_far_camera(is_far_camera)
+  {}
 };
 
 
@@ -96,7 +108,19 @@ const std::string SHADER_PATH = IL2GE_DATA_DIR "/shaders";
 
 shared_ptr<Globals> g_globals;
 unordered_map<string, void*> g_procs;
-//   unordered_set<string> g_forest_shader_names;
+
+#if ENABLE_SHORTCUTS
+bool g_enable = true;
+bool g_enable_object_shaders = true;
+bool g_enable_terrain = true;
+bool isEnabled() { return g_enable; }
+bool isObjectShadersEnabled() { return g_enable && g_enable_object_shaders; }
+bool isTerrainEnabled() { return g_enable && g_enable_terrain; }
+#else
+constexpr bool isEnabled() { return true; }
+constexpr bool isObjectShadersEnabled() { return true; }
+constexpr bool isTerrainEnabled() { return true; }
+#endif
 
 
 render_util::ShaderProgramPtr getRedProgram()
@@ -266,28 +290,47 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 {
   assert(wgl_wrapper::isMainThread());
 
-  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive())
+  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive() || !isEnabled())
   {
     return gl::Begin(mode);
   }
+
+  auto ctx = getContext();
+
+  ctx->getARBProgramContext()->update();
 
   {
     Il2RenderState state;
     getRenderState(&state);
 
-
-    if (state.render_phase == IL2_Landscape0 &&
-        !getContext()->wasTerrainDrawn() &&
-        !getContext()->isRenderingCubeMap())
+    if (isTerrainEnabled() &&
+        state.render_phase == IL2_Landscape0 &&
+        !ctx->wasTerrainDrawn() &&
+        !ctx->isRenderingCubeMap())
     {
       drawTerrain();
-      getContext()->onTerrainDrawn();
-    }
+      ctx->onTerrainDrawn();
 
+      GLenum active_unit_save;
+      gl::GetIntegerv(GL_ACTIVE_TEXTURE, reinterpret_cast<GLint*>(&active_unit_save));
+
+      gl::ActiveTexture(GL_TEXTURE0 + 25); //FIXME
+
+      auto terrain = getTerrain();
+      if (terrain)
+      {
+        auto texture = terrain->getNormalMapTexture();
+        if (texture)
+          gl::BindTexture(texture->getTarget(), texture->getID());
+      }
+
+      gl::ActiveTexture(active_unit_save);
+
+    }
 
     if (state.render_phase == IL2_Landscape0)
     {
-      core_gl_wrapper::setActiveShader(getInvisibleProgram());
+      ctx->setActiveShader(getInvisibleProgram());
     }
   }
 
@@ -301,7 +344,7 @@ void GLAPIENTRY wrap_glEnd()
 
   gl::End();
 
-  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive())
+  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive() || !isEnabled())
   {
     return;
   }
@@ -313,7 +356,7 @@ void GLAPIENTRY wrap_glEnd()
 //     if (!is_arb_program_active())
 //       gl::UseProgram(0);
 
-  core_gl_wrapper::setActiveShader(nullptr);
+  getContext()->setActiveShader(nullptr);
 
 //     Il2RenderState state;
 //     getRenderState(&state);
@@ -342,7 +385,15 @@ void GLAPIENTRY wrap_glDrawElements(
     const GLvoid * indices)
 {
   assert(wgl_wrapper::isMainThread());
-  assert(wgl_wrapper::isMainContextCurrent());
+
+  if (wgl_wrapper::isMainContextCurrent())
+  {
+    getContext()->getARBProgramContext()->update();
+  }
+
+  gl::DrawElements(mode, count, type, indices);
+  return;
+
 
   gl::GetError();
 //   	return;
@@ -408,6 +459,9 @@ void GLAPIENTRY wrap_glDrawArrays(GLenum mode,
     GLint first,
     GLsizei count)
 {
+  if (wgl_wrapper::isMainContextCurrent())
+    getContext()->getARBProgramContext()->update();
+  gl::DrawArrays(mode, first, count);
 }
 
 
@@ -426,10 +480,15 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
     return;
   }
 
+  auto ctx = getContext();
+
+  ctx->getARBProgramContext()->update();
+
   Il2RenderState state;
   getRenderState(&state);
 
   if (core::isFMBActive()
+      || !isTerrainEnabled()
       || state.camera_mode == IL2_CAMERA_MODE_2D
       || state.render_phase < IL2_Landscape0
       || state.render_phase >= IL2_PostLandscape
@@ -439,9 +498,9 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   {
     gl::DrawRangeElements(mode, start, end, count, type, indices);
   }
-  else if (core_gl_wrapper::isARBProgramActive())
+  else if (ctx->is_arb_program_active)
   {
-    if (core_gl_wrapper::arb_program::isObjectProgramActive())
+    if (ctx->getARBProgramContext()->isObjectProgramActive())
     {
       gl::DrawRangeElements(mode, start, end, count, type, indices);
     }
@@ -485,10 +544,8 @@ void updateShaderState()
 
   bool is_arb_program_active = ctx->is_arb_program_active;
 
-//     if (is_arb_program_active && render_state.render_phase == IL2_Landscape0_PreTerrain)
-//     {
-//       setRenderPhase(IL2_Landscape0_TerrainFar);
-//     }
+  Il2RenderState state;
+  getRenderState(&state);
 
   render_util::ShaderProgramPtr new_active_shader;
 
@@ -496,18 +553,11 @@ void updateShaderState()
   {
     new_active_shader = ctx->current_shader;
   }
-  else if (is_arb_program_active && !core::isFMBActive())
+  else if (isObjectShadersEnabled() && is_arb_program_active && !core::isFMBActive() &&
+      (state.render_phase != IL2_Cockpit))
   {
     new_active_shader = ctx->current_arb_program;
   }
-//     if (is_arb_program_active)
-//     {
-//       new_active_shader = ctx->current_arb_program;
-//     }
-//     else
-//     {
-//       new_active_shader = ctx->current_shader;
-//     }
 
   if (new_active_shader)
   {
@@ -526,20 +576,13 @@ void updateShaderState()
 }
 
 
-void updateUniforms(render_util::ShaderProgramPtr program, const render_util::Camera &camera)
-{
-  core::updateUniforms(program);
-  render_util::updateUniforms(program, camera);
-}
-
-
 void doDrawTerrain(render_util::TerrainRenderer &renderer,
                    const render_util::Camera &camera,
-                   bool low_detail)
+                   bool is_far_camera)
 {
-  TerrainClient client(camera);
+  TerrainClient client(*getContext(), camera, is_far_camera);
 
-  renderer.getTerrain()->update(camera, low_detail);
+  renderer.getTerrain()->update(camera, is_far_camera);
   renderer.getTerrain()->draw(&client);
 }
 
@@ -603,12 +646,14 @@ void doDrawTerrain(render_util::TerrainRenderer &renderer)
 
   gl::DepthFunc(dept_func_save);
 
-  core_gl_wrapper::setActiveShader(nullptr);
+  getContext()->setActiveShader(nullptr);
 }
 
 
 void drawTerrain()
 {
+  auto ctx = getContext();
+
   texture_state::freeze();
   core::textureManager().setActive(true);
 
@@ -624,8 +669,8 @@ void drawTerrain()
 //     glDepthMask(GL_FALSE);
   gl::Enable(GL_CULL_FACE);
 
-  core_gl_wrapper::setActiveShader(getSkyProgram());
-  core_gl_wrapper::updateUniforms(getSkyProgram());
+  ctx->setActiveShader(getSkyProgram());
+  ctx->updateUniforms(getSkyProgram());
 
   render_util::drawSkyBox();
 
@@ -635,7 +680,7 @@ void drawTerrain()
   doDrawTerrain(core::getTerrainRenderer());
 //   gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-  core_gl_wrapper::setActiveShader(nullptr);
+  ctx->setActiveShader(nullptr);
 
   gl::FrontFace(front_face_save);
   gl::Disable(GL_CULL_FACE);
@@ -653,12 +698,6 @@ namespace core_gl_wrapper
 {
 
 
-void updateUniforms(render_util::ShaderProgramPtr program)
-{
-  ::updateUniforms(program, *core::getCamera());
-}
-
-
 void setProc(const char *name, void *func)
 {
   g_procs[name] = func;
@@ -668,53 +707,6 @@ void setProc(const char *name, void *func)
 void *getProc(const char *name)
 {
   return g_procs[name];
-}
-
-
-// render_util::ShaderProgramPtr activeShader()
-// {
-//   assert(false);
-//   abort();
-// }
-
-
-void setActiveShader(render_util::ShaderProgramPtr shader)
-{
-  getContext()->current_shader = shader;
-  updateShaderState();
-}
-
-
-// render_util::ShaderProgramPtr activeARBProgram()
-// {
-//   assert(false);
-//   abort();
-// }
-
-
-void setActiveARBProgram(render_util::ShaderProgramPtr prog)
-{
-  getContext()->current_arb_program = prog;
-  updateShaderState();
-}
-
-
-void setIsARBProgramActive(bool active)
-{
-  getContext()->is_arb_program_active = active;
-  updateShaderState();
-}
-
-
-bool isARBProgramActive()
-{
-  return getContext()->is_arb_program_active;
-}
-
-
-Context::Impl *getContext()
-{
-  return wgl_wrapper::getContext()->getGLWrapperContext()->getImpl();
 }
 
 
@@ -735,8 +727,8 @@ void init()
   setProc("glViewport", (void*) &wrap_glViewport);
 //   setProc("glTexImage2D", (void*) &wrap_glTexImage2D);
 
-//   SET_PROC(glDrawElements);
-//   SET_PROC(glDrawArrays);
+  SET_PROC(glDrawElements);
+  SET_PROC(glDrawArrays);
   SET_PROC(glDrawRangeElements);
   setProc("glDrawRangeElementsEXT", (void*) wrap_glDrawRangeElements);
   #endif
@@ -760,24 +752,80 @@ texture_state::TextureState *Context::Impl::getTextureState()
 }
 
 
+void Context::Impl::updateShaderState()
+{
+  Il2RenderState state;
+  getRenderState(&state);
+
+  render_util::ShaderProgramPtr new_active_shader;
+
+  if (current_shader)
+  {
+    new_active_shader = current_shader;
+  }
+  else if (isObjectShadersEnabled() && is_arb_program_active && !core::isFMBActive() &&
+      (state.render_phase != IL2_Cockpit))
+  {
+    new_active_shader = current_arb_program;
+  }
+
+  if (new_active_shader)
+  {
+    assert(new_active_shader->isValid());
+//       if (new_active_shader != active_shader)
+//       {
+      render_util::getCurrentGLContext()->setCurrentProgram(new_active_shader);
+      active_shader = new_active_shader;
+//       }
+  }
+  else
+  {
+    render_util::getCurrentGLContext()->setCurrentProgram(nullptr);
+    active_shader = nullptr;
+  }
+}
+
+
 Context::Context() : impl(make_unique<Context::Impl>()) {}
 Context::~Context() {}
 
 Context::Impl::Impl() {}
 Context::Impl::~Impl() {}
 
-arb_program::Context *Context::Impl::getARBProgramContext()
-{
-  if (!m_arb_program_context)
-    m_arb_program_context = std::make_unique<arb_program::Context>();
-
-  return m_arb_program_context.get();
-}
-
 
 void onRenderPhaseChanged(const core::Il2RenderState &state)
 {
   getContext()->onRenderPhaseChanged(state);
+}
+
+
+#if ENABLE_SHORTCUTS
+void toggleEnable()
+{
+  g_enable = !g_enable;
+}
+
+void toggleObjectShaders()
+{
+  g_enable_object_shaders = !g_enable_object_shaders;
+}
+
+void toggleTerrain()
+{
+  g_enable_terrain = !g_enable_terrain;
+}
+#endif
+
+
+void setShader(render_util::ShaderProgramPtr shader)
+{
+  getContext()->setActiveShader(shader);
+}
+
+
+void updateUniforms(render_util::ShaderProgramPtr shader)
+{
+  getContext()->updateUniforms(shader);
 }
 
 

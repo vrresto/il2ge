@@ -20,31 +20,34 @@
 #include "meta_class_registrators.h"
 #include <core.h>
 
-#include <glm/glm.hpp>
-
 using namespace jni_wrapper;
 
 namespace
 {
 
-#include <_generated/jni_wrapper/Sun_definitions>
+#include <_generated/jni_wrapper/il2.engine.Renders_definitions>
 
 Interface import;
 
-int JNICALL setNative(JNIEnv *env, jobject obj,
-    jfloat arg0,
-    jfloat arg1,
-    jfloat arg2,
-    jfloat arg3,
-    jfloat arg4,
-    jfloat arg5,
-    jfloat arg6,
-    jfloat arg7,
-    jfloat arg8)
+jint JNICALL PrePreRenders(JNIEnv *env, jobject obj)
 {
-  return import.setNative(env, obj, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+  core::onPrePreRenders();
+  return import.PrePreRenders(env, obj);
 }
+
+jint JNICALL PostPreRenders(JNIEnv *env, jobject obj)
+{
+  core::onPostPreRenders();
+  return import.PostPreRenders(env, obj);
+}
+
+jint JNICALL PostRenders(JNIEnv *env, jobject obj)
+{
+  core::onPostRenders();
+  return import.PostRenders(env, obj);
+}
+
 
 } // namespace
 
-#include <_generated/jni_wrapper/Sun_registration>
+#include <_generated/jni_wrapper/il2.engine.Renders_registration>

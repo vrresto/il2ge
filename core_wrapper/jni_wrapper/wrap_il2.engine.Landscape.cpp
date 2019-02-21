@@ -25,17 +25,17 @@ using namespace jni_wrapper;
 namespace
 {
 
-#include <_generated/jni_wrapper/Landscape_definitions>
+#include <_generated/jni_wrapper/il2.engine.Landscape_definitions>
 
 Interface import;
 
 
-int JNICALL cPreRender(JNIEnv *env, jobject obj,
+jint JNICALL cPreRender(JNIEnv *env, jobject obj,
     jfloat arg0,
     jboolean arg1,
     jfloatArray arg2)
 {
-  const int sun_moon_num_elements = env->GetArrayLength(arg2);
+  const jint sun_moon_num_elements = env->GetArrayLength(arg2);
   assert(sun_moon_num_elements == 6);
   float sun_moon[sun_moon_num_elements];
   env->GetFloatArrayRegion(arg2, 0, sun_moon_num_elements, sun_moon);
@@ -46,27 +46,27 @@ int JNICALL cPreRender(JNIEnv *env, jobject obj,
   return import.cPreRender(env, obj, arg0, arg1, arg2);
 }
 
-int JNICALL cRender0(JNIEnv *env, jobject obj,
+jint JNICALL cRender0(JNIEnv *env, jobject obj,
     jint arg0)
 {
   core::onLandscapeRender0();
-  int ret = import.cRender0(env, obj, arg0);
+  jint ret = import.cRender0(env, obj, arg0);
   core::onLandscapeRender0Done();
 
   return ret;
 }
 
-int JNICALL cRender1(JNIEnv *env, jobject obj,
+jint JNICALL cRender1(JNIEnv *env, jobject obj,
     jint arg0)
 {
   core::onLandscapeRender1();
-  int ret = import.cRender1(env, obj, arg0);
+  jint ret = import.cRender1(env, obj, arg0);
   core::onLandscapePostRender();
 
   return ret;
 }
 
-int JNICALL cLoadMap(JNIEnv *env, jobject obj,
+jint JNICALL cLoadMap(JNIEnv *env, jobject obj,
     jstring arg0,
     jintArray arg1,
     jint arg2,
@@ -81,7 +81,7 @@ int JNICALL cLoadMap(JNIEnv *env, jobject obj,
   return import.cLoadMap(env, obj, arg0, arg1, arg2, arg3);
 }
 
-int JNICALL cUnloadMap(JNIEnv *env, jobject obj)
+jint JNICALL cUnloadMap(JNIEnv *env, jobject obj)
 {
   core::unloadMap();
   return import.cUnloadMap(env, obj);
@@ -90,4 +90,4 @@ int JNICALL cUnloadMap(JNIEnv *env, jobject obj)
 
 } // namespace
 
-#include <_generated/jni_wrapper/Landscape_registration>
+#include <_generated/jni_wrapper/il2.engine.Landscape_registration>

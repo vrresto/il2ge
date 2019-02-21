@@ -83,8 +83,9 @@ namespace core
   }
 
 
-  void Scene::update()
+  void Scene::update(float delta, const glm::vec2 &wind_speed)
   {
+    effects.update(delta, wind_speed);
     if (map)
       map->getWaterAnimation()->update();
   }
@@ -92,8 +93,8 @@ namespace core
 
   void Scene::updateUniforms(render_util::ShaderProgramPtr program)
   {
-    assert(map);
-    map->setUniforms(program);
+    if (map)
+      map->setUniforms(program);
   }
 
 

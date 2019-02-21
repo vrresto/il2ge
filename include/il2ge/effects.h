@@ -1,6 +1,6 @@
 /**
  *    IL-2 Graphics Extender
- *    Copyright (C) 2018 Jan Lepper
+ *    Copyright (C) 2019 Jan Lepper
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU Lesser General Public License as published by
@@ -16,38 +16,35 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "jni_wrapper.h"
-#include "meta_class_registrators.h"
-#include <core.h>
+#ifndef IL2GE_EFFECTS_H
+#define IL2GE_EFFECTS_H
 
-using namespace jni_wrapper;
+#include <il2ge/effect3d.h>
+#include <render_util/texture_manager.h>
+#include <render_util/image.h>
 
-namespace
+namespace il2ge
 {
 
-#include <_generated/jni_wrapper/Renders_definitions>
 
-Interface import;
-
-int JNICALL PrePreRenders(JNIEnv *env, jobject obj)
+class Effects
 {
-  core::onPrePreRenders();
-  return import.PrePreRenders(env, obj);
+  struct Impl;
+  std::unique_ptr<Impl> p;
+
+public:
+  Effects();
+  ~Effects();
+  void add(std::unique_ptr<il2ge::Effect3D>);
+  void remove(il2ge::Effect3D*);
+  void update(float delta, const glm::vec2 &wind_speed);
+  void render(const render_util::Camera &camera);
+
+  virtual std::shared_ptr<render_util::GenericImage> createTexture(const Material&) = 0;
+};
+
+
 }
 
-int JNICALL PostPreRenders(JNIEnv *env, jobject obj)
-{
-  core::onPostPreRenders();
-  return import.PostPreRenders(env, obj);
-}
 
-int JNICALL PostRenders(JNIEnv *env, jobject obj)
-{
-  core::onPostRenders();
-  return import.PostRenders(env, obj);
-}
-
-
-} // namespace
-
-#include <_generated/jni_wrapper/Renders_registration>
+#endif

@@ -1,6 +1,6 @@
 /**
  *    IL-2 Graphics Extender
- *    Copyright (C) 2018 Jan Lepper
+ *    Copyright (C) 2019 Jan Lepper
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU Lesser General Public License as published by
@@ -16,11 +16,43 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef JNI_WRAPPER_META_CLASS_REGISTRATORS_H
-#define JNI_WRAPPER_META_CLASS_REGISTRATORS_H
+#include <il2ge/material.h>
+#include <util.h>
 
-#include "jni_wrapper.h"
+using namespace std;
 
-#include <_generated/jni_wrapper/registrator_definitions>
+namespace il2ge
+{
 
-#endif
+
+constexpr int MAX_LAYERS = 8;
+
+
+Material::Material(const ParameterFile &params, const std::string &dir)
+{
+  for (size_t i = 0; i < MAX_LAYERS; i++)
+  {
+    string layer_name = "Layer" + to_string(i);
+    string texture_name;
+
+    try
+    {
+      auto &section = params.getSection(layer_name.c_str());
+      texture_name = section.get("TextureName");
+    }
+    catch(...)
+    {
+      break;
+    }
+
+    if (texture_name.empty())
+      break;
+
+    Layer layer { util::resolveRelativePathComponents(dir + '/' + texture_name) };
+
+    m_layers.push_back(layer);
+  }
+}
+
+
+} // namespace il2ge

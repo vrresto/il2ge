@@ -22,6 +22,7 @@
 #include <misc.h>
 #include <core.h>
 #include <core/map.h>
+#include <core/effects.h>
 #include <render_util/camera.h>
 
 #include <memory>
@@ -40,14 +41,17 @@ namespace core
 
   public:
     render_util::TextureManager texture_manager = render_util::TextureManager(0, 30);
+    Effects effects;
 
     Scene();
 
     void unloadMap();
     void loadMap(const char *path, ProgressReporter*);
-    void update();
+    void update(float delta, const glm::vec2 &wind_speed);
     void updateUniforms(render_util::ShaderProgramPtr program);
     render_util::TerrainRenderer &getTerrainRenderer();
+
+    bool isMapLoaded() { return map != nullptr; }
   };
 };
 

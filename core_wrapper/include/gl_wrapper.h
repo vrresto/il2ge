@@ -47,6 +47,13 @@ namespace core_gl_wrapper
   void *getProc(const char *name);
 
   void onRenderPhaseChanged(const core::Il2RenderState &state);
+
+  void toggleEnable();
+  void toggleTerrain();
+  void toggleObjectShaders();
+
+  void setShader(render_util::ShaderProgramPtr);
+  void updateUniforms(render_util::ShaderProgramPtr);
 }
 
 #endif

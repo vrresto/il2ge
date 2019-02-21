@@ -107,19 +107,24 @@ namespace core
 
   void onPrePreRenders()
   {
-//     Clock::time_point frame_time =  Clock::now();
+    g_il2_state.render_state.render3d1_flushed = false;
 
-//     std::chrono::microseconds delta = std::chrono::duration_cast<std::chrono::microseconds>(frame_time - last_frame_time);
-//     frame_delta = ((float)delta.count()) / 1000000.0;
+    if (!g_il2_state.last_frame_time)
+      g_il2_state.last_frame_time = g_il2_state.current_time;
 
-//     last_frame_time = frame_time;
+    auto delta = g_il2_state.current_time - g_il2_state.last_frame_time;
+
+    g_il2_state.last_frame_time = g_il2_state.current_time;
+    g_il2_state.frame_delta = (float)delta / 1000.f;
 
 //     shore_wave_pos.x = shore_wave_pos.x + (frame_delta * shore_wave_hz.x);
 //     shore_wave_pos.y = shore_wave_pos.y + (frame_delta * shore_wave_hz.y);
 
     setRenderPhase(IL2_PrePreRenders);
 
-    getScene()->update();
+    jni_wrapper::cleanGarbage();
+
+    getScene()->update(g_il2_state.frame_delta, g_il2_state.wind_speed);
   }
 
   void onPostPreRenders()
@@ -175,6 +180,15 @@ namespace core
     setRenderPhase(IL2_PostLandscape);
   }
 
+  void onRender3D1Flush()
+  {
+    if (!g_il2_state.render_state.render3d1_flushed)
+    {
+      renderEffects();
+      g_il2_state.render_state.render3d1_flushed = true;
+    }
+  }
+
   const vec3 &getSunDir()
   {
     return g_il2_state.sun_dir;
@@ -205,5 +219,15 @@ namespace core
 //     return frame_delta;
 //   }
 
+  void setTime(uint64_t time)
+  {
+    g_il2_state.current_time = time;
+  }
+
+
+  void setWindSpeed(const glm::vec2 &speed)
+  {
+    g_il2_state.wind_speed = speed;
+  }
 
 }

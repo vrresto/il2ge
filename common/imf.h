@@ -1,6 +1,5 @@
 /**
- *    IL-2 Graphics Extender
- *    Copyright (C) 2018 Jan Lepper
+ *    Copyright (C) 2015 Stainless <http://stainlessbeer.weebly.com>
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU Lesser General Public License as published by
@@ -16,11 +15,13 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef JNI_WRAPPER_META_CLASS_REGISTRATORS_H
-#define JNI_WRAPPER_META_CLASS_REGISTRATORS_H
+#ifndef IMF_H
+#define IMF_H
 
-#include "jni_wrapper.h"
+#include <vector>
+#include <string>
 
-#include <_generated/jni_wrapper/registrator_definitions>
+void loadIMF(const std::vector<char> &src, std::vector<unsigned char> &data,
+             int &width, int &height, const std::string &name);
 
 #endif

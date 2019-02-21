@@ -17,7 +17,6 @@
  */
 
 #include "map_loader_private.h"
-#include "imf.h"
 #include "water_map.h"
 #include "forest.h"
 #include <render_util/image.h>
@@ -33,6 +32,7 @@
 #include <render_util/water.h>
 #include <il2ge/map_loader.h>
 #include <il2ge/ressource_loader.h>
+#include <il2ge/image_loader.h>
 
 #include <FastNoise.h>
 #include <glm/glm.hpp>
@@ -71,29 +71,6 @@ void dumpFile(string name, const char *data, size_t data_size, const string &dum
     return;
   util::writeFile(dump_dir + '/' +  name, data, data_size);
 }
-
-bool isIMF(const vector<char> &data)
-{
-  static const string imf_header =
-  {
-    'I', 'M', 'F', 0x1A, 0x31, 0x30, 0x00
-  };
-
-  if (data.size() > imf_header.size())
-    return imf_header.compare(0, string::npos, data.data(), imf_header.size()) == 0;
-  else
-    return false;
-}
-
-ImageRGBA::Ptr loadImageFromIMF(const vector<char> &data, const char *field_name)
-{
-  vector<unsigned char> rgba_data;
-  int width, height;
-  loadIMF(data, rgba_data, width, height, field_name);
-
-  return make_shared<ImageRGBA>(width, height, std::move(rgba_data));
-}
-
 
 enum
 {
@@ -203,10 +180,7 @@ void createWaterMap
 
     assert(data.size() == data_size);
 
-    water_map.table.reset(new Image<unsigned int>(table_size.x,
-                                                          table_size.y,
-                                                          data_size * sizeof(unsigned int),
-                                                          reinterpret_cast<unsigned char*>(data.data())));
+    water_map.table = std::make_shared<Image<unsigned int>>(table_size, data);
     water_map.table = image::flipY(water_map.table);
 
     il2ge::convertWaterMap(water_map, map, small_water_map);
@@ -454,7 +428,7 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
     {
       break;
     }
-    auto normal_map = loadImageFromMemory(data, filename.c_str());
+    auto normal_map = loadImageRGBAFromMemory(data, filename.c_str());
     assert(normal_map);
     dump(normal_map, basename, loader->getDumpDir());
     normal_maps.push_back(normal_map);
@@ -635,10 +609,7 @@ ImageRGBA::Ptr getTexture(const char *section,
   vector<char> data;
   if (loader->readTextureFile(section, name, default_path, data, false, redirect, scale))
   {
-    if (isIMF(data))
-      image = loadImageFromIMF(data, dump_name.c_str());
-    else
-      image = render_util::loadImageFromMemory<ImageRGBA>(data);
+    image = loadImageRGBAFromMemory(data, dump_name.c_str());
 
     dump<ImageRGBA>(image, dump_name, loader->getDumpDir());
     if (scale)
@@ -647,16 +618,6 @@ ImageRGBA::Ptr getTexture(const char *section,
   }
 
   return image;
-}
-
-
-render_util::ImageRGBA::Ptr loadImageFromMemory(const std::vector<char> &data,
-                                                       const char *name)
-{
-  if (isIMF(data))
-    return loadImageFromIMF(data, name);
-  else
-    return render_util::loadImageFromMemory<ImageRGBA>(data);
 }
 
 
