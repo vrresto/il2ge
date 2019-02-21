@@ -294,6 +294,14 @@ ContextData *getContext()
 }
 
 
+ContextData *getMainContext()
+{
+  assert(!g_data.m_in_shutdown);
+
+  return g_data.m_main_context;
+}
+
+
 core::Scene *getScene()
 {
   return getContext()->getScene();

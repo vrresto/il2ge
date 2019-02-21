@@ -60,7 +60,7 @@ bool g_enable_object_shaders = false;
 
 using Context = core_gl_wrapper::arb_program::Context::Impl;
 
-Context &getContext();
+Context &getContext(bool use_main_context = false);
 
 
 std::unordered_set<std::string> enabled_shaders;
@@ -625,6 +625,8 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   void bindProgram(GLenum target, GLuint id)
   {
+    bool is_main_context = wgl_wrapper::isMainContextCurrent();
+
     ProgramBase *p = programForID(id, target);
     if (!p)
     {
@@ -634,32 +636,36 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
     assert(p->target == target);
 
-    if (target == GL_VERTEX_PROGRAM_ARB)
+    if (is_main_context)
     {
-      if (active_vertex_program == p)
-        return;
-      active_vertex_program = p;
-    }
-    else if(target == GL_FRAGMENT_PROGRAM_ARB)
-    {
-      if (active_fragment_program == p)
-        return;
-      active_fragment_program = static_cast<FragmentProgram*>(p);
-    }
-    else
-    {
-      assert(0);
-      abort();
-    }
+      if (target == GL_VERTEX_PROGRAM_ARB)
+      {
+        if (active_vertex_program == p)
+          return;
+        active_vertex_program = p;
+      }
+      else if(target == GL_FRAGMENT_PROGRAM_ARB)
+      {
+        if (active_fragment_program == p)
+          return;
+        active_fragment_program = static_cast<FragmentProgram*>(p);
+      }
+      else
+      {
+        assert(0);
+        abort();
+      }
 
-    if (!p->real_id)
-      gl::GenProgramsARB(1, &p->real_id);
+      if (!p->real_id)
+        gl::GenProgramsARB(1, &p->real_id);
+    }
 
     assert(p->real_id);
 
     gl::BindProgramARB(target, p->real_id);
 
-    program_needs_update = true;
+    if (is_main_context)
+      program_needs_update = true;
   }
 
   void updateLocalParameters(ProgramBase *program)
@@ -768,9 +774,15 @@ namespace
 {
 
 
-Context &getContext()
+Context &getContext(bool use_main_context)
 {
-  return *core_gl_wrapper::getContext()->getARBProgramContext()->impl.get();
+  if (use_main_context)
+  {
+    return *wgl_wrapper::getMainContext()->
+      getGLWrapperContext()->getImpl()->getARBProgramContext()->impl.get();
+  }
+  else
+    return *core_gl_wrapper::getContext()->getARBProgramContext()->impl.get();
 }
 
 
@@ -808,7 +820,7 @@ wrap_IsProgramARB(GLuint id)
 void GLAPIENTRY
 wrap_BindProgramARB(GLenum target, GLuint id)
 {
-  getContext().bindProgram(target, id);
+  getContext(true).bindProgram(target, id);
 }
 
 void GLAPIENTRY
@@ -853,7 +865,7 @@ wrap_ProgramLocalParameter4fARB(GLenum target, GLuint index,
 {
   gl::ProgramLocalParameter4fARB(target, index, x, y, z, w);
 
-  if (g_enable_object_shaders)
+  if (g_enable_object_shaders && wgl_wrapper::isMainContextCurrent())
   {
     ProgramBase *p = getActiveProgram(target);
     assert(p);
