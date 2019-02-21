@@ -23,7 +23,7 @@ image: debian:buster-slim
     #paths:
       #- install
 
-map_viewer_build:
+.map_viewer_build:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   stage: build
@@ -52,25 +52,17 @@ build:
      - dpkg --add-architecture i386
      - apt-get update
      #- apt-get -y --no-install-recommends install gcc-multilib g++-multilib gcc-mingw-w64-i686 g++-mingw-w64-i686 libglfw3-dev:i386 libglm-dev:i386 libtiff-dev:i386 make cmake wine32-tools wine32 wine python
-     - apt-get -y --no-install-recommends install gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python zip
+     - apt-get -y --no-install-recommends install gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python
   script:
-    #- mkdir build
-    #- mkdir install
-    #- cd build
-    #- cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=wine -Dno_tools=1 ..
-    #- make install
-    #- cd ..
     - mkdir build
     - mkdir install
     - cd build
     - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Dno_tools=1 ..
     - make install
-    - cd ../install
-    - zip "-r" "../il2ge-build_$CI_JOB_ID.zip" .
   artifacts:
     name: "il2ge-build_$CI_JOB_ID"
     paths:
-      - "il2ge-build_$CI_JOB_ID.zip"
+      - install
   # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
   # cache:
   #   paths:
