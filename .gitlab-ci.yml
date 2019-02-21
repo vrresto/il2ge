@@ -70,7 +70,7 @@ build:
   artifacts:
     name: "il2ge-build_$CI_JOB_ID"
     paths:
-      - "il2ge-build_$CI_JOB_ID".zip
+      - "il2ge-build_$CI_JOB_ID.zip"
   # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
   # cache:
   #   paths:
