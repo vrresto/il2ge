@@ -42,6 +42,7 @@ using namespace std;
 namespace
 {
 
+[[ noreturn ]] void die();
 
 const char* const crash_handler_library_name =
   IL2GE_LIB_DIR "/mingw_crash_handler.dll";
@@ -59,15 +60,25 @@ public:
   {
     SetLastError(ERROR_SUCCESS);
     auto wait_res = WAIT_FAILED;
+    int tries = 0;
 
     while (wait_res != WAIT_OBJECT_0)
     {
       wait_res = WaitForSingleObject(m_mutex, INFINITE);
       if (wait_res != WAIT_OBJECT_0)
       {
+        tries++;
+
         fprintf(stderr, "WaitForSingleObject() failed - wait_res: 0x%x - error: 0x%x\n",
                 wait_res,
                 GetLastError());
+
+        if (tries > 5)
+        {
+          die();
+        }
+
+        Sleep(200);
       }
     }
   }
