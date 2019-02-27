@@ -71,15 +71,18 @@ constexpr const char* const g_log_file_name = "il2ge.log";
 
 il2ge::core_wrapper::Config g_config;
 HMODULE g_core_wrapper_module = 0;
-std::ofstream g_logfile;
 bool g_core_wrapper_loaded = false;
 JNI_GetCreatedJavaVMs_t *p_JNI_GetCreatedJavaVMs = nullptr;
 JavaVM *g_java_vm = nullptr;
 DWORD g_main_thread = 0;
+std::ofstream g_log_file_stream;
 
 
 void redirectOutput()
 {
+  std::cout.rdbuf(g_log_file_stream.rdbuf());
+  std::cerr.rdbuf(g_log_file_stream.rdbuf());
+
   freopen(g_log_file_name, "a", stdout);
   freopen(g_log_file_name, "a", stderr);
 
@@ -361,10 +364,10 @@ void WINAPI il2ge_init()
 {
   std::atexit(atexitHandler);
 
-  ofstream log(g_log_file_name);
+  g_log_file_stream.open(g_log_file_name);
 
   g_log.m_outputs.push_back(&cout);
-  g_log.m_outputs.push_back(&log);
+  g_log.m_outputs.push_back(&g_log_file_stream);
 
   g_log.printSeparator();
   g_log << "*** il2ge.dll initialization ***\n";
@@ -391,8 +394,8 @@ void WINAPI il2ge_init()
       ini.GetBoolean("", "EnableObjectShaders", g_config.enable_object_shaders);
   }
 
-  g_log.m_outputs.pop_back();
-  log.close();
+  g_log.m_outputs.clear();
+  g_log.m_outputs.push_back(&cout);
 
   redirectOutput();
 
