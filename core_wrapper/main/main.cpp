@@ -32,7 +32,6 @@
 
 #include <iostream>
 #include <windows.h>
-#include <fcntl.h>
 #include <stdio.h>
 #include <assert.h>
 #include <unistd.h>
@@ -81,8 +80,10 @@ DWORD g_main_thread = 0;
 
 void redirectOutput()
 {
-  auto out_fd = _open(g_log_file_name, _O_WRONLY| _O_APPEND | _O_BINARY);
-  assert(out_fd);
+  freopen(g_log_file_name, "a", stdout);
+  freopen(g_log_file_name, "a", stderr);
+
+  auto out_fd = _fileno(stdout);
 
   auto res = _dup2(out_fd, 1);
   assert(res != -1);
