@@ -363,7 +363,7 @@ void WINAPI il2ge_init()
 
   ofstream log(g_log_file_name);
 
-  g_log.m_outputs.push_back(&cout);
+  g_log.m_outputs.push_back(&cerr);
   g_log.m_outputs.push_back(&log);
 
   g_log.printSeparator();
@@ -391,10 +391,8 @@ void WINAPI il2ge_init()
       ini.GetBoolean("", "EnableObjectShaders", g_config.enable_object_shaders);
   }
 
-  g_log.m_outputs.clear();
+  g_log.m_outputs.pop_back();
   log.close();
-
-  g_log.m_outputs.push_back(&cout);
 
   redirectOutput();
 
