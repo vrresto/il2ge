@@ -205,17 +205,17 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
 {
   using TextureArray = vector<ImageRGBA::ConstPtr>;
 
-  std::array<TextureArray, MAX_TERRAIN_TEXUNITS> texture_arrays;
-  TextureArray textures_single_array;
+  TextureArray textures;
 #if 0
   auto red_texture = make_shared<ImageRGBA>(ivec2(512));
   image::fill(red_texture, ImageRGBA::PixelType{255, 0, 0, 255});
 
   texture_arrays[getTerrainTextureArrayIndex(red_texture->w())].push_back(red_texture);
-  textures_single_array.push_back(red_texture);
+  textures.push_back(red_texture);
 #endif
-  map<unsigned, glm::uvec3> mapping;
-  map<unsigned, unsigned> orig_to_single_array_mapping;
+
+  map<unsigned, unsigned> mapping;
+  std::vector<float> texture_scale;
 
 //   ImageRGBA::Ptr default_normal_map(new ImageRGBA(ivec2(128,128)));
 //   RGBA default_normal = { 127, 127, 255, 255 };
@@ -258,36 +258,13 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
     image = image::flipY(image);
     assert(image->w() == image->h());
 
-    assert(scale != 0);
-    assert(fract(scale) == 0);
-    assert(scale <= render_util::MapTextures::MAX_TERRAIN_TEXTURE_SCALE);
+    textures.push_back(image);
+    texture_scale.push_back(scale);
 
-    scale += 128;
-
-    assert(scale >= 0);
-    assert(scale <= 255);
-
-    auto index = getTerrainTextureArrayIndex(image->w());
-    assert(index < MAX_TERRAIN_TEXUNITS);
-
-    texture_arrays[index].push_back(image);
-    textures_single_array.push_back(image);
-
-    mapping.insert(make_pair(i, glm::uvec3{index, texture_arrays[index].size()-1, scale}));
-
-    orig_to_single_array_mapping.insert(make_pair(i, textures_single_array.size()-1));
+    mapping.insert(make_pair(i, textures.size()-1));
   }
 
-  auto type_map = make_shared<ImageRGBA>(type_map_->getSize());
-  auto type_map_single_array = make_shared<ImageGreyScale>(type_map_->getSize());
-
-  cout << "uploading textures ..." <<endl;
-  for (size_t i = 0; i < MAX_TERRAIN_TEXUNITS; i++)
-  {
-    if (!texture_arrays[i].empty())
-      map_textures->setTextures(texture_arrays[i], i);
-  }
-  cout << "uploading textures ... done." <<endl;
+  auto type_map = make_shared<ImageGreyScale>(type_map_->getSize());
 
   for (int y = 0; y < type_map->h(); y++)
   {
@@ -301,64 +278,24 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
         orig_index -= 1;
       }
 
-#if 0
-      uvec3 new_index{getTerrainTextureArrayIndex(red_texture->w()), 0, 1};
-#else
-      uvec3 new_index{0};
-#endif
-      try
-      {
-        new_index = mapping.at(orig_index);
-      }
-      catch(...)
-      {
-        for (int i = 0; i < 4; i++)
-        {
-          try
-          {
-            new_index = mapping.at(orig_index - (orig_index % 4) + i);
-            break;
-          }
-          catch(...) {}
-        }
-      }
-      assert(new_index.y <= 0x1F+1);
-      type_map->at(x,y,0) = new_index.x;
-      type_map->at(x,y,1) = new_index.y;
-      type_map->at(x,y,2) = new_index.z;
-      type_map->at(x,y,3) = 255;
-
-      unsigned new_index_single_array = 0;
-      try
-      {
-        new_index_single_array = orig_to_single_array_mapping.at(orig_index);
-      }
-      catch (...)
-      {
-        for (int i = 0; i < 4; i++)
-        {
-          try
-          {
-            new_index_single_array = orig_to_single_array_mapping.at(orig_index - (orig_index % 4) + i);
-            break;
-          }
-          catch(...) {}
-        }
-      }
-      assert(new_index_single_array <= 0x1F+1);
-      type_map_single_array->at(x,y) = new_index_single_array;
+      unsigned new_index = 0;
+      auto it = mapping.find(orig_index);
+      if (it != mapping.end())
+        new_index = it->second;
+      assert(new_index <= 0x1F+1);
+      type_map->at(x,y) = new_index;
     }
   }
 
   dump(type_map, "type_map", loader->getDumpDir());
 
-  map_textures->setTypeMap(type_map);
+  map_textures->setTerrainTextures(textures, texture_scale, type_map);
 
   cout << "generating far texture ..." <<endl;
 
   ImageRGBA::Ptr far_texture =
-    createMapFarTexture(type_map_single_array,
-                        textures_single_array,
+    createMapFarTexture(type_map,
+                        textures,
                         TYPE_MAP_METERS_PER_PIXEL,
                         METERS_PER_TILE);
   map_textures->setTexture(TEXUNIT_TERRAIN_FAR, far_texture);
