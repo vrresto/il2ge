@@ -55,13 +55,22 @@ namespace core
 {
 
 
-struct Map::Private
+struct Map::Private : public render_util::MapBase
 {
   glm::vec2 size;
   shared_ptr<render_util::MapTextures> textures;
   shared_ptr<render_util::WaterAnimation> water_animation;
   TerrainRenderer terrain_renderer;
   glm::vec2 base_map_origin = glm::vec2(0);
+  render_util::TerrainBase::MaterialMap::ConstPtr material_map;
+
+  MapTextures &getTextures() override { return *textures; }
+  WaterAnimation &getWaterAnimation() override { return *water_animation; }
+
+  void setMaterialMap(TerrainBase::MaterialMap::ConstPtr map) override
+  {
+    material_map = map;
+  }
 };
 
 
@@ -104,6 +113,8 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
 
   render_util::ElevationMap::Ptr elevation_map_base;
   ImageGreyScale::Ptr land_map;
+
+#if 0
   if (enable_base_map)
   {
     progress->report(1, "Creating base map");
@@ -137,18 +148,18 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
 
     elevation_map_base = map_generator::generateHeightMap(land_map);
   }
+#endif
 
   auto elevation_map = map_loader::createElevationMap(&res_loader);
   p->size = glm::vec2(elevation_map->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
 
   progress->report(3, "Creating textures");
-  std::map<unsigned, unsigned> field_texture_mapping;
-  render_util::TerrainBase::MaterialMap::Ptr material_map;
-  map_loader::createMapTextures(&res_loader,
-                                p->textures.get(),
-                                p->water_animation.get(),
-                                material_map);
 
+  auto type_map = map_loader::createTypeMap(&res_loader);
+
+  map_loader::createMapTextures(&res_loader, type_map, p);
+
+#if 0
   if (land_map)
   {
     progress->report(4, "Creating land map texture");
@@ -170,10 +181,19 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
     p->textures->setTexture(TEXUNIT_TYPE_MAP_BASE, base_type_map_remapped);
     p->textures->setTexture(TEXUNIT_FOREST_MAP_BASE, map_loader::createForestMap(base_type_map));
   }
+#endif
+
+  FORCE_CHECK_GL_ERROR();
+
+
+  MapLoaderBase::TerrainTextures terrain_textures;
+  map_loader::createTerrainTextures(&res_loader, type_map, terrain_textures);
+
+  p->textures->setTexture(TEXUNIT_TERRAIN_FAR, terrain_textures.far_texture);
 
   p->textures->bind(core::textureManager());
 
-  FORCE_CHECK_GL_ERROR();
+  assert(p->material_map);
 
   string terrain_program_name;
   p->terrain_renderer = createTerrainRenderer(textureManager(),
@@ -188,13 +208,18 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
   p->terrain_renderer.getProgram()->setUniform("terrain_color", glm::vec3(1,0,0));
 
   progress->report(7, "Creating terrain");
-  p->terrain_renderer.getTerrain()->setShaderParameters(p->textures->getShaderParameters());
-  p->terrain_renderer.getTerrain()->build(elevation_map, material_map);
+  p->terrain_renderer.getTerrain()->build(elevation_map,
+                                          p->material_map,
+                                          terrain_textures.type_map,
+                                          terrain_textures.textures,
+                                          terrain_textures.texture_scale);
 
+#if 0
   if (elevation_map_base)
   {
     p->terrain_renderer.getTerrain()->setBaseElevationMap(elevation_map_base);
   }
+#endif
 
   FORCE_CHECK_GL_ERROR();
 
