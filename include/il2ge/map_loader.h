@@ -21,6 +21,7 @@
 
 #include <render_util/elevation_map.h>
 #include <render_util/terrain_base.h>
+#include <render_util/map_loader_base.h>
 
 #include <glm/glm.hpp>
 #include <map>
@@ -49,12 +50,16 @@ namespace il2ge::map_loader
 {
   bool isDumpEnabled();
 
-  void createMapTextures(il2ge::RessourceLoader *loader,
-      render_util::MapTextures *map_textures,
-      render_util::WaterAnimation *water_animation,
-      render_util::TerrainBase::MaterialMap::Ptr &material_map);
+  void createTerrainTextures(il2ge::RessourceLoader*,
+                             render_util::ImageGreyScale::ConstPtr type_map,
+                             render_util::MapLoaderBase::TerrainTextures&);
 
-  render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader);
+  void createMapTextures(il2ge::RessourceLoader*,
+                        render_util::ImageGreyScale::ConstPtr,
+                        render_util::MapBase*);
+
+  render_util::ImageGreyScale::Ptr createTypeMap(il2ge::RessourceLoader*);
+  render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader*);
   render_util::ImageGreyScale::Ptr createForestMap(render_util::ImageGreyScale::ConstPtr type_map);
 }
 

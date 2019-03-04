@@ -188,19 +188,8 @@ void createWaterMap
 }
 
 
-int getTerrainTextureArrayIndex(int size)
-{
-  constexpr double SMALLEST_SIZE = 256;
-
-  int index = glm::log2(double(size)) - glm::log2(SMALLEST_SIZE);
-  assert(index >= 0);
-  assert(index < MAX_TERRAIN_TEXUNITS);
-  return index;
-}
-
-
 void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
-                         render_util::MapTextures *map_textures,
+                         render_util::MapLoaderBase::TerrainTextures &terrain_textures,
                          il2ge::RessourceLoader *loader)
 {
   using TextureArray = vector<ImageRGBA::ConstPtr>;
@@ -289,18 +278,17 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
 
   dump(type_map, "type_map", loader->getDumpDir());
 
-  map_textures->setTerrainTextures(textures, texture_scale, type_map);
+  terrain_textures.type_map = type_map;
+  terrain_textures.textures = textures;
+  terrain_textures.texture_scale = texture_scale;
 
   cout << "generating far texture ..." <<endl;
-
-  ImageRGBA::Ptr far_texture =
+  terrain_textures.far_texture =
     createMapFarTexture(type_map,
                         textures,
                         TYPE_MAP_METERS_PER_PIXEL,
                         METERS_PER_TILE);
-  map_textures->setTexture(TEXUNIT_TERRAIN_FAR, far_texture);
-
-  dump(far_texture, "far_texture", loader->getDumpDir());
+  dump(terrain_textures.far_texture, "far_texture", loader->getDumpDir());
 }
 
 
@@ -398,10 +386,27 @@ namespace il2ge::map_loader
 {
 
 
+ImageGreyScale::Ptr createTypeMap(il2ge::RessourceLoader *loader)
+{
+  cout<<"loading type map ..."<<endl;
+  auto type_map = getTexture<ImageGreyScale>("MAP", "TypeMap", "map_T.tga", true, loader);
+  assert(type_map);
+  type_map = image::flipY(type_map);
+  return type_map;
+}
+
+
+void createTerrainTextures(il2ge::RessourceLoader *loader,
+                           ImageGreyScale::ConstPtr type_map,
+                           MapLoaderBase::TerrainTextures &terrain_textures)
+{
+  createFieldTextures(type_map, terrain_textures, loader);
+}
+
+
 void createMapTextures(il2ge::RessourceLoader *loader,
-             render_util::MapTextures *map_textures,
-             render_util::WaterAnimation *water_animation,
-             render_util::TerrainBase::MaterialMap::Ptr &material_map)
+                       ImageGreyScale::ConstPtr type_map,
+                       render_util::MapBase *map)
 {
 //   getTexture("APPENDIX", "BeachFoam", "", reader);
 //   getTexture("APPENDIX", "BeachSurf", "", reader);
@@ -414,10 +419,8 @@ void createMapTextures(il2ge::RessourceLoader *loader,
 //   getTexture("APPENDIX", "WaterNoise", "", loader, true);
 //   getTexture("WOOD", "WoodMiniMasks", "", loader, true);
 
-  cout<<"loading type map ..."<<endl;
-  auto type_map = getTexture<ImageGreyScale>("MAP", "TypeMap", "map_T.tga", true, loader);
-  assert(type_map);
-  type_map = image::flipY(type_map);
+  auto map_textures = &map->getTextures();
+  auto water_animation = &map->getWaterAnimation();
 
   createWaterNormalMaps(water_animation, map_textures, loader);
 
@@ -436,43 +439,7 @@ void createMapTextures(il2ge::RessourceLoader *loader,
 
   createWaterTypeMap(type_map, map_textures, loader);
 
-#if 1
-//   cout<<"loading noise texture ..."<<endl;
-  ImageGreyScale::Ptr noise_texture = getTexture<ImageGreyScale>("APPENDIX", "ShadeNoise", "land/Noise.tga", false, loader);
-  assert(noise_texture);
-  map_textures->setTexture(TEXUNIT_TERRAIN_NOISE, noise_texture);
-#endif
-
-#if 1
-  ImageRGBA::Ptr shallow_water = getTexture("FIELDS", "Water2", "", loader);
-  assert(shallow_water);
-  map_textures->setTexture(TEXUNIT_SHALLOW_WATER, shallow_water);
-
-  vector<ImageRGBA::ConstPtr> beach;
-
-  ImageRGBA::ConstPtr beach_foam = getTexture("APPENDIX", "BeachFoam", "", loader);
-  assert(beach_foam);
-  beach.push_back(beach_foam);
-
-  ImageRGBA::ConstPtr beach_surf = getTexture("APPENDIX", "BeachSurf", "", loader);
-  assert(beach_surf);
-  beach.push_back(beach_surf);
-
-  ImageRGBA::ConstPtr beach_land = getTexture("APPENDIX", "BeachLand", "", loader);
-  assert(beach_land);
-  beach.push_back(beach_land);
-
-  map_textures->setBeach(beach);
-
-  map_textures->setWaterColor(loader->getWaterColor(default_water_color));
-#endif
-
-  createFieldTextures(type_map, map_textures, loader);
-  createForestTextures(type_map, map_textures, loader);
-
-  assert(!material_map);
-
-  material_map = image::convert<TerrainBase::MaterialMap::ComponentType>(type_map);
+  auto material_map = image::convert<TerrainBase::MaterialMap::ComponentType>(type_map);
 
   material_map->forEach
   (
@@ -508,6 +475,41 @@ void createMapTextures(il2ge::RessourceLoader *loader,
       material_map->at(x,y) = material;
     }
   }
+
+  map->setMaterialMap(material_map);
+
+#if 1
+//   cout<<"loading noise texture ..."<<endl;
+  ImageGreyScale::Ptr noise_texture = getTexture<ImageGreyScale>("APPENDIX", "ShadeNoise", "land/Noise.tga", false, loader);
+  assert(noise_texture);
+  map_textures->setTexture(TEXUNIT_TERRAIN_NOISE, noise_texture);
+#endif
+
+#if 1
+  ImageRGBA::Ptr shallow_water = getTexture("FIELDS", "Water2", "", loader);
+  assert(shallow_water);
+  map_textures->setTexture(TEXUNIT_SHALLOW_WATER, shallow_water);
+
+  vector<ImageRGBA::ConstPtr> beach;
+
+  ImageRGBA::ConstPtr beach_foam = getTexture("APPENDIX", "BeachFoam", "", loader);
+  assert(beach_foam);
+  beach.push_back(beach_foam);
+
+  ImageRGBA::ConstPtr beach_surf = getTexture("APPENDIX", "BeachSurf", "", loader);
+  assert(beach_surf);
+  beach.push_back(beach_surf);
+
+  ImageRGBA::ConstPtr beach_land = getTexture("APPENDIX", "BeachLand", "", loader);
+  assert(beach_land);
+  beach.push_back(beach_land);
+
+  map_textures->setBeach(beach);
+
+  map_textures->setWaterColor(loader->getWaterColor(default_water_color));
+#endif
+
+  createForestTextures(type_map, map_textures, loader);
 
   cout<<"creating map textures done."<<endl;
 }

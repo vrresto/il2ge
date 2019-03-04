@@ -29,17 +29,21 @@ class MapLoaderDump : public render_util::MapLoaderBase
   std::string m_path;
   const render_util::TextureManager &m_texture_mgr;
   RessourceLoader *m_res_loader = nullptr;
+  render_util::ImageGreyScale::Ptr m_type_map;
 
 public:
   MapLoaderDump(const std::string &path, const render_util::TextureManager &texture_mgr);
   ~MapLoaderDump();
 
-  std::shared_ptr<render_util::MapBase> loadMap() const override;
   render_util::ElevationMap::Ptr createElevationMap() const override;
   render_util::ElevationMap::Ptr
       createBaseElevationMap(render_util::ImageGreyScale::ConstPtr land_map) const override;
   render_util::ImageGreyScale::Ptr createBaseLandMap() const override;
   glm::vec2 getBaseMapOrigin() const override;
+
+  void createTerrainTextures(TerrainTextures&) const override;
+  void createMapTextures(render_util::MapBase*) const override;
+  int getHeightMapMetersPerPixel() const override;
 };
 
 #endif

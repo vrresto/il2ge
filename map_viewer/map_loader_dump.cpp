@@ -46,8 +46,6 @@ namespace il2ge::map_loader
 }
 
 
-
-
 class MapLoaderDump::RessourceLoader : public il2ge::RessourceLoader
 {
   std::string map_dir;
@@ -127,93 +125,20 @@ public:
 };
 
 
-namespace
-{
-
-
-} //namespace
-
-
-namespace il2ge::viewer
-{
-
-
-class Map : public render_util::MapBase
-{
-  std::shared_ptr<MapTextures> m_textures;
-  std::shared_ptr<WaterAnimation> m_water_animation;
-  map<unsigned, unsigned> m_field_texture_mapping;
-  render_util::TerrainBase::MaterialMap::Ptr m_material_map;
-
-public:
-  Map(const render_util::TextureManager &texture_mgr, RessourceLoader*);
-  MapTextures &getTextures() override { return *m_textures; }
-  WaterAnimation &getWaterAnimation() override { return *m_water_animation; }
-  TerrainBase::MaterialMap::ConstPtr getMaterialMap() const override { return m_material_map; }
-
-  getHeightMapMetersPerPixel() const override
-  {
-    return il2ge::HEIGHT_MAP_METERS_PER_PIXEL;
-  }
-
-  void buildBaseMap(render_util::ElevationMap::ConstPtr elevation_map,
-                    render_util::ImageGreyScale::ConstPtr land_map) override;
-};
-
-
-Map::Map(const render_util::TextureManager &texture_mgr, RessourceLoader *res_loader) :
-  m_textures(make_shared<MapTextures>(texture_mgr)),
-  m_water_animation(make_shared<WaterAnimation>())
-{
-  assert(m_textures);
-  assert(m_water_animation);
-
-  il2ge::map_loader::createMapTextures(res_loader,
-                                       m_textures.get(),
-                                       m_water_animation.get(),
-                                       m_material_map);
-}
-
-
-void Map::buildBaseMap(render_util::ElevationMap::ConstPtr elevation_map,
-                       render_util::ImageGreyScale::ConstPtr land_map)
-{
-  assert(!m_field_texture_mapping.empty());
-
-  auto base_type_map = map_generator::generateTypeMap(elevation_map);
-
-  auto base_type_map_remapped = image::clone(base_type_map);
-  base_type_map_remapped->forEach([&] (auto &pixel)
-  {
-    pixel = m_field_texture_mapping[pixel];
-  });
-
-  m_textures->setTexture(TEXUNIT_TYPE_MAP_BASE, base_type_map_remapped);
-  m_textures->setTexture(TEXUNIT_FOREST_MAP_BASE, map_loader::createForestMap(base_type_map));
-}
-
-
-} // namespace il2ge::viewer
-
-
 MapLoaderDump::MapLoaderDump(const std::string &path,
                              const render_util::TextureManager &texture_mgr) :
   m_path(path),
   m_texture_mgr(texture_mgr),
   m_res_loader(new RessourceLoader(m_path.c_str()))
 {
+  m_type_map = il2ge::map_loader::createTypeMap(m_res_loader);
+  assert(m_type_map);
 }
 
 MapLoaderDump::~MapLoaderDump()
 {
   delete m_res_loader;
   m_res_loader = nullptr;
-}
-
-std::shared_ptr<render_util::MapBase> MapLoaderDump::loadMap() const
-{
-  return make_shared<il2ge::viewer::Map>(m_texture_mgr, m_res_loader);
-  abort();
 }
 
 render_util::ElevationMap::Ptr MapLoaderDump::createElevationMap() const
@@ -256,4 +181,22 @@ ImageGreyScale::Ptr MapLoaderDump::createBaseLandMap() const
     land_map = image::flipY(land_map);
 
   return land_map;
+}
+
+
+void MapLoaderDump::createMapTextures(render_util::MapBase *map) const
+{
+  il2ge::map_loader::createMapTextures(m_res_loader, m_type_map, map);
+}
+
+
+void MapLoaderDump::createTerrainTextures(TerrainTextures &terrain_textures) const
+{
+  il2ge::map_loader::createTerrainTextures(m_res_loader, m_type_map, terrain_textures);
+}
+
+
+int MapLoaderDump::getHeightMapMetersPerPixel() const
+{
+  return il2ge::HEIGHT_MAP_METERS_PER_PIXEL;
 }
