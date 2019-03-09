@@ -72,10 +72,14 @@ const char replacement_path[] = "il2ge_shader_override";
 const char main_shader_path[] = IL2GE_DATA_DIR "/shaders";
 
 
-render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader,
-                                                const string &fragment_shader)
+render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
+                                                const string &fragment_shader_)
 {
   using namespace std;
+
+  // strip "vp" / "fp" prefix
+  auto vertex_shader = vertex_shader_.substr(2);
+  auto fragment_shader = fragment_shader_.substr(2);
 
   cout<<"creating program: "<<vertex_shader<<", "<<fragment_shader<<endl;
 
@@ -86,6 +90,7 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader,
   vert.push_back("main");
   frag.push_back(fragment_shader);
   frag.push_back("atmosphere");
+  frag.push_back("main");
 
   vector<string> paths;
   paths.push_back(replacement_path);
