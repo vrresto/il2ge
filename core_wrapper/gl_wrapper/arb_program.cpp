@@ -68,7 +68,7 @@ std::unordered_set<std::string> enabled_shaders;
 constexpr const bool is_replace_arb_program_string_enabled = true;
 
 
-const char replacement_path[] = "il2ge_shader_override";
+const char replacement_path[] = IL2GE_DATA_DIR "/object_shaders";
 const char main_shader_path[] = IL2GE_DATA_DIR "/shaders";
 
 

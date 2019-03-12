@@ -147,6 +147,10 @@ install(DIRECTORY ${renderutil_dir}/shaders
   DESTINATION ${il2ge_data_dir}
 )
 
+install(DIRECTORY object_shaders
+  DESTINATION ${il2ge_data_dir}
+)
+
 install(DIRECTORY shaders
   DESTINATION ${il2ge_data_dir}
 )
