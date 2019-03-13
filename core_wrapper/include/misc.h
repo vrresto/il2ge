@@ -44,7 +44,7 @@ namespace il2ge::core_wrapper
     bool enable_effects = false;
     bool enable_light_point = false;
     bool enable_base_map = false;
-    bool enable_object_shaders = false;
+    bool enable_object_shaders = true;
   };
 
   const Config &getConfig();
