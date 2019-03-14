@@ -31,6 +31,7 @@
 #include <INIReader.h>
 
 #include <iostream>
+#include <sstream>
 #include <windows.h>
 #include <stdio.h>
 #include <assert.h>
@@ -59,6 +60,21 @@ namespace
 {
 
 
+class LogBuf : public std::stringbuf
+{
+protected:
+  int sync() override
+  {
+    fwrite(str().data(), sizeof(char), str().size(), stdout);
+    fflush(stdout);
+
+    str({});
+
+    return 0;
+  }
+};
+
+
 typedef jint JNICALL JNI_GetCreatedJavaVMs_t(JavaVM **, jsize, jsize *);
 
 void installIATPatches(HMODULE);
@@ -76,6 +92,7 @@ bool g_core_wrapper_loaded = false;
 JNI_GetCreatedJavaVMs_t *p_JNI_GetCreatedJavaVMs = nullptr;
 JavaVM *g_java_vm = nullptr;
 DWORD g_main_thread = 0;
+LogBuf g_log_buf;
 
 
 void redirectOutput()
@@ -89,6 +106,9 @@ void redirectOutput()
   assert(res != -1);
   res = _dup2(out_fd, 2);
   assert(res != -1);
+
+  cout.rdbuf(&g_log_buf);
+  cerr.rdbuf(&g_log_buf);
 }
 
 
