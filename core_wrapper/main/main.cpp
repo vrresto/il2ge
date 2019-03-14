@@ -92,7 +92,8 @@ bool g_core_wrapper_loaded = false;
 JNI_GetCreatedJavaVMs_t *p_JNI_GetCreatedJavaVMs = nullptr;
 JavaVM *g_java_vm = nullptr;
 DWORD g_main_thread = 0;
-LogBuf g_log_buf;
+LogBuf g_cout_buf;
+LogBuf g_cerr_buf;
 
 
 void redirectOutput()
@@ -107,8 +108,8 @@ void redirectOutput()
   res = _dup2(out_fd, 2);
   assert(res != -1);
 
-  cout.rdbuf(&g_log_buf);
-  cerr.rdbuf(&g_log_buf);
+  cout.rdbuf(&g_cout_buf);
+  cerr.rdbuf(&g_cerr_buf);
 }
 
 
