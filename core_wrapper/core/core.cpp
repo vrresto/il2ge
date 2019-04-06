@@ -210,6 +210,12 @@ render_util::TerrainRenderer &getTerrainRenderer()
 }
 
 
+render_util::ImageGreyScale::ConstPtr getPixelMapH()
+{
+  return getScene()->getPixelMapH();
+}
+
+
 il2ge::Effect3D *getEffect(int cpp_obj)
 {
   assert(getScene()->effects.get(cpp_obj));

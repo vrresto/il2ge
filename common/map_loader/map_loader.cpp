@@ -581,12 +581,18 @@ void createChunks(render_util::ImageGreyScale::ConstPtr image,
 }
 
 
-render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader)
+render_util::ImageGreyScale::Ptr createPixelMapH(il2ge::RessourceLoader *loader)
 {
   auto height_map =
     getTexture<ImageGreyScale>("MAP", "HeightMap", "map_h.tga", true, loader);
   assert(height_map);
 
+  return height_map;
+}
+
+
+render_util::ElevationMap::Ptr createElevationMap(render_util::ImageGreyScale::ConstPtr height_map)
+{
   auto elevation_map = make_shared<ElevationMap>(height_map->getSize());
   for (int y = 0; y < elevation_map->h(); y++)
   {

@@ -84,6 +84,8 @@ namespace core
   void setTime(uint64_t);
   void setWindSpeed(const glm::vec2&);
 
+  render_util::ImageGreyScale::ConstPtr getPixelMapH();
+
   void onClearStates();
   void onPrePreRenders();
   void onPostPreRenders();

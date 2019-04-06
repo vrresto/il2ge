@@ -59,8 +59,16 @@ namespace il2ge::map_loader
                         render_util::MapBase*);
 
   render_util::ImageGreyScale::Ptr createTypeMap(il2ge::RessourceLoader*);
-  render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader*);
   render_util::ImageGreyScale::Ptr createForestMap(render_util::ImageGreyScale::ConstPtr type_map);
+
+  render_util::ImageGreyScale::Ptr createPixelMapH(il2ge::RessourceLoader*);
+
+  render_util::ElevationMap::Ptr createElevationMap(render_util::ImageGreyScale::ConstPtr);
+
+  inline render_util::ElevationMap::Ptr createElevationMap(il2ge::RessourceLoader *loader)
+  {
+    return createElevationMap(createPixelMapH(loader));
+  }
 }
 
 

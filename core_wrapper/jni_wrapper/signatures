@@ -12,9 +12,14 @@ jint il2.engine.Render prepareStates
 jint il2.engine.Render clearStates
 jint il2.engine.Render flush
 jint il2.engine.Render shadows
+
 jint il2.engine.Landscape cPreRender jfloat jboolean jfloatArray
 jint il2.engine.Landscape cRender0 jint
 jint il2.engine.Landscape cRender1 jint
+jint il2.engine.Landscape cLoadMap jstring jintArray jint jboolean
+jint il2.engine.Landscape cUnloadMap
+void il2.engine.Landscape setPixelMapH jint jint jint
+
 jint il2.engine.Mat PreRender__I jobject
 jint il2.engine.Mat PreRender__IFFFF jobject jobject jobject jobject jobject
 jint il2.engine.Renders PrePreRenders
@@ -23,8 +28,6 @@ jint il2.engine.Renders PostRenders
 jint il2.engine.RenderContext SetDrawMesh jobject
 jint il2.engine.SMesh Render jobject
 jint il2.engine.Sun setNative jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat
-jint il2.engine.Landscape cLoadMap jstring jintArray jint jboolean
-jint il2.engine.Landscape cUnloadMap
 jint il2.engine.HierMesh Render jint
 jint il2.engine.Mesh Render jint
 jint il2.engine.MeshShared RenderArray jboolean jint jintArray jdoubleArray jfloatArray

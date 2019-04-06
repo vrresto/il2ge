@@ -63,6 +63,7 @@ struct Map::Private : public render_util::MapBase
   TerrainRenderer terrain_renderer;
   glm::vec2 base_map_origin = glm::vec2(0);
   render_util::TerrainBase::MaterialMap::ConstPtr material_map;
+  render_util::ImageGreyScale::ConstPtr pixel_map_h;
 
   MapTextures &getTextures() override { return *textures; }
   WaterAnimation &getWaterAnimation() override { return *water_animation; }
@@ -150,7 +151,12 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
   }
 #endif
 
-  auto elevation_map = map_loader::createElevationMap(&res_loader);
+
+  p->pixel_map_h = map_loader::createPixelMapH(&res_loader);
+
+  assert(p->pixel_map_h);
+
+  auto elevation_map = map_loader::createElevationMap(p->pixel_map_h);
   p->size = glm::vec2(elevation_map->getSize() * (int)il2ge::HEIGHT_MAP_METERS_PER_PIXEL);
 
   progress->report(3, "Creating textures");
@@ -260,6 +266,10 @@ render_util::TerrainRenderer &Map::getTerrainRenderer()
 }
 
 
+render_util::ImageGreyScale::ConstPtr Map::getPixelMapH()
+{
+  return p->pixel_map_h;
+}
 
 
 } // namespace core

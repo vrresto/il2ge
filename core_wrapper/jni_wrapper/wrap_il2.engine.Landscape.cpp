@@ -78,6 +78,20 @@ jint JNICALL cLoadMap(JNIEnv *env, jobject obj,
 
   core::loadMap(buf, env);
 
+  auto pixel_map_h = core::getPixelMapH();
+  assert(pixel_map_h);
+
+  auto size = pixel_map_h->getSize();
+
+  for (int y = 0; y < size.y; y++)
+  {
+    for (int x = 0; x < size.x; x++)
+    {
+      int pixel = pixel_map_h->get(x,y);
+      import.setPixelMapH(env, obj, x, y, pixel);
+    }
+  }
+
   return import.cLoadMap(env, obj, arg0, arg1, arg2, arg3);
 }
 
@@ -85,6 +99,11 @@ jint JNICALL cUnloadMap(JNIEnv *env, jobject obj)
 {
   core::unloadMap();
   return import.cUnloadMap(env, obj);
+}
+
+void JNICALL setPixelMapH(JNIEnv *env, jobject obj, jint x, jint y, jint value)
+{
+  return import.setPixelMapH(env, obj, x, y, value);
 }
 
 

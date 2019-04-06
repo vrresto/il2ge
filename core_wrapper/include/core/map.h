@@ -47,6 +47,7 @@ namespace core
     glm::ivec2 getTypeMapSize();
     render_util::WaterAnimation *getWaterAnimation();
     render_util::TerrainRenderer &getTerrainRenderer();
+    render_util::ImageGreyScale::ConstPtr getPixelMapH();
 
     void setUniforms(render_util::ShaderProgramPtr program);
   };

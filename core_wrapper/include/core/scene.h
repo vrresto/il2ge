@@ -23,6 +23,7 @@
 #include <core.h>
 #include <core/map.h>
 #include <core/effects.h>
+#include <core/map.h>
 #include <render_util/camera.h>
 
 #include <memory>
@@ -30,7 +31,6 @@
 
 namespace core
 {
-  class Map;
   class ProgressReporter;
 
   class Scene
@@ -50,6 +50,11 @@ namespace core
     void update(float delta, const glm::vec2 &wind_speed);
     void updateUniforms(render_util::ShaderProgramPtr program);
     render_util::TerrainRenderer &getTerrainRenderer();
+
+    render_util::ImageGreyScale::ConstPtr getPixelMapH()
+    {
+      return map->getPixelMapH();
+    }
 
     bool isMapLoaded() { return map != nullptr; }
   };
