@@ -33,7 +33,11 @@ void main()
   gl_FragColor.xyz = calcLightWithSpecular(gl_FragColor.xyz,
     pass_normal, pass_shinyness, pass_specular_amount, view_dir);
 
-  gl_FragColor *= pass_color;
+  if (pass_color.a < 0.99)
+  {
+    gl_FragColor.xyz = vec3(0.0);
+    gl_FragColor.a = 0.3 * smoothstep(-0.02, 0.02, sunDir.z);
+  }
 
   apply_fog();
 }
