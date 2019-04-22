@@ -53,6 +53,7 @@ namespace core
 
     render_util::ImageGreyScale::ConstPtr getPixelMapH()
     {
+      assert(map);
       return map->getPixelMapH();
     }
 

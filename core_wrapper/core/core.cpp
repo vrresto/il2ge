@@ -166,6 +166,8 @@ void loadMap(const char *path, void *env_)
 {
   FORCE_CHECK_GL_ERROR();
 
+  unloadMap();
+
   ProgressReporter progress((JNIEnv*)env_);
 
   GameState game_state((JNIEnv*)env_);

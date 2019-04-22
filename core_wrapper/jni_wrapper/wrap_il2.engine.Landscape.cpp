@@ -78,7 +78,13 @@ jint JNICALL cLoadMap(JNIEnv *env, jobject obj,
 
   core::loadMap(buf, env);
 
-  if (import.cLoadMap(env, obj, arg0, arg1, arg2, arg3))
+  bool loaded = import.cLoadMap(env, obj, arg0, arg1, arg2, arg3);
+
+  if (!loaded)
+  {
+    core::unloadMap();
+  }
+  else if (core::isMapLoaded())
   {
     auto pixel_map_h = core::getPixelMapH();
     assert(pixel_map_h);
@@ -92,11 +98,9 @@ jint JNICALL cLoadMap(JNIEnv *env, jobject obj,
         import.setPixelMapH(env, obj, x, y, pixel);
       }
     }
-
-    return true;
   }
-  else
-    return false;
+
+  return loaded;
 }
 
 jint JNICALL cUnloadMap(JNIEnv *env, jobject obj)
