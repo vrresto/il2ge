@@ -20,8 +20,8 @@ debug_build:
     - make install
   artifacts:
     name: "il2ge-debug_build_$CI_JOB_ID"
-  paths:
-    - install
+    paths:
+      - install
 
 .map_viewer_build:
   variables:
