@@ -5,6 +5,7 @@
 uniform mat4 view2WorldMatrix;
 
 varying vec3 passObjectPos;
+varying vec3 passObjectPosFlat;
 
 layout(std140) uniform local_vertex_parameters
 {
@@ -49,6 +50,7 @@ void il2_main()
   view_pos.xy = (vertex_params.xy * scale * distance_scale) + quad_center_view.xy;
 
   passObjectPos = (view2WorldMatrix * view_pos).xyz;
+  passObjectPosFlat = passObjectPos;
 
   gl_Position = gl_ProjectionMatrix * view_pos;
 

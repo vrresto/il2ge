@@ -12,6 +12,7 @@ uniform mat4 view2WorldMatrix;
 varying vec3 pass_normal;
 varying float pass_shinyness;
 varying vec3 passObjectPos;
+varying vec3 passObjectPosFlat;
 varying vec3 pass_specular_amount;
 varying vec4 pass_color;
 
@@ -25,6 +26,7 @@ void il2_main()
 
   vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
   passObjectPos = (view2WorldMatrix * viewPos).xyz;
+  passObjectPosFlat = passObjectPos;
 
   vec4 normal = (gl_Color * 2) + vec4(-1, -1, -1, 0);
   normal.xyz = normalize(normal.xyz);
