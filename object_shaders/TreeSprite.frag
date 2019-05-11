@@ -50,10 +50,10 @@ vec3 calcLight(vec3 normal)
   directLight *= 1-pass_shadow;
 
   vec3 directLightColor = calcIncomingDirectLight() * directLight;
-  directLightColor *= 0.7;
+  directLightColor *= 0.6;
 
-  float direct_factor = 0.5 * (1-pass_shadow);
-  float ambient_factor = 0.8;
+  float direct_factor = 0.4 * (1-pass_shadow);
+  float ambient_factor = 0.6;
   vec3 ambientLightColor = calcTerrainLight(vec3(0), terrain_normal, direct_factor, ambient_factor);
 
   return directLightColor + ambientLightColor;
