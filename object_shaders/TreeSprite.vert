@@ -4,6 +4,8 @@
 
 uniform mat4 view2WorldMatrix;
 
+varying vec3 pass_quad_center;
+varying float pass_shadow;
 varying vec3 passObjectPos;
 varying vec3 passObjectPosFlat;
 
@@ -18,6 +20,8 @@ void il2_main()
   vec3 quad_center_model = gl_Vertex.xyz * 0.0156;
 
   vec4 quad_center_view = gl_ModelViewMatrix * vec4(quad_center_model + params[19].xyz, 1);
+
+  pass_quad_center = (view2WorldMatrix * quad_center_view).xyz;
 
   vec4 view_pos = quad_center_view;
 
@@ -68,4 +72,5 @@ void il2_main()
     gl_TexCoord[2] = gl_TexCoord[1];
   }
 
+  pass_shadow = 1 - gl_SecondaryColor.z;
 }
