@@ -1,6 +1,6 @@
 #version 130
 
-vec3 calcLight(vec3 pos, vec3 normal);
+vec3 calcLight(vec3 pos, vec3 normal, float direct_scale, float ambient_scale);
 void apply_fog();
 
 uniform sampler2D sampler_0;
@@ -30,7 +30,7 @@ void main()
   gl_FragColor = texture2D(sampler_0, (gl_TexCoord[0]).xy);
 
   vec3 normal = sampleTerrainNormal();
-  gl_FragColor.xyz *= calcLight(vec3(0), normal);
+  gl_FragColor.xyz *= calcLight(vec3(0), normal, 1, 1);
 
   apply_fog();
 }

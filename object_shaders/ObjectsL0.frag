@@ -2,7 +2,8 @@
 
 #extension GL_ARB_uniform_buffer_object : require
 
-vec3 calcLightWithSpecular(vec3 input, vec3 normal, float shinyness, vec3 specular_amount, vec3 viewDir);
+vec3 calcLightWithSpecular(vec3 input_color, vec3 normal, float shinyness, vec3 specular_amount,
+                           float direct_scale, float ambient_scale, vec3 viewDir);
 void apply_fog();
 
 uniform sampler2D sampler_0;
@@ -31,7 +32,7 @@ void main()
   vec3 view_dir = normalize(cameraPosWorld - passObjectPos);
 
   gl_FragColor.xyz = calcLightWithSpecular(gl_FragColor.xyz,
-    pass_normal, pass_shinyness, pass_specular_amount, view_dir);
+    pass_normal, pass_shinyness, pass_specular_amount, 1, 1, view_dir);
 
   if (pass_color.a < 0.99)
   {
