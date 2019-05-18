@@ -455,12 +455,24 @@ void GLAPIENTRY wrap_glDrawElements(
 }
 
 
+// tree stem/shadow
 void GLAPIENTRY wrap_glDrawArrays(GLenum mode,
     GLint first,
     GLsizei count)
 {
   if (wgl_wrapper::isMainContextCurrent())
-    getContext()->getARBProgramContext()->update();
+  {
+    bool is_shadow = gl::IsEnabled(GL_BLEND);
+    auto ctx = getContext();
+
+    ctx->getARBProgramContext()->update();
+
+    if (ctx->is_arb_program_active && ctx->current_arb_program)
+    {
+      ctx->current_arb_program->setUniform("is_shadow", is_shadow);
+    }
+  }
+
   gl::DrawArrays(mode, first, count);
 }
 
