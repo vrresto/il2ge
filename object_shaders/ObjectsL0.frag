@@ -33,9 +33,7 @@ void main()
 
   vec3 view_dir = normalize(cameraPosWorld - passObjectPos);
 
-  gl_FragColor.xyz = calcLightWithSpecular(gl_FragColor.xyz,
-
-  pass_normal, pass_shinyness, pass_specular_amount, DIRECT_LIGHT_SCALE, AMBIENT_LIGHT_SCALE, view_dir);
+  gl_FragColor.xyz = calcLightWithSpecular(gl_FragColor.xyz, pass_normal, pass_shinyness, pass_specular_amount, DIRECT_LIGHT_SCALE, AMBIENT_LIGHT_SCALE, view_dir);
 
   if (pass_color.a < 0.99)
   {
