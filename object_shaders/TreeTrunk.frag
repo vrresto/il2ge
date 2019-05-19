@@ -24,4 +24,6 @@ void main()
   {
     gl_FragColor.xyz *= calcLight(vec3(0), pass_normal, 0.0, 0.8);
   }
+
+  apply_fog();
 }
