@@ -47,6 +47,20 @@ namespace
     return dir;
   }
 
+
+  bool readTextureFile(string dir, string filename_base, string ext,
+                      bool redirect, std::vector<char> &content)
+  {
+    string path = dir + filename_base + ext;
+
+    bool was_read = sfs::readFile(path, content);
+
+    if (was_read && redirect)
+      sfs::redirect(sfs::getHash(path.c_str()), sfs::getHash("il2ge/dummy.tga"));
+
+    return was_read;
+  }
+
 }
 
 
@@ -150,15 +164,17 @@ bool core::RessourceLoader::readTextureFile(const char *section,
 
   string filename = value.substr(0, comma_pos);
 
-  string path = (from_map_dir) ? map_dir : "maps/_Tex/";
-  path += filename;
+  string filename_base = filename.substr(0, filename.find_last_of('.'));
 
-  if (redirect)
-    sfs::redirect(sfs::getHash(path.c_str()), sfs::getHash("il2ge/dummy.tga"));
+  bool was_read = false;
 
-  cout<<"reading "<<path<<endl;
+  string dir = (from_map_dir) ? map_dir : "maps/_Tex/";
 
-  return sfs::readFile(path, content);
+  was_read = ::readTextureFile(dir, filename_base, ".tgb", redirect, content);
+  if (!was_read)
+    was_read = ::readTextureFile(dir, filename_base, ".tga", redirect, content);
+
+  return was_read;
 }
 
 
