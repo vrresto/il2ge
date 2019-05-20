@@ -203,7 +203,6 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
   textures.push_back(red_texture);
 #endif
 
-  map<unsigned, unsigned> mapping;
   std::vector<float> texture_scale;
 
 //   ImageRGBA::Ptr default_normal_map(new ImageRGBA(ivec2(128,128)));
@@ -241,16 +240,15 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
     float scale = 1.0;
 
     ImageRGBA::Ptr image = getTexture("FIELDS", field_name, "", loader, true, &scale);
-    if (!image)
-      continue;
 
-    image = image::flipY(image);
-    assert(image->w() == image->h());
+    if (image)
+    {
+      image = image::flipY(image);
+      assert(image->w() == image->h());
+    }
 
     textures.push_back(image);
     texture_scale.push_back(scale);
-
-    mapping.insert(make_pair(i, textures.size()-1));
   }
 
   auto type_map = make_shared<ImageGreyScale>(type_map_->getSize());
@@ -259,20 +257,15 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
   {
     for (int x = 0; x < type_map->w(); x++)
     {
-      unsigned int orig_index = type_map_->get(x,y) & 0x1F;
+      unsigned int index = type_map_->get(x,y) & 0x1F;
 
-      if (strcmp(field_names[orig_index], "Wood1") == 0 ||
-          strcmp(field_names[orig_index], "Wood3") == 0)
+      if (strcmp(field_names[index], "Wood1") == 0 ||
+          strcmp(field_names[index], "Wood3") == 0)
       {
-        orig_index -= 1;
+        index -= 1;
       }
 
-      unsigned new_index = 0;
-      auto it = mapping.find(orig_index);
-      if (it != mapping.end())
-        new_index = it->second;
-      assert(new_index <= 0x1F+1);
-      type_map->at(x,y) = new_index;
+      type_map->at(x,y) = index;
     }
   }
 
