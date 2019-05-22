@@ -128,6 +128,7 @@ namespace core_gl_wrapper
       {
         core::updateUniforms(program);
         render_util::updateUniforms(program, camera);
+        program->setUniform("is_shadow", false);
 
         program->frame_nr = getFrameNumber();
         program->is_far_camera = is_far_camera;
