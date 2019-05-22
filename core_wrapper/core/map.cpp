@@ -78,6 +78,7 @@ struct Map::Private : public render_util::MapBase
 Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
 {
   const bool enable_base_map = il2ge::core_wrapper::getConfig().enable_base_map;
+  const bool enable_normal_maps = il2ge::core_wrapper::getConfig().enable_bumph_maps;
 
   FORCE_CHECK_GL_ERROR();
 
@@ -193,7 +194,7 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
 
 
   MapLoaderBase::TerrainTextures terrain_textures;
-  map_loader::createTerrainTextures(&res_loader, type_map, terrain_textures);
+  map_loader::createTerrainTextures(&res_loader, type_map, terrain_textures, enable_normal_maps);
 
   p->textures->setTexture(TEXUNIT_TERRAIN_FAR, terrain_textures.far_texture);
 
@@ -218,6 +219,7 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
                                           p->material_map,
                                           terrain_textures.type_map,
                                           terrain_textures.textures,
+                                          terrain_textures.textures_nm,
                                           terrain_textures.texture_scale);
 
 #if 0

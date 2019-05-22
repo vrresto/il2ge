@@ -410,6 +410,7 @@ void WINAPI il2ge_init()
     g_config.enable_effects = ini.GetBoolean("", "EnableEffects", g_config.enable_effects);
     g_config.enable_object_shaders =
       ini.GetBoolean("", "EnableObjectShaders", g_config.enable_object_shaders);
+    g_config.enable_bumph_maps = ini.GetBoolean("", "EnableBumpH", g_config.enable_bumph_maps);
   }
 
   g_log.m_outputs.clear();

@@ -19,7 +19,11 @@
 #include "ressource_loader.h"
 #include "sfs.h"
 #include <il2ge/map_loader.h>
+#include <il2ge/image_loader.h>
 #include <util.h>
+#include <render_util/image_util.h>
+#include <render_util/image_loader.h>
+#include <render_util/texture_util.h>
 
 #include <cassert>
 #include <iostream>
@@ -31,6 +35,7 @@ using namespace util;
 
 namespace
 {
+
 
   void dumpFile(string name, const char *data, size_t data_size, string dir)
   {
@@ -60,6 +65,74 @@ namespace
 
     return was_read;
   }
+
+
+  void cacheNormalMap(string bumph_path, string cache_path, float scale)
+  {
+    cout<<"cacheNormalMap: "<<bumph_path<<endl;
+
+    std::vector<char> content;
+    if (sfs::readFile(bumph_path, content))
+    {
+      auto image = il2ge::loadImageFromMemory(content, bumph_path.c_str());
+      if (image)
+      {
+        auto heightmap = render_util::image::getChannel(image, 0);
+
+        auto normal_map = render_util::createNormalMap(heightmap, 5.0,
+                                                       scale * il2ge::TERRAIN_METERS_PER_TEXTURE_TILE);
+        cout<<"caching "<<bumph_path<<" -> "<<cache_path<<endl;
+        render_util::saveImageToFile(cache_path, normal_map.get());
+      }
+      else
+      {
+        cout<<bumph_path<<": loadImageFromMemory() failed"<<endl;
+      }
+    }
+    else
+    {
+      cout<<bumph_path<<" not found"<<endl;
+    }
+  }
+
+
+  bool readNormalMapFile(string dir, string filename_base,
+                      bool redirect, float scale, std::vector<char> &content)
+  {
+    string bumph_path = dir + filename_base + ".BumpH";
+
+    cout<<"readNormalMapFile: "<<bumph_path<<endl;
+
+    union
+    {
+      __int64 as_signed;
+      uint64_t as_unsigned;
+    } sfs_hash;
+
+    sfs_hash.as_signed = sfs::getHash(bumph_path.c_str());
+
+    auto res = util::mkdir(IL2GE_CACHE_DIR);
+    assert(res);
+    res = util::mkdir(IL2GE_CACHE_DIR "/bumph");
+    assert(res);
+
+    auto cache_path = string(IL2GE_CACHE_DIR "/bumph/") +
+      to_string(sfs_hash.as_unsigned) + "_" + to_string(scale) + ".tga";
+
+    bool was_read = util::readFile(cache_path, content, true);
+
+    if (!was_read)
+    {
+      cacheNormalMap(bumph_path, cache_path, scale);
+      was_read = util::readFile(cache_path, content, true);
+    }
+
+    if (was_read && redirect)
+      sfs::redirect(sfs::getHash(bumph_path.c_str()), sfs::getHash("NULL"));
+
+    return was_read;
+  }
+
 
 }
 
@@ -137,7 +210,8 @@ bool core::RessourceLoader::readTextureFile(const char *section,
           std::vector<char> &content,
           bool from_map_dir,
           bool redirect,
-          float *scale)
+          float *scale,
+          bool is_bumpmap)
 {
   string value = reader->Get(section, name, default_path);
   if (value.empty())
@@ -170,9 +244,16 @@ bool core::RessourceLoader::readTextureFile(const char *section,
 
   string dir = (from_map_dir) ? map_dir : "maps/_Tex/";
 
-  was_read = ::readTextureFile(dir, filename_base, ".tgb", redirect, content);
-  if (!was_read)
-    was_read = ::readTextureFile(dir, filename_base, ".tga", redirect, content);
+  if (is_bumpmap)
+  {
+    was_read = ::readNormalMapFile(dir, filename_base, redirect, *scale, content);
+  }
+  else
+  {
+    was_read = ::readTextureFile(dir, filename_base, ".tgb", redirect, content);
+    if (!was_read)
+      was_read = ::readTextureFile(dir, filename_base, ".tga", redirect, content);
+  }
 
   return was_read;
 }

@@ -30,6 +30,9 @@ std::shared_ptr<render_util::GenericImage> loadImageFromMemory(const std::vector
 std::shared_ptr<render_util::ImageRGBA> loadImageRGBAFromMemory(const std::vector<char> &data,
                                                                 const char *name);
 
+std::shared_ptr<render_util::ImageRGB> loadImageRGBFromMemory(const std::vector<char> &data,
+                                                              const char *name);
+
 }
 
 #endif

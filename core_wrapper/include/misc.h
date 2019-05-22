@@ -45,6 +45,7 @@ namespace il2ge::core_wrapper
     bool enable_light_point = false;
     bool enable_base_map = false;
     bool enable_object_shaders = true;
+    bool enable_bumph_maps = false;
   };
 
   const Config &getConfig();

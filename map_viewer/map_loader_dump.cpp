@@ -87,7 +87,8 @@ public:
             std::vector<char> &content,
             bool from_map_dir,
             bool redirect,
-            float *scale) override
+            float *scale,
+            bool is_bumpmap) override
   {
     if (scale)
     {
@@ -111,6 +112,9 @@ public:
     }
 
     string path = map_dir + '/' + section + '_' + name + ".tga";
+
+    if (is_bumpmap)
+      path = map_dir + '/' + section + '_' + name + "_nm.tga";
 
     return util::readFile(path, content);
   }
@@ -192,7 +196,7 @@ void MapLoaderDump::createMapTextures(render_util::MapBase *map) const
 
 void MapLoaderDump::createTerrainTextures(TerrainTextures &terrain_textures) const
 {
-  il2ge::map_loader::createTerrainTextures(m_res_loader, m_type_map, terrain_textures);
+  il2ge::map_loader::createTerrainTextures(m_res_loader, m_type_map, terrain_textures, true);
 }
 
 

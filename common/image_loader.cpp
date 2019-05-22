@@ -94,4 +94,17 @@ std::shared_ptr<render_util::ImageRGBA> loadImageRGBAFromMemory(const std::vecto
 }
 
 
+std::shared_ptr<render_util::ImageRGB> loadImageRGBFromMemory(const std::vector<char> &data,
+                                                               const char *name)
+{
+  assert(!isIMF(data));
+  if (isIMF(data))
+  {
+    abort();
+  }
+  else
+    return render_util::loadImageFromMemory<render_util::ImageRGB>(data);
+}
+
+
 } // namespace il2ge

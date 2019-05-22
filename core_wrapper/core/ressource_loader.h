@@ -27,6 +27,7 @@
 namespace core
 {
 
+
   class RessourceLoader : public il2ge::RessourceLoader
   {
     std::unique_ptr<INIReader> reader;
@@ -52,7 +53,8 @@ namespace core
               std::vector<char> &content,
               bool from_map_dir,
               bool redirect,
-              float *scale) override;
+              float *scale,
+              bool is_bumpmap) override;
 
     bool readWaterAnimation(const std::string &file_name, std::vector<char> &content) override;
 

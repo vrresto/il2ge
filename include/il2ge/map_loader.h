@@ -41,7 +41,8 @@ namespace il2ge
   enum
   {
     HEIGHT_MAP_METERS_PER_PIXEL = 200,
-    TYPE_MAP_METERS_PER_PIXEL = 200
+    TYPE_MAP_METERS_PER_PIXEL = 200,
+    TERRAIN_METERS_PER_TEXTURE_TILE = 1600
   };
 }
 
@@ -52,7 +53,8 @@ namespace il2ge::map_loader
 
   void createTerrainTextures(il2ge::RessourceLoader*,
                              render_util::ImageGreyScale::ConstPtr type_map,
-                             render_util::MapLoaderBase::TerrainTextures&);
+                             render_util::MapLoaderBase::TerrainTextures&,
+                             bool enable_normal_maps);
 
   void createMapTextures(il2ge::RessourceLoader*,
                         render_util::ImageGreyScale::ConstPtr,

@@ -46,7 +46,8 @@ namespace il2ge
                             std::vector<char> &content,
                             bool from_map_dir,
                             bool redirect,
-                            float *scale = nullptr) = 0;
+                            float *scale = nullptr,
+                            bool is_bumpmap = false) = 0;
 
     virtual bool readWaterAnimation(const std::string &file_name, std::vector<char> &content) = 0;
   };

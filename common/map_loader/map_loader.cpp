@@ -114,12 +114,6 @@ const char * const field_names[NUM_FIELDS] =
 };
 
 
-enum
-{
-  METERS_PER_TILE = 1600
-};
-
-
 float elevation_table[256] =
 {
   #include "height_table"
@@ -190,11 +184,11 @@ void createWaterMap
 
 void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
                          render_util::MapLoaderBase::TerrainTextures &terrain_textures,
-                         il2ge::RessourceLoader *loader)
+                         il2ge::RessourceLoader *loader,
+                         bool enable_normal_maps)
 {
-  using TextureArray = vector<ImageRGBA::ConstPtr>;
-
-  TextureArray textures;
+  vector<ImageRGBA::Ptr> textures;
+  vector<ImageRGB::Ptr> textures_nm;
 #if 0
   auto red_texture = make_shared<ImageRGBA>(ivec2(512));
   image::fill(red_texture, ImageRGBA::PixelType{255, 0, 0, 255});
@@ -241,6 +235,32 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
 
     ImageRGBA::Ptr image = getTexture("FIELDS", field_name, "", loader, true, &scale);
 
+    if (enable_normal_maps)
+    {
+      std::vector<char> content;
+
+      float scale = 1;
+      bool was_read = false;
+
+      was_read = loader->readTextureFile("FIELDS", field_name, "", content,
+                                         false, true, &scale, true);
+      if (was_read)
+      {
+        dumpFile(string("FIELDS_") +  field_name + "_nm.tga", content.data(), content.size(),
+                 loader->getDumpDir());
+
+        auto normal_map = loadImageRGBFromMemory(content, field_name);
+        normal_map = image::flipY(normal_map);
+        textures_nm.push_back(normal_map);
+      }
+      else
+        textures_nm.push_back({});
+    }
+    else
+    {
+      assert(textures_nm.empty());
+    }
+
     if (image)
     {
       image = image::flipY(image);
@@ -273,14 +293,18 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
 
   terrain_textures.type_map = type_map;
   terrain_textures.textures = textures;
+  terrain_textures.textures_nm = textures_nm;
   terrain_textures.texture_scale = texture_scale;
 
   cout << "generating far texture ..." <<endl;
+  std::vector<ImageRGBA::ConstPtr> textures_const;
+  for (auto texture : textures)
+    textures_const.push_back(texture);
   terrain_textures.far_texture =
     createMapFarTexture(type_map,
-                        textures,
+                        textures_const,
                         TYPE_MAP_METERS_PER_PIXEL,
-                        METERS_PER_TILE);
+                        TERRAIN_METERS_PER_TEXTURE_TILE);
   dump(terrain_textures.far_texture, "far_texture", loader->getDumpDir());
 }
 
@@ -391,9 +415,10 @@ ImageGreyScale::Ptr createTypeMap(il2ge::RessourceLoader *loader)
 
 void createTerrainTextures(il2ge::RessourceLoader *loader,
                            ImageGreyScale::ConstPtr type_map,
-                           MapLoaderBase::TerrainTextures &terrain_textures)
+                           MapLoaderBase::TerrainTextures &terrain_textures,
+                           bool enable_normal_maps)
 {
-  createFieldTextures(type_map, terrain_textures, loader);
+  createFieldTextures(type_map, terrain_textures, loader, enable_normal_maps);
 }
 
 
