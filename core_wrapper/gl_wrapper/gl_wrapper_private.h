@@ -76,6 +76,7 @@ namespace core_gl_wrapper
     render_util::ShaderProgramPtr tree_program;
 
     bool is_arb_program_active = false;
+    bool is_shadow = false;
     render_util::ShaderProgramPtr current_shader;
     render_util::ShaderProgramPtr current_arb_program;
     render_util::ShaderProgramPtr active_shader;

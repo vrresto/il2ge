@@ -462,14 +462,16 @@ void GLAPIENTRY wrap_glDrawArrays(GLenum mode,
 {
   if (wgl_wrapper::isMainContextCurrent())
   {
-    bool is_shadow = gl::IsEnabled(GL_BLEND);
     auto ctx = getContext();
 
     ctx->getARBProgramContext()->update();
 
     if (ctx->is_arb_program_active && ctx->current_arb_program)
     {
-      ctx->current_arb_program->setUniform("is_shadow", is_shadow);
+      bool is_shadow = gl::IsEnabled(GL_BLEND);
+      if (is_shadow != ctx->is_shadow)
+        ctx->current_arb_program->setUniform("is_shadow", is_shadow);
+      ctx->is_shadow = is_shadow;
     }
   }
 
