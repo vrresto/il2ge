@@ -46,7 +46,7 @@ namespace core_gl_wrapper
 
   namespace texture_state
   {
-    enum { MAX_UNITS = render_util::MAX_GL_TEXUNITS };
+    enum { MAX_UNITS = 32 }; //FIXME
 
     struct Unit
     {

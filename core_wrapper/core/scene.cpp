@@ -51,7 +51,7 @@ namespace core
     FORCE_CHECK_GL_ERROR();
 
     int atmosphere_map_unit = texture_manager.getHighestUnit() + 1;
-    assert(atmosphere_map_unit < MAX_GL_TEXUNITS);
+    assert(atmosphere_map_unit < texture_manager.getMaxUnits());
 
     gl::ActiveTexture(GL_TEXTURE0 + atmosphere_map_unit); //FIXME
     FORCE_CHECK_GL_ERROR();
