@@ -19,6 +19,7 @@
 #include <misc.h>
 #include <wgl_wrapper.h>
 #include <core.h>
+#include <render_util/state.h>
 
 #include "gl_wrapper_private.h"
 

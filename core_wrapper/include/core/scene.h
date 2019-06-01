@@ -25,6 +25,7 @@
 #include <render_util/camera.h>
 #include <render_util/parameter_wrapper.h>
 #include <text_renderer/text_renderer.h>
+#include <render_util/cirrus_clouds.h>
 
 #include <memory>
 #include <vector>
@@ -34,6 +35,7 @@
 namespace render_util
 {
   class Atmosphere;
+  class CirrusClouds;
 }
 
 
@@ -53,6 +55,7 @@ namespace core
     render_util::TexturePtr atmosphere_map;
     render_util::TexturePtr curvature_map;
     std::unique_ptr<render_util::Atmosphere> atmosphere;
+    std::unique_ptr<render_util::CirrusClouds> cirrus_clouds;
     std::unique_ptr<Map> map;
     std::unique_ptr<TextRenderer> text_renderer;
     std::unique_ptr<Menu> menu;
@@ -71,6 +74,7 @@ namespace core
     void update(float delta, const glm::vec2 &wind_speed);
     void updateUniforms(render_util::ShaderProgramPtr program);
     render_util::TerrainBase &getTerrain();
+    render_util::CirrusClouds &getCirrusClouds() { return *cirrus_clouds; }
 
     render_util::ImageGreyScale::ConstPtr getPixelMapH();
 

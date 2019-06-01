@@ -88,6 +88,9 @@ namespace core
 
     gl::ActiveTexture(active_unit_save);
 
+    cirrus_clouds = std::make_unique<render_util::CirrusClouds>(texture_manager,
+        shader_search_path, shader_parameters);
+
     FORCE_CHECK_GL_ERROR();
 
     auto addParameter = [this] (std::string name, Parameter::GetFunc get, Parameter::SetFunc set)
@@ -122,6 +125,7 @@ namespace core
   Scene::~Scene()
   {
     unloadMap();
+    cirrus_clouds.reset();
     atmosphere.reset();
     menu.reset();
   }

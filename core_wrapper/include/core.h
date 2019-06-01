@@ -28,6 +28,7 @@
 
 namespace render_util
 {
+  class CirrusClouds;
   class Camera;
 }
 
@@ -77,6 +78,7 @@ namespace core
   render_util::TerrainBase &getTerrain();
   const render_util::ShaderSearchPath &getShaderSearchPath();
   render_util::ShaderParameters getShaderParameters();
+  render_util::CirrusClouds &getCirrusClouds();
 
   il2ge::Effect3D *getEffect(int cpp_obj);
   void addEffect(std::unique_ptr<il2ge::Effect3D> effect, int cpp_obj);

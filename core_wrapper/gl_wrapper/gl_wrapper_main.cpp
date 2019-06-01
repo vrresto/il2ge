@@ -33,6 +33,7 @@
 #include <render_util/texunits.h>
 #include <render_util/terrain_util.h>
 #include <render_util/globals.h>
+#include <render_util/state.h>
 
 #include <cstdlib>
 #include <cstdio>
@@ -506,6 +507,25 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
 #endif
 
 
+void drawCirrus(Context::Impl *ctx, render_util::CirrusClouds &cirrus_clouds, StateModifier &state,
+                const render_util::Camera &camera, bool is_far_camera)
+{
+  state.enableBlend(true);
+  state.enableCullFace(false);
+
+//   gl::BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  ctx->setActiveShader(cirrus_clouds.getProgram());
+  ctx->updateUniforms(cirrus_clouds.getProgram(), camera, is_far_camera);
+  cirrus_clouds.getProgram()->setUniform("is_far_camera", is_far_camera);
+
+  cirrus_clouds.draw(state, camera);
+
+  state.enableCullFace(true);
+  state.enableBlend(false);
+}
+
+
 void doDrawTerrain(render_util::TerrainBase &terrain,
                    const render_util::Camera &camera,
                    bool is_far_camera)
@@ -521,19 +541,28 @@ void doDrawTerrain(render_util::TerrainBase &terrain, StateModifier &state)
 {
   terrain.setDrawDistance(0);
 
+  auto ctx = getContext();
+  auto &cirrus_clouds = core::getCirrusClouds();
+
   auto z_far = core::getCamera()->getZFar();
 
   render_util::Camera far_camera(*core::getCamera());
   far_camera.setProjection(far_camera.getFov(), z_far - 4000, 1500000);
 
+  render_util::Camera far_camera_cirrus(*core::getCamera());
+  far_camera_cirrus.setProjection(far_camera.getFov(), 20000, 1500000);
 
   state.setFrontFace(GL_CCW);
 
   doDrawTerrain(terrain, far_camera, true);
 
+  drawCirrus(ctx, cirrus_clouds, state, far_camera_cirrus, true);
+
   gl::Clear(GL_DEPTH_BUFFER_BIT);
 
   doDrawTerrain(terrain, *core::getCamera(), false);
+
+  drawCirrus(ctx, cirrus_clouds, state, *core::getCamera(), false);
 
 #if 0
   const int forest_layers = 5;
@@ -571,7 +600,7 @@ void doDrawTerrain(render_util::TerrainBase &terrain, StateModifier &state)
   gl::Disable(GL_BLEND);
 #endif
 
-  getContext()->setActiveShader(nullptr);
+  ctx->setActiveShader(nullptr);
 }
 
 

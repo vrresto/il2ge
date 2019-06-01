@@ -288,6 +288,12 @@ void handleKey(int key, bool ctrl, bool alt, bool shift)
 }
 
 
+render_util::CirrusClouds &getCirrusClouds()
+{
+  return getScene()->getCirrusClouds();
+}
+
+
 ProgressReporter::ProgressReporter(JNIEnv *env) : env(env)
 {
   class_id = env->FindClass("com/maddox/rts/BackgroundTask");
