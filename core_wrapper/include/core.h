@@ -74,7 +74,7 @@ namespace core
   render_util::Camera *getCamera();
   render_util::TextureManager &textureManager();
 
-  render_util::TerrainRenderer &getTerrainRenderer();
+  render_util::TerrainBase &getTerrain();
 
   il2ge::Effect3D *getEffect(int cpp_obj);
   void addEffect(std::unique_ptr<il2ge::Effect3D> effect, int cpp_obj);

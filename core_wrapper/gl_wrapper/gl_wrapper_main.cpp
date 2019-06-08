@@ -63,7 +63,7 @@ void drawTerrain();
 
 render_util::TerrainBase *getTerrain()
 {
-  return core::getTerrainRenderer().getTerrain().get();
+  return &core::getTerrain();
 }
 
 
@@ -590,20 +590,20 @@ void updateShaderState()
 }
 
 
-void doDrawTerrain(render_util::TerrainRenderer &renderer,
+void doDrawTerrain(render_util::TerrainBase &terrain,
                    const render_util::Camera &camera,
                    bool is_far_camera)
 {
   TerrainClient client(*getContext(), camera, is_far_camera);
 
-  renderer.getTerrain()->update(camera, is_far_camera);
-  renderer.getTerrain()->draw(&client);
+  terrain.update(camera, is_far_camera);
+  terrain.draw(&client);
 }
 
 
-void doDrawTerrain(render_util::TerrainRenderer &renderer)
+void doDrawTerrain(render_util::TerrainBase &terrain)
 {
-  renderer.getTerrain()->setDrawDistance(0);
+  terrain.setDrawDistance(0);
 
   auto z_far = core::getCamera()->getZFar();
 
@@ -616,11 +616,11 @@ void doDrawTerrain(render_util::TerrainRenderer &renderer)
   gl::FrontFace(GL_CCW);
   gl::DepthFunc(GL_LEQUAL);
 
-  doDrawTerrain(renderer, far_camera, true);
+  doDrawTerrain(terrain, far_camera, true);
 
   gl::Clear(GL_DEPTH_BUFFER_BIT);
 
-  doDrawTerrain(renderer, *core::getCamera(), false);
+  doDrawTerrain(terrain, *core::getCamera(), false);
 
 #if 0
   const int forest_layers = 5;
@@ -691,7 +691,7 @@ void drawTerrain()
   gl::Clear(GL_DEPTH_BUFFER_BIT);
 
 //   gl::PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  doDrawTerrain(core::getTerrainRenderer());
+  doDrawTerrain(core::getTerrain());
 //   gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   ctx->setActiveShader(nullptr);

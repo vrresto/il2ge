@@ -49,7 +49,7 @@ namespace core
     void loadMap(const char *path, ProgressReporter*);
     void update(float delta, const glm::vec2 &wind_speed);
     void updateUniforms(render_util::ShaderProgramPtr program);
-    render_util::TerrainRenderer &getTerrainRenderer();
+    render_util::TerrainBase &getTerrain();
 
     render_util::ImageGreyScale::ConstPtr getPixelMapH()
     {

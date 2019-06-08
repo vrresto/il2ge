@@ -98,10 +98,10 @@ namespace core
   }
 
 
-  render_util::TerrainRenderer &Scene::getTerrainRenderer()
+  render_util::TerrainBase &Scene::getTerrain()
   {
     assert(map);
-    return map->getTerrainRenderer();
+    return map->getTerrain();
   }
 
 }

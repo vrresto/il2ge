@@ -206,9 +206,9 @@ render_util::TextureManager &textureManager()
 }
 
 
-render_util::TerrainRenderer &getTerrainRenderer()
+render_util::TerrainBase &getTerrain()
 {
-  return getScene()->getTerrainRenderer();
+  return getScene()->getTerrain();
 }
 
 

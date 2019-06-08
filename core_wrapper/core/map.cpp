@@ -60,7 +60,7 @@ struct Map::Private : public render_util::MapBase
   glm::vec2 size;
   shared_ptr<render_util::MapTextures> textures;
   shared_ptr<render_util::WaterAnimation> water_animation;
-  TerrainRenderer terrain_renderer;
+  std::shared_ptr<TerrainBase> terrain;
   glm::vec2 base_map_origin = glm::vec2(0);
   render_util::TerrainBase::MaterialMap::ConstPtr material_map;
   render_util::ImageGreyScale::ConstPtr pixel_map_h;
@@ -203,19 +203,12 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
   assert(p->material_map);
 
   string terrain_program_name;
-  p->terrain_renderer = createTerrainRenderer(textureManager(),
-                                              g_terrain_use_lod,
-                                              g_shader_path,
-                                              terrain_program_name,
-                                              enable_base_map,
-                                              land_map != nullptr);
+  p->terrain = createTerrain(textureManager(), g_terrain_use_lod, g_shader_path);
 
   FORCE_CHECK_GL_ERROR();
 
-  p->terrain_renderer.getProgram()->setUniform("terrain_color", glm::vec3(1,0,0));
-
   progress->report(7, "Creating terrain");
-  p->terrain_renderer.getTerrain()->build(elevation_map,
+  p->terrain->build(elevation_map,
                                           p->material_map,
                                           terrain_textures.type_map,
                                           terrain_textures.textures,
@@ -225,7 +218,7 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
 #if 0
   if (elevation_map_base)
   {
-    p->terrain_renderer.getTerrain()->setBaseElevationMap(elevation_map_base);
+    p->terrain->setBaseElevationMap(elevation_map_base);
   }
 #endif
 
@@ -262,9 +255,9 @@ void Map::setUniforms(render_util::ShaderProgramPtr program)
 }
 
 
-render_util::TerrainRenderer &Map::getTerrainRenderer()
+render_util::TerrainBase &Map::getTerrain()
 {
-  return p->terrain_renderer;
+  return *p->terrain;
 }
 
 
