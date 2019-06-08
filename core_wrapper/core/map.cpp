@@ -29,6 +29,7 @@
 #include <render_util/image_util.h>
 #include <render_util/texunits.h>
 #include <render_util/water.h>
+#include <render_util/atmosphere.h>
 #include <il2ge/map_loader.h>
 
 #include <GL/gl.h>
@@ -58,6 +59,7 @@ namespace core
 struct Map::Private : public render_util::MapBase
 {
   glm::vec2 size;
+  shared_ptr<render_util::Atmosphere> atmosphere;
   shared_ptr<render_util::MapTextures> textures;
   shared_ptr<render_util::WaterAnimation> water_animation;
   std::shared_ptr<TerrainBase> terrain;
@@ -81,6 +83,8 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
   const bool enable_normal_maps = il2ge::core_wrapper::getConfig().enable_bumph_maps;
 
   FORCE_CHECK_GL_ERROR();
+
+  p->atmosphere = std::make_shared<render_util::Atmosphere>();
 
   p->textures = make_shared<render_util::MapTextures>(core::textureManager());
 
@@ -202,8 +206,11 @@ Map::Map(const char *path, ProgressReporter *progress) : p(new Private)
 
   assert(p->material_map);
 
-  string terrain_program_name;
-  p->terrain = createTerrain(textureManager(), g_terrain_use_lod, g_shader_path);
+  render_util::ShaderSearchPath shader_search_path;
+  shader_search_path.push_back(g_shader_path);
+  shader_search_path.push_back(g_shader_path + "/" + p->atmosphere->getShaderPath());
+
+  p->terrain = createTerrain(textureManager(), g_terrain_use_lod, shader_search_path);
 
   FORCE_CHECK_GL_ERROR();
 
