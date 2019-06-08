@@ -35,11 +35,23 @@ using namespace render_util::gl_binding;
 using namespace render_util;
 using namespace std;
 
+
+namespace
+{
+  const std::string g_shader_path = IL2GE_DATA_DIR "/shaders";
+}
+
+
 namespace core
 {
 
   Scene::Scene()
   {
+    atmosphere = std::make_unique<render_util::Atmosphere>();
+
+    shader_search_path.push_back(g_shader_path);
+    shader_search_path.push_back(g_shader_path + "/" + atmosphere->getShaderPath());
+
     FORCE_CHECK_GL_ERROR();
     curvature_map = render_util::createCurvatureTexture(texture_manager, IL2GE_CACHE_DIR);
     FORCE_CHECK_GL_ERROR();
@@ -79,7 +91,7 @@ namespace core
 
     unloadMap();
 
-    map = make_unique<Map>(path, progress);
+    map = make_unique<Map>(path, progress, shader_search_path);
   }
 
 

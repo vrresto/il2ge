@@ -47,7 +47,8 @@ render_util::ShaderProgramPtr Effects::getDefaultShader()
 {
   if (!m_default_shader)
   {
-    m_default_shader = render_util::createShaderProgram("generic", core::textureManager(), SHADER_PATH);
+    render_util::ShaderSearchPath search_path { SHADER_PATH };
+    m_default_shader = render_util::createShaderProgram("generic", core::textureManager(), search_path);
     assert(m_default_shader);
     m_default_shader->setUniformi("sampler_0", 0);
   }

@@ -104,8 +104,6 @@ public:
 };
 
 
-const std::string SHADER_PATH = IL2GE_DATA_DIR "/shaders";
-
 shared_ptr<Globals> g_globals;
 unordered_map<string, void*> g_procs;
 
@@ -127,7 +125,10 @@ render_util::ShaderProgramPtr getRedProgram()
 {
   auto ctx = core_gl_wrapper::getContext();
   if (!ctx->red_program)
-    ctx->red_program = render_util::createShaderProgram("red", core::textureManager(), SHADER_PATH);
+  {
+    ctx->red_program =
+      render_util::createShaderProgram("red", core::textureManager(), core::getShaderSearchPath());
+  }
   return ctx->red_program;
 }
 
@@ -136,7 +137,10 @@ render_util::ShaderProgramPtr getInvisibleProgram()
 {
   auto ctx = core_gl_wrapper::getContext();
   if (!ctx->invisible_program)
-    ctx->invisible_program = render_util::createShaderProgram("invisible", core::textureManager(), SHADER_PATH);
+  {
+    ctx->invisible_program =
+      render_util::createShaderProgram("invisible", core::textureManager(), core::getShaderSearchPath());
+  }
   return ctx->invisible_program;
 }
 
@@ -145,11 +149,14 @@ render_util::ShaderProgramPtr getSkyProgram()
 {
   auto ctx = core_gl_wrapper::getContext();
   if (!ctx->sky_program)
-    ctx->sky_program = render_util::createSkyProgram(core::textureManager(), SHADER_PATH);
+  {
+    ctx->sky_program =
+      render_util::createShaderProgram("sky", core::textureManager(), core::getShaderSearchPath());
+  }
   return ctx->sky_program;
 }
 
-
+#if 0
 render_util::ShaderProgramPtr getTreeProgram()
 {
   auto ctx = core_gl_wrapper::getContext();
@@ -183,7 +190,7 @@ render_util::ShaderProgramPtr getForestProgram()
   }
   return ctx->forest_program;
 }
-
+#endif
 
 /////////////////////////////////////////
 

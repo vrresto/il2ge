@@ -40,7 +40,7 @@ namespace core
     Private *p = 0;
 
   public:
-    Map(const char *path, ProgressReporter*);
+    Map(const char *path, ProgressReporter*, const render_util::ShaderSearchPath&);
     ~Map();
 
     glm::vec2 getSize();

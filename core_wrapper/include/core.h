@@ -23,6 +23,7 @@
 #include <render_util/shader.h>
 #include <render_util/texture_manager.h>
 #include <render_util/terrain_util.h>
+#include <render_util/atmosphere.h>
 #include <glm/glm.hpp>
 
 
@@ -73,8 +74,8 @@ namespace core
 
   render_util::Camera *getCamera();
   render_util::TextureManager &textureManager();
-
   render_util::TerrainBase &getTerrain();
+  const render_util::ShaderSearchPath &getShaderSearchPath();
 
   il2ge::Effect3D *getEffect(int cpp_obj);
   void addEffect(std::unique_ptr<il2ge::Effect3D> effect, int cpp_obj);

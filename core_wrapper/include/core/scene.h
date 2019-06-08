@@ -35,8 +35,10 @@ namespace core
 
   class Scene
   {
+    render_util::ShaderSearchPath shader_search_path;
     render_util::TexturePtr atmosphere_map;
     render_util::TexturePtr curvature_map;
+    std::unique_ptr<render_util::Atmosphere> atmosphere;
     std::unique_ptr<Map> map;
 
   public:
@@ -55,6 +57,11 @@ namespace core
     {
       assert(map);
       return map->getPixelMapH();
+    }
+
+    const render_util::ShaderSearchPath &getShaderSearchPath()
+    {
+      return shader_search_path;
     }
 
     bool isMapLoaded() { return map != nullptr; }
