@@ -1,3 +1,5 @@
+add_subdirectory(swig)
+
 set(library_name "il2ge")
 
 set(resource_script ${CMAKE_CURRENT_BINARY_DIR}/resources.rc)
@@ -22,6 +24,10 @@ set_source_files_properties(
   PROPERTIES EXTERNAL_OBJECT 1
 )
 
+set_source_files_properties(core/swig_interface_wrapper.cpp
+  PROPERTIES COMPILE_FLAGS -Wno-missing-declarations
+)
+
 set(SRCS
   ${resource_obj}
   il2ge.def
@@ -37,6 +43,9 @@ set(SRCS
   core/render_state.cpp
   core/scene.cpp
   core/effects.cpp
+  core/swig_interface_version.cpp
+  core/swig_interface_wrapper.cpp
+  core/swig_interface.cpp
   jni_wrapper/jni_wrapper.cpp
   gl_wrapper/wgl_interface.cpp
   gl_wrapper/gl_wrapper_main.cpp
@@ -62,6 +71,7 @@ include_directories(
   include/jni
   jni
   ${CMAKE_CURRENT_BINARY_DIR}/include
+  ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 add_definitions(-DIL2GE_USE_CUSTOM_ASSERT)
@@ -121,6 +131,7 @@ add_custom_target(core_wrapper_generated DEPENDS ${generated_output})
 add_library(${library_name} SHARED ${SRCS})
 
 add_dependencies(${library_name} core_wrapper_generated)
+add_dependencies(${library_name} swig)
 
 target_link_libraries(${library_name}
   common

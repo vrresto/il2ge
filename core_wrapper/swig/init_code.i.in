@@ -1,0 +1,19 @@
+%pragma(java) jniclasscode=%{
+
+  static
+  {
+    try
+    {
+      if (getInterfaceVersion() != ${interface_version})
+      {
+        throw new Exception("Interface version mismatch.");
+      }
+    }
+    catch (Exception e)
+    {
+      System.err.println("IL2GE interface initialisation failed:\n" + e);
+      System.exit(1);
+    }
+  }
+
+%}

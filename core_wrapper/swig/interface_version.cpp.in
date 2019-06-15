@@ -1,0 +1,6 @@
+#include <swig_interface.h>
+
+int il2ge::java_interface::getInterfaceVersion()
+{
+  return ${interface_version};
+}
