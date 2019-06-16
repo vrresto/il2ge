@@ -92,11 +92,20 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
   frag.push_back("atmosphere");
   frag.push_back("main");
 
-  vector<string> paths;
+  render_util::ShaderSearchPath paths;
   paths.push_back(replacement_path);
   paths.push_back(main_shader_path);
 
-  auto program = make_shared<render_util::ShaderProgram>(fragment_shader, vert, frag, paths, false);
+  render_util::ShaderParameters params;
+
+  auto program = make_shared<render_util::ShaderProgram>(fragment_shader,
+    vert,
+    frag,
+    vector<string>(),
+    paths,
+    false,
+    std::map<unsigned int, std::string>(),
+    params);
 
   CHECK_GL_ERROR();
 
