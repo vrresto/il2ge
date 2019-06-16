@@ -46,7 +46,7 @@ void executeCommand(int index)
   if (index == 0)
     std::cout << "IL2GE: Dummy command successfully executed." << std::endl;
   else
-    std::cout << "IL2GE: Warning: No command for index" << index << std::endl;
+    std::cout << "IL2GE: Warning: No command for index " << index << std::endl;
 }
 
 
