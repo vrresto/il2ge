@@ -1,5 +1,6 @@
 #version 130
 
+vec3 textureColorCorrection(vec3 color);
 void apply_fog();
 vec3 calcLight(vec3 pos, vec3 normal, float direct_scale, float ambient_scale);
 
@@ -14,6 +15,7 @@ varying vec3 pass_normal;
 void main()
 {
   gl_FragColor = texture2D(sampler_0, pass_texcoord.xy);
+  gl_FragColor .xyz = textureColorCorrection(gl_FragColor .xyz);
 
   if (is_shadow)
   {

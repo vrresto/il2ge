@@ -1,5 +1,6 @@
 #version 130
 
+vec3 textureColorCorrection(vec3 color);
 vec3 calcLight(vec3 pos, vec3 normal, float direct_scale, float ambient_scale);
 void apply_fog();
 
@@ -28,6 +29,7 @@ vec3 sampleTerrainNormal()
 void main()
 {
   gl_FragColor = texture2D(sampler_0, (gl_TexCoord[0]).xy);
+  gl_FragColor .xyz = textureColorCorrection(gl_FragColor .xyz);
 
   vec3 normal = sampleTerrainNormal();
   gl_FragColor.xyz *= calcLight(vec3(0), normal, 0.9, 0.9);

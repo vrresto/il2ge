@@ -1,5 +1,6 @@
 #version 130
 
+vec3 textureColorCorrection(vec3 color);
 vec3 calcIncomingDirectLight();
 void calcLightParams(vec3 normal, out vec3 ambientLightColor, out vec3 directLightColor);
 void apply_fog();
@@ -68,6 +69,7 @@ void main(void)
   normal = (view2WorldMatrix * vec4(normal, 0)).xyz;
 
   vec4 diffuse_color = texture2D(sampler_1, gl_TexCoord[1].xy);
+  diffuse_color.xyz = textureColorCorrection(diffuse_color.xyz);
 
   gl_FragColor = diffuse_color;
 
