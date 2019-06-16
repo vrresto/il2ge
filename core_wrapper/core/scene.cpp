@@ -47,7 +47,8 @@ namespace core
 
   Scene::Scene()
   {
-    atmosphere = std::make_unique<render_util::Atmosphere>();
+    atmosphere = createAtmosphere(Atmosphere::DEFAULT,
+                                  texture_manager, g_shader_path);
 
     shader_search_path.push_back(g_shader_path + "/" + atmosphere->getShaderPath());
     shader_search_path.push_back(g_shader_path);
