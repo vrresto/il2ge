@@ -213,6 +213,13 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
   if (addr)
     return (FARPROC) addr;
 
+  if (util::isPrefix("Java_", lpProcName))
+  {
+    auto addr = GetProcAddress(g_core_wrapper_module, lpProcName);
+    if (addr)
+      return addr;
+  }
+
   if (_stricmp(lpProcName, "LoadLibraryA") == 0)
   {
     return (FARPROC)&wrap_LoadLibraryA;

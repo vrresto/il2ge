@@ -35,7 +35,16 @@ int getNumCommands()
 std::string getCommandName(int index)
 {
   if (index == 0)
-    return "dummy-command";
+    return "DummyCommand";
+  else
+    return {};
+}
+
+
+std::string getCommandDisplayText(int index)
+{
+  if (index == 0)
+    return "Dummy Command";
   else
     return {};
 }
