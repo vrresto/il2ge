@@ -152,7 +152,7 @@ void *getExport(const string &full_name)
 {
   assert(g_initialized);
 
-  cout<<"getExport: "<<full_name<<endl;
+//   cout<<"getExport: "<<full_name<<endl;
 
   try
   {
