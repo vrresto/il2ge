@@ -49,8 +49,8 @@ namespace core
   {
     atmosphere = std::make_unique<render_util::Atmosphere>();
 
-    shader_search_path.push_back(g_shader_path);
     shader_search_path.push_back(g_shader_path + "/" + atmosphere->getShaderPath());
+    shader_search_path.push_back(g_shader_path);
 
     FORCE_CHECK_GL_ERROR();
     curvature_map = render_util::createCurvatureTexture(texture_manager, IL2GE_CACHE_DIR);

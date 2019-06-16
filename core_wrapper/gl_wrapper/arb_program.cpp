@@ -69,7 +69,6 @@ constexpr const bool is_replace_arb_program_string_enabled = true;
 
 
 const char replacement_path[] = IL2GE_DATA_DIR "/object_shaders";
-const char main_shader_path[] = IL2GE_DATA_DIR "/shaders";
 
 
 render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
@@ -94,7 +93,8 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
 
   render_util::ShaderSearchPath paths;
   paths.push_back(replacement_path);
-  paths.push_back(main_shader_path);
+  for (auto &dir : core::getShaderSearchPath())
+    paths.push_back(dir);
 
   auto params = core::getShaderParameters();
 
