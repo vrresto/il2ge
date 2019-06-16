@@ -6,10 +6,12 @@
 namespace il2ge::java_interface
 {
   int getInterfaceVersion();
-  int getNumCommands();
+
+  int getNumCommandNames();
   std::string getCommandName(int index);
-  std::string getCommandDisplayText(int index);
-  void executeCommand(int index);
+
+  std::string getCommandDisplayText(std::string command_name);
+  void executeCommand(std::string command_name);
 }
 
 #endif

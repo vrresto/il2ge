@@ -26,7 +26,7 @@ namespace il2ge::java_interface
 {
 
 
-int getNumCommands()
+int getNumCommandNames()
 {
   return 1;
 }
@@ -41,21 +41,21 @@ std::string getCommandName(int index)
 }
 
 
-std::string getCommandDisplayText(int index)
+std::string getCommandDisplayText(std::string command_name)
 {
-  if (index == 0)
+  if (command_name == "DummyCommand")
     return "Dummy Command";
   else
     return {};
 }
 
 
-void executeCommand(int index)
+void executeCommand(std::string command_name)
 {
-  if (index == 0)
+  if (command_name == "DummyCommand")
     std::cout << "IL2GE: Dummy command successfully executed." << std::endl;
   else
-    std::cout << "IL2GE: Warning: No command for index " << index << std::endl;
+    std::cout << "IL2GE: Warning: No such command: " << command_name << std::endl;
 }
 
 
