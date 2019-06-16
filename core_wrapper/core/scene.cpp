@@ -91,7 +91,7 @@ namespace core
 
     unloadMap();
 
-    map = make_unique<Map>(path, progress, shader_search_path);
+    map = make_unique<Map>(path, progress, shader_search_path, atmosphere->getShaderParameters());
   }
 
 
@@ -105,6 +105,7 @@ namespace core
 
   void Scene::updateUniforms(render_util::ShaderProgramPtr program)
   {
+    atmosphere->setUniforms(program, *core::getCamera(), core::getSunDir());
     if (map)
       map->setUniforms(program);
   }

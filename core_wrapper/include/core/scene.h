@@ -64,6 +64,11 @@ namespace core
       return shader_search_path;
     }
 
+    render_util::ShaderParameters getShaderParameters()
+    {
+      return atmosphere->getShaderParameters();
+    }
+
     bool isMapLoaded() { return map != nullptr; }
   };
 };

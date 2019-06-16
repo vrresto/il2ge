@@ -250,6 +250,12 @@ const render_util::ShaderSearchPath &getShaderSearchPath()
 }
 
 
+render_util::ShaderParameters getShaderParameters()
+{
+  return getScene()->getShaderParameters();
+}
+
+
 ProgressReporter::ProgressReporter(JNIEnv *env) : env(env)
 {
   class_id = env->FindClass("com/maddox/rts/BackgroundTask");

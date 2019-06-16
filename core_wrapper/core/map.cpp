@@ -75,7 +75,8 @@ struct Map::Private : public render_util::MapBase
 
 
 Map::Map(const char *path, ProgressReporter *progress,
-         const render_util::ShaderSearchPath &shader_search_path) : p(new Private)
+         const render_util::ShaderSearchPath &shader_search_path,
+         const render_util::ShaderParameters &shader_params) : p(new Private)
 {
   const bool enable_base_map = il2ge::core_wrapper::getConfig().enable_base_map;
   const bool enable_normal_maps = il2ge::core_wrapper::getConfig().enable_bumph_maps;
@@ -212,7 +213,8 @@ Map::Map(const char *path, ProgressReporter *progress,
                                           terrain_textures.type_map,
                                           terrain_textures.textures,
                                           terrain_textures.textures_nm,
-                                          terrain_textures.texture_scale);
+                                          terrain_textures.texture_scale,
+                                          shader_params);
 
 #if 0
   if (elevation_map_base)

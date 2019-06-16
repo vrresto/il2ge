@@ -76,6 +76,7 @@ namespace core
   render_util::TextureManager &textureManager();
   render_util::TerrainBase &getTerrain();
   const render_util::ShaderSearchPath &getShaderSearchPath();
+  render_util::ShaderParameters getShaderParameters();
 
   il2ge::Effect3D *getEffect(int cpp_obj);
   void addEffect(std::unique_ptr<il2ge::Effect3D> effect, int cpp_obj);

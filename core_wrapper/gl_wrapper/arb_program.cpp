@@ -96,7 +96,7 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
   paths.push_back(replacement_path);
   paths.push_back(main_shader_path);
 
-  render_util::ShaderParameters params;
+  auto params = core::getShaderParameters();
 
   auto program = make_shared<render_util::ShaderProgram>(fragment_shader,
     vert,

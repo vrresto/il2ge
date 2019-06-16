@@ -151,7 +151,8 @@ render_util::ShaderProgramPtr getSkyProgram()
   if (!ctx->sky_program)
   {
     ctx->sky_program =
-      render_util::createShaderProgram("sky", core::textureManager(), core::getShaderSearchPath());
+      render_util::createShaderProgram("sky", core::textureManager(),
+                                       core::getShaderSearchPath(), {}, core::getShaderParameters());
   }
   return ctx->sky_program;
 }
