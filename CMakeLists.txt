@@ -143,10 +143,6 @@ install(FILES _modules/inih/README.md
   RENAME inih_README.md
 )
 
-install(DIRECTORY ${renderutil_dir}/shaders
-  DESTINATION ${il2ge_data_dir}
-)
-
 install(DIRECTORY object_shaders
   DESTINATION ${il2ge_data_dir}
 )

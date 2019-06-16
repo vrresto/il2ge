@@ -89,8 +89,10 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
   vert.push_back("main");
   frag.push_back(fragment_shader);
   frag.push_back("atmosphere");
+  frag.push_back("functions");
   frag.push_back("lighting");
   frag.push_back("tonemap");
+  frag.push_back("mapping");
   frag.push_back("main");
 
   render_util::ShaderSearchPath paths;

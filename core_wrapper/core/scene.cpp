@@ -106,7 +106,7 @@ namespace core
 
   void Scene::updateUniforms(render_util::ShaderProgramPtr program)
   {
-    atmosphere->setUniforms(program, *core::getCamera(), core::getSunDir());
+    atmosphere->setUniforms(program, *core::getCamera());
     if (map)
       map->setUniforms(program);
   }
