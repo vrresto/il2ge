@@ -311,7 +311,11 @@ core::Scene *getScene()
 core::Scene *ContextData::getScene()
 {
   if (!m_scene)
+  {
+    core_gl_wrapper::texture_state::freeze();
     m_scene = std::make_shared<core::Scene>();
+    core_gl_wrapper::texture_state::restore();
+  }
 
   return m_scene.get();
 }

@@ -29,6 +29,12 @@
 
 namespace core_gl_wrapper
 {
+  namespace texture_state
+  {
+    void freeze();
+    void restore();
+  }
+
   class Context
   {
   public:
