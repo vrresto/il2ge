@@ -47,7 +47,7 @@ namespace core
 
   Scene::Scene()
   {
-    atmosphere = createAtmosphere(Atmosphere::DEFAULT,
+    atmosphere = createAtmosphere(il2ge::core_wrapper::getConfig().atmosphere,
                                   texture_manager, g_shader_path);
 
     shader_search_path.push_back(g_shader_path + "/" + atmosphere->getShaderPath());

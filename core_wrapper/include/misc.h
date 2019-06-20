@@ -19,6 +19,8 @@
 #ifndef IL2_CORE_H
 #define IL2_CORE_H
 
+#include <render_util/atmosphere.h>
+
 #include <stddef.h>
 #include <unordered_map>
 #include <typeinfo>
@@ -46,6 +48,7 @@ namespace il2ge::core_wrapper
     bool enable_base_map = false;
     bool enable_object_shaders = true;
     bool enable_bumph_maps = false;
+    render_util::Atmosphere::Type atmosphere = render_util::Atmosphere::DEFAULT;
   };
 
   const Config &getConfig();

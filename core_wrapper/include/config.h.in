@@ -20,5 +20,6 @@
 #define IL2GE_CORE_WRAPPER_CONFIG_H
 
 #define ENABLE_SHORTCUTS ${enable_shortcuts}
+#define ENABLE_CONFIGURABLE_ATMOSPHERE ${enable_configurable_atmosphere}
 
 #endif
