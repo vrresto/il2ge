@@ -392,36 +392,39 @@ struct ProgramBase
     return name_id;
   }
 
-  render_util::ShaderProgramPtr getDefaultGLSLProgram()
+  render_util::ShaderProgramPtr getDefaultGLSLProgram(bool is_cockpit)
   {
     if (!default_glsl_program)
     {
       assert(!name.empty());
+
+      string frag_name;
+
       if (name == "vpTreeSprite")
-      {
-        default_glsl_program = createGLSLProgram(name, "fpTreeSprite");
-      }
+        frag_name = "fpTreeSprite";
       else if (name == "vpTreeTrunk")
-      {
-        default_glsl_program = createGLSLProgram(name, "fpTreeTrunk");
-      }
+        frag_name = "fpTreeTrunk";
       else if (name == "vpTexUVTex2D")
-      {
-        default_glsl_program = createGLSLProgram(name, "fpTexUVTex2D");
-      }
+        frag_name = "fpTexUVTex2D";
       else if (name == "vp4Tex2D")
-      {
-        default_glsl_program = createGLSLProgram(name, "fp4Tex2D");
-      }
+        frag_name = "fp4Tex2D";
       else if (name == "vpFogFar2Tex2D")
-      {
-        default_glsl_program = createGLSLProgram(name, "fpFogFar2Tex2D");
-      }
+        frag_name = "fpFogFar2Tex2D";
+      else if (name == "vpVAObjectsL0")
+        frag_name = "fpVAObjectsL0";
       else
       {
         cout<<"no default program for "<<name<<endl;
         default_glsl_program = std::make_shared<render_util::ShaderProgram>();
       }
+
+      if (!frag_name.empty())
+      {
+        if (is_cockpit)
+          frag_name += "_cockpit";
+        default_glsl_program = createGLSLProgram(name, frag_name);
+      }
+
     }
     return default_glsl_program;
   }
@@ -431,26 +434,33 @@ struct ProgramBase
 struct FragmentProgram : public ProgramBase
 {
   std::vector<render_util::ShaderProgramPtr> glsl_program_for_vertex_shader;
+  std::vector<render_util::ShaderProgramPtr> glsl_program_for_vertex_shader_cockpit;
 
   bool is_object_program = false;
 
   FragmentProgram(Context *ctx) : ProgramBase(ctx) {}
 
-  render_util::ShaderProgramPtr getGLSLProgram(ProgramBase *vertex_program)
+  render_util::ShaderProgramPtr getGLSLProgram(ProgramBase *vertex_program, bool is_cockpit)
   {
     CHECK_GL_ERROR();
 
-    if (glsl_program_for_vertex_shader.size() <= vertex_program->getNameID())
+    auto &programs = is_cockpit ?
+      glsl_program_for_vertex_shader_cockpit : glsl_program_for_vertex_shader;
+
+    if (programs.size() <= vertex_program->getNameID())
     {
-      glsl_program_for_vertex_shader.resize(vertex_program->getNameID() + 100);
+      programs.resize(vertex_program->getNameID() + 100);
     }
 
-    auto program = glsl_program_for_vertex_shader.at(vertex_program->getNameID());
+    auto program = programs.at(vertex_program->getNameID());
 
     if (!program)
     {
-      program = createGLSLProgram(vertex_program->name, name);
-      glsl_program_for_vertex_shader.at(vertex_program->getNameID()) = program;
+      if (is_cockpit)
+        program = createGLSLProgram(vertex_program->name + "_cockpit", name + "_cockpit");
+      else
+        program = createGLSLProgram(vertex_program->name, name);
+      programs.at(vertex_program->getNameID()) = program;
     }
 
     return program;
@@ -510,6 +520,7 @@ struct core_gl_wrapper::arb_program::Context::Impl
   bool is_vertex_program_enabled = false;
   bool is_fragment_program_enabled = false;
   bool program_needs_update = false;
+  bool is_cockpit = false;
 
   std::vector<std::unique_ptr<ProgramBase>> programs;
 
@@ -710,10 +721,12 @@ struct core_gl_wrapper::arb_program::Context::Impl
     gl::BindBuffer(GL_UNIFORM_BUFFER, 0);
   }
 
-  void updateProgram()
+  void updateProgram(bool is_cockpit_new)
   {
-    if (!program_needs_update)
+    if (!program_needs_update && is_cockpit_new == is_cockpit)
       return;
+
+    is_cockpit = is_cockpit_new;
 
     bool is_arb_program_active = false;
 
@@ -730,17 +743,20 @@ struct core_gl_wrapper::arb_program::Context::Impl
         {
           if (is_vertex_program_enabled && active_vertex_program)
           {
-            glsl_program = active_fragment_program->getGLSLProgram(active_vertex_program);
+            glsl_program = active_fragment_program->getGLSLProgram(active_vertex_program, is_cockpit);
           }
           else
           {
-            glsl_program = active_fragment_program->getDefaultGLSLProgram();
+            glsl_program = active_fragment_program->getDefaultGLSLProgram(is_cockpit);
           }
         }
         else if (is_vertex_program_enabled && active_vertex_program)
         {
-          glsl_program = active_vertex_program->getDefaultGLSLProgram();
+          glsl_program = active_vertex_program->getDefaultGLSLProgram(is_cockpit);
         }
+
+        if (is_cockpit)
+          assert(glsl_program && glsl_program->isValid());
       }
     }
 
@@ -764,12 +780,12 @@ struct core_gl_wrapper::arb_program::Context::Impl
     program_needs_update = false;
   }
 
-  void update()
+  void update(bool is_cockpit)
   {
     if (!g_initialized)
       return;
 
-    updateProgram();
+    updateProgram(is_cockpit);
 
     if (g_enable_object_shaders)
       updateLocalParameters();
@@ -1063,9 +1079,9 @@ namespace core_gl_wrapper::arb_program
   Context::~Context() {}
 
 
-  void Context::update()
+  void Context::update(bool is_cockpit)
   {
-    impl->update();
+    impl->update(is_cockpit);
   }
 
 

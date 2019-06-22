@@ -502,12 +502,12 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
     return;
   }
 
-  auto ctx = getContext();
-
-  ctx->getARBProgramContext()->update();
-
   Il2RenderState state;
   getRenderState(&state);
+
+  auto ctx = getContext();
+
+  ctx->getARBProgramContext()->update(state.render_phase == IL2_Cockpit);
 
   if (core::isFMBActive()
       || !isTerrainEnabled()
@@ -518,6 +518,25 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
 //       || true
     )
   {
+    if (state.render_phase == IL2_Cockpit && ctx->active_shader)
+    {
+      bool blend = gl::IsEnabled(GL_BLEND);
+      bool blend_add = false;
+
+      if (blend)
+      {
+        GLenum src_alpha, dst_alpha;
+        gl::GetIntegerv(GL_BLEND_SRC_ALPHA, (int*)&src_alpha);
+        gl::GetIntegerv(GL_BLEND_DST_ALPHA, (int*)&dst_alpha);
+
+        if (src_alpha == GL_SRC_ALPHA && dst_alpha == GL_ONE)
+          blend_add = true;
+      }
+
+      ctx->active_shader->setUniform("blend_add", blend_add);
+      ctx->active_shader->setUniform("blend", blend);
+    }
+
     gl::DrawRangeElements(mode, start, end, count, type, indices);
   }
   else if (ctx->is_arb_program_active)
@@ -776,17 +795,13 @@ texture_state::TextureState *Context::Impl::getTextureState()
 
 void Context::Impl::updateShaderState()
 {
-  Il2RenderState state;
-  getRenderState(&state);
-
   render_util::ShaderProgramPtr new_active_shader;
 
   if (current_shader)
   {
     new_active_shader = current_shader;
   }
-  else if (isObjectShadersEnabled() && is_arb_program_active && !core::isFMBActive() &&
-      (state.render_phase != IL2_Cockpit))
+  else if (isObjectShadersEnabled() && is_arb_program_active && !core::isFMBActive())
   {
     new_active_shader = current_arb_program;
   }

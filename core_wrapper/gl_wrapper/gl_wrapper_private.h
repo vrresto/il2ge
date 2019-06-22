@@ -34,7 +34,7 @@ namespace core_gl_wrapper
 
       std::unique_ptr<Impl> impl;
 
-      void update();
+      void update(bool is_cockpit = false);
       bool isObjectProgramActive();
 
       Context(core_gl_wrapper::Context::Impl&);
