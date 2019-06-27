@@ -2,6 +2,8 @@
 
 #extension GL_ARB_uniform_buffer_object : require
 
+#define USE_HDR @use_hdr:0@
+
 vec3 textureColorCorrection(vec3 color);
 vec3 calcLightWithSpecular(vec3 input_color, vec3 normal, float shinyness, vec3 specular_amount,
                            float direct_scale, float ambient_scale, vec3 viewDir);
@@ -25,8 +27,13 @@ varying float pass_shinyness;
 varying vec3 pass_specular_amount;
 varying vec4 pass_color;
 
+#if USE_HDR
+const float DIRECT_LIGHT_SCALE = 1.0;
+const float AMBIENT_LIGHT_SCALE = 1.0;
+#else
 const float DIRECT_LIGHT_SCALE = 1.1;
 const float AMBIENT_LIGHT_SCALE = 0.8;
+#endif
 
 void main()
 {

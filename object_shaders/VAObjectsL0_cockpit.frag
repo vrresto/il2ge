@@ -60,7 +60,7 @@ void main()
   }
 
   //EVIL HACK FIXME
-  bool is_light_source = blend_add && pass_ambient_brightness > 0.3;
+  bool is_light_source = !is_instrument_light && blend_add && pass_ambient_brightness > 0.3;
 
   vec4 texture_color = texture2D(sampler_0, (gl_TexCoord[0]).xy);
 
