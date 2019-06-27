@@ -100,6 +100,10 @@ namespace core
   void onLandscapePostRender();
   void onRender3D1Flush();
 
+  void showMenu(bool);
+  bool isMenuShown();
+  void handleKey(int key);
+
   void init();
 }
 

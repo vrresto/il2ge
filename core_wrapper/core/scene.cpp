@@ -47,6 +47,8 @@ namespace core
 
   Scene::Scene()
   {
+    text_renderer = make_unique<TextRenderer>();
+
     atmosphere = createAtmosphere(il2ge::core_wrapper::getConfig().atmosphere,
                                   texture_manager, g_shader_path);
 
@@ -74,7 +76,36 @@ namespace core
     gl::ActiveTexture(active_unit_save);
 
     FORCE_CHECK_GL_ERROR();
+
+    auto addParameter = [this] (std::string name, Parameter::GetFunc get, Parameter::SetFunc set)
+    {
+      parameters.push_back(Parameter(name, get, set));
+    };
+
+    auto addAtmosphereParameter = [this,addParameter] (std::string name, Atmosphere::Parameter p)
+    {
+      if (atmosphere->hasParameter(p))
+      {
+        addParameter(name,
+                     [this,p] { return atmosphere->getParameter(p); },
+                     [this,p] (auto value) { atmosphere->setParameter(p, value); });
+      }
+    };
+
+    addAtmosphereParameter("exposure", Atmosphere::Parameter::EXPOSURE);
+    addAtmosphereParameter("saturation", Atmosphere::Parameter::SATURATION);
+    addAtmosphereParameter("brightness_curve_exponent",
+                            Atmosphere::Parameter::BRIGHTNESS_CURVE_EXPONENT);
+    addAtmosphereParameter("texture_brightness", Atmosphere::Parameter::TEXTURE_BRIGHTNESS);
+    addAtmosphereParameter("texture_brightness_curve_exponent",
+                            Atmosphere::Parameter::TEXTURE_BRIGHTNESS_CURVE_EXPONENT);
+    addAtmosphereParameter("texture_saturation", Atmosphere::Parameter::TEXTURE_SATURATION);
+
+    menu = std::make_unique<Menu>(*this, texture_manager, shader_search_path);
   }
+
+
+  Scene::~Scene() {}
 
 
   void Scene::unloadMap()

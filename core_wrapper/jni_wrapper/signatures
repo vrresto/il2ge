@@ -74,3 +74,7 @@ jfloat il2.fm.Wind SetWind jfloat jfloat jfloat jfloat jfloat
 
 void rts.Time setSpeedReal jfloat
 void rts.Time setCurrent jlong jlong
+
+jboolean rts.KeyboardDX nGetMsg jintArray
+
+jboolean rts.KeyboardWin nGetMsg jintArray

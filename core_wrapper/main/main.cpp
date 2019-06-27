@@ -81,6 +81,10 @@ void installIATPatches(HMODULE);
 HMODULE loadCoreWrapper(const char*);
 
 
+constexpr int MENU_HOTKEY_ID = 100;
+constexpr int ENABLE_GRAPHICS_EXTENDER_HOTKEY_ID = 101;
+constexpr int TOGGLE_OBJECTS_SHADERS_HOTKEY_ID = 102;
+constexpr int TOGGLE_TERRAIN_HOTKEY_ID = 103;
 constexpr jint g_jni_version = JNI_VERSION_1_2;
 constexpr const char* const g_log_file_name = "il2ge.log";
 
@@ -94,6 +98,9 @@ JavaVM *g_java_vm = nullptr;
 DWORD g_main_thread = 0;
 LogBuf g_cout_buf;
 LogBuf g_cerr_buf;
+#if ENABLE_SHORTCUTS || ENABLE_MENU
+std::unordered_map<HWND, WNDPROC> g_wndproc_for_window;
+#endif
 
 
 void redirectOutput()
@@ -113,65 +120,131 @@ void redirectOutput()
 }
 
 
-#if ENABLE_SHORTCUTS
-BOOL WINAPI wrap_PeekMessageA(
-  LPMSG lpMsg,
-  HWND  hWnd,
-  UINT  wMsgFilterMin,
-  UINT  wMsgFilterMax,
-  UINT  wRemoveMsg)
+#if ENABLE_SHORTCUTS || ENABLE_MENU
+
+LRESULT CALLBACK wrap_WindowProc(
+  _In_ HWND   hwnd,
+  _In_ UINT   uMsg,
+  _In_ WPARAM wParam,
+  _In_ LPARAM lParam)
 {
-  auto ret = PeekMessageA(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
-  if (ret)
+  auto wndproc = g_wndproc_for_window[hwnd];
+  assert(wndproc);
+
+  switch (uMsg)
   {
-    if (lpMsg->message == WM_KEYDOWN)
-    {
-      cout<<"wrap_PeekMessageA\n";
-      cout<<"WM_KEYDOWN arrived\n";
-      exit(0);
-    }
-  }
-
-  return ret;
-}
-
-
-BOOL WINAPI wrap_PeekMessageW(
-  LPMSG lpMsg,
-  HWND  hWnd,
-  UINT  wMsgFilterMin,
-  UINT  wMsgFilterMax,
-  UINT  wRemoveMsg)
-{
-  auto ret = PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_NOREMOVE);
-
-  if (ret)
-  {
-    if (lpMsg->message == WM_KEYDOWN)
-    {
-      switch(lpMsg->wParam)
+    case WM_HOTKEY:
+      switch (wParam)
       {
-        case 'E':
-          PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_REMOVE);
+#if ENABLE_MENU
+        case MENU_HOTKEY_ID:
+          core::showMenu(!core::isMenuShown());
+          return 0;
+#endif
+#if ENABLE_SHORTCUTS
+        case ENABLE_GRAPHICS_EXTENDER_HOTKEY_ID:
           core_gl_wrapper::toggleEnable();
-          return false;
-        case 'O':
-          PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_REMOVE);
+          return 0;
+        case TOGGLE_OBJECTS_SHADERS_HOTKEY_ID:
           core_gl_wrapper::toggleObjectShaders();
-          return false;
-        case 'T':
-          PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, PM_REMOVE);
+          return 0;
+        case TOGGLE_TERRAIN_HOTKEY_ID:
           core_gl_wrapper::toggleTerrain();
-          return false;
+          return 0;
+#endif
       }
-    }
-
-    return PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
+      break;
+    case WM_KEYDOWN:
+#if ENABLE_MENU
+      if (core::isMenuShown())
+      {
+        core::handleKey(wParam);
+        return 0;
+      }
+#endif
+      break;
   }
 
-  return ret;
+  return CallWindowProcW(wndproc, hwnd, uMsg, wParam, lParam);
 }
+
+
+HWND WINAPI wrap_CreateWindowExA(
+  DWORD     dwExStyle,
+  LPCSTR    lpClassName,
+  LPCSTR    lpWindowName,
+  DWORD     dwStyle,
+  int       X,
+  int       Y,
+  int       nWidth,
+  int       nHeight,
+  HWND      hWndParent,
+  HMENU     hMenu,
+  HINSTANCE hInstance,
+  LPVOID    lpParam)
+{
+  assert(0);
+  abort();
+}
+
+
+HWND WINAPI wrap_CreateWindowExW(
+  DWORD     dwExStyle,
+  LPCWSTR   lpClassName,
+  LPCWSTR   lpWindowName,
+  DWORD     dwStyle,
+  int       X,
+  int       Y,
+  int       nWidth,
+  int       nHeight,
+  HWND      hWndParent,
+  HMENU     hMenu,
+  HINSTANCE hInstance,
+  LPVOID    lpParam)
+{
+  cout << "wrap_CreateWindowExW" <<endl;
+
+  auto hwnd = CreateWindowExW(
+    dwExStyle,
+    lpClassName,
+    lpWindowName,
+    dwStyle,
+    X,
+    Y,
+    nWidth,
+    nHeight,
+    hWndParent,
+    hMenu,
+    hInstance,
+    lpParam);
+
+  cout<<"created window: " << hwnd << endl;
+
+  WNDPROC wndproc = (WNDPROC) GetWindowLongPtrW(hwnd, GWL_WNDPROC);
+  assert(wndproc);
+
+  g_wndproc_for_window[hwnd] = wndproc;
+
+  SetWindowLongPtrW(hwnd, GWL_WNDPROC, (LONG_PTR) &wrap_WindowProc);
+
+#if ENABLE_MENU
+  auto ret = RegisterHotKey(hwnd, MENU_HOTKEY_ID, 0, VK_F11);
+  assert(ret);
 #endif
+
+#if ENABLE_SHORTCUTS
+  ret = RegisterHotKey(hwnd, ENABLE_GRAPHICS_EXTENDER_HOTKEY_ID, 0, VK_F5);
+  assert(ret);
+  ret = RegisterHotKey(hwnd, TOGGLE_OBJECTS_SHADERS_HOTKEY_ID, 0, VK_F6);
+  assert(ret);
+  ret = RegisterHotKey(hwnd, TOGGLE_TERRAIN_HOTKEY_ID, 0, VK_F7);
+  assert(ret);
+#endif
+
+  return hwnd;
+}
+
+#endif // ENABLE_SHORTCUTS || ENABLE_MENU
 
 
 HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
@@ -232,16 +305,17 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
   {
     return (FARPROC) sfs::get_openf_wrapper();
   }
-#if ENABLE_SHORTCUTS
-  else if (_stricmp(lpProcName, "PeekMessageA") == 0)
+  else if (_stricmp(lpProcName, "GetMessageA") == 0)
   {
-    return (FARPROC) &wrap_PeekMessageA;
+    assert(0);
+    abort();
   }
-  else if (_stricmp(lpProcName, "PeekMessageW") == 0)
+  else if (_stricmp(lpProcName, "GetMessageW") == 0)
   {
-    return (FARPROC) &wrap_PeekMessageW;
+    assert(0);
+    abort();
   }
-#endif
+
 
   return GetProcAddress(hModule, lpProcName);
 }
@@ -451,11 +525,11 @@ void WINAPI il2ge_init()
   installIATPatches(GetModuleHandle(0));
   installIATPatches(jvm_module);
 
-#if ENABLE_SHORTCUTS
-  patchIAT("PeekMessageA", "user32.dll",
-           (void*) &wrap_PeekMessageA, NULL, GetModuleHandle(0));
-  patchIAT("PeekMessageW", "user32.dll",
-           (void*) &wrap_PeekMessageW, NULL, GetModuleHandle(0));
+#if ENABLE_MENU || ENABLE_SHORTCUTS
+  patchIAT("CreateWindowExA", "user32.dll",
+           (void*) &wrap_CreateWindowExA, nullptr, GetModuleHandle(0));
+  patchIAT("CreateWindowExW", "user32.dll",
+           (void*) &wrap_CreateWindowExW, nullptr, GetModuleHandle(0));
 #endif
 
   jni_wrapper::init();

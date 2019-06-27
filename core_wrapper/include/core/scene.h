@@ -25,27 +25,37 @@
 #include <core/effects.h>
 #include <core/map.h>
 #include <render_util/camera.h>
+#include <render_util/parameter_wrapper.h>
+#include <text_renderer/text_renderer.h>
 
 #include <memory>
+#include <vector>
 #include <cassert>
 
 namespace core
 {
   class ProgressReporter;
+  class Menu;
 
   class Scene
   {
+    using Parameter = render_util::ParameterWrapper<float>;
+
     render_util::ShaderSearchPath shader_search_path;
     render_util::TexturePtr atmosphere_map;
     render_util::TexturePtr curvature_map;
     std::unique_ptr<render_util::Atmosphere> atmosphere;
     std::unique_ptr<Map> map;
+    std::unique_ptr<TextRenderer> text_renderer;
+    std::unique_ptr<Menu> menu;
+    std::vector<Parameter> parameters;
 
   public:
     render_util::TextureManager texture_manager = render_util::TextureManager(0, 64);
     Effects effects;
 
     Scene();
+    ~Scene();
 
     void unloadMap();
     void loadMap(const char *path, ProgressReporter*);
@@ -69,7 +79,14 @@ namespace core
       return atmosphere->getShaderParameters();
     }
 
+    TextRenderer &getTextRenderer() { return *text_renderer; }
+
+    Menu &getMenu() { return *menu; }
+
     bool isMapLoaded() { return map != nullptr; }
+
+    int getNumParameters() { return parameters.size(); }
+    Parameter &getParameter(int i) { return parameters.at(i); }
   };
 };
 

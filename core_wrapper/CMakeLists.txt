@@ -15,6 +15,10 @@ if(NOT enable_shortcuts)
   set(enable_shortcuts 0)
 endif()
 
+if(NOT enable_menu)
+  set(enable_menu 0)
+endif()
+
 if(NOT enable_configurable_atmosphere)
   set(enable_configurable_atmosphere 0)
 endif()
@@ -47,6 +51,7 @@ set(SRCS
   core/render_state.cpp
   core/scene.cpp
   core/effects.cpp
+  core/menu.cpp
   core/swig_interface_version.cpp
   core/swig_interface_wrapper.cpp
   core/swig_interface.cpp
@@ -60,6 +65,8 @@ set(SRCS
 
 set(JNI_WRAPPER_CLASSES
   rts.Time
+  rts.KeyboardWin
+  rts.KeyboardDX
   il2.engine.Camera
   il2.engine.Landscape
   il2.engine.Render

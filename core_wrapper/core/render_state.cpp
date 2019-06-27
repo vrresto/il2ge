@@ -140,6 +140,11 @@ namespace core
 
     setRenderPhase(IL2_PostRenders);
 
+    if (isMenuShown())
+    {
+      getMenu().draw();
+    }
+
 //    cout<<"trees: "<<num_trees_drawn<<endl;
 	}
 

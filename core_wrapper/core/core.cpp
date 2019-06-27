@@ -135,6 +135,12 @@ namespace core
 {
 
 
+Menu &getMenu()
+{
+  return getScene()->getMenu();
+}
+
+
 void init()
 {
 #ifndef NO_REFRESH_MAPS
@@ -253,6 +259,24 @@ const render_util::ShaderSearchPath &getShaderSearchPath()
 render_util::ShaderParameters getShaderParameters()
 {
   return getScene()->getShaderParameters();
+}
+
+
+void showMenu(bool show)
+{
+  getMenu().show(show);
+}
+
+
+bool isMenuShown()
+{
+  return getMenu().isShown();
+}
+
+
+void handleKey(int key)
+{
+  getMenu().handleKey(key);
 }
 
 
