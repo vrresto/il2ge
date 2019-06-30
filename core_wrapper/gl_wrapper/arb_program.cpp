@@ -373,6 +373,7 @@ struct ProgramBase
   std::string name;
   std::string file_extension;
   render_util::ShaderProgramPtr default_glsl_program;
+  render_util::ShaderProgramPtr default_glsl_program_cockpit;
   LocalParameters params;
 
   ProgramBase(Context *ctx) : context(ctx) {}
@@ -394,39 +395,50 @@ struct ProgramBase
 
   render_util::ShaderProgramPtr getDefaultGLSLProgram(bool is_cockpit)
   {
-    if (!default_glsl_program)
+    auto &program = is_cockpit ? default_glsl_program_cockpit : default_glsl_program;
+
+    if (!program)
     {
-      assert(!name.empty());
+      if (!isFragmentProgram())
+      {
+        assert(!name.empty());
 
-      string frag_name;
+        string frag_name;
 
-      if (name == "vpTreeSprite")
-        frag_name = "fpTreeSprite";
-      else if (name == "vpTreeTrunk")
-        frag_name = "fpTreeTrunk";
-      else if (name == "vpTexUVTex2D")
-        frag_name = "fpTexUVTex2D";
-      else if (name == "vp4Tex2D")
-        frag_name = "fp4Tex2D";
-      else if (name == "vpFogFar2Tex2D")
-        frag_name = "fpFogFar2Tex2D";
-      else if (name == "vpVAObjectsL0")
-        frag_name = "fpVAObjectsL0";
+        if (name == "vpTreeSprite")
+          frag_name = "fpTreeSprite";
+        else if (name == "vpTreeTrunk")
+          frag_name = "fpTreeTrunk";
+        else if (name == "vpTexUVTex2D")
+          frag_name = "fpTexUVTex2D";
+        else if (name == "vp4Tex2D")
+          frag_name = "fp4Tex2D";
+        else if (name == "vpFogFar2Tex2D")
+          frag_name = "fpFogFar2Tex2D";
+        else if (name == "vpVAObjectsL0")
+          frag_name = "fpVAObjectsL0";
+        else
+        {
+          cout<<"no default program for "<<name<<endl;
+          program = std::make_shared<render_util::ShaderProgram>();
+        }
+
+        if (!frag_name.empty())
+        {
+          if (is_cockpit)
+            frag_name += "_cockpit";
+          program = createGLSLProgram(name, frag_name);
+        }
+      }
       else
       {
-        cout<<"no default program for "<<name<<endl;
-        default_glsl_program = std::make_shared<render_util::ShaderProgram>();
+        program = std::make_shared<render_util::ShaderProgram>();
       }
-
-      if (!frag_name.empty())
-      {
-        if (is_cockpit)
-          frag_name += "_cockpit";
-        default_glsl_program = createGLSLProgram(name, frag_name);
-      }
-
     }
-    return default_glsl_program;
+
+    assert(program);
+
+    return program;
   }
 };
 
