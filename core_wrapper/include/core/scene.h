@@ -21,9 +21,7 @@
 
 #include <misc.h>
 #include <core.h>
-#include <core/map.h>
 #include <core/effects.h>
-#include <core/map.h>
 #include <render_util/camera.h>
 #include <render_util/parameter_wrapper.h>
 #include <text_renderer/text_renderer.h>
@@ -32,10 +30,18 @@
 #include <vector>
 #include <cassert>
 
+
+namespace render_util
+{
+  class Atmosphere;
+}
+
+
 namespace core
 {
   class ProgressReporter;
   class Menu;
+  class Map;
 
   class Scene
   {
@@ -63,21 +69,14 @@ namespace core
     void updateUniforms(render_util::ShaderProgramPtr program);
     render_util::TerrainBase &getTerrain();
 
-    render_util::ImageGreyScale::ConstPtr getPixelMapH()
-    {
-      assert(map);
-      return map->getPixelMapH();
-    }
+    render_util::ImageGreyScale::ConstPtr getPixelMapH();
 
     const render_util::ShaderSearchPath &getShaderSearchPath()
     {
       return shader_search_path;
     }
 
-    render_util::ShaderParameters getShaderParameters()
-    {
-      return atmosphere->getShaderParameters();
-    }
+    render_util::ShaderParameters getShaderParameters();
 
     TextRenderer &getTextRenderer() { return *text_renderer; }
 

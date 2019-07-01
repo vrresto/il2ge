@@ -17,6 +17,7 @@
  */
 
 #include "core_p.h"
+#include "map.h"
 #include <sfs.h>
 #include <core/scene.h>
 #include <render_util/terrain.h>
@@ -148,5 +149,19 @@ namespace core
     assert(map);
     return map->getTerrain();
   }
+
+
+  render_util::ImageGreyScale::ConstPtr Scene::getPixelMapH()
+  {
+    assert(map);
+    return map->getPixelMapH();
+  }
+
+
+  render_util::ShaderParameters Scene::getShaderParameters()
+  {
+    return atmosphere->getShaderParameters();
+  }
+
 
 }

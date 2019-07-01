@@ -23,7 +23,6 @@
 #include <render_util/shader.h>
 #include <render_util/texture_manager.h>
 #include <render_util/terrain_util.h>
-#include <render_util/atmosphere.h>
 #include <glm/glm.hpp>
 
 
