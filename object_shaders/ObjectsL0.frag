@@ -8,6 +8,9 @@ vec3 textureColorCorrection(vec3 color);
 vec3 calcLightWithSpecular(vec3 input_color, vec3 normal, float shinyness, vec3 specular_amount,
                            float direct_scale, float ambient_scale, vec3 viewDir);
 void apply_fog();
+vec3 deGamma(vec3 color);
+vec3 calcIncomingDirectLight();
+vec3 calcLight(vec3 pos, vec3 normal, float direct_scale, float ambient_scale);
 
 uniform sampler2D sampler_0;
 
@@ -35,6 +38,18 @@ const float DIRECT_LIGHT_SCALE = 1.1;
 const float AMBIENT_LIGHT_SCALE = 0.8;
 #endif
 
+
+vec3 getSpecular(vec3 view_dir)
+{
+  vec3 R = reflect(view_dir, pass_normal);
+  vec3 lVec = -sunDir;
+
+  vec3 specular_amount = 0.5 * pass_specular_amount * pow(max(dot(R, lVec), 0.0), pass_shinyness);
+
+  return deGamma(specular_amount) * calcIncomingDirectLight();
+}
+
+
 void main()
 {
   vec3 view_dir = normalize(cameraPosWorld - passObjectPos);
@@ -42,7 +57,10 @@ void main()
   gl_FragColor = texture2D(sampler_0, (gl_TexCoord[0]).xy);
   gl_FragColor.xyz = textureColorCorrection(gl_FragColor.xyz);
 
-  gl_FragColor.xyz = calcLightWithSpecular(gl_FragColor.xyz, pass_normal, pass_shinyness, pass_specular_amount, DIRECT_LIGHT_SCALE, AMBIENT_LIGHT_SCALE, view_dir);
+  vec3 specular_light = getSpecular(view_dir);
+  vec3 light = calcLight(vec3(0), pass_normal, AMBIENT_LIGHT_SCALE, DIRECT_LIGHT_SCALE);
+
+  gl_FragColor.xyz = gl_FragColor.xyz * light + specular_light;
 
   if (pass_color.a < 0.99)
   {

@@ -37,7 +37,7 @@ const float AMBIENT_LIGHT_SCALE = 1.0;
 
 #if USE_HDR
   #if USE_LUMINANCE
-    const float MAX_RETICLE_RADIANCE = 4000;
+    const float MAX_RETICLE_RADIANCE = 8000;
   #else
     const float MAX_RETICLE_RADIANCE = 0.2;
   #endif
