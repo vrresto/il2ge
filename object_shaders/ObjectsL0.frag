@@ -58,7 +58,7 @@ void main()
   gl_FragColor.xyz = textureColorCorrection(gl_FragColor.xyz);
 
   vec3 specular_light = getSpecular(view_dir);
-  vec3 light = calcLight(vec3(0), pass_normal, AMBIENT_LIGHT_SCALE, DIRECT_LIGHT_SCALE);
+  vec3 light = calcLight(vec3(0), pass_normal, DIRECT_LIGHT_SCALE, AMBIENT_LIGHT_SCALE);
 
   gl_FragColor.xyz = gl_FragColor.xyz * light + specular_light;
 
