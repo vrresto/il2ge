@@ -101,7 +101,7 @@ namespace core
     addAtmosphereParameter("texture_brightness_curve_exponent",
                             Atmosphere::Parameter::TEXTURE_BRIGHTNESS_CURVE_EXPONENT);
     addAtmosphereParameter("texture_saturation", Atmosphere::Parameter::TEXTURE_SATURATION);
-    addAtmosphereParameter("blue saturation", Atmosphere::Parameter::BLUE_SATURATION);
+    addAtmosphereParameter("blue_saturation", Atmosphere::Parameter::BLUE_SATURATION);
 
     menu = std::make_unique<Menu>(*this, texture_manager, shader_search_path);
   }
