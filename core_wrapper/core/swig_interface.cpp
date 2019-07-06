@@ -21,6 +21,8 @@
 #include <swig_interface.h>
 #include <java_util.h>
 #include <core.h>
+#include <config.h>
+#include <gl_wrapper.h>
 #include <core/scene.h>
 
 #include <iostream>
@@ -99,6 +101,26 @@ void initJavaClasses()
 
     for (int i = 0; i < scene->getNumParameters(); i++)
       addParameterCommands(i);
+
+#if ENABLE_SHORTCUTS
+    auto toggle_enable = [] ()
+    {
+      core_gl_wrapper::toggleEnable();
+    };
+    addCommand("ToggleEnable", toggle_enable);
+
+    auto toggle_object_shaders = [] ()
+    {
+      core_gl_wrapper::toggleObjectShaders();
+    };
+    addCommand("ToggleObjectShaders", toggle_object_shaders);
+
+    auto toggle_terrain = [] ()
+    {
+      core_gl_wrapper::toggleTerrain();
+    };
+    addCommand("ToggleTerrain", toggle_terrain);
+#endif
 
     cout << "loading class com/maddox/il2ge/HotKeys ..." << endl;
     il2ge::java::getEnv()->FindClass("com/maddox/il2ge/HotKeys");
