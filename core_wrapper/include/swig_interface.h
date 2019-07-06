@@ -12,6 +12,9 @@ namespace il2ge::java_interface
 
   std::string getCommandDisplayText(std::string command_name);
   void executeCommand(std::string command_name);
+
+  void showMenu(bool show);
+  void handleKey(int key, bool ctrl, bool alt, bool shift);
 }
 
 #endif

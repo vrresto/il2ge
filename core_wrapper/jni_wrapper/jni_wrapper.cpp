@@ -87,8 +87,7 @@ void init()
   vector<MetaClassInitFunc*> registrators
   {
     registrator::rts::Time,
-    registrator::rts::KeyboardWin,
-    registrator::rts::KeyboardDX,
+    registrator::il2::engine::RenderContext,
     registrator::il2::engine::Renders,
     registrator::il2::engine::Render,
     registrator::il2::engine::Landscape,

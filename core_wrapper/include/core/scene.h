@@ -45,8 +45,10 @@ namespace core
 
   class Scene
   {
+  public:
     using Parameter = render_util::ParameterWrapper<float>;
 
+  private:
     render_util::ShaderSearchPath shader_search_path;
     render_util::TexturePtr atmosphere_map;
     render_util::TexturePtr curvature_map;

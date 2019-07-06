@@ -1,6 +1,8 @@
-%pragma(java) jniclasscode=%{
+%pragma(java) modulecode=%{
 
-  static
+  public static final boolean IS_AVAILABLE = checkAvailable();
+
+  private static boolean checkAvailable()
   {
     try
     {
@@ -9,11 +11,13 @@
         throw new Exception("Interface version mismatch.");
       }
     }
-    catch (Exception e)
+    catch (Throwable e)
     {
       System.err.println("IL2GE interface initialisation failed:\n" + e);
-      System.exit(1);
+      return false;
     }
+
+    return true;
   }
 
 %}

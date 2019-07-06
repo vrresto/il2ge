@@ -65,8 +65,7 @@ set(SRCS
 
 set(JNI_WRAPPER_CLASSES
   rts.Time
-  rts.KeyboardWin
-  rts.KeyboardDX
+  il2.engine.RenderContext
   il2.engine.Camera
   il2.engine.Landscape
   il2.engine.Render

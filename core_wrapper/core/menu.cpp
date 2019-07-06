@@ -18,6 +18,7 @@
 
 #include "menu.h"
 #include "core_p.h"
+#include <keys.h>
 #include <core/scene.h>
 #include <render_util/quad_2d.h>
 #include <render_util/gl_binding/gl_functions.h>
@@ -77,16 +78,18 @@ void Menu::rebuild()
   m_display.clear();
 
   m_display.addLine("IL-2 Graphics Extender", glm::vec3(0.0, 1.0, 0.0));
+  m_display.addLine();
+  m_display.addLine("Escape: exit menu", glm::vec3(0.0, 1.0, 0.0));
 
   if (m_scene.getNumParameters())
   {
-    m_display.addLine();
     m_display.addLine("Up/Down: navigate menu", glm::vec3(0.0, 1.0, 0.0));
     m_display.addLine("Left/Right: change value by 0.01", glm::vec3(0.0, 1.0, 0.0));
     m_display.addLine("-/+: change value by 1.00", glm::vec3(0.0, 1.0, 0.0));
     m_display.addLine("r: reset value", glm::vec3(0.0, 1.0, 0.0));
-    m_display.addLine();
   }
+
+  m_display.addLine();
 
   for (int i = 0; i < m_scene.getNumParameters(); i++)
   {
@@ -149,30 +152,44 @@ void Menu::resetValue()
 }
 
 
-void Menu::handleKey(int key)
+void Menu::handleKey(int key, bool ctrl, bool alt, bool shift)
 {
+  using namespace il2ge::keys;
+
+  float increment = 1.0;
+  if (alt)
+    increment = 0.1;
+  else if (shift)
+    increment = 10;
+
   switch (key)
   {
-    case 0x52: // r
+    case R:
       resetValue();
       break;
-    case VK_LEFT:
+    case LEFT:
       changeValue(-0.01);
       break;
-    case VK_RIGHT:
+    case RIGHT:
       changeValue(+0.01);
       break;
-    case VK_UP:
+    case UP:
       prevEntry();
       break;
-    case VK_DOWN:
+    case DOWN:
       nextEntry();
       break;
-    case VK_SUBTRACT:
-      changeValue(-1.0);
+    case SUBTRACT:
+      changeValue(-1.0 * increment);
       break;
-    case VK_ADD:
-      changeValue(+1.0);
+    case ADD:
+      changeValue(+1.0 * increment);
+      break;
+    case PAGE_DOWN:
+      changeValue(-100);
+      break;
+    case PAGE_UP:
+      changeValue(+100);
       break;
   }
 }

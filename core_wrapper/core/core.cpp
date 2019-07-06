@@ -274,9 +274,9 @@ bool isMenuShown()
 }
 
 
-void handleKey(int key)
+void handleKey(int key, bool ctrl, bool alt, bool shift)
 {
-  getMenu().handleKey(key);
+  getMenu().handleKey(key, ctrl, alt, shift);
 }
 
 

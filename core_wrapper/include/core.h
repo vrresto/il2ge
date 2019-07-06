@@ -101,9 +101,10 @@ namespace core
 
   void showMenu(bool);
   bool isMenuShown();
-  void handleKey(int key);
+  void handleKey(int key, bool ctrl, bool alt, bool shift);
 
   void init();
+  void initJavaClasses();
 }
 
 #endif

@@ -46,11 +46,15 @@ public:
   Menu(Scene &scene, render_util::TextureManager&, render_util::ShaderSearchPath);
 
   bool isShown() { return m_is_shown; }
-  void show(bool show) { m_is_shown = show; }
+  void show(bool show)
+  {
+    m_is_shown = show;
+    rebuild();
+  }
 
   void draw();
 
-  void handleKey(int key);
+  void handleKey(int key, bool ctrl, bool alt, bool shift);
 };
 
 
