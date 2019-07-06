@@ -141,7 +141,7 @@ add_custom_target(core_wrapper_generated DEPENDS ${generated_output})
 add_library(${library_name} SHARED ${SRCS})
 
 add_dependencies(${library_name} core_wrapper_generated)
-add_dependencies(${library_name} swig)
+add_dependencies(${library_name} swig_generate)
 
 target_link_libraries(${library_name}
   common

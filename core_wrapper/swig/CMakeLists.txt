@@ -6,6 +6,12 @@ set(interface_version_cpp ${CMAKE_CURRENT_BINARY_DIR}/interface_version.cpp)
 configure_file(init_code.i.in ${init_code})
 configure_file(interface_version.cpp.in ${interface_version_cpp})
 
+
+set(swig_input
+  il2ge.i
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/swig_interface.h
+)
+
 set(swig_output_dir ${CMAKE_CURRENT_BINARY_DIR}/output)
 
 set(swig_output_cxx ${swig_output_dir}/il2ge_wrap.cxx)
@@ -25,10 +31,12 @@ add_custom_command(
       -I${CMAKE_CURRENT_BINARY_DIR}
       -java -c++ ${CMAKE_CURRENT_SOURCE_DIR}/il2ge.i
     WORKING_DIRECTORY ${swig_output_dir}
-    DEPENDS ${swig_deps} create_swig_output_dir
+    DEPENDS ${swig_input} create_swig_output_dir
 )
 
-add_custom_target(swig DEPENDS ${swig_output_cxx} ${swig_output_java})
+add_custom_target(swig_generate
+  DEPENDS ${swig_input} ${swig_output_java} ${swig_output_cxx}
+)
 
 if(enable_java_dist)
   add_custom_target(java_compile
