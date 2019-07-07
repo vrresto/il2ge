@@ -4,16 +4,17 @@ include_directories(
 
 include(interface_version.cmake)
 
-set(module_code ${CMAKE_CURRENT_BINARY_DIR}/module_code.i)
+set(jniclass_code ${CMAKE_CURRENT_BINARY_DIR}/jniclass_code.i)
 set(interface_version_inc ${CMAKE_CURRENT_BINARY_DIR}/interface_version.inc)
 
-configure_file(module_code.i.in ${module_code})
+configure_file(jniclass_code.i.in ${jniclass_code})
 configure_file(interface_version.inc.in ${interface_version_inc})
 
 set(swig_input
   GraphicsExtender.i
+  module_code.i
   interface.h
-  ${module_code}
+  ${jniclass_code}
   ${interface_version_inc}
 )
 

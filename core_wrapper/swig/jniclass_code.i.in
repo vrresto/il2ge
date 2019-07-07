@@ -1,8 +1,5 @@
-%pragma(java) modulecode=%{
-
-  public static final boolean IS_LOADED = isLoaded();
-
-  private static boolean isLoaded()
+%pragma(java) jniclasscode=%{
+  static boolean isLoaded()
   {
     try
     {
@@ -16,8 +13,6 @@
       System.err.println("IL2GE interface initialisation failed:\n" + e);
       return false;
     }
-
     return true;
   }
-
 %}
