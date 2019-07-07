@@ -17,12 +17,12 @@
  */
 
 
-#include "core_p.h"
-#include <swig_interface.h>
+#include "interface.h"
 #include <java_util.h>
 #include <core.h>
 #include <config.h>
 #include <gl_wrapper.h>
+#include <wgl_wrapper.h>
 #include <core/scene.h>
 
 #include <iostream>
@@ -52,7 +52,7 @@ void addCommand(string name, Command command)
 
 void addParameterCommands(int index)
 {
-  auto &p = core::getScene()->getParameter(index);
+  auto &p = wgl_wrapper::getScene()->getParameter(index);
 
   vector<float> increments { 0.1, 1.0, 10.0, 100.0 };
 
@@ -67,7 +67,7 @@ void addParameterCommands(int index)
       auto name = p.name + ".decrease_by_" + increment_str;
       auto command = [index, increment] ()
       {
-        auto &p = core::getScene()->getParameter(index);
+        auto &p = wgl_wrapper::getScene()->getParameter(index);
         p.set(p.get() - increment);
       };
       addCommand(name, command);
@@ -77,7 +77,7 @@ void addParameterCommands(int index)
       auto name = p.name + ".increase_by_" + increment_str;
       auto command = [index, increment] ()
       {
-        auto &p = core::getScene()->getParameter(index);
+        auto &p = wgl_wrapper::getScene()->getParameter(index);
         p.set(p.get() + increment);
       };
       addCommand(name, command);
@@ -97,9 +97,7 @@ void initJavaClasses()
 {
   if (!g_java_classes_initialized)
   {
-    Scene *scene = getScene();
-
-    for (int i = 0; i < scene->getNumParameters(); i++)
+    for (int i = 0; i < wgl_wrapper::getScene()->getNumParameters(); i++)
       addParameterCommands(i);
 
 #if ENABLE_SHORTCUTS

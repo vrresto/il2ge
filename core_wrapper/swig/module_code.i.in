@@ -1,8 +1,8 @@
 %pragma(java) modulecode=%{
 
-  public static final boolean IS_AVAILABLE = checkAvailable();
+  public static final boolean IS_LOADED = isLoaded();
 
-  private static boolean checkAvailable()
+  private static boolean isLoaded()
   {
     try
     {

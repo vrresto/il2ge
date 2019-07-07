@@ -85,7 +85,7 @@ public class HotKeys
     if (created)
       return;
 
-    if (!GraphicsExtender.IS_AVAILABLE)
+    if (!GraphicsExtender.IS_LOADED)
       return;
 
     HotKeyCmdEnv.addCmd("hotkeys", new ShowMenuHotKey());
