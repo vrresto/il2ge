@@ -95,39 +95,39 @@ namespace core
 
 void initJavaClasses()
 {
-  if (!g_java_classes_initialized)
-  {
-    for (int i = 0; i < wgl_wrapper::getScene()->getNumParameters(); i++)
-      addParameterCommands(i);
+  if (g_java_classes_initialized)
+    return;
+
+  for (int i = 0; i < wgl_wrapper::getScene()->getNumParameters(); i++)
+    addParameterCommands(i);
 
 #if ENABLE_SHORTCUTS
-    auto toggle_enable = [] ()
-    {
-      core_gl_wrapper::toggleEnable();
-    };
-    addCommand("ToggleEnable", toggle_enable);
+  auto toggle_enable = [] ()
+  {
+    core_gl_wrapper::toggleEnable();
+  };
+  addCommand("ToggleEnable", toggle_enable);
 
-    auto toggle_object_shaders = [] ()
-    {
-      core_gl_wrapper::toggleObjectShaders();
-    };
-    addCommand("ToggleObjectShaders", toggle_object_shaders);
+  auto toggle_object_shaders = [] ()
+  {
+    core_gl_wrapper::toggleObjectShaders();
+  };
+  addCommand("ToggleObjectShaders", toggle_object_shaders);
 
-    auto toggle_terrain = [] ()
-    {
-      core_gl_wrapper::toggleTerrain();
-    };
-    addCommand("ToggleTerrain", toggle_terrain);
+  auto toggle_terrain = [] ()
+  {
+    core_gl_wrapper::toggleTerrain();
+  };
+  addCommand("ToggleTerrain", toggle_terrain);
 #endif
 
-    cout << "loading class com/maddox/il2ge/HotKeys ..." << endl;
-    il2ge::java::getEnv()->FindClass("com/maddox/il2ge/HotKeys");
-    cout << "loading class com/maddox/il2ge/HotKeys ... done." << endl;
+  cout << "loading class com/maddox/il2ge/HotKeys ..." << endl;
+  il2ge::java::getEnv()->FindClass("com/maddox/il2ge/HotKeys");
+  cout << "loading class com/maddox/il2ge/HotKeys ... done." << endl;
 
-    il2ge::java::getEnv()->ExceptionClear();
+  il2ge::java::getEnv()->ExceptionClear();
 
-    g_java_classes_initialized = true;
-  }
+  g_java_classes_initialized = true;
 }
 
 
