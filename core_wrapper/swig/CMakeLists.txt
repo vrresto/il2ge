@@ -50,7 +50,7 @@ set_source_files_properties(interface_wrapper.cpp PROPERTIES
   OBJECT_DEPENDS ${swig_output_cxx}
 )
 
-add_library(java_interface STATIC
+add_library(java_interface OBJECT
   interface_version.cpp
   interface_wrapper.cpp
   interface.cpp
