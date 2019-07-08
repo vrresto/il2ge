@@ -830,6 +830,29 @@ Context::Impl::Impl() {}
 Context::Impl::~Impl() {}
 
 
+void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &state)
+{
+  m_was_terrain_drawn = false;
+
+  switch (state.render_phase)
+  {
+    case core::IL2_PrePreRenders:
+      m_landscape_finished = false;
+      m_frame_nr++;
+      break;
+    case core::IL2_PostLandscape:
+      m_landscape_finished = true;
+      onLandscapeFinished();
+      break;
+  }
+}
+
+
+void Context::Impl::onLandscapeFinished()
+{
+}
+
+
 void onRenderPhaseChanged(const core::Il2RenderState &state)
 {
   getContext()->onRenderPhaseChanged(state);

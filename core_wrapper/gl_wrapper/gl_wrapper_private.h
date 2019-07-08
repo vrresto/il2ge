@@ -96,12 +96,8 @@ namespace core_gl_wrapper
       return m_arb_program_context.get();
     }
 
-    void onRenderPhaseChanged(const core::Il2RenderState &state)
-    {
-      if (state.render_phase == core::IL2_PrePreRenders)
-        m_frame_nr++;
-      m_was_terrain_drawn = false;
-    }
+    void onRenderPhaseChanged(const core::Il2RenderState&);
+    void onLandscapeFinished();
 
     bool isRenderingCubeMap()
     {
@@ -111,6 +107,7 @@ namespace core_gl_wrapper
 
     bool wasTerrainDrawn() { return m_was_terrain_drawn; }
     void onTerrainDrawn() { m_was_terrain_drawn = true; }
+    bool isLandscapeFinished() { return m_landscape_finished; }
 
     void setViewport(int w, int h)
     {
@@ -160,10 +157,16 @@ namespace core_gl_wrapper
 
     void updateShaderState();
 
+    glm::ivec2 getViewportSize()
+    {
+      return glm::ivec2(m_viewport_w, m_viewport_h);
+    }
+
   private:
     std::unique_ptr<texture_state::TextureState> m_texture_state;
     std::unique_ptr<arb_program::Context> m_arb_program_context;
     bool m_was_terrain_drawn = false;
+    bool m_landscape_finished = false;
     int m_viewport_w = 0;
     int m_viewport_h = 0;
     unsigned long long m_frame_nr = 0;
