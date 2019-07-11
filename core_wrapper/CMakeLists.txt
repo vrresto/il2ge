@@ -61,6 +61,7 @@ set(SRCS
   gl_wrapper/gl_wrapper_main.cpp
   gl_wrapper/texture_state.cpp
   gl_wrapper/arb_program.cpp
+  gl_wrapper/state.cpp
   ${PROJECT_SOURCE_DIR}/common/exception_handler.cpp
 )
 

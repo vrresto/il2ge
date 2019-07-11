@@ -18,6 +18,7 @@
 
 #include "gl_wrapper.h"
 #include "gl_wrapper_private.h"
+#include "state.h"
 #include "misc.h"
 #include "core.h"
 #include <wgl_wrapper.h>
@@ -304,42 +305,13 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
   }
 
   auto ctx = getContext();
+  auto &state = ctx->getRenderState();
 
-  ctx->getARBProgramContext()->update();
+  ctx->getARBProgramContext()->update(state.render_phase == IL2_Cockpit);
 
+  if (!state.is_mirror && state.render_phase == IL2_Landscape0)
   {
-    Il2RenderState state;
-    getRenderState(&state);
-
-    if (isTerrainEnabled() &&
-        state.render_phase == IL2_Landscape0 &&
-        !ctx->wasTerrainDrawn() &&
-        !ctx->isRenderingCubeMap())
-    {
-      drawTerrain();
-      ctx->onTerrainDrawn();
-
-      GLenum active_unit_save;
-      gl::GetIntegerv(GL_ACTIVE_TEXTURE, reinterpret_cast<GLint*>(&active_unit_save));
-
-      gl::ActiveTexture(GL_TEXTURE0 + 25); //FIXME
-
-      auto terrain = getTerrain();
-      if (terrain)
-      {
-        auto texture = terrain->getNormalMapTexture();
-        if (texture)
-          gl::BindTexture(texture->getTarget(), texture->getID());
-      }
-
-      gl::ActiveTexture(active_unit_save);
-
-    }
-
-    if (state.render_phase == IL2_Landscape0)
-    {
-      ctx->setActiveShader(getInvisibleProgram());
-    }
+    ctx->setActiveShader(getInvisibleProgram());
   }
 
   gl::Begin(mode);
@@ -396,7 +368,7 @@ void GLAPIENTRY wrap_glDrawElements(
 
   if (wgl_wrapper::isMainContextCurrent())
   {
-    getContext()->getARBProgramContext()->update();
+    getContext()->onObjectDraw();
   }
 
   gl::DrawElements(mode, count, type, indices);
@@ -472,7 +444,7 @@ void GLAPIENTRY wrap_glDrawArrays(GLenum mode,
   {
     auto ctx = getContext();
 
-    ctx->getARBProgramContext()->update();
+    ctx->getARBProgramContext()->update(false);
 
     if (ctx->is_arb_program_active && ctx->current_arb_program)
     {
@@ -481,6 +453,8 @@ void GLAPIENTRY wrap_glDrawArrays(GLenum mode,
         ctx->current_arb_program->setUniform("is_shadow", is_shadow);
       ctx->is_shadow = is_shadow;
     }
+
+    ctx->onObjectDraw();
   }
 
   gl::DrawArrays(mode, first, count);
@@ -502,15 +476,14 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
     return;
   }
 
-  Il2RenderState state;
-  getRenderState(&state);
-
   auto ctx = getContext();
+  auto &state = ctx->getRenderState();
 
-  ctx->getARBProgramContext()->update(state.render_phase == IL2_Cockpit);
+  ctx->onObjectDraw();
 
   if (core::isFMBActive()
       || !isTerrainEnabled()
+      || state.is_mirror
       || state.camera_mode == IL2_CAMERA_MODE_2D
       || state.render_phase < IL2_Landscape0
       || state.render_phase >= IL2_PostLandscape
@@ -628,7 +601,7 @@ void doDrawTerrain(render_util::TerrainBase &terrain,
 }
 
 
-void doDrawTerrain(render_util::TerrainBase &terrain)
+void doDrawTerrain(render_util::TerrainBase &terrain, StateModifier &state)
 {
   terrain.setDrawDistance(0);
 
@@ -637,11 +610,8 @@ void doDrawTerrain(render_util::TerrainBase &terrain)
   render_util::Camera far_camera(*core::getCamera());
   far_camera.setProjection(far_camera.getFov(), z_far - 4000, 1500000);
 
-  int dept_func_save;
-  gl::GetIntegerv(GL_DEPTH_FUNC, &dept_func_save);
 
-  gl::FrontFace(GL_CCW);
-  gl::DepthFunc(GL_LEQUAL);
+  state.setFrontFace(GL_CCW);
 
   doDrawTerrain(terrain, far_camera, true);
 
@@ -685,8 +655,6 @@ void doDrawTerrain(render_util::TerrainBase &terrain)
   gl::Disable(GL_BLEND);
 #endif
 
-  gl::DepthFunc(dept_func_save);
-
   getContext()->setActiveShader(nullptr);
 }
 
@@ -695,20 +663,23 @@ void drawTerrain()
 {
   auto ctx = getContext();
 
+  assert(ctx->getRenderState().camera_mode == IL2_CAMERA_MODE_3D);
+
+  if (core::isFMBActive() || !isTerrainEnabled() || ctx->getRenderState().is_mirror)
+    return;
+
+  const auto original_state = State::fromCurrent();
+
+  StateModifier state(original_state);
+  state.setDefaults();
+
+  assert(gl::IsEnabled(GL_COLOR_LOGIC_OP) == GL_FALSE);
+
   texture_state::freeze();
   core::textureManager().setActive(true);
 
-  int front_face_save;
-  gl::GetIntegerv(GL_FRONT_FACE, &front_face_save);
-
-  gl::DepthMask(true);
 //   gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   gl::Clear(GL_DEPTH_BUFFER_BIT);
-  gl::FrontFace(GL_CW);
-  gl::CullFace(GL_BACK);
-//     gl::Disable(GL_DEPTH_TEST);
-//     glDepthMask(GL_FALSE);
-  gl::Enable(GL_CULL_FACE);
 
   ctx->setActiveShader(getSkyProgram());
   ctx->updateUniforms(getSkyProgram());
@@ -718,14 +689,10 @@ void drawTerrain()
   gl::Clear(GL_DEPTH_BUFFER_BIT);
 
 //   gl::PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  doDrawTerrain(core::getTerrain());
+  doDrawTerrain(core::getTerrain(), state);
 //   gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   ctx->setActiveShader(nullptr);
-
-  gl::FrontFace(front_face_save);
-  gl::Disable(GL_CULL_FACE);
-  gl::DepthMask(false);
 
   core::textureManager().setActive(false);
   texture_state::restore();
@@ -830,15 +797,35 @@ Context::Impl::Impl() {}
 Context::Impl::~Impl() {}
 
 
-void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &state)
+void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
 {
+  drawTerrainIfNeccessary();
+
+  m_render_state = new_state;
   m_was_terrain_drawn = false;
 
-  switch (state.render_phase)
+  switch (new_state.render_phase)
   {
     case core::IL2_PrePreRenders:
       m_landscape_finished = false;
       m_frame_nr++;
+      break;
+    case core::IL2_Landscape0:
+      {
+        gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_TERRAIN_NORMAL_MAP);
+
+        auto terrain = &core::getTerrain();
+        assert(terrain);
+        if (terrain)
+        {
+          auto texture = terrain->getNormalMapTexture();
+          assert(texture);
+          if (texture)
+            gl::BindTexture(texture->getTarget(), texture->getID());
+        }
+
+        gl::ActiveTexture(GL_TEXTURE0);
+      }
       break;
     case core::IL2_PostLandscape:
       m_landscape_finished = true;
@@ -853,9 +840,25 @@ void Context::Impl::onLandscapeFinished()
 }
 
 
-void onRenderPhaseChanged(const core::Il2RenderState &state)
+void Context::Impl::onObjectDraw()
 {
-  getContext()->onRenderPhaseChanged(state);
+  getARBProgramContext()->update(m_render_state.render_phase == IL2_Cockpit);
+  drawTerrainIfNeccessary();
+}
+
+void Context::Impl::drawTerrainIfNeccessary()
+{
+  if (m_render_state.render_phase == IL2_Landscape0 && !m_was_terrain_drawn)
+  {
+    drawTerrain();
+    m_was_terrain_drawn = true;
+  }
+}
+
+
+void onRenderPhaseChanged(const core::Il2RenderState &new_state)
+{
+  getContext()->onRenderPhaseChanged(new_state);
 }
 
 

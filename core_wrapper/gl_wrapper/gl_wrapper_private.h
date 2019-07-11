@@ -26,6 +26,11 @@
 
 namespace core_gl_wrapper
 {
+  enum
+  {
+    TEXUNIT_TERRAIN_NORMAL_MAP = render_util::TEXUNIT_CUSTOM_START
+  };
+
   namespace arb_program
   {
     struct Context
@@ -34,7 +39,7 @@ namespace core_gl_wrapper
 
       std::unique_ptr<Impl> impl;
 
-      void update(bool is_cockpit = false);
+      void update(bool is_cockpit);
       bool isObjectProgramActive();
 
       Context(core_gl_wrapper::Context::Impl&);
@@ -83,11 +88,12 @@ namespace core_gl_wrapper
 
     std::shared_ptr<render_util::GLContext> render_util_gl_context;
 
-
     Impl();
     ~Impl();
 
     texture_state::TextureState *getTextureState();
+
+    const core::Il2RenderState &getRenderState() { return m_render_state; }
 
     arb_program::Context *getARBProgramContext()
     {
@@ -105,8 +111,6 @@ namespace core_gl_wrapper
       return m_viewport_w != vp_size.x || m_viewport_h != vp_size.y;
     }
 
-    bool wasTerrainDrawn() { return m_was_terrain_drawn; }
-    void onTerrainDrawn() { m_was_terrain_drawn = true; }
     bool isLandscapeFinished() { return m_landscape_finished; }
 
     void setViewport(int w, int h)
@@ -162,7 +166,11 @@ namespace core_gl_wrapper
       return glm::ivec2(m_viewport_w, m_viewport_h);
     }
 
+    void onObjectDraw();
+
   private:
+    void drawTerrainIfNeccessary();
+
     std::unique_ptr<texture_state::TextureState> m_texture_state;
     std::unique_ptr<arb_program::Context> m_arb_program_context;
     bool m_was_terrain_drawn = false;
@@ -170,6 +178,7 @@ namespace core_gl_wrapper
     int m_viewport_w = 0;
     int m_viewport_h = 0;
     unsigned long long m_frame_nr = 0;
+    core::Il2RenderState m_render_state;
   };
 
 

@@ -49,7 +49,7 @@ jint JNICALL cPreRender(JNIEnv *env, jobject obj,
 jint JNICALL cRender0(JNIEnv *env, jobject obj,
     jint arg0)
 {
-  core::onLandscapeRender0();
+  core::onLandscapeRender0(arg0);
   jint ret = import.cRender0(env, obj, arg0);
   core::onLandscapeRender0Done();
 
@@ -59,7 +59,7 @@ jint JNICALL cRender0(JNIEnv *env, jobject obj,
 jint JNICALL cRender1(JNIEnv *env, jobject obj,
     jint arg0)
 {
-  core::onLandscapeRender1();
+  core::onLandscapeRender1(arg0);
   jint ret = import.cRender1(env, obj, arg0);
   core::onLandscapePostRender();
 

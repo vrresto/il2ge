@@ -50,9 +50,10 @@ namespace
 
   IL2State g_il2_state;
 
-  void setRenderPhase(core::Il2RenderPhase phase)
+  void setRenderPhase(core::Il2RenderPhase phase, bool is_mirror = false)
   {
     g_il2_state.render_state.render_phase = phase;
+    g_il2_state.render_state.is_mirror = is_mirror;
     core_gl_wrapper::onRenderPhaseChanged(g_il2_state.render_state);
   }
 
@@ -155,9 +156,9 @@ namespace core
 
 //   int numRenderedCubeFaces = 0;
 
-  void onLandscapeRender0()
+  void onLandscapeRender0(bool is_mirror)
   {
-    setRenderPhase(IL2_Landscape0);
+    setRenderPhase(IL2_Landscape0, is_mirror);
 
     //   core::updateWaterAnimation();
     //   getWaterAnimation()->update();
@@ -175,9 +176,9 @@ namespace core
     //   core_gl_wrapper::drawTerrain();
   }
 
-  void onLandscapeRender1()
+  void onLandscapeRender1(bool is_mirror)
   {
-    setRenderPhase(IL2_Landscape1);
+    setRenderPhase(IL2_Landscape1, is_mirror);
   }
 
   void onLandscapePostRender()
