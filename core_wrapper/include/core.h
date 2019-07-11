@@ -99,6 +99,8 @@ namespace core
   void onLandscapeRender1(bool is_mirror);
   void onLandscapePostRender();
   void onRender3D1Flush();
+  void onRenderCockpitBegin();
+  void onRenderCockpitEnd();
 
   void showMenu(bool);
   bool isMenuShown();

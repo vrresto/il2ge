@@ -94,9 +94,6 @@ namespace core
       case core::IL2_PostPreRenders:
         setRenderPhase(core::IL2_PreLandscape);
         break;
-      case core::IL2_PostLandscape:
-        setRenderPhase(core::IL2_Cockpit);
-        break;
       default:
 //         printf("====================================================================================\n");
 //         printf("!!!!!!!!!!!!!!  unexpected clearStates in render phase %d !!!!!!!!!!!!!!!!\n", core::getRenderPhase());
@@ -193,6 +190,16 @@ namespace core
       renderEffects();
       g_il2_state.render_state.render3d1_flushed = true;
     }
+  }
+
+  void onRenderCockpitBegin()
+  {
+    setRenderPhase(IL2_Cockpit);
+  }
+
+  void onRenderCockpitEnd()
+  {
+    setRenderPhase(IL2_Cockpit_Finished);
   }
 
   const vec3 &getSunDir()

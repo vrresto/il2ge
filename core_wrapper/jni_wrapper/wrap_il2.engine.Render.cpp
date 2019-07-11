@@ -46,7 +46,8 @@ unordered_map<string, unique_ptr<RenderWrapper>> g_render_wrappers = createWrapp
 
 struct RenderWrapper
 {
-  virtual void flush() = 0;
+  virtual void prepareStates() {};
+  virtual void flush() {};
 };
 
 
@@ -59,11 +60,26 @@ struct RenderWrapper3D1 : public RenderWrapper
 };
 
 
+struct RenderWrapperCockpit: public RenderWrapper
+{
+  void prepareStates() override
+  {
+    core::onRenderCockpitBegin();
+  }
+
+  void flush() override
+  {
+    core::onRenderCockpitEnd();
+  }
+};
+
+
 unordered_map<string, unique_ptr<RenderWrapper>> createWrappers()
 {
   unordered_map<string, unique_ptr<RenderWrapper>> map;
 
   map["render3D1"] = make_unique<RenderWrapper3D1>();
+  map["renderCockpit"] = make_unique<RenderWrapperCockpit>();
 
   return move(map);
 }
@@ -71,14 +87,27 @@ unordered_map<string, unique_ptr<RenderWrapper>> createWrappers()
 
 RenderWrapper *getRenderWrapper(jobject obj)
 {
-  java::il2::engine::Actor actor(obj);
-  return g_render_wrappers[actor.getName()].get();
+  if (obj)
+  {
+    java::il2::engine::Actor actor(obj);
+    return g_render_wrappers[actor.getName()].get();
+  }
+  else
+  {
+    return nullptr;
+  }
 }
 
 
 jint JNICALL prepareStates(JNIEnv *env, jobject obj)
 {
-  return import.prepareStates(env, obj);
+  auto ret = import.prepareStates(env, obj);
+
+  auto wrapper = getRenderWrapper(java::getClass<java::il2::engine::Renders>().current());
+  if (wrapper)
+    wrapper->prepareStates();
+
+  return ret;
 }
 
 jint JNICALL clearStates(JNIEnv *env, jobject obj)
