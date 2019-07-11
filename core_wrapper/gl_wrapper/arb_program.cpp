@@ -58,6 +58,16 @@ namespace
 bool g_initialized = false;
 bool g_enable_object_shaders = false;
 
+std::unordered_set<string> g_required_programs =
+{
+  "VAObjectsN.ObjectsL0",
+  "VAObjectsL0.ObjectsL0",
+  "VAObjectsL0.VAObjectsL0_Cockpit",
+  "TexUVTex2D.TexUVTex2D",
+  "TreeTrunk.TreeTrunk",
+  "TreeSprite.TreeSprite",
+};
+
 using Context = core_gl_wrapper::arb_program::Context::Impl;
 
 Context &getContext(bool use_main_context = false);
@@ -79,6 +89,8 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
   // strip "vp" / "fp" prefix
   auto vertex_shader = vertex_shader_.substr(2);
   auto fragment_shader = fragment_shader_.substr(2);
+
+  auto program_name = vertex_shader + '.' + fragment_shader;
 
   cout<<"creating program: "<<vertex_shader<<", "<<fragment_shader<<endl;
 
@@ -102,7 +114,7 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
 
   auto params = core::getShaderParameters();
 
-  auto program = make_shared<render_util::ShaderProgram>(fragment_shader,
+  auto program = make_shared<render_util::ShaderProgram>(program_name,
     vert,
     frag,
     vector<string>(),
@@ -115,7 +127,10 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
   CHECK_GL_ERROR();
 
   if (!program->isValid())
+  {
+    assert(g_required_programs.count(program_name) == 0);
     return make_shared<render_util::ShaderProgram>();
+  }
 
   for (int i = 0; i < 20; i++)
   {
