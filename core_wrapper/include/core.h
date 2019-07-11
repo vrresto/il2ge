@@ -88,7 +88,6 @@ namespace core
 
   render_util::ImageGreyScale::ConstPtr getPixelMapH();
 
-  void onClearStates();
   void onPrePreRenders();
   void onPostPreRenders();
   void onPostRenders();

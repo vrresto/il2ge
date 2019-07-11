@@ -87,21 +87,6 @@ namespace core
 //     return shore_wave_pos;
 //   }
 
-  void onClearStates()
-  {
-    switch (g_il2_state.render_state.render_phase)
-    {
-      case core::IL2_PostPreRenders:
-        setRenderPhase(core::IL2_PreLandscape);
-        break;
-      default:
-//         printf("====================================================================================\n");
-//         printf("!!!!!!!!!!!!!!  unexpected clearStates in render phase %d !!!!!!!!!!!!!!!!\n", core::getRenderPhase());
-//         printf("====================================================================================\n");
-//         setRenderPhase(core::IL2_RENDER_PHASE_UNKNOWN);
-        break;
-    }
-  }
 
   void onPrePreRenders()
   {

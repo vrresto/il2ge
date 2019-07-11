@@ -112,7 +112,6 @@ jint JNICALL prepareStates(JNIEnv *env, jobject obj)
 
 jint JNICALL clearStates(JNIEnv *env, jobject obj)
 {
-  core::onClearStates();
   return import.clearStates(env, obj);
 }
 
