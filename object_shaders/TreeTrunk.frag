@@ -10,7 +10,6 @@ uniform vec3 sunDir;
 uniform bool is_shadow = false;
 
 varying vec4 pass_texcoord;
-varying vec3 pass_normal;
 
 void main()
 {
@@ -24,7 +23,7 @@ void main()
   }
   else
   {
-    gl_FragColor.xyz *= calcLight(vec3(0), pass_normal, 0.0, 0.8);
+    gl_FragColor.xyz *= calcLight(vec3(0), vec3(0,0,1), 0.0, 0.8);
   }
 
   apply_fog();
