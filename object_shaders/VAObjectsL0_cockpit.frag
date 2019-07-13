@@ -30,6 +30,7 @@ varying vec3 pass_specular_amount;
 varying vec4 pass_color;
 varying vec4 pass_secondary_color;
 varying float pass_ambient_brightness;
+varying vec2 pass_texcoord;
 
 
 const float DIRECT_LIGHT_SCALE = 1.0;
@@ -62,7 +63,7 @@ void main()
   //EVIL HACK FIXME
   bool is_light_source = !is_instrument_light && blend_add && pass_ambient_brightness > 0.3;
 
-  vec4 texture_color = texture2D(sampler_0, (gl_TexCoord[0]).xy);
+  vec4 texture_color = texture2D(sampler_0, pass_texcoord);
 
   vec3 texture_color_corrected = textureColorCorrection(texture_color.xyz);
 

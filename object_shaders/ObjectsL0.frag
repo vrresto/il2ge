@@ -29,6 +29,7 @@ varying vec3 pass_normal;
 varying float pass_shinyness;
 varying vec3 pass_specular_amount;
 varying vec4 pass_color;
+varying vec2 pass_texcoord;
 
 #if USE_HDR
 const float DIRECT_LIGHT_SCALE = 1.0;
@@ -54,7 +55,7 @@ void main()
 {
   vec3 view_dir = normalize(cameraPosWorld - passObjectPos);
 
-  gl_FragColor = texture2D(sampler_0, (gl_TexCoord[0]).xy);
+  gl_FragColor = texture2D(sampler_0, pass_texcoord);
   gl_FragColor.xyz = textureColorCorrection(gl_FragColor.xyz);
 
   vec3 specular_light = getSpecular(view_dir);

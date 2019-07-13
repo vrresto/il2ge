@@ -8,6 +8,8 @@ varying vec3 pass_quad_center;
 varying float pass_shadow;
 varying vec3 passObjectPos;
 varying vec3 passObjectPosFlat;
+varying vec2 pass_texcoord_diffuse;
+varying vec2 pass_texcoord_normal;
 
 layout(std140) uniform local_vertex_parameters
 {
@@ -60,16 +62,10 @@ void il2_main()
 
   {
     // texcoords
-
     vec4 texture_params = params[int(floor((fract(scale + pow(length(quad_center_model), 2))) * 4))];
 
-    gl_TexCoord[0].xy = vec2(0.5) + 0.25 * vertex_params.zw + 0.25 * texture_params.xy;
-    gl_TexCoord[0].zw = vec2(0, 1);
-
-    gl_TexCoord[1].xy = gl_Color.zw;
-    gl_TexCoord[1].zw = vec2(0, 1);
-
-    gl_TexCoord[2] = gl_TexCoord[1];
+    pass_texcoord_normal = vec2(0.5) + 0.25 * vertex_params.zw + 0.25 * texture_params.xy;
+    pass_texcoord_diffuse = gl_Color.zw;
   }
 
   pass_shadow = 1 - gl_SecondaryColor.z;

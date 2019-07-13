@@ -16,6 +16,7 @@ varying vec3 pass_normal;
 varying float pass_shinyness;
 varying vec3 pass_specular_amount;
 varying vec4 pass_color;
+varying vec2 pass_texcoord;
 
 const int LIGHTING_PARAMS = 9;
 const int ALPHA_PARAMS = 10;
@@ -24,7 +25,7 @@ const int INSTANCE_DATA_SIZE = 3;
 
 void il2_main()
 {
-  gl_TexCoord[0] = gl_MultiTexCoord0;
+  pass_texcoord = gl_MultiTexCoord0.xy;
 
   int instance_offset = INSTANCE_DATA_START + (int(floor(gl_Color.w * 32)) * INSTANCE_DATA_SIZE);
 

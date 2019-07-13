@@ -17,6 +17,7 @@ varying vec3 pass_specular_amount;
 varying vec4 pass_color;
 varying vec4 pass_secondary_color;
 varying float pass_ambient_brightness;
+varying vec2 pass_texcoord;
 
 const int PARAM_LIGHTING = 9;
 const int PARAM_COLOR = 10;
@@ -54,6 +55,5 @@ void il2_main()
 
   pass_ambient_brightness = vertex_params[PARAM_LIGHTING].w;
 
-  gl_TexCoord[0].zw = (gl_MultiTexCoord0).zw;
-  gl_TexCoord[0].xy = (gl_MultiTexCoord0.xy * vertex_params[12].zw) + vertex_params[12].xy;
+  pass_texcoord = (gl_MultiTexCoord0.xy * vertex_params[12].zw) + vertex_params[12].xy;
 }

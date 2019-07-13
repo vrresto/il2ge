@@ -16,6 +16,8 @@ uniform sampler2D sampler_terrain_normal_map;
 
 varying vec3 pass_quad_center;
 varying float pass_shadow;
+varying vec2 pass_texcoord_diffuse;
+varying vec2 pass_texcoord_normal;
 
 
 vec3 calcTerrainLight(vec3 pos, vec3 normal, float direct_scale, float ambient_scale)
@@ -63,12 +65,12 @@ vec3 calcLight(vec3 normal)
 
 void main(void)
 {
-  vec3 normal = (texture2D(sampler_0, gl_TexCoord[0].xy).xyz * 2) - vec3(1);
+  vec3 normal = (texture2D(sampler_0, pass_texcoord_normal).xyz * 2) - vec3(1);
   normal = -normal;
   normal.z *= -1;
   normal = (view2WorldMatrix * vec4(normal, 0)).xyz;
 
-  vec4 diffuse_color = texture2D(sampler_1, gl_TexCoord[1].xy);
+  vec4 diffuse_color = texture2D(sampler_1, pass_texcoord_diffuse);
   diffuse_color.xyz = textureColorCorrection(diffuse_color.xyz);
 
   gl_FragColor = diffuse_color;
