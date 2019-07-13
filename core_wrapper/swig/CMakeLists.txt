@@ -26,8 +26,13 @@ set(swig_output_java
   ${swig_output_dir}/GraphicsExtender.java
 )
 
+add_custom_command(
+  OUTPUT ${swig_output_dir}
+  COMMAND mkdir -p ${swig_output_dir}
+)
+
 add_custom_target(create_swig_output_dir
-    COMMAND mkdir -p ${swig_output_dir}
+  DEPENDS ${swig_output_dir}
 )
 
 add_custom_command(
@@ -38,7 +43,7 @@ add_custom_command(
       -I${CMAKE_CURRENT_BINARY_DIR}
       -java -c++ ${CMAKE_CURRENT_SOURCE_DIR}/GraphicsExtender.i
     WORKING_DIRECTORY ${swig_output_dir}
-    DEPENDS ${swig_input}
+    DEPENDS ${swig_input} create_swig_output_dir
 )
 
 add_custom_target(swig_generate
