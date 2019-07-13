@@ -39,7 +39,7 @@ namespace core_gl_wrapper
 
       std::unique_ptr<Impl> impl;
 
-      void update(bool is_cockpit);
+      void update(bool is_cockpit, bool is_render0);
       bool isObjectProgramActive();
 
       Context(core_gl_wrapper::Context::Impl&);
@@ -112,6 +112,8 @@ namespace core_gl_wrapper
     }
 
     bool isLandscapeFinished() { return m_landscape_finished; }
+
+    void updateARBProgram();
 
     void setViewport(int w, int h)
     {

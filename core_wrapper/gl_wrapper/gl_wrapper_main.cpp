@@ -307,7 +307,7 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
   auto ctx = getContext();
   auto &state = ctx->getRenderState();
 
-  ctx->getARBProgramContext()->update(state.render_phase == IL2_Cockpit);
+  ctx->updateARBProgram();
 
   if (!state.is_mirror && state.render_phase == IL2_Landscape0)
   {
@@ -442,19 +442,7 @@ void GLAPIENTRY wrap_glDrawArrays(GLenum mode,
 {
   if (wgl_wrapper::isMainContextCurrent())
   {
-    auto ctx = getContext();
-
-    ctx->getARBProgramContext()->update(false);
-
-    if (ctx->is_arb_program_active && ctx->current_arb_program)
-    {
-      bool is_shadow = gl::IsEnabled(GL_BLEND);
-      if (is_shadow != ctx->is_shadow)
-        ctx->current_arb_program->setUniform("is_shadow", is_shadow);
-      ctx->is_shadow = is_shadow;
-    }
-
-    ctx->onObjectDraw();
+    getContext()->onObjectDraw();
   }
 
   gl::DrawArrays(mode, first, count);
@@ -842,9 +830,10 @@ void Context::Impl::onLandscapeFinished()
 
 void Context::Impl::onObjectDraw()
 {
-  getARBProgramContext()->update(m_render_state.render_phase == IL2_Cockpit);
+  updateARBProgram();
   drawTerrainIfNeccessary();
 }
+
 
 void Context::Impl::drawTerrainIfNeccessary()
 {
@@ -853,6 +842,13 @@ void Context::Impl::drawTerrainIfNeccessary()
     drawTerrain();
     m_was_terrain_drawn = true;
   }
+}
+
+
+void Context::Impl::updateARBProgram()
+{
+  getARBProgramContext()->update(m_render_state.render_phase == IL2_Cockpit,
+                                 !m_landscape_finished);
 }
 
 
