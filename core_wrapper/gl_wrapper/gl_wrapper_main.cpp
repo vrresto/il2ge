@@ -795,7 +795,6 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
   switch (new_state.render_phase)
   {
     case core::IL2_PrePreRenders:
-      m_landscape_finished = false;
       m_frame_nr++;
       break;
     case core::IL2_Landscape0:
@@ -816,7 +815,6 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
       }
       break;
     case core::IL2_PostLandscape:
-      m_landscape_finished = true;
       onLandscapeFinished();
       break;
   }
@@ -848,7 +846,7 @@ void Context::Impl::drawTerrainIfNeccessary()
 void Context::Impl::updateARBProgram()
 {
   getARBProgramContext()->update(m_render_state.render_phase == IL2_Cockpit,
-                                 !m_landscape_finished);
+                                 m_render_state.render_phase < core::IL2_PostLandscape);
 }
 
 

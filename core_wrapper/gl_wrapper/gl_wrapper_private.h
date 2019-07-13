@@ -111,8 +111,6 @@ namespace core_gl_wrapper
       return m_viewport_w != vp_size.x || m_viewport_h != vp_size.y;
     }
 
-    bool isLandscapeFinished() { return m_landscape_finished; }
-
     void updateARBProgram();
 
     void setViewport(int w, int h)
@@ -176,7 +174,6 @@ namespace core_gl_wrapper
     std::unique_ptr<texture_state::TextureState> m_texture_state;
     std::unique_ptr<arb_program::Context> m_arb_program_context;
     bool m_was_terrain_drawn = false;
-    bool m_landscape_finished = false;
     int m_viewport_w = 0;
     int m_viewport_h = 0;
     unsigned long long m_frame_nr = 0;
