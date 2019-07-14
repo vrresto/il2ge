@@ -139,7 +139,7 @@ namespace core
 
   void Scene::updateUniforms(render_util::ShaderProgramPtr program)
   {
-    atmosphere->setUniforms(program, *core::getCamera());
+    atmosphere->setUniforms(program);
     if (map)
       map->setUniforms(program);
   }
