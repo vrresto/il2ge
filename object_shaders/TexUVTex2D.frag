@@ -3,7 +3,7 @@
 #include lighting_definitions.glsl
 
 vec3 textureColorCorrection(vec3 color);
-void apply_fog();
+vec3 fogAndToneMap(vec3);
 
 uniform sampler2D sampler_0;
 uniform sampler2D sampler_terrain_normal_map;
@@ -52,5 +52,5 @@ void main()
 
   gl_FragColor.xyz *= light_direct + light_ambient;
 
-  apply_fog();
+  gl_FragColor.xyz = fogAndToneMap(gl_FragColor.xyz);
 }

@@ -7,7 +7,7 @@
 #include lighting_definitions.glsl
 
 vec3 textureColorCorrection(vec3 color);
-void apply_fog();
+vec3 fogAndToneMap(vec3);
 vec3 deGamma(vec3 color);
 
 uniform sampler2D sampler_0;
@@ -76,5 +76,5 @@ void main()
     gl_FragColor.a = 0.3 * smoothstep(-0.02, 0.02, sunDir.z);
   }
 
-  apply_fog();
+  gl_FragColor.xyz = fogAndToneMap(gl_FragColor.xyz);
 }

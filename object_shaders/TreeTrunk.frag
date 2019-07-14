@@ -5,7 +5,7 @@
 #include lighting_definitions.glsl
 
 vec3 textureColorCorrection(vec3 color);
-void apply_fog();
+vec3 apply_fog(vec3);
 
 uniform sampler2D sampler_0;
 
@@ -32,5 +32,5 @@ void main()
   gl_FragColor.xyz *= 0.8 * getReflectedAmbientLight(vec3(0,0,1), light_ambient_incoming);
 #endif
 
-  apply_fog();
+  gl_FragColor.xyz = apply_fog(gl_FragColor.xyz);
 }

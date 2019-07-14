@@ -3,7 +3,7 @@
 #include lighting_definitions.glsl
 
 vec3 textureColorCorrection(vec3 color);
-void apply_fog();
+vec3 apply_fog(vec3);
 
 uniform mat4 view2WorldMatrix;
 uniform vec3 sunDir = vec3(0,0,1);
@@ -78,5 +78,5 @@ void main(void)
 
   gl_FragColor.xyz *= calcLight(normal);
 
-  apply_fog();
+  gl_FragColor.xyz = apply_fog(gl_FragColor.xyz );
 }
