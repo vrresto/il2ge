@@ -1,15 +1,19 @@
 #version 130
 
 #define IS_RENDER0 @is_render0@
+
+#include lighting_definitions.glsl
+
 vec3 textureColorCorrection(vec3 color);
 void apply_fog();
-vec3 calcLight(vec3 pos, vec3 normal, float direct_scale, float ambient_scale);
 
 uniform sampler2D sampler_0;
 
 uniform vec3 sunDir;
 
 varying vec4 pass_texcoord;
+varying vec3 passObjectPos;
+
 
 void main()
 {
@@ -20,7 +24,12 @@ void main()
   gl_FragColor.a *= 0.5 * smoothstep(-0.02, 0.02, sunDir.z);
 #else
   gl_FragColor.xyz = textureColorCorrection(gl_FragColor .xyz);
-  gl_FragColor.xyz *= calcLight(vec3(0), vec3(0,0,1), 0.0, 0.8);
+
+  vec3 light_ambient_incoming;
+  vec3 light_direct_incoming;
+  getIncomingLight(passObjectPos, light_ambient_incoming, light_direct_incoming);
+
+  gl_FragColor.xyz *= 0.8 * getReflectedAmbientLight(vec3(0,0,1), light_ambient_incoming);
 #endif
 
   apply_fog();

@@ -1,8 +1,8 @@
 #version 130
 
+#include lighting_definitions.glsl
+
 vec3 textureColorCorrection(vec3 color);
-vec3 calcIncomingDirectLight();
-void calcLightParams(vec3 normal, out vec3 ambientLightColor, out vec3 directLightColor);
 void apply_fog();
 
 uniform mat4 view2WorldMatrix;
@@ -18,15 +18,14 @@ varying vec3 pass_quad_center;
 varying float pass_shadow;
 varying vec2 pass_texcoord_diffuse;
 varying vec2 pass_texcoord_normal;
+varying vec3 passObjectPos;
 
 
-vec3 calcTerrainLight(vec3 pos, vec3 normal, float direct_scale, float ambient_scale)
+vec3 calcTerrainLight(vec3 normal, float direct_scale, float ambient_scale,
+                      vec3 light_direct_incoming, vec3 light_ambient_incoming)
 {
-  vec3 ambientLightColor;
-  vec3 directLightColor;
-  calcLightParams(normal, ambientLightColor, directLightColor);
-
-  vec3 light = direct_scale * directLightColor + ambient_scale * ambientLightColor;
+  vec3 light = direct_scale * getReflectedDirectLight(normal, light_direct_incoming)
+            + ambient_scale * getReflectedAmbientLight(normal, light_ambient_incoming);
 
   return light;
 }
@@ -48,16 +47,18 @@ vec3 calcLight(vec3 normal)
 {
   vec3 terrain_normal = sampleTerrainNormal();
 
-  float directLight = clamp(dot(normal, sunDir), 0.0, 2.0);
+  vec3 light_ambient_incoming;
+  vec3 light_direct_incoming;
+  getIncomingLight(passObjectPos, light_ambient_incoming, light_direct_incoming);
 
-  directLight *= 1-pass_shadow;
-
-  vec3 directLightColor = calcIncomingDirectLight() * directLight;
+  vec3 directLightColor = light_direct_incoming * clamp(dot(normal, sunDir), 0.0, 2.0);
+  directLightColor *= 1-pass_shadow;
   directLightColor *= 0.6;
 
   float direct_factor = 0.4 * (1-pass_shadow);
   float ambient_factor = 0.6;
-  vec3 ambientLightColor = calcTerrainLight(vec3(0), terrain_normal, direct_factor, ambient_factor);
+  vec3 ambientLightColor = calcTerrainLight(terrain_normal, direct_factor, ambient_factor,
+                                            light_direct_incoming, light_ambient_incoming);
 
   return directLightColor + ambientLightColor;
 }

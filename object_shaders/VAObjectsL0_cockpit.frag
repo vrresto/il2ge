@@ -5,9 +5,9 @@
 #define USE_LUMINANCE @use_luminance:0@
 #define USE_HDR @use_hdr:0@
 
+#include lighting_definitions.glsl
+
 vec3 textureColorCorrection(vec3 color);
-vec3 calcLightWithSpecular(vec3 input_color, vec3 normal, float shinyness, vec3 specular_amount,
-                           float direct_scale, float ambient_scale, vec3 viewDir);
 void apply_fog();
 vec3 toneMap(vec3 color);
 vec3 deGamma(vec3 color);
@@ -80,8 +80,8 @@ void main()
     vec3 specular_amount = pass_specular_amount;
     specular_amount = vec3(0);
 
-    radiance += calcLightWithSpecular(texture_color_corrected, normal, pass_shinyness,
-        specular_amount, DIRECT_LIGHT_SCALE, AMBIENT_LIGHT_SCALE, view_dir);
+    radiance += texture_color_corrected * calcLight(passObjectPos, normal,
+                                                    DIRECT_LIGHT_SCALE, AMBIENT_LIGHT_SCALE);
   }
 
   if (is_instrument_light || is_light_source)
