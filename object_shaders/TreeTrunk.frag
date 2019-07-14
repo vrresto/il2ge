@@ -23,7 +23,7 @@ void main()
   gl_FragColor.xyz = vec3(0);
   gl_FragColor.a *= 0.5 * smoothstep(-0.02, 0.02, sunDir.z);
 #else
-  gl_FragColor.xyz = textureColorCorrection(gl_FragColor .xyz);
+  gl_FragColor.xyz = textureColorCorrection(gl_FragColor.xyz);
 
   vec3 light_ambient_incoming;
   vec3 light_direct_incoming;
