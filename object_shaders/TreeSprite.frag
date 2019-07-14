@@ -51,16 +51,16 @@ vec3 calcLight(vec3 normal)
   vec3 light_direct_incoming;
   getIncomingLight(passObjectPos, light_ambient_incoming, light_direct_incoming);
 
-  vec3 directLightColor = light_direct_incoming * clamp(dot(normal, sunDir), 0.0, 2.0);
-  directLightColor *= 1-pass_shadow;
-  directLightColor *= 0.6;
+  vec3 light_direct = light_direct_incoming * clamp(dot(normal, sunDir), 0.0, 2.0);
+  light_direct *= 1-pass_shadow;
+  light_direct *= 0.6;
 
   float direct_factor = 0.4 * (1-pass_shadow);
   float ambient_factor = 0.6;
-  vec3 ambientLightColor = calcTerrainLight(terrain_normal, direct_factor, ambient_factor,
-                                            light_direct_incoming, light_ambient_incoming);
+  vec3 light_ambient = calcTerrainLight(terrain_normal, direct_factor, ambient_factor,
+                                        light_direct_incoming, light_ambient_incoming);
 
-  return directLightColor + ambientLightColor;
+  return light_direct + light_ambient;
 }
 
 
