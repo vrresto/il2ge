@@ -22,5 +22,6 @@
 #define ENABLE_SHORTCUTS ${enable_shortcuts}
 #define ENABLE_MENU ${enable_menu}
 #define ENABLE_CONFIGURABLE_ATMOSPHERE ${enable_configurable_atmosphere}
+#define ENABLE_CONFIGURABLE_SHADOWS ${enable_configurable_shadows}
 
 #endif

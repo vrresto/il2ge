@@ -22,13 +22,16 @@
 #include <wgl_wrapper.h>
 #include <render_util/render_util.h>
 
+#include <render_util/gl_binding/gl_functions.h>
+
 #include <string>
 
 namespace core_gl_wrapper
 {
   enum
   {
-    TEXUNIT_TERRAIN_NORMAL_MAP = render_util::TEXUNIT_CUSTOM_START
+    TEXUNIT_TERRAIN_NORMAL_MAP = render_util::TEXUNIT_CUSTOM_START,
+    TEXUNIT_SHADOW_COLOR
   };
 
   namespace arb_program
@@ -88,6 +91,11 @@ namespace core_gl_wrapper
 
     std::shared_ptr<render_util::GLContext> render_util_gl_context;
 
+    unsigned int framebuffer_id = 0;
+    render_util::TexturePtr framebuffer_texture0;
+    render_util::TexturePtr framebuffer_texture1;
+    render_util::TexturePtr framebuffer_depth_texture;
+
     Impl();
     ~Impl();
 
@@ -119,6 +127,8 @@ namespace core_gl_wrapper
       m_viewport_w = w;
       m_viewport_h = h;
     }
+
+    void updateFramebufferTextureSize();
 
     unsigned long long getFrameNumber() { return m_frame_nr; }
 
@@ -178,6 +188,7 @@ namespace core_gl_wrapper
     int m_viewport_h = 0;
     unsigned long long m_frame_nr = 0;
     core::Il2RenderState m_render_state;
+    glm::ivec2 m_framebuffer_texture_size = glm::ivec2(0);
   };
 
 

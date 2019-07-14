@@ -107,6 +107,7 @@ public:
 
 shared_ptr<Globals> g_globals;
 unordered_map<string, void*> g_procs;
+bool g_better_shadows = false;
 
 #if ENABLE_SHORTCUTS
 bool g_enable = true;
@@ -649,6 +650,13 @@ void doDrawTerrain(render_util::TerrainBase &terrain, StateModifier &state)
 
 void drawTerrain()
 {
+  if (g_better_shadows)
+  {
+    gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_SHADOW_COLOR);
+    gl::BindTexture(GL_TEXTURE_2D, 0);
+    gl::ActiveTexture(GL_TEXTURE0);
+  }
+
   auto ctx = getContext();
 
   assert(ctx->getRenderState().camera_mode == IL2_CAMERA_MODE_3D);
@@ -663,8 +671,28 @@ void drawTerrain()
 
   assert(gl::IsEnabled(GL_COLOR_LOGIC_OP) == GL_FALSE);
 
+  ctx->updateFramebufferTextureSize();
+
   texture_state::freeze();
   core::textureManager().setActive(true);
+
+  if (g_better_shadows)
+  {
+    gl::BindFramebuffer(GL_FRAMEBUFFER, ctx->framebuffer_id);
+
+    gl::FramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, ctx->framebuffer_depth_texture->getID(), 0);
+    gl::FramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ctx->framebuffer_texture0->getID(), 0);
+    gl::FramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, ctx->framebuffer_texture1->getID(), 0);
+
+    const GLuint drawBuffers[2] =
+    {
+      GL_COLOR_ATTACHMENT0,
+      GL_COLOR_ATTACHMENT1,
+    };
+
+    gl::DrawBuffers(2, drawBuffers);
+    gl::ReadBuffer(GL_COLOR_ATTACHMENT0);
+  }
 
 //   gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   gl::Clear(GL_DEPTH_BUFFER_BIT);
@@ -684,6 +712,14 @@ void drawTerrain()
 
   core::textureManager().setActive(false);
   texture_state::restore();
+
+  if (g_better_shadows)
+  {
+    gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_SHADOW_COLOR);
+    gl::BindTexture(GL_TEXTURE_2D, ctx->framebuffer_texture1->getID());
+    gl::ActiveTexture(GL_TEXTURE0);
+  }
+
 }
 
 
@@ -711,6 +747,8 @@ void *getProc(const char *name)
 void init()
 {
   g_globals = make_shared<Globals>();
+
+  g_better_shadows = il2ge::core_wrapper::getConfig().better_shadows;
 
   #if 1
 //     setProc("glOrtho", (void*) &wrap_glOrtho);
@@ -781,8 +819,60 @@ void Context::Impl::updateShaderState()
 Context::Context() : impl(make_unique<Context::Impl>()) {}
 Context::~Context() {}
 
-Context::Impl::Impl() {}
-Context::Impl::~Impl() {}
+Context::Impl::Impl()
+{
+  FORCE_CHECK_GL_ERROR();
+  gl::GenFramebuffers(1, &framebuffer_id);
+  FORCE_CHECK_GL_ERROR();
+}
+
+Context::Impl::~Impl()
+{
+  if (framebuffer_id)
+    gl::DeleteFramebuffers(1, &framebuffer_id);
+}
+
+
+void Context::Impl::updateFramebufferTextureSize()
+{
+  if (!g_better_shadows)
+    return;
+
+  glm::ivec2 viewport_size(m_viewport_w, m_viewport_h);
+  assert(viewport_size != glm::ivec2(0));
+
+  if (viewport_size == m_framebuffer_texture_size)
+    return;
+
+  {
+    if (!framebuffer_depth_texture)
+      framebuffer_depth_texture = render_util::Texture::create(GL_TEXTURE_2D);
+    render_util::TemporaryTextureBinding binding(framebuffer_depth_texture);
+    gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl::TexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, viewport_size.x, viewport_size.y,
+                  0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+  }
+
+  {
+    if (!framebuffer_texture0)
+      framebuffer_texture0 = render_util::Texture::create(GL_TEXTURE_2D);
+    render_util::TemporaryTextureBinding binding(framebuffer_texture0);
+    gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl::TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport_size.x, viewport_size.y,
+                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  }
+
+  {
+    if (!framebuffer_texture1)
+      framebuffer_texture1 = render_util::Texture::create(GL_TEXTURE_2D);
+    render_util::TemporaryTextureBinding binding(framebuffer_texture1);
+    gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl::TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport_size.x, viewport_size.y,
+                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  }
+
+  m_framebuffer_texture_size = viewport_size;
+}
 
 
 void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
@@ -823,6 +913,32 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
 
 void Context::Impl::onLandscapeFinished()
 {
+  using namespace render_util::gl_binding;
+
+  if (!g_better_shadows)
+    return;
+
+  auto viewport_size = getViewportSize();
+
+  gl::BindFramebuffer(GL_FRAMEBUFFER, 0);
+  gl::BindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer_id);
+
+  //FIXME - this is possibly slow
+  gl::BlitFramebuffer(0, 0, viewport_size.x, viewport_size.y,
+                      0, 0, viewport_size.x, viewport_size.y,
+                      GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+  gl::BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
+  gl::FramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,0, 0);
+  gl::FramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 0, 0);
+  gl::FramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
+
+  gl::BindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  assert(framebuffer_texture1);
+  gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_SHADOW_COLOR);
+  gl::BindTexture(GL_TEXTURE_2D, framebuffer_texture1->getID());
+  gl::ActiveTexture(GL_TEXTURE0);
 }
 
 

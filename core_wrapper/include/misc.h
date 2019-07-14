@@ -48,6 +48,7 @@ namespace il2ge::core_wrapper
     bool enable_base_map = false;
     bool enable_object_shaders = true;
     bool enable_bumph_maps = false;
+    bool better_shadows = false;
     render_util::Atmosphere::Type atmosphere = render_util::Atmosphere::DEFAULT;
   };
 

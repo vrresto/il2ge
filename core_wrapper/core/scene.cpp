@@ -56,6 +56,9 @@ namespace core
     shader_search_path.push_back(g_shader_path + "/" + atmosphere->getShaderPath());
     shader_search_path.push_back(g_shader_path);
 
+    shader_parameters = atmosphere->getShaderParameters();
+    shader_parameters.set("enable_unlit_output", il2ge::core_wrapper::getConfig().better_shadows);
+
     FORCE_CHECK_GL_ERROR();
     curvature_map = render_util::createCurvatureTexture(texture_manager, IL2GE_CACHE_DIR);
     FORCE_CHECK_GL_ERROR();
@@ -125,7 +128,7 @@ namespace core
 
     unloadMap();
 
-    map = make_unique<Map>(path, progress, shader_search_path, atmosphere->getShaderParameters());
+    map = make_unique<Map>(path, progress, shader_search_path, shader_parameters);
   }
 
 
@@ -161,7 +164,7 @@ namespace core
 
   render_util::ShaderParameters Scene::getShaderParameters()
   {
-    return atmosphere->getShaderParameters();
+    return shader_parameters;
   }
 
 

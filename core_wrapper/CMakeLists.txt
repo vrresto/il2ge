@@ -31,6 +31,10 @@ if(NOT enable_configurable_atmosphere)
   set(enable_configurable_atmosphere 0)
 endif()
 
+if(NOT enable_configurable_shadows)
+  set(enable_configurable_shadows 0)
+endif()
+
 configure_file(resources.rc.in ${resource_script})
 configure_file(include/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/config.h)
 

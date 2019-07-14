@@ -57,6 +57,7 @@ namespace core
     std::unique_ptr<TextRenderer> text_renderer;
     std::unique_ptr<Menu> menu;
     std::vector<Parameter> parameters;
+    render_util::ShaderParameters shader_parameters;
 
   public:
     render_util::TextureManager texture_manager = render_util::TextureManager(0, 64);

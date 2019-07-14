@@ -349,6 +349,10 @@ void WINAPI il2ge_init()
       ini.GetBoolean("", "EnableObjectShaders", g_config.enable_object_shaders);
     g_config.enable_bumph_maps = ini.GetBoolean("", "EnableBumpH", g_config.enable_bumph_maps);
 
+#if ENABLE_CONFIGURABLE_SHADOWS
+    g_config.better_shadows = ini.GetBoolean("", "BetterShadows", g_config.better_shadows);
+#endif
+
 #if ENABLE_CONFIGURABLE_ATMOSPHERE
     auto atmosphere = util::makeLowercase(ini.Get("", "Atmosphere", ""));
     if (atmosphere == "precomputed")

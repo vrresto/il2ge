@@ -1,9 +1,19 @@
-#version 130
+#version 330
+
+#define ENABLE_UNLIT_OUTPUT @enable_unlit_output:0@
 
 #include lighting_definitions.glsl
 
 vec3 textureColorCorrection(vec3 color);
 vec3 fogAndToneMap(vec3);
+void fogAndToneMap(in vec3 in_color0, in vec3 in_color1,
+                   out vec3 out_color0, out vec3 out_color1);
+
+
+layout(location = 0) out vec4 out_color0;
+#if ENABLE_UNLIT_OUTPUT
+layout(location = 1) out vec4 out_color1;
+#endif
 
 uniform sampler2D sampler_0;
 uniform sampler2D sampler_terrain_normal_map;
@@ -38,8 +48,8 @@ vec3 sampleTerrainNormal()
 
 void main()
 {
-  gl_FragColor = texture2D(sampler_0, pass_texcoord);
-  gl_FragColor .xyz = textureColorCorrection(gl_FragColor .xyz);
+  vec4 tex_color = texture2D(sampler_0, pass_texcoord);
+  tex_color.xyz = textureColorCorrection(tex_color.xyz);
 
   vec3 normal = sampleTerrainNormal();
 
@@ -50,7 +60,16 @@ void main()
   light_direct *= DIRECT_LIGHT_SCALE;
   light_ambient *= AMBIENT_LIGHT_SCALE;
 
-  gl_FragColor.xyz *= light_direct + light_ambient;
+  out_color0.a = tex_color.a;
+#if ENABLE_UNLIT_OUTPUT
+  out_color1.a = tex_color.a;
+#endif
 
-  gl_FragColor.xyz = fogAndToneMap(gl_FragColor.xyz);
+  out_color0.xyz = tex_color.xyz * (light_direct + light_ambient);
+#if ENABLE_UNLIT_OUTPUT
+  out_color1.xyz = tex_color.xyz * light_ambient;
+  fogAndToneMap(out_color0.xyz, out_color1.xyz, out_color0.xyz, out_color1.xyz);
+#else
+  out_color0.xyz = fogAndToneMap(out_color0.xyz);
+#endif
 }
