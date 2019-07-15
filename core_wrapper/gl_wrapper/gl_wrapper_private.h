@@ -42,7 +42,7 @@ namespace core_gl_wrapper
 
       std::unique_ptr<Impl> impl;
 
-      void update(bool is_cockpit, bool is_render0);
+      void update(core::Il2RenderPhase);
       bool isObjectProgramActive();
 
       Context(core_gl_wrapper::Context::Impl&);

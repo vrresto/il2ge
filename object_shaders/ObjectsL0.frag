@@ -5,6 +5,7 @@
 #define IS_RENDER0 @is_render0@
 #define USE_HDR @use_hdr:0@
 #define ENABLE_UNLIT_OUTPUT @enable_unlit_output:0@
+#define IS_SHADOW @is_shadow:0@
 
 #include lighting_definitions.glsl
 
@@ -65,48 +66,53 @@ vec3 getSpecular(vec3 view_dir, vec3 incoming)
 
 void main()
 {
-  vec3 view_dir = normalize(cameraPosWorld - passObjectPos);
-
-  vec4 tex_color = texture2D(sampler_0, pass_texcoord);
-  tex_color.xyz = textureColorCorrection(tex_color.xyz);
-
-  vec3 light_ambient_incoming;
-  vec3 light_direct_incoming;
-  getIncomingLight(passObjectPos, light_ambient_incoming, light_direct_incoming);
-
-  vec3 light_direct = getReflectedDirectLight(pass_normal, light_direct_incoming);
-  vec3 light_ambient = getReflectedAmbientLight(pass_normal, light_ambient_incoming);
-
-  light_direct *= DIRECT_LIGHT_SCALE;
-  light_ambient *= AMBIENT_LIGHT_SCALE;
-
-  vec3 light_specular = getSpecular(view_dir, light_direct_incoming);
-
-  vec3 color = tex_color.xyz * (light_direct + light_ambient) + light_specular;
-
-#if IS_RENDER0
-  vec3 color_unlit = tex_color.xyz * light_ambient;
-
-  vec3 shadow_color = texelFetch(sampler_shadow_color, ivec2(gl_FragCoord.xy), 0).xyz;
-
-  if (pass_color.a < 0.99)
+  #if IS_SHADOW
   {
+    vec3 shadow_color = texelFetch(sampler_shadow_color, ivec2(gl_FragCoord.xy), 0).xyz;
     out_color0.xyz = shadow_color;
     out_color0.a = 1.0;
 
     out_color1.xyz = vec3(1,0,1);
     out_color1.a = 0.0;
   }
-  else
+  #else
   {
-    out_color0.a = tex_color.a;
-    out_color1.a = tex_color.a;
-    fogAndToneMap(color, color_unlit, out_color0.xyz, out_color1.xyz);
+    vec3 view_dir = normalize(cameraPosWorld - passObjectPos);
+
+    vec4 tex_color = texture2D(sampler_0, pass_texcoord);
+    tex_color.xyz = textureColorCorrection(tex_color.xyz);
+
+    vec3 light_ambient_incoming;
+    vec3 light_direct_incoming;
+    getIncomingLight(passObjectPos, light_ambient_incoming, light_direct_incoming);
+
+    vec3 light_direct = getReflectedDirectLight(pass_normal, light_direct_incoming);
+    vec3 light_ambient = getReflectedAmbientLight(pass_normal, light_ambient_incoming);
+
+    light_direct *= DIRECT_LIGHT_SCALE;
+    light_ambient *= AMBIENT_LIGHT_SCALE;
+
+    vec3 light_specular = getSpecular(view_dir, light_direct_incoming);
+
+    vec3 color = tex_color.xyz * (light_direct + light_ambient) + light_specular;
+
+    #if IS_RENDER0
+    {
+      vec3 color_unlit = tex_color.xyz * light_ambient;
+
+      out_color0.a = tex_color.a;
+      out_color1.a = tex_color.a;
+      fogAndToneMap(color, color_unlit, out_color0.xyz, out_color1.xyz);
+    }
+    #else
+    {
+      out_color0.xyz = fogAndToneMap(color);
+      out_color0.a = tex_color.a;
+    }
+    #endif
+
   }
-#else
-  out_color0.xyz = fogAndToneMap(color);
-  out_color0.a = tex_color.a;
-#endif
+  #endif
 }
 
 #else

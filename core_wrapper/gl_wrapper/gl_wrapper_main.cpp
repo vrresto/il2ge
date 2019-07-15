@@ -961,8 +961,7 @@ void Context::Impl::drawTerrainIfNeccessary()
 
 void Context::Impl::updateARBProgram()
 {
-  getARBProgramContext()->update(m_render_state.render_phase == IL2_Cockpit,
-                                 m_render_state.render_phase < core::IL2_PostLandscape);
+  getARBProgramContext()->update(m_render_state.render_phase);
 }
 
 
