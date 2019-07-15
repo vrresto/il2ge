@@ -1122,17 +1122,17 @@ wrap_GetProgramStringARB(GLenum target, GLenum pname, GLvoid *string)
 
 void setEnabled(GLenum cap, bool enable)
 {
-  if (cap == GL_FRAGMENT_PROGRAM_ARB)
+  switch (cap)
   {
-    getContext().enableFragmentProgram(enable);
-  }
-  else if (cap == GL_VERTEX_PROGRAM_ARB)
-  {
-    getContext().enableVertexProgram(enable);
-  }
-  else if (cap == GL_STENCIL_TEST)
-  {
-    getContext().enableStencilTest(enable);
+    case GL_FRAGMENT_PROGRAM_ARB:
+      getContext().enableFragmentProgram(enable);
+      break;
+    case GL_VERTEX_PROGRAM_ARB:
+      getContext().enableVertexProgram(enable);
+      break;
+    case GL_STENCIL_TEST:
+      getContext().enableStencilTest(enable);
+      break;
   }
 }
 
