@@ -315,29 +315,6 @@ void GLAPIENTRY wrap_glEnd()
 {
   assert(wgl_wrapper::isMainThread());
   gl::End();
-
-//     gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-//     discardGlCalls(false);
-
-//     if (!is_arb_program_active())
-//       gl::UseProgram(0);
-
-//     Il2RenderState state;
-//     getRenderState(&state);
-//     if (
-//         state.render_phase < IL2_Landscape0_Finished
-//         &&
-// //         state.num_rendered_objects == 6
-//         state.num_rendered_objects == 0
-// //         && !isARBProgramActive()
-//        ) {
-// //       cout << "is cube updated: " << Core::isCubeUpdated() <<endl;
-// //       if (!Core::isCubeUpdated())
-//         core_gl_wrapper::drawTerrain();
-//         onFarTerrainDone();
-//     }
-
 }
 
 
