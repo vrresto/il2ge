@@ -305,15 +305,7 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
     return gl::Begin(mode);
   }
 
-  auto ctx = getContext();
-  auto &state = ctx->getRenderState();
-
-  ctx->updateARBProgram();
-
-  if (!state.is_mirror && state.render_phase == IL2_Landscape0)
-  {
-    ctx->setActiveShader(getInvisibleProgram());
-  }
+  getContext()->updateARBProgram();
 
   gl::Begin(mode);
 }
@@ -322,13 +314,7 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 void GLAPIENTRY wrap_glEnd()
 {
   assert(wgl_wrapper::isMainThread());
-
   gl::End();
-
-  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive() || !isEnabled())
-  {
-    return;
-  }
 
 //     gl::PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -336,8 +322,6 @@ void GLAPIENTRY wrap_glEnd()
 
 //     if (!is_arb_program_active())
 //       gl::UseProgram(0);
-
-  getContext()->setActiveShader(nullptr);
 
 //     Il2RenderState state;
 //     getRenderState(&state);
