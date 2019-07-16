@@ -831,6 +831,8 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
       onLandscapeFinished();
       break;
   }
+
+  getARBProgramContext()->onRenderPhaseChanged(new_state.render_phase);
 }
 
 
@@ -884,7 +886,7 @@ void Context::Impl::drawTerrainIfNeccessary()
 
 void Context::Impl::updateARBProgram()
 {
-  getARBProgramContext()->update(m_render_state.render_phase);
+  getARBProgramContext()->update();
 }
 
 

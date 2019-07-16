@@ -577,6 +577,7 @@ struct core_gl_wrapper::arb_program::Context::Impl
   bool is_stencil_test_enabled = false;
   bool program_needs_update = false;
   core::Il2RenderPhase render_phase = core::IL2_PrePreRenders;
+  RenderPhase::Enum render_phase_detail = RenderPhase::DEFAULT;
 
   std::vector<std::unique_ptr<ProgramBase>> programs;
 
@@ -586,7 +587,7 @@ struct core_gl_wrapper::arb_program::Context::Impl
     programs[0] = std::make_unique<ProgramBase>(this);
   }
 
-  RenderPhase::Enum getRenderPhase()
+  RenderPhase::Enum getRenderPhaseDetail()
   {
     if (render_phase >= core::IL2_Landscape0 && render_phase < core::IL2_PostLandscape)
     {
@@ -607,6 +608,20 @@ struct core_gl_wrapper::arb_program::Context::Impl
     {
       return RenderPhase::DEFAULT;
     }
+  }
+
+  void updateRenderPhase()
+  {
+    auto new_detail = getRenderPhaseDetail();
+    if (new_detail != render_phase_detail)
+      program_needs_update = true;
+    render_phase_detail = new_detail;
+  }
+
+  void onRenderPhaseChanged(core::Il2RenderPhase phase)
+  {
+    render_phase = phase;
+    updateRenderPhase();
   }
 
   void getFreeIDs(GLsizei n, GLuint *ids)
@@ -650,7 +665,8 @@ struct core_gl_wrapper::arb_program::Context::Impl
       return;
 
     is_stencil_test_enabled = enable;
-    program_needs_update = true;
+
+    updateRenderPhase();
   }
 
   void createProgram(GLint id, GLenum target)
@@ -809,16 +825,14 @@ struct core_gl_wrapper::arb_program::Context::Impl
     gl::BindBuffer(GL_UNIFORM_BUFFER, 0);
   }
 
-  void updateProgram(core::Il2RenderPhase render_phase_new)
+  void updateProgram()
   {
-    if (!program_needs_update && render_phase_new == render_phase)
+    if (!program_needs_update)
     {
       return;
     }
 
-    render_phase = render_phase_new;
-
-    auto phase = getRenderPhase();
+    auto phase = render_phase_detail;
 
     bool is_arb_program_active = false;
 
@@ -869,12 +883,12 @@ struct core_gl_wrapper::arb_program::Context::Impl
     program_needs_update = false;
   }
 
-  void update(core::Il2RenderPhase render_phase)
+  void update()
   {
     if (!g_initialized)
       return;
 
-    updateProgram(render_phase);
+    updateProgram();
 
     if (g_enable_object_shaders)
       updateLocalParameters();
@@ -1172,15 +1186,21 @@ namespace core_gl_wrapper::arb_program
   Context::~Context() {}
 
 
-  void Context::update(core::Il2RenderPhase render_phase)
+  void Context::update()
   {
-    impl->update(render_phase);
+    impl->update();
   }
 
 
   bool Context::isObjectProgramActive()
   {
     return impl->isObjectProgramActive();
+  }
+
+
+  void Context::onRenderPhaseChanged(core::Il2RenderPhase phase)
+  {
+    return impl->onRenderPhaseChanged(phase);
   }
 
 
