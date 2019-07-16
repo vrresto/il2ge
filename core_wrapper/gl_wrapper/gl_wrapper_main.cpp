@@ -541,44 +541,6 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
 #endif
 
 
-void updateShaderState()
-{
-  auto *ctx = core_gl_wrapper::getContext();
-
-  bool is_arb_program_active = ctx->is_arb_program_active;
-
-  Il2RenderState state;
-  getRenderState(&state);
-
-  render_util::ShaderProgramPtr new_active_shader;
-
-  if (ctx->current_shader)
-  {
-    new_active_shader = ctx->current_shader;
-  }
-  else if (isObjectShadersEnabled() && is_arb_program_active && !core::isFMBActive() &&
-      (state.render_phase != IL2_Cockpit))
-  {
-    new_active_shader = ctx->current_arb_program;
-  }
-
-  if (new_active_shader)
-  {
-    assert(new_active_shader->isValid());
-//       if (new_active_shader != ctx->active_shader)
-//       {
-      render_util::getCurrentGLContext()->setCurrentProgram(new_active_shader);
-      ctx->active_shader = new_active_shader;
-//       }
-  }
-  else
-  {
-    render_util::getCurrentGLContext()->setCurrentProgram(nullptr);
-    ctx->active_shader = nullptr;
-  }
-}
-
-
 void doDrawTerrain(render_util::TerrainBase &terrain,
                    const render_util::Camera &camera,
                    bool is_far_camera)
