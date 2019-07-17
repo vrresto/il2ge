@@ -1,12 +1,18 @@
-#version 130
+#version 330
 
-#define IS_RENDER0 @is_render0@
 #define ENABLE_UNLIT_OUTPUT @enable_unlit_output:0@
+#define IS_RENDER0 @is_render0@
+#define IS_SHADOW IS_RENDER0 && @is_blend_enabled:0@
 
 #include lighting_definitions.glsl
 
 vec3 textureColorCorrection(vec3 color);
 vec3 apply_fog(vec3);
+
+layout(location = 0) out vec4 out_color0;
+#if ENABLE_UNLIT_OUTPUT && IS_RENDER0
+layout(location = 1) out vec4 out_color1;
+#endif
 
 uniform sampler2D sampler_0;
 #if ENABLE_UNLIT_OUTPUT
@@ -23,19 +29,33 @@ varying vec3 passObjectPos;
 
 void main()
 {
-  gl_FragColor = texture2D(sampler_0, pass_texcoord.xy);
+  out_color0 = texture2D(sampler_0, pass_texcoord.xy);
 
-#if IS_RENDER0
-  gl_FragColor.xyz = texelFetch(sampler_shadow_color, ivec2(gl_FragCoord.xy), 0).xyz;
-#else
-  vec3 light_ambient_incoming;
-  vec3 light_direct_incoming;
-  getIncomingLight(passObjectPos, light_ambient_incoming, light_direct_incoming);
+  #if IS_SHADOW
+  {
+    out_color0.xyz = texelFetch(sampler_shadow_color, ivec2(gl_FragCoord.xy), 0).xyz;
+    out_color1 = vec4(1,0,1,0);
+  }
+  #else
+  {
+    vec3 light_ambient_incoming;
+    vec3 light_direct_incoming;
+    getIncomingLight(passObjectPos, light_ambient_incoming, light_direct_incoming);
 
-  gl_FragColor.xyz = textureColorCorrection(gl_FragColor .xyz);
-  gl_FragColor.xyz *= 0.8 * getReflectedAmbientLight(vec3(0,0,1), light_ambient_incoming);
-  gl_FragColor.xyz = apply_fog(gl_FragColor.xyz);
-#endif
+    #if IS_RENDER0
+    {
+      out_color0.xyz = textureColorCorrection(out_color0 .xyz);
+      out_color0.xyz *= 0.8 * getReflectedAmbientLight(vec3(0,0,1), light_ambient_incoming);
+      out_color0.xyz = apply_fog(out_color0.xyz);
+      out_color1 = out_color0;
+    }
+    #else
+    {
+      #error This shouldn't happen!
+    }
+    #endif
+  }
+  #endif
 
 }
 
@@ -43,22 +63,22 @@ void main()
 
 void main()
 {
-  gl_FragColor = texture2D(sampler_0, pass_texcoord.xy);
+  out_color0 = texture2D(sampler_0, pass_texcoord.xy);
 
 #if IS_RENDER0
-  gl_FragColor.xyz = vec3(0);
-  gl_FragColor.a *= 0.5 * smoothstep(-0.02, 0.02, sunDir.z);
+  out_color0.xyz = vec3(0);
+  out_color0.a *= 0.5 * smoothstep(-0.02, 0.02, sunDir.z);
 #else
-  gl_FragColor.xyz = textureColorCorrection(gl_FragColor.xyz);
+  out_color0.xyz = textureColorCorrection(out_color0.xyz);
 
   vec3 light_ambient_incoming;
   vec3 light_direct_incoming;
   getIncomingLight(passObjectPos, light_ambient_incoming, light_direct_incoming);
 
-  gl_FragColor.xyz *= 0.8 * getReflectedAmbientLight(vec3(0,0,1), light_ambient_incoming);
+  out_color0.xyz *= 0.8 * getReflectedAmbientLight(vec3(0,0,1), light_ambient_incoming);
 #endif
 
-  gl_FragColor.xyz = apply_fog(gl_FragColor.xyz);
+  out_color0.xyz = apply_fog(out_color0.xyz);
 }
 
 #endif

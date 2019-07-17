@@ -65,7 +65,9 @@ struct RenderPhase
   enum Enum : unsigned int
   {
     RENDER0 = 0,
-    RENDER0_SHADOWS,
+    RENDER0_BLEND,
+    RENDER0_STENCIL_TEST,
+    RENDER0_BLEND_STENCIL_TEST,
     RENDER1,
     COCKPIT,
     DEFAULT,
@@ -133,9 +135,16 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
   for (auto &dir : core::getShaderSearchPath())
     paths.push_back(dir);
 
+  bool is_render0 = render_phase < RenderPhase::RENDER1;
+  bool is_blend_enabled = (render_phase == RenderPhase::RENDER0_BLEND) ||
+                          (render_phase == RenderPhase::RENDER0_BLEND_STENCIL_TEST);
+  bool is_stencil_test_enabled = (render_phase == RenderPhase::RENDER0_STENCIL_TEST) ||
+                                 (render_phase == RenderPhase::RENDER0_BLEND_STENCIL_TEST);
+
   auto params = core::getShaderParameters();
-  params.set("is_render0", render_phase < RenderPhase::RENDER1);
-  params.set("is_shadow", render_phase == RenderPhase::RENDER0_SHADOWS);
+  params.set("is_render0", is_render0);
+  params.set("is_blend_enabled", is_blend_enabled);
+  params.set("is_stencil_test_enabled", is_stencil_test_enabled);
 
   auto program = make_shared<render_util::ShaderProgram>(program_name,
     vert,
@@ -575,6 +584,7 @@ struct core_gl_wrapper::arb_program::Context::Impl
   bool is_vertex_program_enabled = false;
   bool is_fragment_program_enabled = false;
   bool is_stencil_test_enabled = false;
+  bool is_blend_enabled = false;
   bool program_needs_update = false;
   core::Il2RenderPhase render_phase = core::IL2_PrePreRenders;
   RenderPhase::Enum render_phase_detail = RenderPhase::DEFAULT;
@@ -591,8 +601,12 @@ struct core_gl_wrapper::arb_program::Context::Impl
   {
     if (render_phase >= core::IL2_Landscape0 && render_phase < core::IL2_PostLandscape)
     {
-      if (is_stencil_test_enabled)
-        return RenderPhase::RENDER0_SHADOWS;
+      if (is_blend_enabled && !is_stencil_test_enabled)
+        return RenderPhase::RENDER0_BLEND;
+      else if (!is_blend_enabled && is_stencil_test_enabled)
+        return RenderPhase::RENDER0_STENCIL_TEST;
+      else if (is_blend_enabled && is_stencil_test_enabled)
+        return RenderPhase::RENDER0_BLEND_STENCIL_TEST;
       else
         return RenderPhase::RENDER0;
     }
@@ -665,6 +679,16 @@ struct core_gl_wrapper::arb_program::Context::Impl
       return;
 
     is_stencil_test_enabled = enable;
+
+    updateRenderPhase();
+  }
+
+  void enableBlend(bool enable)
+  {
+    if (is_blend_enabled == enable)
+      return;
+
+    is_blend_enabled = enable;
 
     updateRenderPhase();
   }
@@ -1146,6 +1170,9 @@ void setEnabled(GLenum cap, bool enable)
       break;
     case GL_STENCIL_TEST:
       getContext().enableStencilTest(enable);
+      break;
+    case GL_BLEND:
+      getContext().enableBlend(enable);
       break;
   }
 }

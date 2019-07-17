@@ -5,7 +5,7 @@
 #define IS_RENDER0 @is_render0@
 #define USE_HDR @use_hdr:0@
 #define ENABLE_UNLIT_OUTPUT @enable_unlit_output:0@
-#define IS_SHADOW @is_shadow:0@
+#define IS_SHADOW IS_RENDER0 && @is_stencil_test_enabled:0@
 
 #include lighting_definitions.glsl
 
