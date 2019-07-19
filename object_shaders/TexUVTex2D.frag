@@ -1,6 +1,7 @@
 #version 330
 
 #define ENABLE_UNLIT_OUTPUT @enable_unlit_output:0@
+#define IS_RENDER0 @is_render0@
 
 #include lighting_definitions.glsl
 
@@ -11,7 +12,7 @@ void fogAndToneMap(in vec3 in_color0, in vec3 in_color1,
 
 
 layout(location = 0) out vec4 out_color0;
-#if ENABLE_UNLIT_OUTPUT
+#if ENABLE_UNLIT_OUTPUT && IS_RENDER0
 layout(location = 1) out vec4 out_color1;
 #endif
 
