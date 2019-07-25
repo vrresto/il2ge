@@ -800,6 +800,8 @@ void Context::Impl::updateFramebufferTextureSize()
 
 void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
 {
+  assert(wgl_wrapper::isMainContextCurrent());
+
   drawTerrainIfNeccessary();
 
   m_render_state = new_state;
@@ -811,6 +813,7 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
       m_frame_nr++;
       break;
     case core::IL2_Landscape0:
+      if (!core::isFMBActive() && isEnabled())
       {
         gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_TERRAIN_NORMAL_MAP);
 
@@ -839,6 +842,9 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
 void Context::Impl::onLandscapeFinished()
 {
   using namespace render_util::gl_binding;
+
+  if (core::isFMBActive() || !isEnabled())
+    return;
 
   if (!g_better_shadows)
     return;
