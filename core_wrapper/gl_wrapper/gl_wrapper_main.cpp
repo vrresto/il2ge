@@ -21,6 +21,7 @@
 #include "state.h"
 #include "misc.h"
 #include "core.h"
+#include <configuration.h>
 #include <wgl_wrapper.h>
 #include <config.h>
 
@@ -671,7 +672,9 @@ void init()
 {
   g_globals = make_shared<Globals>();
 
+#if ENABLE_CONFIGURABLE_SHADOWS
   g_better_shadows = il2ge::core_wrapper::getConfig().better_shadows;
+#endif
 
   #if 1
 //     setProc("glOrtho", (void*) &wrap_glOrtho);

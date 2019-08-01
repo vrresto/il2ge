@@ -23,6 +23,7 @@
 #include <sfs.h>
 #include <misc.h>
 #include <core.h>
+#include <configuration.h>
 #include <render_util/terrain_util.h>
 #include <render_util/map_textures.h>
 #include <render_util/image_loader.h>
@@ -78,7 +79,7 @@ Map::Map(const char *path, ProgressReporter *progress,
          const render_util::ShaderSearchPath &shader_search_path,
          const render_util::ShaderParameters &shader_params) : p(new Private)
 {
-  const bool enable_base_map = il2ge::core_wrapper::getConfig().enable_base_map;
+  const bool enable_base_map = false;//il2ge::core_wrapper::getConfig().enable_base_map;
   const bool enable_normal_maps = il2ge::core_wrapper::getConfig().enable_bumph_maps;
 
   FORCE_CHECK_GL_ERROR();

@@ -19,6 +19,7 @@
 #include "core_p.h"
 #include "map.h"
 #include <sfs.h>
+#include <configuration.h>
 #include <core/scene.h>
 #include <render_util/terrain.h>
 #include <render_util/texture_util.h>
@@ -50,14 +51,22 @@ namespace core
   {
     text_renderer = make_unique<TextRenderer>();
 
-    atmosphere = createAtmosphere(il2ge::core_wrapper::getConfig().atmosphere,
+#if ENABLE_CONFIGURABLE_ATMOSPHERE
+    auto atmosphere_type = il2ge::core_wrapper::getConfig().atmosphere;
+#else
+    auto atmosphere_type = render_util::Atmosphere::DEFAULT;
+#endif
+
+    atmosphere = createAtmosphere(atmosphere_type,
                                   texture_manager, g_shader_path);
 
     shader_search_path.push_back(g_shader_path + "/" + atmosphere->getShaderPath());
     shader_search_path.push_back(g_shader_path);
 
     shader_parameters = atmosphere->getShaderParameters();
+#if ENABLE_CONFIGURABLE_SHADOWS
     shader_parameters.set("enable_unlit_output", il2ge::core_wrapper::getConfig().better_shadows);
+#endif
 
     FORCE_CHECK_GL_ERROR();
     curvature_map = render_util::createCurvatureTexture(texture_manager, IL2GE_CACHE_DIR);

@@ -18,6 +18,7 @@
 
 #include "core_p.h"
 #include <core.h>
+#include <configuration.h>
 #include <core/scene.h>
 #include <wgl_wrapper.h>
 #include <misc.h>
@@ -127,7 +128,14 @@ void refreshFile(const char *path,
 
 namespace il2ge::map_loader
 {
-  bool isDumpEnabled() { return il2ge::core_wrapper::getConfig().enable_dump; }
+  bool isDumpEnabled()
+  {
+#if ENABLE_MAP_VIEWER
+    return il2ge::core_wrapper::getConfig().enable_dump;
+#else
+    return false;
+#endif
+  }
 }
 
 

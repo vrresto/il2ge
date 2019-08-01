@@ -27,6 +27,7 @@
 #include <util.h>
 #include <jni.h>
 #include <config.h>
+#include <configuration.h>
 
 #include <INIReader.h>
 
@@ -82,10 +83,11 @@ HMODULE loadCoreWrapper(const char*);
 
 
 constexpr jint g_jni_version = JNI_VERSION_1_2;
-constexpr const char* const g_log_file_name = "il2ge.log";
+constexpr const char* const LOG_FILE_NAME = "il2ge.log";
+constexpr const char* const CONFIG_FILE_NAME = "il2ge.ini";
 
 
-il2ge::core_wrapper::Config g_config;
+il2ge::core_wrapper::Configuration g_config;
 HMODULE g_core_wrapper_module = 0;
 std::ofstream g_logfile;
 bool g_core_wrapper_loaded = false;
@@ -96,10 +98,60 @@ LogBuf g_cout_buf;
 LogBuf g_cerr_buf;
 
 
+bool readConfig()
+{
+  bool success = false;
+
+  INIReader ini(CONFIG_FILE_NAME);
+
+  if (!ini.ParseError())
+  {
+    auto read_value = [&ini] (std::string name)
+    {
+      return ini.Get("", name, "");
+    };
+
+    g_config.read(read_value);
+
+    success = true;
+  }
+  else if (ini.ParseError() != -1)
+  {
+    g_log << "Error reading configuration file " << CONFIG_FILE_NAME
+      << " at line " << ini.ParseError() << "\n"
+      << "Using default configuration.\n";
+  }
+  else
+  {
+    success = true;
+  }
+
+  g_log << "\n*** IL2GE Configuration ***\n";
+
+  for (auto &setting : g_config.getSettings())
+  {
+    g_log << setting->getName() << ": " << setting->getValueStr() << "\n";
+  }
+
+  g_log << "\n";
+  g_log.flush();
+
+  return success;
+}
+
+
+void writeConfig()
+{
+  ofstream config_out(CONFIG_FILE_NAME);
+  assert(config_out.good());
+  g_config.write(config_out);
+}
+
+
 void redirectOutput()
 {
-  freopen(g_log_file_name, "a", stdout);
-  freopen(g_log_file_name, "a", stderr);
+  freopen(LOG_FILE_NAME, "a", stdout);
+  freopen(LOG_FILE_NAME, "a", stderr);
 
   auto out_fd = _fileno(stdout);
 
@@ -289,7 +341,7 @@ std::string il2ge::core_wrapper::getWrapperLibraryFilePath()
 }
 
 
-const il2ge::core_wrapper::Config &il2ge::core_wrapper::getConfig()
+const il2ge::core_wrapper::Configuration &il2ge::core_wrapper::getConfig()
 {
   return g_config;
 }
@@ -319,7 +371,7 @@ void WINAPI il2ge_init()
 {
   std::atexit(atexitHandler);
 
-  ofstream log(g_log_file_name);
+  ofstream log(LOG_FILE_NAME);
 
   g_log.m_outputs.push_back(&cout);
   g_log.m_outputs.push_back(&log);
@@ -331,36 +383,15 @@ void WINAPI il2ge_init()
   g_log << "Commit: " << il2ge::version::getCommitSHA() << '\n';
   g_log.flush();
 
-  INIReader ini("il2ge.ini");
-  if (!ini.ParseError())
+  if (readConfig())
+    writeConfig();
+
+  if (!g_config.enable_graphics_extender)
   {
-    if (!ini.GetBoolean("", "EnableGE", true))
-    {
-      g_log << "IL2GE is disabled in config.\n";
-      g_log.flush();
-      return;
-    }
-
-    g_config.enable_dump = ini.GetBoolean("", "EnableDump", g_config.enable_dump);
-//     g_config.enable_base_map = ini.GetBoolean("", "EnableBaseMap", g_config.enable_base_map);
-    g_config.enable_light_point = ini.GetBoolean("", "EnableLightPoint", g_config.enable_light_point);
-    g_config.enable_effects = ini.GetBoolean("", "EnableEffects", g_config.enable_effects);
-    g_config.enable_object_shaders =
-      ini.GetBoolean("", "EnableObjectShaders", g_config.enable_object_shaders);
-    g_config.enable_bumph_maps = ini.GetBoolean("", "EnableBumpH", g_config.enable_bumph_maps);
-
-#if ENABLE_CONFIGURABLE_SHADOWS
-    g_config.better_shadows = ini.GetBoolean("", "BetterShadows", g_config.better_shadows);
-#endif
-
-#if ENABLE_CONFIGURABLE_ATMOSPHERE
-    auto atmosphere = util::makeLowercase(ini.Get("", "Atmosphere", ""));
-    if (atmosphere == "precomputed")
-    {
-      g_config.atmosphere = render_util::Atmosphere::PRECOMPUTED;
-    }
-#endif
-
+    g_log << "IL2GE is disabled in config.\n";
+    g_log.flush();
+    g_log.m_outputs.clear();
+    return;
   }
 
   g_log.m_outputs.clear();
@@ -372,7 +403,7 @@ void WINAPI il2ge_init()
 
   g_main_thread = GetCurrentThreadId();
 
-  il2ge::exception_handler::install(g_log_file_name, &fatalErrorHandler);
+  il2ge::exception_handler::install(LOG_FILE_NAME, &fatalErrorHandler);
   il2ge::exception_handler::watchModule(g_core_wrapper_module);
 
   auto jvm_module = GetModuleHandle("jvm.dll");

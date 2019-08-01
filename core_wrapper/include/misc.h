@@ -40,19 +40,10 @@ namespace jni_wrapper
 
 namespace il2ge::core_wrapper
 {
-  struct Config
-  {
-    bool enable_dump = false;
-    bool enable_effects = false;
-    bool enable_light_point = false;
-    bool enable_base_map = false;
-    bool enable_object_shaders = true;
-    bool enable_bumph_maps = false;
-    bool better_shadows = false;
-    render_util::Atmosphere::Type atmosphere = render_util::Atmosphere::DEFAULT;
-  };
+  class Configuration;
 
-  const Config &getConfig();
+  const Configuration &getConfig();
+
   JNIEnv_ *getJNIEnv();
   std::string getWrapperLibraryFilePath();
   bool isMainThread();

@@ -22,6 +22,7 @@
 #include "misc.h"
 #include "gl_wrapper.h"
 #include "gl_wrapper_private.h"
+#include <configuration.h>
 #include <wgl_wrapper.h>
 #include <render_util/shader.h>
 #include <render_util/texunits.h>

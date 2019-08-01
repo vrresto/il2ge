@@ -19,6 +19,7 @@
 #include "jni_wrapper.h"
 #include "meta_class_registrators.h"
 #include <misc.h>
+#include <configuration.h>
 
 #include <iostream>
 #include <map>
