@@ -28,7 +28,10 @@
 #include <config.h>
 #include <configuration.h>
 #include <log.h>
+#include <log/file_appender.h>
+#include <log/color_console_appender_unix.h>
 
+#include <plog/Appenders/ColorConsoleAppender.h>
 #include <INIReader.h>
 
 #include <iostream>
@@ -59,6 +62,7 @@ namespace
 {
 
 
+#if !USE_PLOG
 class LogBuf : public std::stringbuf
 {
 protected:
@@ -72,6 +76,7 @@ protected:
     return 0;
   }
 };
+#endif
 
 
 typedef jint JNICALL JNI_GetCreatedJavaVMs_t(JavaVM **, jsize, jsize *);
@@ -92,12 +97,48 @@ bool g_core_wrapper_loaded = false;
 JNI_GetCreatedJavaVMs_t *p_JNI_GetCreatedJavaVMs = nullptr;
 JavaVM *g_java_vm = nullptr;
 DWORD g_main_thread = 0;
+
+#if !USE_PLOG
 LogBuf g_cout_buf;
 LogBuf g_cerr_buf;
+#endif
 
 
 void initLog()
 {
+#if USE_PLOG
+
+  using namespace util::log;
+  using FileSink = FileAppender<plog::TxtFormatter>;
+
+  static FileSink file_sink_warn("il2ge_warnings.log");
+  static FileSink file_sink_info("il2ge_info.log");
+  static FileSink file_sink_debug("il2ge_debug.log");
+  static FileSink file_sink_trace("il2ge_trace.log");
+
+  #if USE_UNIX_CONSOLE
+    static ColorConsoleAppenderUnix<plog::MessageOnlyFormatter> console_sink;
+  #else
+    static plog::ColorConsoleAppender<plog::MessageOnlyFormatter> console_sink;
+  #endif
+
+  auto &logger_default = plog::init(plog::verbose);
+
+  auto &warn_sink = plog::init<LOG_SINK_WARNING>(plog::warning, &file_sink_warn);
+  auto &info_sink = plog::init<LOG_SINK_INFO>(plog::info, &file_sink_info);
+  auto &debug_sink = plog::init<LOG_SINK_DEBUG>(plog::debug, &file_sink_debug);
+  auto &trace_sink = plog::init<LOG_SINK_TRACE>(plog::verbose, &file_sink_trace);
+
+//   logger_default.addAppender(&console_sink);
+  info_sink.addAppender(&console_sink);
+
+  logger_default.addAppender(&warn_sink);
+  logger_default.addAppender(&info_sink);
+  logger_default.addAppender(&debug_sink);
+  logger_default.addAppender(&trace_sink);
+
+#else
+
   {
     ofstream log(LOG_FILE_NAME);
     log << endl;
@@ -115,6 +156,8 @@ void initLog()
 
   cout.rdbuf(&g_cout_buf);
   cerr.rdbuf(&g_cerr_buf);
+
+#endif
 }
 
 
@@ -167,6 +210,28 @@ void writeConfig()
   assert(config_out.good());
   g_config.write(config_out);
 }
+
+
+#if USE_PLOG
+int wrap_write(int fd, const void *buffer, unsigned int count)
+{
+  if (fd <= 2)
+  {
+    string str((char*)buffer, count);
+
+    if (str.at(str.size()-1) != '\n')
+      str += '\n';
+
+    LOG_DEBUG << str;
+
+    return count;
+  }
+  else
+  {
+    return _write(fd, buffer, count);
+  }
+}
+#endif
 
 
 HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
@@ -260,6 +325,9 @@ void installIATPatches(HMODULE module)
 {
   patchIAT("LoadLibraryA", "kernel32.dll", (void*) &wrap_LoadLibraryA, 0, module);
   patchIAT("GetProcAddress", "kernel32.dll", (void*) &wrap_GetProcAddress, 0, module);
+#if USE_PLOG
+  patchIAT("_write", "msvcrt.dll", (void*) &wrap_write, 0, module);
+#endif
 }
 
 
@@ -395,7 +463,7 @@ void WINAPI il2ge_init()
 
   g_main_thread = GetCurrentThreadId();
 
-  il2ge::exception_handler::install(LOG_FILE_NAME, &fatalErrorHandler);
+  il2ge::exception_handler::install("il2ge_crash.log", &fatalErrorHandler);
   il2ge::exception_handler::watchModule(g_core_wrapper_module);
 
   auto jvm_module = GetModuleHandle("jvm.dll");

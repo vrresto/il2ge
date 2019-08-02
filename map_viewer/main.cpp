@@ -33,7 +33,7 @@ using namespace std;
 namespace {
 
 
-const char* const g_log_file_name = "il2ge_map_viewer.log";
+const char* const g_crash_log_file_name = "il2ge_map_viewer_crash.log";
 
 
 void atexitHandler()
@@ -104,8 +104,7 @@ int main(int argc, char **argv)
 {
   std::atexit(atexitHandler);
 
-
-  il2ge::exception_handler::install(g_log_file_name);
+  il2ge::exception_handler::install(g_crash_log_file_name);
   il2ge::exception_handler::watchModule(GetModuleHandle(0));
 
   string il2_dir = util::getDirFromPath(getExeFilePath());
@@ -143,5 +142,5 @@ int main(int argc, char **argv)
     return make_shared<MapLoaderDump>(map_path, texture_mgr);
   };
 
-  render_util::viewer::runViewer(create_map_loader_func);
+  render_util::viewer::runViewer(create_map_loader_func, "il2ge_map_viewer");
 }

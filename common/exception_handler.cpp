@@ -21,7 +21,9 @@
 
 #include <mingw_crash_handler.h>
 
+#include <string>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <unordered_set>
 #include <cstdio>
@@ -97,6 +99,24 @@ HANDLE g_target_thread_mutex = 0;
 unordered_set<HMODULE> g_watched_modules;
 std::string g_log_file_name;
 std::function<void(const char*)> g_fatal_error_handler;
+
+
+void clearLog()
+{
+  ofstream out(g_log_file_name);
+  out << endl;
+}
+
+
+void printLog()
+{
+  ifstream in(g_log_file_name);
+  string line;
+  while (getline(in, line))
+  {
+    LOG_ERROR << line << endl;
+  }
+}
 
 
 void fatalError(const char *msg)
@@ -181,8 +201,11 @@ DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
   if (GetThreadContext(thread, &context))
   {
     Lock lock(g_crash_handler_mutex);
+
+    clearLog();
     assert(g_crash_handler);
     g_crash_handler->dumpStack(&context);
+    printLog();
   }
   else
   {
@@ -276,7 +299,10 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 
         {
           Lock lock(g_crash_handler_mutex);
+
+          clearLog();
           g_crash_handler->crashHandler(info);
+          printLog();
         }
 
         fatalError("Unhandled exception");
