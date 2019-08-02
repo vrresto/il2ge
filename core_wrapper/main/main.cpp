@@ -21,13 +21,13 @@
 #include <sfs.h>
 #include <wgl_wrapper.h>
 #include <misc.h>
-#include <il2ge/log.h>
 #include <il2ge/exception_handler.h>
 #include <il2ge/version.h>
 #include <util.h>
 #include <jni.h>
 #include <config.h>
 #include <configuration.h>
+#include <log.h>
 
 #include <INIReader.h>
 
@@ -53,8 +53,6 @@ extern "C"
 {
   BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
 }
-
-Logger g_log;
 
 
 namespace
@@ -117,24 +115,25 @@ bool readConfig()
   }
   else if (ini.ParseError() != -1)
   {
-    g_log << "Error reading configuration file " << CONFIG_FILE_NAME
-      << " at line " << ini.ParseError() << "\n"
-      << "Using default configuration.\n";
+    LOG_ERROR << "Error reading configuration file " << CONFIG_FILE_NAME
+      << " at line " << ini.ParseError() << endl
+      << "Using default configuration." << endl;
   }
   else
   {
     success = true;
   }
 
-  g_log << "\n*** IL2GE Configuration ***\n";
+  LOG_INFO << endl;
+  LOG_INFO << "*** IL2GE Configuration ***" << endl;
 
   for (auto &setting : g_config.getSettings())
   {
-    g_log << setting->getName() << ": " << setting->getValueStr() << "\n";
+    LOG_INFO << setting->getName() << ": " << setting->getValueStr() << endl;
   }
 
-  g_log << "\n";
-  g_log.flush();
+  LOG_INFO << endl;
+  LOG_FLUSH;
 
   return success;
 }
@@ -150,6 +149,11 @@ void writeConfig()
 
 void redirectOutput()
 {
+  {
+    ofstream log(LOG_FILE_NAME);
+    log << endl;
+  }
+
   freopen(LOG_FILE_NAME, "a", stdout);
   freopen(LOG_FILE_NAME, "a", stderr);
 
@@ -167,8 +171,8 @@ void redirectOutput()
 
 HMODULE WINAPI wrap_LoadLibraryA(LPCSTR libFileName)
 {
-  g_log << "LoadLibrary: " << libFileName << '\n';
-  g_log.flush();
+  LOG_INFO << "LoadLibrary: " << libFileName << endl;
+  LOG_FLUSH;
 
   string module_name = util::makeLowercase(util::basename(libFileName, true));
 
@@ -231,7 +235,7 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
 
 FARPROC WINAPI wrap_JGL_GetProcAddress(HMODULE module, LPCSTR name)
 {
-  printf("jgl => GetProcAddress: %s\n", name);
+  LOG_DEBUG << "jgl => GetProcAddress: " << name << endl;
 
   return (FARPROC) wgl_wrapper::getProcAddress(module, name);
 }
@@ -239,7 +243,7 @@ FARPROC WINAPI wrap_JGL_GetProcAddress(HMODULE module, LPCSTR name)
 
 HMODULE WINAPI wrap_JGL_LoadLibrary(LPCSTR libFileName)
 {
-  printf("jgl => LoadLibrary: %s\n", libFileName);
+  LOG_DEBUG << "jgl => LoadLibrary: " << libFileName << endl;
 
   HMODULE module = LoadLibraryA(libFileName);
 
@@ -271,8 +275,8 @@ HMODULE loadCoreWrapper(const char *core_library_filename)
   HMODULE core_module = LoadLibraryA(core_library_filename);
   if (!core_module)
   {
-    g_log << "Loading " << core_library_filename << " failed with error " << GetLastError() << '\n';
-    g_log.flush();
+    LOG_ERROR << "Loading " << core_library_filename << " failed with error " << GetLastError() << endl;
+    LOG_FLUSH;
     abort();
   }
 
@@ -310,8 +314,7 @@ void fatalErrorHandler(const char *msg)
 
 void atexitHandler()
 {
-  g_log.flush();
-  g_log.m_outputs.clear();
+  LOG_FLUSH;
 }
 
 
@@ -320,8 +323,8 @@ void atexitHandler()
 
 void il2ge::core_wrapper::fatalError(const std::string &message)
 {
-  g_log << "ERROR: " << message << '\n';
-  g_log.flush();
+  LOG_ERROR << "ERROR: " << message << endl;
+  LOG_FLUSH;
   _Exit(1);
 }
 
@@ -371,35 +374,24 @@ void WINAPI il2ge_init()
 {
   std::atexit(atexitHandler);
 
-  ofstream log(LOG_FILE_NAME);
+  redirectOutput();
 
-  g_log.m_outputs.push_back(&cout);
-  g_log.m_outputs.push_back(&log);
-
-  g_log.printSeparator();
-  g_log << "*** il2ge.dll initialization ***\n";
-  g_log << "Build: " << il2ge::version::getBuildJobID() << '\n';
-  g_log << "Debug: " << il2ge::version::isDebugBuild() << '\n';
-  g_log << "Commit: " << il2ge::version::getCommitSHA() << '\n';
-  g_log.flush();
+  LOG_SEPARATOR;
+  LOG_INFO << "*** il2ge.dll initialization ***" << endl;
+  LOG_INFO << "Build: " << il2ge::version::getBuildJobID() << endl;
+  LOG_INFO << "Debug: " << il2ge::version::isDebugBuild() << endl;
+  LOG_INFO << "Commit: " << il2ge::version::getCommitSHA() << endl;
+  LOG_FLUSH;
 
   if (readConfig())
     writeConfig();
 
   if (!g_config.enable_graphics_extender)
   {
-    g_log << "IL2GE is disabled in config.\n";
-    g_log.flush();
-    g_log.m_outputs.clear();
+    LOG_WARNING << "IL2GE is disabled in config." << endl;
+    LOG_FLUSH;
     return;
   }
-
-  g_log.m_outputs.clear();
-  log.close();
-
-  g_log.m_outputs.push_back(&cout);
-
-  redirectOutput();
 
   g_main_thread = GetCurrentThreadId();
 

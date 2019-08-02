@@ -26,6 +26,7 @@
 #include <il2ge/map_loader.h>
 #include <il2ge/ressource_loader.h>
 #include <util.h>
+#include <log.h>
 
 #include <INIReader.h>
 
@@ -103,9 +104,9 @@ public:
         }
         catch (...)
         {
-          cerr<<"can't convert '"<<scale_str<<"' to float"<<endl;
-          cerr<<"section: "<<section<<endl;
-          cerr<<"key: "<<name<<endl;
+          LOG_ERROR<<"can't convert '"<<scale_str<<"' to float"<<endl;
+          LOG_ERROR<<"section: "<<section<<endl;
+          LOG_ERROR<<"key: "<<name<<endl;
           *scale = 1;
         }
       }
@@ -177,7 +178,7 @@ ImageGreyScale::Ptr MapLoaderDump::createBaseLandMap() const
 {
   auto land_map_path = m_path + '/' + il2ge::map_generator::getBaseLandMapFileName();
 
-  cout << "creating land map from: " << land_map_path <<endl;
+  LOG_INFO << "creating land map from: " << land_map_path <<endl;
 
   auto land_map = render_util::loadImageFromFile<ImageGreyScale>(land_map_path);
 

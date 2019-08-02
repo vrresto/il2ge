@@ -23,6 +23,7 @@
 #include <misc.h>
 #include <core.h>
 #include <render_util/render_util.h>
+#include <log.h>
 
 
 #include <iostream>
@@ -55,7 +56,7 @@ HMODULE g_core_module = 0;
 
 void il2ge::core_wrapper::init(HMODULE core_module_)
 {
-  printf("*** il2_core wrapper initialisation ***\n");
+  LOG_INFO << "*** il2_core wrapper initialisation ***\n";
 
   g_core_module = core_module_;
   assert(g_core_module);
@@ -71,5 +72,5 @@ void il2ge::core_wrapper::init(HMODULE core_module_)
 
   g_initialized = true;
 
-  printf("*** il2_core wrapper initialisation finished ***\n");
+  LOG_INFO << "*** il2_core wrapper initialisation finished ***\n";
 }

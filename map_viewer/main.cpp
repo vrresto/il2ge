@@ -17,10 +17,10 @@
  */
 
 #include "map_loader_dump.h"
-#include <il2ge/log.h>
 #include <il2ge/exception_handler.h>
 #include <render_util/viewer.h>
 #include <util.h>
+#include <log.h>
 
 #include <iostream>
 #include <windows.h>
@@ -28,9 +28,6 @@
 #include <direct.h>
 
 using namespace std;
-
-
-Logger g_log;
 
 
 namespace {
@@ -41,8 +38,6 @@ const char* const g_log_file_name = "il2ge_map_viewer.log";
 
 void atexitHandler()
 {
-  g_log.flush();
-  g_log.m_outputs.clear();
 }
 
 
@@ -109,7 +104,6 @@ int main(int argc, char **argv)
 {
   std::atexit(atexitHandler);
 
-  g_log.m_outputs.push_back(&cerr);
 
   il2ge::exception_handler::install(g_log_file_name);
   il2ge::exception_handler::watchModule(GetModuleHandle(0));
@@ -122,7 +116,7 @@ int main(int argc, char **argv)
     string path;
     if (getFolder(il2_dir, path))
     {
-      cout<<"path: "<<path<<endl;
+      LOG_INFO<<"path: "<<path<<endl;
       map_path = path;
     }
     else

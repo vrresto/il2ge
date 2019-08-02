@@ -20,6 +20,7 @@
 
 #include <misc.h>
 #include <render_util/gl_binding/gl_interface.h>
+#include <log.h>
 
 #include <cassert>
 #include <cstdio>
@@ -111,7 +112,7 @@ BOOL WINAPI wrap_wglMakeContextCurrentARB(HDC hDrawDC, HDC hReadDC, HGLRC hglrc)
 
 PROC WINAPI wrap_wglGetProcAddress(LPCSTR name)
 {
-  cout<<"wrap_wglGetProcAddress: "<<name<<endl;
+  LOG_DEBUG<<"wrap_wglGetProcAddress: "<<name<<endl;
 
   if (isMainContextCurrent())
   {

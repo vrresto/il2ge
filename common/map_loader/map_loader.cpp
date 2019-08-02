@@ -33,6 +33,7 @@
 #include <il2ge/map_loader.h>
 #include <il2ge/ressource_loader.h>
 #include <il2ge/image_loader.h>
+#include <log.h>
 
 #include <FastNoise.h>
 #include <glm/glm.hpp>
@@ -208,7 +209,7 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
   {
     const char *field_name = field_names[i];
 
-    cout<<"loading texture: "<<field_name<<" ..."<<endl;
+    LOG_INFO<<"loading texture: "<<field_name<<" ..."<<endl;
 
 #if 0
     {
@@ -296,7 +297,7 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
   terrain_textures.textures_nm = textures_nm;
   terrain_textures.texture_scale = texture_scale;
 
-  cout << "generating far texture ..." <<endl;
+  LOG_INFO << "generating far texture ..." <<endl;
   std::vector<ImageRGBA::ConstPtr> textures_const;
   for (auto texture : textures)
     textures_const.push_back(texture);
@@ -343,7 +344,7 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
                            il2ge::RessourceLoader *loader)
 {
 
-  printf("loading water textures...\n");
+  LOG_INFO << "loading water textures..." << endl;
 
   //     const char *foam_detail_name = "water_textures/FoamNV40.tga";
   //     foam_detail_texture = SOIL_load_OGL_texture(foam_detail_name, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,
@@ -364,7 +365,7 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
 
     snprintf(basename, sizeof(basename), "WaterNoise%.2dDot3", i);
     auto filename = string(basename) + ".tga";
-    cout << "loading " << filename << endl;
+    LOG_INFO << "loading " << filename << endl;
     vector<char> data;
     if (!loader->readWaterAnimation(filename, data))
     {
@@ -377,7 +378,7 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
 
     snprintf(basename, sizeof(basename), "WaterNoiseFoam%.2d", i);
     filename = string(basename) + ".tga";
-    cout << "loading " << filename << endl;;
+    LOG_INFO << "loading " << filename << endl;;
     if (!loader->readWaterAnimation(filename, data))
     {
       break;
@@ -405,7 +406,7 @@ namespace il2ge::map_loader
 
 ImageGreyScale::Ptr createTypeMap(il2ge::RessourceLoader *loader)
 {
-  cout<<"loading type map ..."<<endl;
+  LOG_INFO<<"loading type map ..."<<endl;
   auto type_map = getTexture<ImageGreyScale>("MAP", "TypeMap", "map_T.tga", true, loader);
   assert(type_map);
   type_map = image::flipY(type_map);
@@ -443,7 +444,7 @@ void createMapTextures(il2ge::RessourceLoader *loader,
   createWaterNormalMaps(water_animation, map_textures, loader);
 
 #if 1
-  cout<<"creating water map ..."<<endl;
+  LOG_INFO<<"creating water map ..."<<endl;
   il2ge::WaterMap water_map;
   render_util::Image<water_map::ChunkType>::Ptr small_water_map;
   createWaterMap(
@@ -451,7 +452,7 @@ void createMapTextures(il2ge::RessourceLoader *loader,
     loader,
     water_map,
     small_water_map);
-  cout<<"creating water map done."<<endl;
+  LOG_INFO<<"creating water map done."<<endl;
   map_textures->setWaterMap(water_map.chunks, water_map.table);
 #endif
 
@@ -497,7 +498,7 @@ void createMapTextures(il2ge::RessourceLoader *loader,
   map->setMaterialMap(material_map);
 
 #if 1
-//   cout<<"loading noise texture ..."<<endl;
+//   LOG_INFO<<"loading noise texture ..."<<endl;
   ImageGreyScale::Ptr noise_texture = getTexture<ImageGreyScale>("APPENDIX", "ShadeNoise", "land/Noise.tga", false, loader);
   assert(noise_texture);
   map_textures->setTexture(TEXUNIT_TERRAIN_NOISE, noise_texture);
@@ -529,7 +530,7 @@ void createMapTextures(il2ge::RessourceLoader *loader,
 
   createForestTextures(type_map, map_textures, loader);
 
-  cout<<"creating map textures done."<<endl;
+  LOG_INFO<<"creating map textures done."<<endl;
 }
 
 

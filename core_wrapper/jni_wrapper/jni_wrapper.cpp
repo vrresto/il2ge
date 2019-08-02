@@ -20,6 +20,7 @@
 #include "meta_class_registrators.h"
 #include <misc.h>
 #include <configuration.h>
+#include <log.h>
 
 #include <iostream>
 #include <map>
@@ -110,7 +111,7 @@ void init()
     MetaClass &meta_class = g_meta_classes.back();
     registrator(meta_class);
 
-    cout<<"registerMetaClass: "<<meta_class.package<<'.'<<meta_class.name<<endl;
+    LOG_DEBUG<<"registerMetaClass: "<<meta_class.package<<'.'<<meta_class.name<<endl;
 
     string package = meta_class.package;
     for (char &c : package)
@@ -121,7 +122,7 @@ void init()
 
     for (auto &method : meta_class.methods)
     {
-      cout<<"\tmethod: "<<method.name<<endl;
+      LOG_DEBUG<<"\tmethod: "<<method.name<<endl;
 
       string full_name = "Java_" + package + '_' + meta_class.name + '_' + method.name;
       string full_name_with_params;
@@ -154,12 +155,12 @@ void *getExport(const string &full_name)
 {
   assert(g_initialized);
 
-//   cout<<"getExport: "<<full_name<<endl;
+  LOG_TRACE<<"getExport: "<<full_name<<endl;
 
   try
   {
     auto &method = g_exports.at(full_name);
-    cout<<"found export: "<<full_name<<endl;
+    LOG_DEBUG<<"found export: "<<full_name<<endl;
     assert(*method.import_addr);
     return method.export_addr;
   }

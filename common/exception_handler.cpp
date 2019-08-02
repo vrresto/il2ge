@@ -16,8 +16,8 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <il2ge/log.h>
 #include <il2ge/exception_handler.h>
+#include <log.h>
 
 #include <mingw_crash_handler.h>
 
@@ -145,12 +145,12 @@ bool loadCrashHandlerLibrary()
   {
     g_failed = true;
 
-    g_log.printSeparator();
-    g_log << "Could not load " << crash_handler_library_name << " - backtrace disabled.\n";
-    g_log << "To get a useful backtrace please download "
+    LOG_SEPARATOR;
+    LOG_ERROR << "Could not load " << crash_handler_library_name << " - backtrace disabled." << endl;
+    LOG_ERROR << "To get a useful backtrace please download "
           << drmingw_download_url
-          << " and copy the file bin/mgwhelp.dll to your IL-2 directory.\n";
-    g_log.flush();
+          << " and copy the file bin/mgwhelp.dll to your IL-2 directory." << endl;
+    LOG_FLUSH;
 
     return false;
   }
@@ -172,7 +172,7 @@ DWORD WINAPI backtraceThreadMain(LPVOID lpParameter)
 
   HANDLE thread = lpParameter;
 
-  cout<<"target thread: "<<thread<<endl;
+  LOG_DEBUG<<"target thread: "<<thread<<endl;
 
   CONTEXT context;
   memset(&context, 0, sizeof(context));
@@ -213,7 +213,7 @@ void printBacktracePrivate()
     return;
   }
 
-  cout<<"current thread: "<<currend_thread<<endl;
+  LOG_DEBUG<<"current thread: "<<currend_thread<<endl;
 
   printf("waiting for backtrace thread to finish ...\n");
   fflush(stdout);
@@ -267,12 +267,12 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 
       if (isModuleWatched(module))
       {
-        g_log.printSeparator();
-        g_log << std::hex;
-        g_log << "Exception code: " << info->ExceptionRecord->ExceptionCode << "  Flags: "
+        LOG_SEPARATOR;
+        LOG_ERROR << std::hex;
+        LOG_ERROR << "Exception code: " << info->ExceptionRecord->ExceptionCode << "  Flags: "
               << info->ExceptionRecord->ExceptionFlags << '\n';
-        g_log << std::dec;
-        g_log.flush();
+        LOG_ERROR << std::dec;
+        LOG_FLUSH;
 
         {
           Lock lock(g_crash_handler_mutex);
@@ -304,16 +304,16 @@ void terminateHandler()
   }
   catch (const std::exception &e)
   {
-    g_log.printSeparator();
-    g_log << __FUNCTION__ << " caught unhandled exception. what(): " << e.what() << '\n';
+    LOG_SEPARATOR;
+    LOG_ERROR << __FUNCTION__ << " caught unhandled exception. what(): " << e.what() << '\n';
   }
   catch (...)
   {
-    g_log.printSeparator();
-    g_log << __FUNCTION__ << " caught unknown/unhandled exception.\n";
+    LOG_SEPARATOR;
+    LOG_ERROR << __FUNCTION__ << " caught unknown/unhandled exception.\n";
   }
 
-  g_log.flush();
+  LOG_FLUSH;
 
   abort();
 }
@@ -360,10 +360,10 @@ extern "C"
 #ifdef IL2GE_USE_CUSTOM_ASSERT
 void _assert(const char *_Message, const char *_File, unsigned _Line)
 {
-  g_log.printSeparator();
-  g_log << "Assertion failed: " << _Message << '\n';
-  g_log << "File: " << _File << ":" << _Line << '\n';
-  g_log.flush();
+  LOG_SEPARATOR;
+  LOG_ERROR << "Assertion failed: " << _Message << '\n';
+  LOG_ERROR << "File: " << _File << ":" << _Line << '\n';
+  LOG_FLUSH;
 
   abort();
 }
@@ -376,11 +376,11 @@ void abort()
 
   if (InterlockedIncrement(&handler_entered) < 3)
   {
-    g_log.printSeparator();
-    g_log << "Aborted.\n";
-    g_log.flush();
+    LOG_SEPARATOR;
+    LOG_ERROR << "Aborted.\n";
+    LOG_FLUSH;
     printBacktrace();
-    g_log.flush();
+    LOG_FLUSH;
 
     fatalError("Aborted");
   }
