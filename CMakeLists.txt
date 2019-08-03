@@ -11,6 +11,8 @@ endif(platform STREQUAL "mingw")
 set(il2ge_data_dir "il2ge")
 set(il2ge_lib_dir "${il2ge_data_dir}/lib")
 set(il2ge_cache_dir "${il2ge_data_dir}/cache")
+set(il2ge_documentation_dir "${il2ge_data_dir}/documentation")
+set(il2ge_thirdparty_dir "${il2ge_data_dir}/documentation/thirdparty")
 set(renderutil_base_dir ${il2ge_data_dir})
 set(renderutil_shader_dir ${il2ge_data_dir}/shaders)
 set(renderutil_cache_dir ${il2ge_cache_dir})
@@ -121,29 +123,6 @@ if(platform_mingw AND NOT disable_il2ge)
 endif()
 
 
-install(FILES README.md
-  DESTINATION ${il2ge_data_dir}
-)
-
-install(FILES resources/dummy.tga
-  DESTINATION "#SAS/il2ge/il2ge"
-)
-
-install(FILES _modules/mingw_crash_handler/LICENSE.txt
-  DESTINATION ${il2ge_data_dir}
-  RENAME mingw_crash_handler_LICENSE.txt
-)
-
-install(FILES _modules/inih/LICENSE.txt
-  DESTINATION ${il2ge_data_dir}
-  RENAME inih_LICENSE.txt
-)
-
-install(FILES _modules/inih/README.md
-  DESTINATION ${il2ge_data_dir}
-  RENAME inih_README.md
-)
-
 install(DIRECTORY object_shaders
   DESTINATION ${il2ge_data_dir}
 )
@@ -152,11 +131,35 @@ install(DIRECTORY shaders
   DESTINATION ${il2ge_data_dir}
 )
 
+install(FILES resources/dummy.tga
+  DESTINATION "#SAS/il2ge/il2ge"
+)
+
 if(platform_mingw)
   install(PROGRAMS ${mingw_crash_handler_BINARY_DIR}/mingw_crash_handler.dll
     DESTINATION ${il2ge_lib_dir}
   )
 endif(platform_mingw)
+
+
+install(FILES README.md
+  DESTINATION ${il2ge_documentation_dir}
+)
+
+install(FILES _modules/mingw_crash_handler/LICENSE.txt
+  DESTINATION ${il2ge_thirdparty_dir}/mingw_crash_handler
+#   RENAME mingw_crash_handler_LICENSE.txt
+)
+
+install(FILES _modules/inih/LICENSE.txt
+  DESTINATION ${il2ge_thirdparty_dir}/inih
+#   RENAME inih_LICENSE.txt
+)
+
+install(FILES _modules/inih/README.md
+  DESTINATION ${il2ge_thirdparty_dir}/inih
+#   RENAME inih_README.md
+)
 
 
 add_custom_target(run
