@@ -50,17 +50,14 @@
 #endif
 
 
-extern "C" void WINAPI il2ge_init();
-
-
-using namespace std;
-
 extern "C"
 {
+  void WINAPI il2ge_init();
   BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
 }
 
 
+using namespace std;
 using il2ge::core_wrapper::MutexLocker;
 
 
