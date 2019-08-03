@@ -98,7 +98,6 @@ constexpr const char* const CONFIG_FILE_NAME = "il2ge.ini";
 
 il2ge::core_wrapper::Configuration g_config;
 HMODULE g_core_wrapper_module = 0;
-std::ofstream g_logfile;
 bool g_core_wrapper_loaded = false;
 JNI_GetCreatedJavaVMs_t *p_JNI_GetCreatedJavaVMs = nullptr;
 JavaVM *g_java_vm = nullptr;
