@@ -30,6 +30,8 @@
 #include <log.h>
 #include <log/file_appender.h>
 #include <log/color_console_appender_unix.h>
+#include <log/txt_formatter.h>
+#include <log/message_only_formatter.h>
 
 #include <plog/Appenders/ColorConsoleAppender.h>
 #include <INIReader.h>
@@ -108,8 +110,10 @@ void initLog()
 {
 #if USE_PLOG
 
+  constexpr bool ADD_NEW_LINE = false;
+
   using namespace util::log;
-  using FileSink = FileAppender<plog::TxtFormatter>;
+  using FileSink = FileAppender<TxtFormatter<ADD_NEW_LINE>>;
 
   static FileSink file_sink_warn("il2ge_warnings.log");
   static FileSink file_sink_info("il2ge_info.log");
@@ -117,9 +121,9 @@ void initLog()
   static FileSink file_sink_trace("il2ge_trace.log");
 
   #if USE_UNIX_CONSOLE
-    static ColorConsoleAppenderUnix<plog::MessageOnlyFormatter> console_sink;
+    static ColorConsoleAppenderUnix<MessageOnlyFormatter<ADD_NEW_LINE>> console_sink;
   #else
-    static plog::ColorConsoleAppender<plog::MessageOnlyFormatter> console_sink;
+    static plog::ColorConsoleAppender<MessageOnlyFormatter<ADD_NEW_LINE>> console_sink;
   #endif
 
   auto &logger_default = plog::init(plog::verbose);
