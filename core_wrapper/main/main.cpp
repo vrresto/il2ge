@@ -25,6 +25,7 @@
 #include <il2ge/version.h>
 #include <util.h>
 #include <jni.h>
+#include <mutex_locker.h>
 #include <config.h>
 #include <configuration.h>
 #include <log.h>
@@ -58,6 +59,9 @@ extern "C"
 {
   BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
 }
+
+
+using il2ge::core_wrapper::MutexLocker;
 
 
 namespace
@@ -99,6 +103,9 @@ bool g_core_wrapper_loaded = false;
 JNI_GetCreatedJavaVMs_t *p_JNI_GetCreatedJavaVMs = nullptr;
 JavaVM *g_java_vm = nullptr;
 DWORD g_main_thread = 0;
+
+bool g_fatal_error = false;
+CRITICAL_SECTION g_fatal_error_mutex;
 
 #if !USE_PLOG
 LogBuf g_cout_buf;
@@ -226,7 +233,11 @@ int wrap_write(int fd, const void *buffer, unsigned int count)
     if (str.at(str.size()-1) != '\n')
       str += '\n';
 
-    LOG_DEBUG << str;
+    MutexLocker lock(g_fatal_error_mutex);
+    if (g_fatal_error)
+      LOG_ERROR << str;
+    else
+      LOG_DEBUG << str;
 
     return count;
   }
@@ -339,10 +350,13 @@ HMODULE loadCoreWrapper(const char *core_library_filename)
 {
   assert(!g_core_wrapper_loaded);
 
-  jsize num = 0;
-  p_JNI_GetCreatedJavaVMs(&g_java_vm, 1, &num);
-  assert(num == 1);
-  assert(g_java_vm);
+  {
+    MutexLocker lock(g_fatal_error_mutex);
+    jsize num = 0;
+    p_JNI_GetCreatedJavaVMs(&g_java_vm, 1, &num);
+    assert(num == 1);
+    assert(g_java_vm);
+  }
 
   HMODULE core_module = LoadLibraryA(core_library_filename);
   if (!core_module)
@@ -373,14 +387,18 @@ HMODULE loadCoreWrapper(const char *core_library_filename)
 
 void fatalErrorHandler(const char *msg)
 {
-  if (g_java_vm)
-  {
-    JNIEnv *env = nullptr;
-    g_java_vm->GetEnv((void**)&env, g_jni_version);
+  JNIEnv *env = nullptr;
 
-    if (env)
-      env->FatalError(msg);
+  {
+    MutexLocker lock(g_fatal_error_mutex);
+    g_fatal_error = true;
+
+    if (g_java_vm)
+      g_java_vm->GetEnv((void**)&env, g_jni_version);
   }
+
+  if (env)
+    env->FatalError(msg);
 }
 
 
@@ -444,6 +462,8 @@ extern "C"
 
 void WINAPI il2ge_init()
 {
+  InitializeCriticalSection(&g_fatal_error_mutex);
+
   std::atexit(atexitHandler);
 
   initLog();
