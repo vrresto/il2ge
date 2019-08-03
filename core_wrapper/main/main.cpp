@@ -96,6 +96,28 @@ LogBuf g_cout_buf;
 LogBuf g_cerr_buf;
 
 
+void initLog()
+{
+  {
+    ofstream log(LOG_FILE_NAME);
+    log << endl;
+  }
+
+  freopen(LOG_FILE_NAME, "a", stdout);
+  freopen(LOG_FILE_NAME, "a", stderr);
+
+  auto out_fd = _fileno(stdout);
+
+  auto res = _dup2(out_fd, 1);
+  assert(res != -1);
+  res = _dup2(out_fd, 2);
+  assert(res != -1);
+
+  cout.rdbuf(&g_cout_buf);
+  cerr.rdbuf(&g_cerr_buf);
+}
+
+
 bool readConfig()
 {
   bool success = false;
@@ -144,28 +166,6 @@ void writeConfig()
   ofstream config_out(CONFIG_FILE_NAME);
   assert(config_out.good());
   g_config.write(config_out);
-}
-
-
-void redirectOutput()
-{
-  {
-    ofstream log(LOG_FILE_NAME);
-    log << endl;
-  }
-
-  freopen(LOG_FILE_NAME, "a", stdout);
-  freopen(LOG_FILE_NAME, "a", stderr);
-
-  auto out_fd = _fileno(stdout);
-
-  auto res = _dup2(out_fd, 1);
-  assert(res != -1);
-  res = _dup2(out_fd, 2);
-  assert(res != -1);
-
-  cout.rdbuf(&g_cout_buf);
-  cerr.rdbuf(&g_cerr_buf);
 }
 
 
@@ -374,7 +374,7 @@ void WINAPI il2ge_init()
 {
   std::atexit(atexitHandler);
 
-  redirectOutput();
+  initLog();
 
   LOG_SEPARATOR;
   LOG_INFO << "*** il2ge.dll initialization ***" << endl;
