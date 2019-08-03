@@ -20,36 +20,21 @@
 #include "meta_class_registrators.h"
 #include <core.h>
 #include <misc.h>
+#include <mutex_locker.h>
 
 #include <iostream>
 #include <list>
 #include <unordered_set>
-#include <windows.h>
 
 using namespace jni_wrapper;
 using namespace std;
+using il2ge::core_wrapper::MutexLocker;
 
 
 namespace
 {
 
 #include <_generated/jni_wrapper/il2.engine.GObj_definitions>
-
-
-class MutexLocker
-{
-  CRITICAL_SECTION &m_mutex;
-
-public:
-  MutexLocker(CRITICAL_SECTION &mutex) : m_mutex(mutex)
-  {
-    EnterCriticalSection(&m_mutex);
-  }
-  ~MutexLocker()
-  {
-    LeaveCriticalSection(&m_mutex);
-  }
-};
 
 
 unordered_set<jint> g_objects;
