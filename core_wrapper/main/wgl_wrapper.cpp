@@ -112,7 +112,7 @@ BOOL WINAPI wrap_wglMakeContextCurrentARB(HDC hDrawDC, HDC hReadDC, HGLRC hglrc)
 
 PROC WINAPI wrap_wglGetProcAddress(LPCSTR name)
 {
-  LOG_DEBUG<<"wrap_wglGetProcAddress: "<<name<<endl;
+  LOG_TRACE<<"wrap_wglGetProcAddress: "<<name<<endl;
 
   if (isMainContextCurrent())
   {

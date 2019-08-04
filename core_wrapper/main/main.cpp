@@ -311,7 +311,7 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
 
 FARPROC WINAPI wrap_JGL_GetProcAddress(HMODULE module, LPCSTR name)
 {
-  LOG_DEBUG << "jgl => GetProcAddress: " << name << endl;
+  LOG_TRACE << "jgl => GetProcAddress: " << name << endl;
 
   return (FARPROC) wgl_wrapper::getProcAddress(module, name);
 }

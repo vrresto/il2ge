@@ -41,7 +41,7 @@ vector<ImageRGBA::ConstPtr> getForestLayers(il2ge::RessourceLoader *loader)
 
   for (int i = 0; i <= 4; i++)
   {
-    LOG_INFO<<"getForestTexture() - layer "<<i<<endl;
+    LOG_TRACE<<"getForestTexture() - layer "<<i<<endl;
 
     auto name = string("Wood") + to_string(i);
 
@@ -73,7 +73,7 @@ ImageRGBA::Ptr createForestFarTexture(il2ge::RessourceLoader *loader)
 
     for (int i = 1; i < 5; i++)
     {
-      LOG_INFO<<"getForestTexture() - layer "<<i<<endl;
+      LOG_TRACE<<"getForestTexture() - layer "<<i<<endl;
 
       auto name = string("Wood") + to_string(i);
 
@@ -175,7 +175,7 @@ void createForestTextures(ImageGreyScale::ConstPtr type_map,
                           MapTextures *map_textures,
                           il2ge::RessourceLoader *loader)
 {
-  LOG_INFO<<"loading forest texture ..."<<endl;
+  LOG_DEBUG<<"loading forest texture ..."<<endl;
   auto forest_map = createForestMap(type_map);
   assert(forest_map);
   map_textures->setForestMap(forest_map);
@@ -186,7 +186,7 @@ void createForestTextures(ImageGreyScale::ConstPtr type_map,
   vector<ImageRGBA::ConstPtr> forest_layers = getForestLayers(loader);
   assert(!forest_layers.empty());
   map_textures->setForestLayers(forest_layers);
-  LOG_INFO<<"loading forest texture done."<<endl;
+  LOG_DEBUG<<"loading forest texture done."<<endl;
 }
 
 

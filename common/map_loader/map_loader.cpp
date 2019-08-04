@@ -209,7 +209,7 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
   {
     const char *field_name = field_names[i];
 
-    LOG_INFO<<"loading texture: "<<field_name<<" ..."<<endl;
+    LOG_TRACE<<"loading texture: "<<field_name<<" ..."<<endl;
 
 #if 0
     {
@@ -365,7 +365,7 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
 
     snprintf(basename, sizeof(basename), "WaterNoise%.2dDot3", i);
     auto filename = string(basename) + ".tga";
-    LOG_INFO << "loading " << filename << endl;
+    LOG_TRACE << "loading " << filename << endl;
     vector<char> data;
     if (!loader->readWaterAnimation(filename, data))
     {
@@ -378,7 +378,7 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
 
     snprintf(basename, sizeof(basename), "WaterNoiseFoam%.2d", i);
     filename = string(basename) + ".tga";
-    LOG_INFO << "loading " << filename << endl;;
+    LOG_TRACE << "loading " << filename << endl;;
     if (!loader->readWaterAnimation(filename, data))
     {
       break;
@@ -444,7 +444,7 @@ void createMapTextures(il2ge::RessourceLoader *loader,
   createWaterNormalMaps(water_animation, map_textures, loader);
 
 #if 1
-  LOG_INFO<<"creating water map ..."<<endl;
+  LOG_DEBUG<<"creating water map ..."<<endl;
   il2ge::WaterMap water_map;
   render_util::Image<water_map::ChunkType>::Ptr small_water_map;
   createWaterMap(
@@ -452,7 +452,7 @@ void createMapTextures(il2ge::RessourceLoader *loader,
     loader,
     water_map,
     small_water_map);
-  LOG_INFO<<"creating water map done."<<endl;
+  LOG_DEBUG<<"creating water map done."<<endl;
   map_textures->setWaterMap(water_map.chunks, water_map.table);
 #endif
 

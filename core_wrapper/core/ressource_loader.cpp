@@ -141,22 +141,22 @@ core::RessourceLoader::RessourceLoader(const string &map_dir, const string &ini_
   map_dir(map_dir),
   dump_dir(dump_path + '/')
 {
-  cout<<"reading load.ini"<<endl;
+  LOG_TRACE<<"reading load.ini"<<endl;
   std::vector<char> ini_content;
   if (!sfs::readFile(ini_path.c_str(), ini_content)) {
     assert(0);
   }
-  cout<<"done reading load.ini"<<endl;
+  LOG_TRACE<<"done reading load.ini"<<endl;
 
   dumpFile("load.ini", ini_content.data(), ini_content.size(), dump_dir);
 
-  cout<<"parsing load.ini"<<endl;
+  LOG_TRACE<<"parsing load.ini"<<endl;
   reader = make_unique<INIReader>(ini_content.data(), ini_content.size());
   if (reader->ParseError()) {
-    printf("parse error at line %d\n", reader->ParseError());
+    LOG_ERROR << "parse error at line " << reader->ParseError() << endl;
     exit(1);
   }
-  cout<<"done parsing load.ini"<<endl;
+  LOG_TRACE<<"done parsing load.ini"<<endl;
 }
 
 
@@ -228,10 +228,10 @@ bool core::RessourceLoader::readTextureFile(const char *section,
     }
     catch (...)
     {
-      cerr<<"can't convert '"<<scale_str<<"' to float"<<endl;
-      cerr<<"section: "<<section<<endl;
-      cerr<<"key: "<<name<<endl;
-      cerr<<"value: "<<value<<endl;
+      LOG_ERROR<<"can't convert '"<<scale_str<<"' to float"<<endl;
+      LOG_ERROR<<"section: "<<section<<endl;
+      LOG_ERROR<<"key: "<<name<<endl;
+      LOG_ERROR<<"value: "<<value<<endl;
       *scale = 1;
     }
   }
@@ -262,6 +262,6 @@ bool core::RessourceLoader::readTextureFile(const char *section,
 bool core::RessourceLoader::readWaterAnimation(const string &file_name, std::vector<char> &content)
 {
   string path = getWaterAnimationDir() + file_name;
-  cout<<"reading "<<path<<endl;
+  LOG_TRACE<<"reading "<<path<<endl;
   return sfs::readFile(path, content);
 }
