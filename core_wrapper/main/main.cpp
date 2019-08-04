@@ -118,7 +118,6 @@ void initLog()
   using namespace util::log;
   using FileSink = FileAppender<TxtFormatter<ADD_NEW_LINE>>;
 
-  static FileSink file_sink_warn("il2ge_warnings.log");
   static FileSink file_sink_debug("il2ge.log");
   static FileSink file_sink_trace("il2ge_full.log");
 
@@ -130,12 +129,10 @@ void initLog()
 
   auto &logger_default = plog::init(plog::verbose);
 
-  auto &warn_sink = plog::init<LOG_SINK_WARNING>(plog::warning, &file_sink_warn);
   auto &info_sink = plog::init<LOG_SINK_INFO>(plog::info, &console_sink);
   auto &debug_sink = plog::init<LOG_SINK_DEBUG>(plog::debug, &file_sink_debug);
   auto &trace_sink = plog::init<LOG_SINK_TRACE>(plog::verbose, &file_sink_trace);
 
-  logger_default.addAppender(&warn_sink);
   logger_default.addAppender(&info_sink);
   logger_default.addAppender(&debug_sink);
   logger_default.addAppender(&trace_sink);
