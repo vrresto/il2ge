@@ -18,13 +18,13 @@
 
 #include "gl_wrapper.h"
 #include "gl_wrapper_private.h"
-#include "state.h"
 #include "misc.h"
 #include "core.h"
 #include <configuration.h>
 #include <wgl_wrapper.h>
 #include <config.h>
 
+#include <render_util/state.h>
 #include <render_util/shader_util.h>
 #include <render_util/texture_manager.h>
 #include <render_util/terrain_base.h>
@@ -52,6 +52,9 @@ using namespace core;
 using namespace core_gl_wrapper;
 using namespace render_util::gl_binding;
 using namespace std;
+
+using render_util::State;
+using render_util::StateModifier;
 
 #include <render_util/skybox.h>
 
