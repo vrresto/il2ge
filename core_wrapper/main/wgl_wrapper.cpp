@@ -35,10 +35,10 @@ namespace
 {
 
 
-typedef PROC WINAPI wglGetProcAddress_t(LPCSTR);
-typedef BOOL WINAPI wglMakeCurrent_t(HDC, HGLRC);
-typedef HGLRC WINAPI wglCreateContext_t(HDC);
-typedef BOOL WINAPI wglDeleteContext_t(HGLRC);
+using wglGetProcAddress_t = decltype(wglGetProcAddress);
+using wglMakeCurrent_t = decltype(wglMakeCurrent);
+using wglCreateContext_t = decltype(wglCreateContext);
+using wglDeleteContext_t = decltype(wglDeleteContext);
 
 wglMakeCurrent_t *real_wglMakeCurrent = nullptr;
 wglCreateContext_t *real_wglCreateContext = nullptr;

@@ -82,21 +82,20 @@ protected:
 #endif
 
 
-typedef jint JNICALL JNI_GetCreatedJavaVMs_t(JavaVM **, jsize, jsize *);
-
 void installIATPatches(HMODULE);
 HMODULE loadCoreWrapper(const char*);
 
 
-constexpr jint g_jni_version = JNI_VERSION_1_2;
+constexpr jint JNI_VERSION = JNI_VERSION_1_2;
 constexpr const char* const LOG_FILE_NAME = "il2ge.log";
+constexpr const char* const LOG_FULL_FILE_NAME = "il2ge_full.log";
 constexpr const char* const CONFIG_FILE_NAME = "il2ge.ini";
 
 
 il2ge::core_wrapper::Configuration g_config;
 HMODULE g_core_wrapper_module = 0;
 bool g_core_wrapper_loaded = false;
-JNI_GetCreatedJavaVMs_t *p_JNI_GetCreatedJavaVMs = nullptr;
+decltype(JNI_GetCreatedJavaVMs) *g_get_created_java_vms = nullptr;
 JavaVM *g_java_vm = nullptr;
 DWORD g_main_thread = 0;
 
@@ -118,8 +117,8 @@ void initLog()
   using namespace util::log;
   using FileSink = FileAppender<TxtFormatter<ADD_NEW_LINE>>;
 
-  static FileSink file_sink_debug("il2ge.log");
-  static FileSink file_sink_trace("il2ge_full.log");
+  static FileSink file_sink_debug(LOG_FILE_NAME);
+  static FileSink file_sink_trace(LOG_FULL_FILE_NAME);
 
   #if USE_UNIX_CONSOLE
     static ColorConsoleAppenderUnix<MessageOnlyFormatter<ADD_NEW_LINE>> console_sink;
@@ -341,7 +340,7 @@ HMODULE loadCoreWrapper(const char *core_library_filename)
   {
     MutexLocker lock(g_fatal_error_mutex);
     jsize num = 0;
-    p_JNI_GetCreatedJavaVMs(&g_java_vm, 1, &num);
+    g_get_created_java_vms(&g_java_vm, 1, &num);
     assert(num == 1);
     assert(g_java_vm);
   }
@@ -382,7 +381,7 @@ void fatalErrorHandler(const char *msg)
     g_fatal_error = true;
 
     if (g_java_vm)
-      g_java_vm->GetEnv((void**)&env, g_jni_version);
+      g_java_vm->GetEnv((void**)&env, JNI_VERSION);
   }
 
   if (env)
@@ -432,7 +431,7 @@ JNIEnv_ *il2ge::core_wrapper::getJNIEnv()
 {
   JNIEnv_ *env = nullptr;
   if (g_java_vm)
-    g_java_vm->GetEnv((void**)&env, g_jni_version);
+    g_java_vm->GetEnv((void**)&env, JNI_VERSION);
   return env;
 }
 
@@ -481,9 +480,9 @@ void WINAPI il2ge_init()
   auto jvm_module = GetModuleHandle("jvm.dll");
   assert(jvm_module);
 
-  p_JNI_GetCreatedJavaVMs = (JNI_GetCreatedJavaVMs_t*)
+  g_get_created_java_vms = (decltype(JNI_GetCreatedJavaVMs)*)
       GetProcAddress(jvm_module, "JNI_GetCreatedJavaVMs");
-  assert(p_JNI_GetCreatedJavaVMs);
+  assert(g_get_created_java_vms);
 
   installIATPatches(GetModuleHandle(0));
   installIATPatches(jvm_module);
