@@ -119,9 +119,8 @@ void initLog()
   using FileSink = FileAppender<TxtFormatter<ADD_NEW_LINE>>;
 
   static FileSink file_sink_warn("il2ge_warnings.log");
-  static FileSink file_sink_info("il2ge_info.log");
-  static FileSink file_sink_debug("il2ge_debug.log");
-  static FileSink file_sink_trace("il2ge_trace.log");
+  static FileSink file_sink_debug("il2ge.log");
+  static FileSink file_sink_trace("il2ge_full.log");
 
   #if USE_UNIX_CONSOLE
     static ColorConsoleAppenderUnix<MessageOnlyFormatter<ADD_NEW_LINE>> console_sink;
@@ -132,12 +131,9 @@ void initLog()
   auto &logger_default = plog::init(plog::verbose);
 
   auto &warn_sink = plog::init<LOG_SINK_WARNING>(plog::warning, &file_sink_warn);
-  auto &info_sink = plog::init<LOG_SINK_INFO>(plog::info, &file_sink_info);
+  auto &info_sink = plog::init<LOG_SINK_INFO>(plog::info, &console_sink);
   auto &debug_sink = plog::init<LOG_SINK_DEBUG>(plog::debug, &file_sink_debug);
   auto &trace_sink = plog::init<LOG_SINK_TRACE>(plog::verbose, &file_sink_trace);
-
-//   logger_default.addAppender(&console_sink);
-  info_sink.addAppender(&console_sink);
 
   logger_default.addAppender(&warn_sink);
   logger_default.addAppender(&info_sink);
