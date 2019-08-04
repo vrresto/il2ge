@@ -32,32 +32,32 @@ namespace il2ge::core_wrapper
 class Configuration : public ConfigurationBase
 {
 public:
-  Setting<bool> enable_graphics_extender = addSetting("EnableGE", true,
+  Setting<bool> &enable_graphics_extender = addSetting("EnableGE", true,
                                                       "enable graphics extender");
 
-  Setting<bool> enable_object_shaders = addSetting("EnableObjectShaders", true,
+  Setting<bool> &enable_object_shaders = addSetting("EnableObjectShaders", true,
                                                    "disabling this gives higher fps but looks bad");
 
-  Setting<bool> enable_bumph_maps = addSetting("EnableBumpH", false, "enable terrain bumpmapping");
+  Setting<bool> &enable_bumph_maps = addSetting("EnableBumpH", false, "enable terrain bumpmapping");
 
-  Setting<bool> enable_effects = addSetting("EnableEffects", false,
+  Setting<bool> &enable_effects = addSetting("EnableEffects", false,
                                             "new effect renderer - experimental");
 
-  Setting<bool> enable_light_point = addSetting("EnableLightPoint", false,
+  Setting<bool> &enable_light_point = addSetting("EnableLightPoint", false,
                                                 "new lighting system - experimental");
 
 //     Setting<bool> enable_base_map = addSetting("EnableBaseMap", false, "");
 
 #if ENABLE_MAP_VIEWER
-  Setting<bool> enable_dump = addSetting("EnableDump", false, "");
+  Setting<bool> &enable_dump = addSetting("EnableDump", false, "");
 #endif
 
 #if ENABLE_CONFIGURABLE_SHADOWS
-  Setting<bool> better_shadows = addSetting("BetterShadows", false, "");
+  Setting<bool> &better_shadows = addSetting("BetterShadows", false, "");
 #endif
 
 #if ENABLE_CONFIGURABLE_ATMOSPHERE
-  MultipleChoice<render_util::Atmosphere::Type> atmosphere =
+  MultipleChoice<render_util::Atmosphere::Type> &atmosphere =
     addMultipleChoice<render_util::Atmosphere::Type>("Atmosphere",
       {
         { render_util::Atmosphere::DEFAULT, "default", "" },

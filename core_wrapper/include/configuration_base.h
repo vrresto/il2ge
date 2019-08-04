@@ -37,6 +37,9 @@ public:
   class SettingBase
   {
   public:
+    SettingBase(const SettingBase&) = delete;
+    SettingBase& operator=(const SettingBase&) = delete;
+
     SettingBase(std::string name, std::string description) :
       m_name(name), m_description(description) {}
 
