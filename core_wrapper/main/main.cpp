@@ -297,7 +297,6 @@ FARPROC WINAPI wrap_GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
     return (FARPROC) sfs::get_openf_wrapper();
   }
 
-
   return GetProcAddress(hModule, lpProcName);
 }
 
