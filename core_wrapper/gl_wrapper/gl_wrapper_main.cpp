@@ -113,6 +113,7 @@ public:
 shared_ptr<Globals> g_globals;
 unordered_map<string, void*> g_procs;
 bool g_better_shadows = false;
+bool g_enable_cirrus_clouds = false;
 
 #if ENABLE_SHORTCUTS
 bool g_enable = true;
@@ -507,9 +508,14 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
 #endif
 
 
-void drawCirrus(Context::Impl *ctx, render_util::CirrusClouds &cirrus_clouds, StateModifier &state,
+void drawCirrus(Context::Impl *ctx, StateModifier &state,
                 const render_util::Camera &camera, bool is_far_camera)
 {
+  if (!g_enable_cirrus_clouds)
+    return;
+
+  auto &cirrus_clouds = core::getCirrusClouds();
+
   state.enableBlend(true);
   state.enableCullFace(false);
 
@@ -542,7 +548,6 @@ void doDrawTerrain(render_util::TerrainBase &terrain, StateModifier &state)
   terrain.setDrawDistance(0);
 
   auto ctx = getContext();
-  auto &cirrus_clouds = core::getCirrusClouds();
 
   auto z_far = core::getCamera()->getZFar();
 
@@ -556,13 +561,13 @@ void doDrawTerrain(render_util::TerrainBase &terrain, StateModifier &state)
 
   doDrawTerrain(terrain, far_camera, true);
 
-  drawCirrus(ctx, cirrus_clouds, state, far_camera_cirrus, true);
+  drawCirrus(ctx, state, far_camera_cirrus, true);
 
   gl::Clear(GL_DEPTH_BUFFER_BIT);
 
   doDrawTerrain(terrain, *core::getCamera(), false);
 
-  drawCirrus(ctx, cirrus_clouds, state, *core::getCamera(), false);
+  drawCirrus(ctx, state, *core::getCamera(), false);
 
 #if 0
   const int forest_layers = 5;
@@ -703,6 +708,8 @@ void *getProc(const char *name)
 void init()
 {
   g_globals = make_shared<Globals>();
+
+  g_enable_cirrus_clouds = il2ge::core_wrapper::getConfig().enable_cirrus_clouds;
 
 #if ENABLE_CONFIGURABLE_SHADOWS
   g_better_shadows = il2ge::core_wrapper::getConfig().better_shadows;

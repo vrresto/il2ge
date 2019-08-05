@@ -40,6 +40,9 @@ public:
 
   Setting<bool> &enable_bumph_maps = addSetting("EnableBumpH", false, "enable terrain bumpmapping");
 
+  Setting<bool> &enable_cirrus_clouds = addSetting("EnableCirrusClouds", false,
+                                                   "cirrus clouds - experimental");
+
   Setting<bool> &enable_effects = addSetting("EnableEffects", false,
                                             "new effect renderer - experimental");
 

@@ -74,7 +74,12 @@ namespace core
     void update(float delta, const glm::vec2 &wind_speed);
     void updateUniforms(render_util::ShaderProgramPtr program);
     render_util::TerrainBase &getTerrain();
-    render_util::CirrusClouds &getCirrusClouds() { return *cirrus_clouds; }
+
+    render_util::CirrusClouds &getCirrusClouds()
+    {
+      assert(cirrus_clouds);
+      return *cirrus_clouds;
+    }
 
     render_util::ImageGreyScale::ConstPtr getPixelMapH();
 

@@ -88,8 +88,11 @@ namespace core
 
     gl::ActiveTexture(active_unit_save);
 
-    cirrus_clouds = std::make_unique<render_util::CirrusClouds>(texture_manager,
-        shader_search_path, shader_parameters);
+    if (il2ge::core_wrapper::getConfig().enable_cirrus_clouds)
+    {
+      cirrus_clouds = std::make_unique<render_util::CirrusClouds>(texture_manager,
+          shader_search_path, shader_parameters);
+    }
 
     FORCE_CHECK_GL_ERROR();
 
