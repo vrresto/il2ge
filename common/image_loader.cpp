@@ -80,7 +80,7 @@ std::shared_ptr<render_util::GenericImage> loadImageFromMemory(const std::vector
   if (isIMF(data))
     return loadImageFromIMF(data, name);
   else
-    return render_util::loadImageFromMemory(data);
+    return render_util::loadImageFromMemory<render_util::GenericImage>(data);
 }
 
 
