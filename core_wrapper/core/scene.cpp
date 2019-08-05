@@ -119,7 +119,12 @@ namespace core
   }
 
 
-  Scene::~Scene() {}
+  Scene::~Scene()
+  {
+    unloadMap();
+    atmosphere.reset();
+    menu.reset();
+  }
 
 
   void Scene::unloadMap()
