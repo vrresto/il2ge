@@ -51,7 +51,7 @@ namespace core
     render_util::WaterAnimation *getWaterAnimation();
     render_util::TerrainBase &getTerrain();
     render_util::ImageGreyScale::ConstPtr getPixelMapH();
-    render_util::CirrusClouds &getCirrusClouds();
+    render_util::CirrusClouds *getCirrusClouds();
 
     void setUniforms(render_util::ShaderProgramPtr program);
   };

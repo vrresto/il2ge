@@ -514,18 +514,21 @@ void drawCirrus(Context::Impl *ctx, StateModifier &state,
   if (!g_enable_cirrus_clouds)
     return;
 
-  auto &cirrus_clouds = core::getCirrusClouds();
+  auto *cirrus_clouds = core::getCirrusClouds();
+
+  if (!cirrus_clouds)
+    return;
 
   state.enableBlend(true);
   state.enableCullFace(false);
 
 //   gl::BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  ctx->setActiveShader(cirrus_clouds.getProgram());
-  ctx->updateUniforms(cirrus_clouds.getProgram(), camera, is_far_camera);
-  cirrus_clouds.getProgram()->setUniform("is_far_camera", is_far_camera);
+  ctx->setActiveShader(cirrus_clouds->getProgram());
+  ctx->updateUniforms(cirrus_clouds->getProgram(), camera, is_far_camera);
+  cirrus_clouds->getProgram()->setUniform("is_far_camera", is_far_camera);
 
-  cirrus_clouds.draw(state, camera);
+  cirrus_clouds->draw(state, camera);
 
   state.enableCullFace(true);
   state.enableBlend(false);

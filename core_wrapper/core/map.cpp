@@ -65,6 +65,7 @@ struct Map::Private : public render_util::MapBase
   glm::vec2 base_map_origin = glm::vec2(0);
   render_util::TerrainBase::MaterialMap::ConstPtr material_map;
   render_util::ImageGreyScale::ConstPtr pixel_map_h;
+  std::shared_ptr<GenericImage> cirrus_texture;
 
   MapTextures &getTextures() override { return *textures; }
   WaterAnimation &getWaterAnimation() override { return *water_animation; }
@@ -72,6 +73,11 @@ struct Map::Private : public render_util::MapBase
   void setMaterialMap(TerrainBase::MaterialMap::ConstPtr map) override
   {
     material_map = map;
+  }
+
+  void setCirrusTexture(std::shared_ptr<GenericImage> texture) override
+  {
+    cirrus_texture = texture;
   }
 };
 
@@ -227,10 +233,10 @@ Map::Map(const char *path, ProgressReporter *progress,
 
   FORCE_CHECK_GL_ERROR();
 
-  if (il2ge::core_wrapper::getConfig().enable_cirrus_clouds)
+  if (p->cirrus_texture && il2ge::core_wrapper::getConfig().enable_cirrus_clouds)
   {
     p->cirrus_clouds = std::make_unique<render_util::CirrusClouds>(core::textureManager(),
-        shader_search_path, shader_params);
+        shader_search_path, shader_params, p->cirrus_texture);
   }
 
 
@@ -250,10 +256,9 @@ render_util::WaterAnimation *Map::getWaterAnimation()
 }
 
 
-render_util::CirrusClouds &Map::getCirrusClouds()
+render_util::CirrusClouds *Map::getCirrusClouds()
 {
-  assert(p->cirrus_clouds);
-  return *p->cirrus_clouds;
+  return p->cirrus_clouds.get();
 }
 
 

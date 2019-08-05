@@ -288,7 +288,7 @@ void handleKey(int key, bool ctrl, bool alt, bool shift)
 }
 
 
-render_util::CirrusClouds &getCirrusClouds()
+render_util::CirrusClouds *getCirrusClouds()
 {
   return getScene()->getCirrusClouds();
 }

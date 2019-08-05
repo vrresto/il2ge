@@ -397,6 +397,17 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
 }
 
 
+void createCirrusTextures(MapBase *map,
+                          il2ge::RessourceLoader *loader)
+{
+  auto cirrus_texture = getTexture<GenericImage>("APPENDIX", "HighClouds", "", false, loader);
+//   auto cirrus_noise_texture = getTexture<GenericImage>("APPENDIX", "HighCloudsNoise", "", false, loader);
+
+  map->setCirrusTexture(cirrus_texture);
+}
+
+
+
 } // namespace
 
 
@@ -529,6 +540,8 @@ void createMapTextures(il2ge::RessourceLoader *loader,
 #endif
 
   createForestTextures(type_map, map_textures, loader);
+
+  createCirrusTextures(map, loader);
 
   LOG_INFO<<"creating map textures done."<<endl;
 }

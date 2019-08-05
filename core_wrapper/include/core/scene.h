@@ -74,7 +74,7 @@ namespace core
     void updateUniforms(render_util::ShaderProgramPtr program);
     render_util::TerrainBase &getTerrain();
 
-    render_util::CirrusClouds &getCirrusClouds();
+    render_util::CirrusClouds *getCirrusClouds();
 
     render_util::ImageGreyScale::ConstPtr getPixelMapH();
 

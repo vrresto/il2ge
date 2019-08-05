@@ -78,7 +78,7 @@ render_util::ImageRGBA::Ptr getTexture(const char *section,
                           float *scale = 0);
 
 template <typename T>
-typename T::Ptr getTexture(const char *section,
+typename std::shared_ptr<T> getTexture(const char *section,
                           const char *name,
                           const char *default_path,
                           bool from_map_dir,
@@ -86,7 +86,7 @@ typename T::Ptr getTexture(const char *section,
 {
   using namespace std;
 
-  typename T::Ptr image;
+  std::shared_ptr<T> image;
 
   std::string dump_name = std::string(section) + '_' + name;
 
@@ -97,7 +97,7 @@ typename T::Ptr getTexture(const char *section,
     dump<T>(image, dump_name, loader->getDumpDir());
   }
   else
-    cout<<"getTexture() "<<name<<" error"<<endl;
+    LOG_ERROR<<"getTexture() "<<name<<" error"<<endl;
 
   return image;
 }

@@ -176,7 +176,7 @@ namespace core
   }
 
 
-  render_util::CirrusClouds &Scene::getCirrusClouds()
+  render_util::CirrusClouds *Scene::getCirrusClouds()
   {
     assert(map);
     return map->getCirrusClouds();
