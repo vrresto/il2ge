@@ -61,6 +61,7 @@ struct Map::Private : public render_util::MapBase
   shared_ptr<render_util::MapTextures> textures;
   shared_ptr<render_util::WaterAnimation> water_animation;
   std::shared_ptr<TerrainBase> terrain;
+  std::unique_ptr<render_util::CirrusClouds> cirrus_clouds;
   glm::vec2 base_map_origin = glm::vec2(0);
   render_util::TerrainBase::MaterialMap::ConstPtr material_map;
   render_util::ImageGreyScale::ConstPtr pixel_map_h;
@@ -226,6 +227,13 @@ Map::Map(const char *path, ProgressReporter *progress,
 
   FORCE_CHECK_GL_ERROR();
 
+  if (il2ge::core_wrapper::getConfig().enable_cirrus_clouds)
+  {
+    p->cirrus_clouds = std::make_unique<render_util::CirrusClouds>(core::textureManager(),
+        shader_search_path, shader_params);
+  }
+
+
   progress->report(10, "task.Load_landscape", false);
 }
 
@@ -239,6 +247,13 @@ Map::~Map()
 render_util::WaterAnimation *Map::getWaterAnimation()
 {
   return p->water_animation.get();
+}
+
+
+render_util::CirrusClouds &Map::getCirrusClouds()
+{
+  assert(p->cirrus_clouds);
+  return *p->cirrus_clouds;
 }
 
 

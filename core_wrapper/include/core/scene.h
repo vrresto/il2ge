@@ -55,7 +55,6 @@ namespace core
     render_util::TexturePtr atmosphere_map;
     render_util::TexturePtr curvature_map;
     std::unique_ptr<render_util::Atmosphere> atmosphere;
-    std::unique_ptr<render_util::CirrusClouds> cirrus_clouds;
     std::unique_ptr<Map> map;
     std::unique_ptr<TextRenderer> text_renderer;
     std::unique_ptr<Menu> menu;
@@ -75,11 +74,7 @@ namespace core
     void updateUniforms(render_util::ShaderProgramPtr program);
     render_util::TerrainBase &getTerrain();
 
-    render_util::CirrusClouds &getCirrusClouds()
-    {
-      assert(cirrus_clouds);
-      return *cirrus_clouds;
-    }
+    render_util::CirrusClouds &getCirrusClouds();
 
     render_util::ImageGreyScale::ConstPtr getPixelMapH();
 

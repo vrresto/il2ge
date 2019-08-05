@@ -88,12 +88,6 @@ namespace core
 
     gl::ActiveTexture(active_unit_save);
 
-    if (il2ge::core_wrapper::getConfig().enable_cirrus_clouds)
-    {
-      cirrus_clouds = std::make_unique<render_util::CirrusClouds>(texture_manager,
-          shader_search_path, shader_parameters);
-    }
-
     FORCE_CHECK_GL_ERROR();
 
     auto addParameter = [this] (std::string name, Parameter::GetFunc get, Parameter::SetFunc set)
@@ -128,9 +122,8 @@ namespace core
   Scene::~Scene()
   {
     unloadMap();
-    cirrus_clouds.reset();
-    atmosphere.reset();
     menu.reset();
+    atmosphere.reset();
   }
 
 
@@ -180,6 +173,13 @@ namespace core
   {
     assert(map);
     return map->getPixelMapH();
+  }
+
+
+  render_util::CirrusClouds &Scene::getCirrusClouds()
+  {
+    assert(map);
+    return map->getCirrusClouds();
   }
 
 
