@@ -130,6 +130,7 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
   frag.push_back("tonemap");
   frag.push_back("mapping");
   frag.push_back("main");
+  frag.push_back("util");
 
   render_util::ShaderSearchPath paths;
   paths.push_back(replacement_path);
