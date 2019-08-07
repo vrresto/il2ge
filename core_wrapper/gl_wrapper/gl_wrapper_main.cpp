@@ -575,13 +575,11 @@ void doDrawTerrain(render_util::TerrainBase &terrain, StateModifier &state)
   state.setFrontFace(GL_CCW);
 
   doDrawTerrain(terrain, far_camera, true);
-
   drawCirrus(ctx, state, far_camera_cirrus, true);
 
   gl::Clear(GL_DEPTH_BUFFER_BIT);
 
   doDrawTerrain(terrain, *core::getCamera(), false);
-
   drawCirrus(ctx, state, *core::getCamera(), false);
 
 #if 0
