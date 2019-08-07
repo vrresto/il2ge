@@ -536,7 +536,6 @@ void drawCirrus(Context::Impl *ctx, StateModifier &state,
     return;
 
   state.enableBlend(true);
-  state.enableCullFace(false);
 
   ctx->setActiveShader(cirrus_clouds->getProgram());
   ctx->updateUniforms(cirrus_clouds->getProgram(), camera, is_far_camera);
@@ -544,7 +543,6 @@ void drawCirrus(Context::Impl *ctx, StateModifier &state,
 
   cirrus_clouds->draw(state, camera);
 
-  state.enableCullFace(true);
   state.enableBlend(false);
 }
 
