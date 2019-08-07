@@ -112,7 +112,11 @@ public:
 
 shared_ptr<Globals> g_globals;
 unordered_map<string, void*> g_procs;
+#if ENABLE_CONFIGURABLE_SHADOWS
 bool g_better_shadows = false;
+#else
+constexpr bool g_better_shadows = false;
+#endif
 bool g_enable_cirrus_clouds = false;
 
 #if ENABLE_SHORTCUTS
@@ -219,17 +223,22 @@ void GLAPIENTRY wrap_glCallList(GLuint list)
 ////////////////////////////////////////////
 
 
-// void GLAPIENTRY wrap_glClear(GLbitfield mask)
-// {
-//   assert(wgl_wrapper::isMainThread());
-//
-//   if (mask & GL_COLOR_BUFFER_BIT && wgl_wrapper::isMainContextCurrent())
-//   {
-//     getContext()->onClear();
-//   }
-//
-//   gl::Clear(mask);
-// }
+void GLAPIENTRY wrap_glClear(GLbitfield mask)
+{
+  assert(wgl_wrapper::isMainThread());
+
+  if (wgl_wrapper::isMainContextCurrent())
+  {
+    auto ctx = getContext();
+
+    if (ctx->getRenderState().render_phase == IL2_Landscape0)
+    {
+      return;
+    }
+  }
+
+  gl::Clear(mask);
+}
 
 
 void GLAPIENTRY wrap_glViewport(GLint x,  GLint y,  GLsizei width,  GLsizei height)
@@ -313,6 +322,9 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 
   getContext()->updateARBProgram();
 
+  if (getContext()->getRenderState().render_phase == IL2_Landscape0)
+    getContext()->setActiveShader(getInvisibleProgram());
+
   gl::Begin(mode);
 }
 
@@ -320,7 +332,11 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 void GLAPIENTRY wrap_glEnd()
 {
   assert(wgl_wrapper::isMainThread());
+
   gl::End();
+
+  if (wgl_wrapper::isMainContextCurrent())
+    getContext()->setActiveShader(nullptr);
 }
 
 
@@ -522,8 +538,6 @@ void drawCirrus(Context::Impl *ctx, StateModifier &state,
   state.enableBlend(true);
   state.enableCullFace(false);
 
-//   gl::BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
   ctx->setActiveShader(cirrus_clouds->getProgram());
   ctx->updateUniforms(cirrus_clouds->getProgram(), camera, is_far_camera);
   cirrus_clouds->getProgram()->setUniform("is_far_camera", is_far_camera);
@@ -658,8 +672,7 @@ void drawTerrain()
     gl::ReadBuffer(GL_COLOR_ATTACHMENT0);
   }
 
-//   gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  gl::Clear(GL_DEPTH_BUFFER_BIT);
+  gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   ctx->setActiveShader(getSkyProgram());
   ctx->updateUniforms(getSkyProgram());
@@ -725,7 +738,7 @@ void init()
 
   setProc("glBegin", (void*) &wrap_glBegin);
   setProc("glEnd", (void*) &wrap_glEnd);
-//   setProc("glClear", (void*) &wrap_glClear);
+  setProc("glClear", (void*) &wrap_glClear);
   setProc("glViewport", (void*) &wrap_glViewport);
 //   setProc("glTexImage2D", (void*) &wrap_glTexImage2D);
 
@@ -847,8 +860,6 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
 {
   assert(wgl_wrapper::isMainContextCurrent());
 
-  drawTerrainIfNeccessary();
-
   m_render_state = new_state;
   m_was_terrain_drawn = false;
 
@@ -881,6 +892,8 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
   }
 
   getARBProgramContext()->onRenderPhaseChanged(new_state.render_phase);
+
+  drawTerrainIfNeccessary();
 }
 
 
@@ -921,7 +934,6 @@ void Context::Impl::onLandscapeFinished()
 void Context::Impl::onObjectDraw()
 {
   updateARBProgram();
-  drawTerrainIfNeccessary();
 }
 
 
