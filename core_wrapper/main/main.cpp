@@ -30,11 +30,10 @@
 #include <configuration.h>
 #include <log.h>
 #include <log/file_appender.h>
-#include <log/color_console_appender_unix.h>
+#include <log/console_appender.h>
 #include <log/txt_formatter.h>
 #include <log/message_only_formatter.h>
 
-#include <plog/Appenders/ColorConsoleAppender.h>
 #include <INIReader.h>
 
 #include <iostream>
@@ -116,26 +115,29 @@ void initLog()
 
   using namespace util::log;
   using FileSink = FileAppender<TxtFormatter<ADD_NEW_LINE>>;
+  using ConsoleSink = ConsoleAppender<MessageOnlyFormatter<ADD_NEW_LINE>>;
 
   auto &logger_default = plog::init(plog::verbose);
 
   #if LOG_TO_CONSOLE
-    #if USE_UNIX_CONSOLE
-      static ColorConsoleAppenderUnix<MessageOnlyFormatter<ADD_NEW_LINE>> console_sink;
-    #else
-      static plog::ColorConsoleAppender<MessageOnlyFormatter<ADD_NEW_LINE>> console_sink;
-    #endif
-    auto &info_sink = plog::init<LOG_SINK_INFO>(plog::info, &console_sink);
-    logger_default.addAppender(&info_sink);
+  {
+    static ConsoleSink sink;
+    auto &logger = plog::init<LOGGER_INFO>(plog::info, &sink);
+    logger_default.addAppender(&logger);
+  }
   #endif
 
-  static FileSink file_sink_debug(LOG_FILE_NAME);
-  auto &debug_sink = plog::init<LOG_SINK_DEBUG>(plog::debug, &file_sink_debug);
-  logger_default.addAppender(&debug_sink);
+  {
+    static FileSink sink(LOG_FILE_NAME);
+    auto &logger = plog::init<LOGGER_DEBUG>(plog::debug, &sink);
+    logger_default.addAppender(&logger);
+  }
 
-  static FileSink file_sink_trace(LOG_FULL_FILE_NAME);
-  auto &trace_sink = plog::init<LOG_SINK_TRACE>(plog::verbose, &file_sink_trace);
-  logger_default.addAppender(&trace_sink);
+  {
+    static FileSink sink(LOG_FULL_FILE_NAME);
+    auto &logger = plog::init<LOGGER_TRACE>(plog::verbose, &sink);
+    logger_default.addAppender(&logger);
+  }
 
 #else
 
