@@ -117,23 +117,24 @@ void initLog()
   using namespace util::log;
   using FileSink = FileAppender<TxtFormatter<ADD_NEW_LINE>>;
 
-  static FileSink file_sink_debug(LOG_FILE_NAME);
-  static FileSink file_sink_trace(LOG_FULL_FILE_NAME);
-
-  #if USE_UNIX_CONSOLE
-    static ColorConsoleAppenderUnix<MessageOnlyFormatter<ADD_NEW_LINE>> console_sink;
-  #else
-    static plog::ColorConsoleAppender<MessageOnlyFormatter<ADD_NEW_LINE>> console_sink;
-  #endif
-
   auto &logger_default = plog::init(plog::verbose);
 
-  auto &info_sink = plog::init<LOG_SINK_INFO>(plog::info, &console_sink);
-  auto &debug_sink = plog::init<LOG_SINK_DEBUG>(plog::debug, &file_sink_debug);
-  auto &trace_sink = plog::init<LOG_SINK_TRACE>(plog::verbose, &file_sink_trace);
+  #if LOG_TO_CONSOLE
+    #if USE_UNIX_CONSOLE
+      static ColorConsoleAppenderUnix<MessageOnlyFormatter<ADD_NEW_LINE>> console_sink;
+    #else
+      static plog::ColorConsoleAppender<MessageOnlyFormatter<ADD_NEW_LINE>> console_sink;
+    #endif
+    auto &info_sink = plog::init<LOG_SINK_INFO>(plog::info, &console_sink);
+    logger_default.addAppender(&info_sink);
+  #endif
 
-  logger_default.addAppender(&info_sink);
+  static FileSink file_sink_debug(LOG_FILE_NAME);
+  auto &debug_sink = plog::init<LOG_SINK_DEBUG>(plog::debug, &file_sink_debug);
   logger_default.addAppender(&debug_sink);
+
+  static FileSink file_sink_trace(LOG_FULL_FILE_NAME);
+  auto &trace_sink = plog::init<LOG_SINK_TRACE>(plog::verbose, &file_sink_trace);
   logger_default.addAppender(&trace_sink);
 
 #else
