@@ -139,7 +139,7 @@ void fatalError(const char *msg)
 
 bool isModuleWatched(HMODULE module)
 {
-  return g_watched_modules.find(module) != g_watched_modules.end();
+  return true;
 }
 
 
@@ -297,16 +297,23 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
         LOG_ERROR << std::dec;
         LOG_FLUSH;
 
+        char module_file_name[MAX_PATH];
+
+        if (GetModuleFileNameA(module, module_file_name, sizeof(module_file_name)))
         {
-          Lock lock(g_crash_handler_mutex);
+          LOG_ERROR << "Module: " << module_file_name << endl;
 
-          clearLog();
-          g_crash_handler->crashHandler(info);
-          printLog();
+          {
+            Lock lock(g_crash_handler_mutex);
+
+            clearLog();
+            g_crash_handler->crashHandler(info);
+            printLog();
+          }
+
+          fatalError("Unhandled exception");
+          die();
         }
-
-        fatalError("Unhandled exception");
-        die();
       }
     }
 
