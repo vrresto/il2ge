@@ -179,8 +179,14 @@ namespace core_gl_wrapper
 
     void onObjectDraw();
 
+    bool isFrameBufferBound() { return is_framebuffer_bound; }
+    void bindFrameBuffer();
+    void unbindFrameBuffer();
+
   private:
     void drawTerrainIfNeccessary();
+    void createFrameBuffer();
+    void configureFrameBuffer();
 
     std::unique_ptr<texture_state::TextureState> m_texture_state;
     std::unique_ptr<arb_program::Context> m_arb_program_context;
@@ -190,6 +196,9 @@ namespace core_gl_wrapper
     unsigned long long m_frame_nr = 0;
     core::Il2RenderState m_render_state;
     glm::ivec2 m_framebuffer_texture_size = glm::ivec2(0);
+    bool is_framebuffer_bound = false;
+    bool is_framebuffer_created = false;
+    bool is_framebuffer_configured = false;
   };
 
 

@@ -322,8 +322,11 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 
   getContext()->updateARBProgram();
 
-  if (getContext()->getRenderState().render_phase == IL2_Landscape0)
-    getContext()->setActiveShader(getInvisibleProgram());
+  if (!g_better_shadows)
+  {
+    if (getContext()->getRenderState().render_phase == IL2_Landscape0)
+      getContext()->setActiveShader(getInvisibleProgram());
+  }
 
   gl::Begin(mode);
 }
@@ -335,8 +338,11 @@ void GLAPIENTRY wrap_glEnd()
 
   gl::End();
 
-  if (wgl_wrapper::isMainContextCurrent())
-    getContext()->setActiveShader(nullptr);
+  if (!g_better_shadows)
+  {
+    if (wgl_wrapper::isMainContextCurrent())
+      getContext()->setActiveShader(nullptr);
+  }
 }
 
 
@@ -426,7 +432,19 @@ void GLAPIENTRY wrap_glDrawArrays(GLenum mode,
 {
   if (wgl_wrapper::isMainContextCurrent())
   {
-    getContext()->onObjectDraw();
+    auto ctx = getContext();
+    auto &state = ctx->getRenderState();
+
+    ctx->onObjectDraw();
+
+    if (state.render_phase >= IL2_Landscape0 && state.render_phase < IL2_PostLandscape)
+    {
+      ctx->bindFrameBuffer();
+    }
+    else
+    {
+      assert(!ctx->isFrameBufferBound());
+    }
   }
 
   gl::DrawArrays(mode, first, count);
@@ -463,6 +481,8 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
 //       || true
     )
   {
+    assert(!ctx->isFrameBufferBound());
+
     if (state.render_phase == IL2_Cockpit && ctx->active_shader)
     {
       bool blend = gl::IsEnabled(GL_BLEND);
@@ -488,6 +508,15 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   {
     if (ctx->getARBProgramContext()->isObjectProgramActive())
     {
+      if (state.render_phase >= IL2_Landscape0 && state.render_phase < IL2_PostLandscape)
+      {
+        ctx->bindFrameBuffer();
+      }
+      else
+      {
+        assert(!ctx->isFrameBufferBound());
+      }
+
       gl::DrawRangeElements(mode, start, end, count, type, indices);
     }
 
@@ -532,10 +561,14 @@ void drawCirrus(Context::Impl *ctx, StateModifier &state,
 
   auto *cirrus_clouds = core::getCirrusClouds();
 
+  assert(cirrus_clouds);
+
   if (!cirrus_clouds)
     return;
 
   state.enableBlend(true);
+
+  assert(cirrus_clouds->getProgram()->isValid());
 
   ctx->setActiveShader(cirrus_clouds->getProgram());
   ctx->updateUniforms(cirrus_clouds->getProgram(), camera, is_far_camera);
@@ -652,20 +685,7 @@ void drawTerrain()
 
   if (g_better_shadows)
   {
-    gl::BindFramebuffer(GL_FRAMEBUFFER, ctx->framebuffer_id);
-
-    gl::FramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, ctx->framebuffer_depth_texture->getID(), 0);
-    gl::FramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ctx->framebuffer_texture0->getID(), 0);
-    gl::FramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, ctx->framebuffer_texture1->getID(), 0);
-
-    const GLuint drawBuffers[2] =
-    {
-      GL_COLOR_ATTACHMENT0,
-      GL_COLOR_ATTACHMENT1,
-    };
-
-    gl::DrawBuffers(2, drawBuffers);
-    gl::ReadBuffer(GL_COLOR_ATTACHMENT0);
+    ctx->bindFrameBuffer();
   }
 
   gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -688,6 +708,8 @@ void drawTerrain()
 
   if (g_better_shadows)
   {
+    ctx->unbindFrameBuffer();
+
     gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_SHADOW_COLOR);
     gl::BindTexture(GL_TEXTURE_2D, ctx->framebuffer_texture1->getID());
     gl::ActiveTexture(GL_TEXTURE0);
@@ -796,17 +818,25 @@ void Context::Impl::updateShaderState()
 Context::Context() : impl(make_unique<Context::Impl>()) {}
 Context::~Context() {}
 
+
 Context::Impl::Impl()
 {
-  FORCE_CHECK_GL_ERROR();
-  gl::GenFramebuffers(1, &framebuffer_id);
-  FORCE_CHECK_GL_ERROR();
 }
+
 
 Context::Impl::~Impl()
 {
-  if (framebuffer_id)
+  if (is_framebuffer_created)
+  {
+    assert(framebuffer_id);
+    assert(gl::IsFramebuffer(framebuffer_id));
+
     gl::DeleteFramebuffers(1, &framebuffer_id);
+
+    framebuffer_id = 0;
+  }
+
+  assert(!framebuffer_id);
 }
 
 
@@ -905,7 +935,8 @@ void Context::Impl::onLandscapeFinished()
 
   auto viewport_size = getViewportSize();
 
-  gl::BindFramebuffer(GL_FRAMEBUFFER, 0);
+  unbindFrameBuffer();
+
   gl::BindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer_id);
 
   //FIXME - this is possibly slow
@@ -913,12 +944,7 @@ void Context::Impl::onLandscapeFinished()
                       0, 0, viewport_size.x, viewport_size.y,
                       GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
-  gl::BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
-  gl::FramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,0, 0);
-  gl::FramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 0, 0);
-  gl::FramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
-
-  gl::BindFramebuffer(GL_FRAMEBUFFER, 0);
+  gl::BindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
   assert(framebuffer_texture1);
   gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_SHADOW_COLOR);
@@ -946,6 +972,85 @@ void Context::Impl::drawTerrainIfNeccessary()
 void Context::Impl::updateARBProgram()
 {
   getARBProgramContext()->update();
+}
+
+
+void Context::Impl::createFrameBuffer()
+{
+  assert(g_better_shadows);
+
+  if (is_framebuffer_created)
+    return;
+
+  FORCE_CHECK_GL_ERROR();
+
+  gl::GenFramebuffers(1, &framebuffer_id);
+  FORCE_CHECK_GL_ERROR();
+
+  gl::BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
+  gl::BindFramebuffer(GL_FRAMEBUFFER, 0);
+  FORCE_CHECK_GL_ERROR();
+
+  assert(gl::IsFramebuffer(framebuffer_id));
+
+  is_framebuffer_created = true;
+}
+
+
+void Context::Impl::configureFrameBuffer()
+{
+  if (is_framebuffer_configured)
+    return;
+
+  assert(g_better_shadows);
+
+  updateFramebufferTextureSize();
+  createFrameBuffer();
+
+  gl::NamedFramebufferTexture(framebuffer_id, GL_DEPTH_ATTACHMENT, framebuffer_depth_texture->getID(), 0);
+  gl::NamedFramebufferTexture(framebuffer_id, GL_COLOR_ATTACHMENT0, framebuffer_texture0->getID(), 0);
+  gl::NamedFramebufferTexture(framebuffer_id, GL_COLOR_ATTACHMENT1, framebuffer_texture1->getID(), 0);
+
+  gl::NamedFramebufferReadBuffer(framebuffer_id, GL_COLOR_ATTACHMENT0);
+
+  const GLuint drawBuffers[2] =
+  {
+    GL_COLOR_ATTACHMENT0,
+    GL_COLOR_ATTACHMENT1,
+  };
+
+  gl::NamedFramebufferDrawBuffers(framebuffer_id, 2, drawBuffers);
+
+  FORCE_CHECK_GL_ERROR();
+
+  is_framebuffer_configured = true;
+}
+
+
+void Context::Impl::bindFrameBuffer()
+{
+  if (!g_better_shadows)
+    return;
+
+  if (is_framebuffer_bound)
+    return;
+
+  configureFrameBuffer();
+
+  gl::BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
+
+  is_framebuffer_bound = true;
+}
+
+
+void Context::Impl::unbindFrameBuffer()
+{
+  if (!is_framebuffer_bound)
+    return;
+
+  gl::BindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  is_framebuffer_bound = false;
 }
 
 
