@@ -4,7 +4,7 @@
 # see https://hub.docker.com/_/gcc/
 image: debian:buster-slim
 
-debug_build:
+.debug_build:
   variables:
    GIT_SUBMODULE_STRATEGY: recursive
   stage: build
@@ -42,7 +42,7 @@ debug_build:
     paths:
       - install/map_viewer.exe
 
-build:
+.build:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   stage: build
