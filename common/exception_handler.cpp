@@ -112,9 +112,17 @@ void printLog()
 {
   ifstream in(g_log_file_name);
   string line;
+
   while (getline(in, line))
   {
+#if USE_PLOG
+    auto &logger = *plog::get<PLOG_DEFAULT_INSTANCE>();
+    plog::Record record(plog::error);
+    record << line << endl;
+    logger += record;
+#else
     LOG_ERROR << line << endl;
+#endif
   }
 }
 
