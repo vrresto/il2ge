@@ -93,6 +93,7 @@ add_custom_command(
 )
 
 add_executable(jni_generator jni_wrapper/generate_meta_code.cpp)
+target_link_libraries(jni_generator render_util_util)
 
 set(generator_cmd jni_generator)
 
