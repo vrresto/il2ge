@@ -298,18 +298,15 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 
       if (isModuleWatched(module))
       {
-        LOG_SEPARATOR;
-        LOG_ERROR << std::hex;
-        LOG_ERROR << "Exception code: " << info->ExceptionRecord->ExceptionCode << "  Flags: "
-              << info->ExceptionRecord->ExceptionFlags << '\n';
-        LOG_ERROR << std::dec;
-        LOG_FLUSH;
-
         char module_file_name[MAX_PATH];
 
         if (GetModuleFileNameA(module, module_file_name, sizeof(module_file_name)))
         {
+          LOG_SEPARATOR;
+          LOG_ERROR << "Exception code: " << std::hex << info->ExceptionRecord->ExceptionCode << "  Flags: "
+                    << info->ExceptionRecord->ExceptionFlags << '\n' << std::dec;
           LOG_ERROR << "Module: " << module_file_name << endl;
+          LOG_FLUSH;
 
           {
             Lock lock(g_crash_handler_mutex);
