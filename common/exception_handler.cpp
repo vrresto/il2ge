@@ -97,6 +97,7 @@ MingwCrashHandlerInterface *g_crash_handler = nullptr;
 HANDLE g_crash_handler_mutex = 0;
 HANDLE g_target_thread_mutex = 0;
 unordered_set<HMODULE> g_watched_modules;
+unordered_set<HMODULE> g_blacklisted_modules;
 std::string g_log_file_name;
 std::function<void(const char*)> g_fatal_error_handler;
 
@@ -112,9 +113,17 @@ void printLog()
 {
   ifstream in(g_log_file_name);
   string line;
+
   while (getline(in, line))
   {
+#if USE_PLOG
+    auto &logger = *plog::get<PLOG_DEFAULT_INSTANCE>();
+    plog::Record record(plog::error);
+    record << line << endl;
+    logger += record;
+#else
     LOG_ERROR << line << endl;
+#endif
   }
 }
 
@@ -139,7 +148,7 @@ void fatalError(const char *msg)
 
 bool isModuleWatched(HMODULE module)
 {
-  return g_watched_modules.find(module) != g_watched_modules.end();
+  return g_blacklisted_modules.find(module) == g_blacklisted_modules.end();
 }
 
 
@@ -290,23 +299,27 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 
       if (isModuleWatched(module))
       {
-        LOG_SEPARATOR;
-        LOG_ERROR << std::hex;
-        LOG_ERROR << "Exception code: " << info->ExceptionRecord->ExceptionCode << "  Flags: "
-              << info->ExceptionRecord->ExceptionFlags << '\n';
-        LOG_ERROR << std::dec;
-        LOG_FLUSH;
+        char module_file_name[MAX_PATH];
 
+        if (GetModuleFileNameA(module, module_file_name, sizeof(module_file_name)))
         {
-          Lock lock(g_crash_handler_mutex);
+          LOG_SEPARATOR;
+          LOG_ERROR << "Exception code: " << std::hex << info->ExceptionRecord->ExceptionCode << "  Flags: "
+                    << info->ExceptionRecord->ExceptionFlags << '\n' << std::dec;
+          LOG_ERROR << "Module: " << module_file_name << endl;
+          LOG_FLUSH;
 
-          clearLog();
-          g_crash_handler->crashHandler(info);
-          printLog();
+          {
+            Lock lock(g_crash_handler_mutex);
+
+            clearLog();
+            g_crash_handler->crashHandler(info);
+            printLog();
+          }
+
+          fatalError("Unhandled exception");
+          die();
         }
-
-        fatalError("Unhandled exception");
-        die();
       }
     }
 
@@ -331,12 +344,12 @@ void terminateHandler()
   catch (const std::exception &e)
   {
     LOG_SEPARATOR;
-    LOG_ERROR << __FUNCTION__ << " caught unhandled exception. what(): " << e.what() << '\n';
+    LOG_ERROR << "Unhandled exception: " << e.what() << '\n';
   }
   catch (...)
   {
     LOG_SEPARATOR;
-    LOG_ERROR << __FUNCTION__ << " caught unknown/unhandled exception.\n";
+    LOG_ERROR << "Unknown/unhandled exception.\n";
   }
 
   LOG_FLUSH;
@@ -377,6 +390,12 @@ void il2ge::exception_handler::install(const std::string &log_file_name,
 void il2ge::exception_handler::watchModule(HMODULE module)
 {
   g_watched_modules.insert(module);
+}
+
+
+void il2ge::exception_handler::blacklistModule(HMODULE module)
+{
+  g_blacklisted_modules.insert(module);
 }
 
 

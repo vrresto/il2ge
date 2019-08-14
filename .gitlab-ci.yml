@@ -42,7 +42,7 @@ image: debian:buster-slim
     paths:
       - install/map_viewer.exe
 
-build:
+.build:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   stage: build

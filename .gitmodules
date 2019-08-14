@@ -1,6 +1,7 @@
 [submodule "render_util"]
 	path = _modules/render_util
 	url = https://gitlab.com/vrresto/render_util.git
+  branch = master-next
 [submodule "mingw_crash_handler"]
 	path = _modules/mingw_crash_handler
 	url = https://gitlab.com/vrresto/mingw_crash_handler.git
