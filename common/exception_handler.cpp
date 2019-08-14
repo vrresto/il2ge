@@ -343,12 +343,12 @@ void terminateHandler()
   catch (const std::exception &e)
   {
     LOG_SEPARATOR;
-    LOG_ERROR << __FUNCTION__ << " caught unhandled exception. what(): " << e.what() << '\n';
+    LOG_ERROR << "Unhandled exception: " << e.what() << '\n';
   }
   catch (...)
   {
     LOG_SEPARATOR;
-    LOG_ERROR << __FUNCTION__ << " caught unknown/unhandled exception.\n";
+    LOG_ERROR << "Unknown/unhandled exception.\n";
   }
 
   LOG_FLUSH;
