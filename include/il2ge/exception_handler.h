@@ -30,6 +30,7 @@ namespace il2ge::exception_handler
   void install(const std::string &log_file_name,
                std::function<void(const char*)> fatal_error_handler =  {});
   void watchModule(HMODULE module);
+  void blacklistModule(HMODULE module);
 }
 
 

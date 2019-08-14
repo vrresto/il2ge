@@ -221,9 +221,7 @@ int wrap_write(int fd, const void *buffer, unsigned int count)
     MutexLocker lock(g_fatal_error_mutex);
 
     plog::Record record(g_fatal_error ? plog::error : plog::debug);
-
     record << str;
-
     *plog::get<PLOG_DEFAULT_INSTANCE>() += record;
 
     return count;
@@ -351,6 +349,8 @@ HMODULE loadCoreWrapper(const char *core_library_filename)
     LOG_FLUSH;
     abort();
   }
+
+  il2ge::exception_handler::blacklistModule(core_module);
 
   installIATPatches(core_module);
   jni_wrapper::resolveImports((void*)core_module);
