@@ -565,8 +565,7 @@ const char * getShaderName(const void *source, size_t len)
 
   if (!name)
   {
-    printf("unknown shader: %lu\n", hash_value);
-    assert(0);
+    LOG_ERROR << "unknown shader: " << hash_value << endl;
     abort();
   }
 
@@ -697,7 +696,7 @@ struct core_gl_wrapper::arb_program::Context::Impl
 
   void createProgram(GLint id, GLenum target)
   {
-    printf("createProgram: %d, %d\n", id, target);
+    LOG_TRACE << "createProgram: " << id << ", " << target << endl;
 
     assert(!programs.at(id));
 
@@ -713,7 +712,7 @@ struct core_gl_wrapper::arb_program::Context::Impl
       p->file_extension = "frag";
     }
     else {
-      assert(0);
+      LOG_ERROR << "invalid target: " << target << endl;
       abort();
     }
 
@@ -748,9 +747,10 @@ struct core_gl_wrapper::arb_program::Context::Impl
       p = active_vertex_program;
     else if (target == GL_FRAGMENT_PROGRAM_ARB)
       p = active_fragment_program;
-    else {
-      printf("invalid target.\n");
-      exit(0);
+    else
+    {
+      LOG_ERROR << "invalid target: " << target << endl;
+      abort();
     }
 
     assert(p);
@@ -992,12 +992,13 @@ wrap_ProgramStringARB(GLenum target, GLenum format, GLsizei len,
                        const GLvoid *string)
 {
   ProgramBase *p = getActiveProgram(target);
+
   assert(p);
 
   if (p->state != PROGRAM_STATE_NEW)
   {
-    printf("state %d\n", p->state);
-    exit(0);
+    LOG_ERROR << "state :" << p->state << endl;
+    abort();
   }
 
   assert(p->state == PROGRAM_STATE_NEW);
@@ -1012,14 +1013,14 @@ wrap_ProgramStringARB(GLenum target, GLenum format, GLsizei len,
 
   const char *name = getShaderName(string, len);
 
-  if (name)
+  assert(name);
+  LOG_TRACE << "name: " << name << endl;
+
+  p->name = name;
+  if (p->isFragmentProgram())
   {
-    p->name = name;
-    if (p->isFragmentProgram())
-    {
-      static_cast<FragmentProgram*>(p)->is_object_program =
-        (p->name == "fpObjectsL0_2L" || p->name == "fpObjectsL0");
-    }
+    static_cast<FragmentProgram*>(p)->is_object_program =
+      (p->name == "fpObjectsL0_2L" || p->name == "fpObjectsL0");
   }
 }
 
