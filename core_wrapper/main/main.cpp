@@ -325,10 +325,10 @@ HMODULE WINAPI wrap_JGL_LoadLibrary(LPCSTR libFileName)
 
 void installIATPatches(HMODULE module)
 {
-  patchIAT("LoadLibraryA", "kernel32.dll", (void*) &wrap_LoadLibraryA, 0, module);
-  patchIAT("GetProcAddress", "kernel32.dll", (void*) &wrap_GetProcAddress, 0, module);
+  patchIAT("LoadLibraryA", "kernel32.dll", (void*) &wrap_LoadLibraryA, nullptr, module);
+  patchIAT("GetProcAddress", "kernel32.dll", (void*) &wrap_GetProcAddress, nullptr, module);
 #if USE_PLOG
-  patchIAT("_write", "msvcrt.dll", (void*) &wrap_write, 0, module);
+  patchIAT("_write", "msvcrt.dll", (void*) &wrap_write, nullptr, module);
 #endif
 }
 
@@ -364,9 +364,9 @@ HMODULE loadCoreWrapper(const char *core_library_filename)
   assert(jgl_module);
 
   patchIAT("LoadLibraryA", "kernel32.dll",
-           (void*) &wrap_JGL_LoadLibrary, NULL, jgl_module);
+           (void*) &wrap_JGL_LoadLibrary, nullptr, jgl_module);
   patchIAT("GetProcAddress", "kernel32.dll",
-           (void*) &wrap_JGL_GetProcAddress, NULL, jgl_module);
+           (void*) &wrap_JGL_GetProcAddress, nullptr, jgl_module);
 
   g_core_wrapper_loaded = true;
 
