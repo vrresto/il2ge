@@ -97,6 +97,7 @@ MingwCrashHandlerInterface *g_crash_handler = nullptr;
 HANDLE g_crash_handler_mutex = 0;
 HANDLE g_target_thread_mutex = 0;
 unordered_set<HMODULE> g_watched_modules;
+unordered_set<HMODULE> g_blacklisted_modules;
 std::string g_log_file_name;
 std::function<void(const char*)> g_fatal_error_handler;
 
@@ -147,7 +148,7 @@ void fatalError(const char *msg)
 
 bool isModuleWatched(HMODULE module)
 {
-  return true;
+  return g_blacklisted_modules.find(module) == g_blacklisted_modules.end();
 }
 
 
@@ -389,6 +390,12 @@ void il2ge::exception_handler::install(const std::string &log_file_name,
 void il2ge::exception_handler::watchModule(HMODULE module)
 {
   g_watched_modules.insert(module);
+}
+
+
+void il2ge::exception_handler::blacklistModule(HMODULE module)
+{
+  g_blacklisted_modules.insert(module);
 }
 
 

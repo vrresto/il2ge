@@ -350,6 +350,8 @@ HMODULE loadCoreWrapper(const char *core_library_filename)
     abort();
   }
 
+  il2ge::exception_handler::blacklistModule(core_module);
+
   installIATPatches(core_module);
   jni_wrapper::resolveImports((void*)core_module);
 
