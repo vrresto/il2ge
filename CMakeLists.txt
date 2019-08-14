@@ -172,3 +172,11 @@ add_custom_target(run_viewer
   WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
   COMMAND wine map_viewer.exe
 )
+
+add_custom_target(refresh_enabled_gl_procs
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND bash
+    ${renderutil_dir}/scripts/print-used-gl-procs.bash
+    ${PROJECT_SOURCE_DIR} ${renderutil_dir}
+      > ${render_util_enabled_gl_procs_file}
+)
