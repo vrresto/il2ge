@@ -16,6 +16,7 @@ set(il2ge_thirdparty_dir "${il2ge_data_dir}/documentation/thirdparty")
 set(renderutil_base_dir ${il2ge_data_dir})
 set(renderutil_shader_dir ${il2ge_data_dir}/shaders)
 set(renderutil_cache_dir ${il2ge_cache_dir})
+set(render_util_enabled_gl_procs_file ${CMAKE_CURRENT_SOURCE_DIR}/enabled_gl_procs)
 
 if(platform STREQUAL "wine")
   set(platform_wine 1)
