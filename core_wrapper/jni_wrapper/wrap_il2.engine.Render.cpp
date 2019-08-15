@@ -48,6 +48,7 @@ struct RenderWrapper
 {
   virtual void prepareStates() {};
   virtual void flush() {};
+  virtual bool clearStatesOnFlush() { return false; }
 };
 
 
@@ -57,6 +58,8 @@ struct RenderWrapper3D1 : public RenderWrapper
   {
     core::onRender3D1Flush();
   }
+
+  bool clearStatesOnFlush() override { return true; }
 };
 
 
@@ -121,7 +124,12 @@ jint JNICALL flush(JNIEnv *env, jobject obj)
 
   auto wrapper = getRenderWrapper(java::getClass<java::il2::engine::Renders>().current());
   if (wrapper)
+  {
+    if (wrapper->clearStatesOnFlush())
+      import.clearStates(env, obj);
+
     wrapper->flush();
+  }
 
   return 0;
 }

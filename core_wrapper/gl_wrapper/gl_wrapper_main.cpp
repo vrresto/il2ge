@@ -576,6 +576,8 @@ void drawCirrus(Context::Impl *ctx, StateModifier &state,
 
   cirrus_clouds->draw(state, camera);
 
+  ctx->setActiveShader(nullptr);
+
   state.enableBlend(false);
 }
 
@@ -613,7 +615,6 @@ void doDrawTerrain(render_util::TerrainBase &terrain, StateModifier &state)
   gl::Clear(GL_DEPTH_BUFFER_BIT);
 
   doDrawTerrain(terrain, *core::getCamera(), false);
-  drawCirrus(ctx, state, *core::getCamera(), false);
 
 #if 0
   const int forest_layers = 5;
@@ -862,6 +863,9 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
     case core::IL2_PostLandscape:
       onLandscapeFinished();
       break;
+    case IL2_Render3D1_Finished:
+      onRender3D1Finished();
+      break;
   }
 
   getARBProgramContext()->onRenderPhaseChanged(new_state.render_phase);
@@ -897,6 +901,20 @@ void Context::Impl::onLandscapeFinished()
   gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_SHADOW_COLOR);
   gl::BindTexture(GL_TEXTURE_2D, m_framebuffer->getTexture(1)->getID());
   gl::ActiveTexture(GL_TEXTURE0);
+}
+
+
+void Context::Impl::onRender3D1Finished()
+{
+  const auto original_state = State::fromCurrent();
+
+  StateModifier state(original_state);
+  state.setDefaults();
+
+  drawCirrus(this, state, *core::getCamera(), false);
+  core::renderEffects();
+
+  gl::Clear(GL_DEPTH_BUFFER_BIT);
 }
 
 

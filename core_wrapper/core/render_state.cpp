@@ -172,7 +172,7 @@ namespace core
   {
     if (!g_il2_state.render_state.render3d1_flushed)
     {
-      renderEffects();
+      setRenderPhase(IL2_Render3D1_Finished);
       g_il2_state.render_state.render3d1_flushed = true;
     }
   }

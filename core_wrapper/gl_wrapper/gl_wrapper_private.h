@@ -127,6 +127,7 @@ namespace core_gl_wrapper
 
     void onRenderPhaseChanged(const core::Il2RenderState&);
     void onLandscapeFinished();
+    void onRender3D1Finished();
 
     bool isRenderingCubeMap()
     {
