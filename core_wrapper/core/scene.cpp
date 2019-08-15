@@ -52,7 +52,7 @@ namespace core
     text_renderer = make_unique<TextRenderer>();
 
 #if ENABLE_CONFIGURABLE_ATMOSPHERE
-    auto atmosphere_type = il2ge::core_wrapper::getConfig().atmosphere;
+    auto atmosphere_type = il2ge::core_wrapper::getConfig().atmosphere.get();
 #else
     auto atmosphere_type = render_util::Atmosphere::DEFAULT;
 #endif
