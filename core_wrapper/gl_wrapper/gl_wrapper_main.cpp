@@ -711,7 +711,7 @@ void drawTerrain()
     ctx->unbindFrameBuffer();
 
     gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_SHADOW_COLOR);
-    gl::BindTexture(GL_TEXTURE_2D, ctx->framebuffer_texture1->getID());
+    gl::BindTexture(GL_TEXTURE_2D, ctx->getFrameBuffer().getTexture(1)->getID());
     gl::ActiveTexture(GL_TEXTURE0);
   }
 
@@ -826,59 +826,6 @@ Context::Impl::Impl()
 
 Context::Impl::~Impl()
 {
-  if (is_framebuffer_created)
-  {
-    assert(framebuffer_id);
-    assert(gl::IsFramebuffer(framebuffer_id));
-
-    gl::DeleteFramebuffers(1, &framebuffer_id);
-
-    framebuffer_id = 0;
-  }
-
-  assert(!framebuffer_id);
-}
-
-
-void Context::Impl::updateFramebufferTextureSize()
-{
-  if (!g_better_shadows)
-    return;
-
-  glm::ivec2 viewport_size(m_viewport_w, m_viewport_h);
-  assert(viewport_size != glm::ivec2(0));
-
-  if (viewport_size == m_framebuffer_texture_size)
-    return;
-
-  {
-    if (!framebuffer_depth_texture)
-      framebuffer_depth_texture = render_util::Texture::create(GL_TEXTURE_2D);
-    render_util::TemporaryTextureBinding binding(framebuffer_depth_texture);
-    gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    gl::TexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, viewport_size.x, viewport_size.y,
-                  0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-  }
-
-  {
-    if (!framebuffer_texture0)
-      framebuffer_texture0 = render_util::Texture::create(GL_TEXTURE_2D);
-    render_util::TemporaryTextureBinding binding(framebuffer_texture0);
-    gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    gl::TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport_size.x, viewport_size.y,
-                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-  }
-
-  {
-    if (!framebuffer_texture1)
-      framebuffer_texture1 = render_util::Texture::create(GL_TEXTURE_2D);
-    render_util::TemporaryTextureBinding binding(framebuffer_texture1);
-    gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    gl::TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport_size.x, viewport_size.y,
-                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-  }
-
-  m_framebuffer_texture_size = viewport_size;
 }
 
 
@@ -937,7 +884,7 @@ void Context::Impl::onLandscapeFinished()
 
   unbindFrameBuffer();
 
-  gl::BindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer_id);
+  gl::BindFramebuffer(GL_READ_FRAMEBUFFER, m_framebuffer->getID());
 
   //FIXME - this is possibly slow
   gl::BlitFramebuffer(0, 0, viewport_size.x, viewport_size.y,
@@ -946,9 +893,9 @@ void Context::Impl::onLandscapeFinished()
 
   gl::BindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
-  assert(framebuffer_texture1);
+  assert(m_framebuffer->getTexture(1));
   gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_SHADOW_COLOR);
-  gl::BindTexture(GL_TEXTURE_2D, framebuffer_texture1->getID());
+  gl::BindTexture(GL_TEXTURE_2D, m_framebuffer->getTexture(1)->getID());
   gl::ActiveTexture(GL_TEXTURE0);
 }
 
@@ -975,55 +922,33 @@ void Context::Impl::updateARBProgram()
 }
 
 
+void Context::Impl::updateFramebufferTextureSize()
+{
+  if (!g_better_shadows)
+    return;
+
+  createFrameBuffer();
+
+  assert(m_framebuffer);
+
+  glm::ivec2 viewport_size(m_viewport_w, m_viewport_h);
+  assert(viewport_size != glm::ivec2(0));
+
+  m_framebuffer->setSize(viewport_size);
+}
+
+
 void Context::Impl::createFrameBuffer()
 {
   assert(g_better_shadows);
 
-  if (is_framebuffer_created)
+  if (m_framebuffer)
     return;
 
-  FORCE_CHECK_GL_ERROR();
+  glm::ivec2 viewport_size(m_viewport_w, m_viewport_h);
+  assert(viewport_size != glm::ivec2(0));
 
-  gl::GenFramebuffers(1, &framebuffer_id);
-  FORCE_CHECK_GL_ERROR();
-
-  gl::BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
-  gl::BindFramebuffer(GL_FRAMEBUFFER, 0);
-  FORCE_CHECK_GL_ERROR();
-
-  assert(gl::IsFramebuffer(framebuffer_id));
-
-  is_framebuffer_created = true;
-}
-
-
-void Context::Impl::configureFrameBuffer()
-{
-  if (is_framebuffer_configured)
-    return;
-
-  assert(g_better_shadows);
-
-  updateFramebufferTextureSize();
-  createFrameBuffer();
-
-  gl::NamedFramebufferTexture(framebuffer_id, GL_DEPTH_ATTACHMENT, framebuffer_depth_texture->getID(), 0);
-  gl::NamedFramebufferTexture(framebuffer_id, GL_COLOR_ATTACHMENT0, framebuffer_texture0->getID(), 0);
-  gl::NamedFramebufferTexture(framebuffer_id, GL_COLOR_ATTACHMENT1, framebuffer_texture1->getID(), 0);
-
-  gl::NamedFramebufferReadBuffer(framebuffer_id, GL_COLOR_ATTACHMENT0);
-
-  const GLuint drawBuffers[2] =
-  {
-    GL_COLOR_ATTACHMENT0,
-    GL_COLOR_ATTACHMENT1,
-  };
-
-  gl::NamedFramebufferDrawBuffers(framebuffer_id, 2, drawBuffers);
-
-  FORCE_CHECK_GL_ERROR();
-
-  is_framebuffer_configured = true;
+  m_framebuffer = make_unique<FrameBuffer>(viewport_size, 2);
 }
 
 
@@ -1035,9 +960,11 @@ void Context::Impl::bindFrameBuffer()
   if (is_framebuffer_bound)
     return;
 
-  configureFrameBuffer();
+  createFrameBuffer();
 
-  gl::BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
+  assert(m_framebuffer);
+
+  gl::BindFramebuffer(GL_FRAMEBUFFER, m_framebuffer->getID());
 
   is_framebuffer_bound = true;
 }

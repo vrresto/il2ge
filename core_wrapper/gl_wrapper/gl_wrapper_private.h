@@ -75,6 +75,25 @@ namespace core_gl_wrapper
     void restore();
   }
 
+
+  class FrameBuffer
+  {
+    unsigned int m_id = 0;
+    glm::ivec2 m_size = glm::ivec2(0);
+    std::vector<render_util::TexturePtr> m_color_textures;
+    render_util::TexturePtr m_depth_texture;
+
+    void create();
+
+  public:
+    FrameBuffer(glm::ivec2 size, size_t num_draw_buffers);
+    ~FrameBuffer();
+    void setSize(glm::ivec2 size);
+    const render_util::TexturePtr &getTexture(size_t i) { return m_color_textures.at(i); }
+    unsigned int getID() { return m_id; }
+  };
+
+
   struct Context::Impl
   {
     render_util::ShaderProgramPtr sky_program;
@@ -91,11 +110,6 @@ namespace core_gl_wrapper
     render_util::ShaderProgramPtr active_shader;
 
     std::shared_ptr<render_util::GLContext> render_util_gl_context;
-
-    unsigned int framebuffer_id = 0;
-    render_util::TexturePtr framebuffer_texture0;
-    render_util::TexturePtr framebuffer_texture1;
-    render_util::TexturePtr framebuffer_depth_texture;
 
     Impl();
     ~Impl();
@@ -182,12 +196,14 @@ namespace core_gl_wrapper
     bool isFrameBufferBound() { return is_framebuffer_bound; }
     void bindFrameBuffer();
     void unbindFrameBuffer();
+    FrameBuffer &getFrameBuffer() { return *m_framebuffer; }
 
   private:
     void drawTerrainIfNeccessary();
     void createFrameBuffer();
     void configureFrameBuffer();
 
+    std::unique_ptr<FrameBuffer> m_framebuffer;
     std::unique_ptr<texture_state::TextureState> m_texture_state;
     std::unique_ptr<arb_program::Context> m_arb_program_context;
     bool m_was_terrain_drawn = false;
@@ -195,10 +211,7 @@ namespace core_gl_wrapper
     int m_viewport_h = 0;
     unsigned long long m_frame_nr = 0;
     core::Il2RenderState m_render_state;
-    glm::ivec2 m_framebuffer_texture_size = glm::ivec2(0);
     bool is_framebuffer_bound = false;
-    bool is_framebuffer_created = false;
-    bool is_framebuffer_configured = false;
   };
 
 
