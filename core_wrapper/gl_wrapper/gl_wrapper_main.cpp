@@ -320,12 +320,14 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
     return gl::Begin(mode);
   }
 
-  getContext()->updateARBProgram();
+  auto ctx = getContext();
+  ctx->updateARBProgram();
+  ctx->unbindFrameBuffer();
 
   if (!g_better_shadows)
   {
-    if (getContext()->getRenderState().render_phase == IL2_Landscape0)
-      getContext()->setActiveShader(getInvisibleProgram());
+    if (ctx->getRenderState().render_phase == IL2_Landscape0)
+      ctx->setActiveShader(getInvisibleProgram());
   }
 
   gl::Begin(mode);
@@ -358,7 +360,9 @@ void GLAPIENTRY wrap_glDrawElements(
 
   if (wgl_wrapper::isMainContextCurrent())
   {
-    getContext()->onObjectDraw();
+    auto ctx = getContext();
+    ctx->onObjectDraw(GeometryType::TREES);
+    assert(ctx->is_arb_program_active);
   }
 
   gl::DrawElements(mode, count, type, indices);
@@ -433,18 +437,7 @@ void GLAPIENTRY wrap_glDrawArrays(GLenum mode,
   if (wgl_wrapper::isMainContextCurrent())
   {
     auto ctx = getContext();
-    auto &state = ctx->getRenderState();
-
-    ctx->onObjectDraw();
-
-    if (state.render_phase >= IL2_Landscape0 && state.render_phase < IL2_PostLandscape)
-    {
-      ctx->bindFrameBuffer();
-    }
-    else
-    {
-      assert(!ctx->isFrameBufferBound());
-    }
+    ctx->onObjectDraw(GeometryType::TREES);
   }
 
   gl::DrawArrays(mode, first, count);
@@ -469,7 +462,7 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   auto ctx = getContext();
   auto &state = ctx->getRenderState();
 
-  ctx->onObjectDraw();
+  ctx->onObjectDraw(GeometryType::OTHER);
 
   if (core::isFMBActive()
       || !isTerrainEnabled()
@@ -508,15 +501,6 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
   {
     if (ctx->getARBProgramContext()->isObjectProgramActive())
     {
-      if (state.render_phase >= IL2_Landscape0 && state.render_phase < IL2_PostLandscape)
-      {
-        ctx->bindFrameBuffer();
-      }
-      else
-      {
-        assert(!ctx->isFrameBufferBound());
-      }
-
       gl::DrawRangeElements(mode, start, end, count, type, indices);
     }
 
@@ -684,10 +668,7 @@ void drawTerrain()
   texture_state::freeze();
   core::textureManager().setActive(true);
 
-  if (g_better_shadows)
-  {
-    ctx->bindFrameBuffer();
-  }
+  ctx->updateFrameBufferBinding(GeometryType::TERRAIN);
 
   gl::Clear(GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -707,10 +688,10 @@ void drawTerrain()
   core::textureManager().setActive(false);
   texture_state::restore();
 
+  ctx->unbindFrameBuffer();
+
   if (g_better_shadows)
   {
-    ctx->unbindFrameBuffer();
-
     gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_SHADOW_COLOR);
     gl::BindTexture(GL_TEXTURE_2D, ctx->getFrameBuffer().getTexture(1)->getID());
     gl::ActiveTexture(GL_TEXTURE0);
@@ -834,8 +815,12 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
 {
   assert(wgl_wrapper::isMainContextCurrent());
 
+  bool was_mirror = m_render_state.is_mirror;
+
   m_render_state = new_state;
-  m_was_terrain_drawn = false;
+
+  getARBProgramContext()->onRenderPhaseChanged(new_state.render_phase);
+  unbindFrameBuffer();
 
   switch (new_state.render_phase)
   {
@@ -858,27 +843,24 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
         }
 
         gl::ActiveTexture(GL_TEXTURE0);
+        drawTerrain();
       }
       break;
     case core::IL2_PostLandscape:
-      onLandscapeFinished();
+      onLandscapeFinished(was_mirror);
       break;
     case IL2_Render3D1_Finished:
       onRender3D1Finished();
       break;
   }
-
-  getARBProgramContext()->onRenderPhaseChanged(new_state.render_phase);
-
-  drawTerrainIfNeccessary();
 }
 
 
-void Context::Impl::onLandscapeFinished()
+void Context::Impl::onLandscapeFinished(bool was_mirror)
 {
   using namespace render_util::gl_binding;
 
-  if (core::isFMBActive() || !isEnabled())
+  if (core::isFMBActive() || !isEnabled() || was_mirror)
     return;
 
   if (!g_better_shadows)
@@ -886,7 +868,7 @@ void Context::Impl::onLandscapeFinished()
 
   auto viewport_size = getViewportSize();
 
-  unbindFrameBuffer();
+  assert(!isFrameBufferBound());
 
   gl::BindFramebuffer(GL_READ_FRAMEBUFFER, m_framebuffer->getID());
 
@@ -918,19 +900,10 @@ void Context::Impl::onRender3D1Finished()
 }
 
 
-void Context::Impl::onObjectDraw()
+void Context::Impl::onObjectDraw(GeometryType geometry)
 {
   updateARBProgram();
-}
-
-
-void Context::Impl::drawTerrainIfNeccessary()
-{
-  if (m_render_state.render_phase == IL2_Landscape0 && !m_was_terrain_drawn)
-  {
-    drawTerrain();
-    m_was_terrain_drawn = true;
-  }
+  updateFrameBufferBinding(geometry);
 }
 
 
@@ -970,10 +943,42 @@ void Context::Impl::createFrameBuffer()
 }
 
 
-void Context::Impl::bindFrameBuffer()
+bool Context::Impl::shouldBindFrameBuffer(GeometryType geometry)
 {
   if (!g_better_shadows)
-    return;
+    return false;
+
+  auto &state = getRenderState();
+
+  if (core::isFMBActive() || state.is_mirror
+      || state.render_phase < IL2_Landscape0 || state.render_phase >= IL2_PostLandscape)
+  {
+    return false;
+  }
+  else if (geometry == GeometryType::TERRAIN || geometry == GeometryType::TREES
+           || (is_arb_program_active && getARBProgramContext()->isObjectProgramActive()))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+
+void Context::Impl::updateFrameBufferBinding(GeometryType geometry)
+{
+  if (shouldBindFrameBuffer(geometry))
+    bindFrameBuffer();
+  else
+    unbindFrameBuffer();
+}
+
+
+void Context::Impl::bindFrameBuffer()
+{
+  assert(g_better_shadows);
 
   if (is_framebuffer_bound)
     return;
@@ -982,7 +987,7 @@ void Context::Impl::bindFrameBuffer()
 
   assert(m_framebuffer);
 
-  gl::BindFramebuffer(GL_FRAMEBUFFER, m_framebuffer->getID());
+  gl::BindFramebuffer(GL_DRAW_FRAMEBUFFER, m_framebuffer->getID());
 
   is_framebuffer_bound = true;
 }
@@ -990,10 +995,11 @@ void Context::Impl::bindFrameBuffer()
 
 void Context::Impl::unbindFrameBuffer()
 {
+
   if (!is_framebuffer_bound)
     return;
 
-  gl::BindFramebuffer(GL_FRAMEBUFFER, 0);
+  gl::BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
   is_framebuffer_bound = false;
 }

@@ -34,6 +34,13 @@ namespace core_gl_wrapper
     TEXUNIT_SHADOW_COLOR
   };
 
+  enum class GeometryType
+  {
+    TERRAIN,
+    TREES,
+    OTHER
+  };
+
   namespace arb_program
   {
     struct Context
@@ -126,7 +133,7 @@ namespace core_gl_wrapper
     }
 
     void onRenderPhaseChanged(const core::Il2RenderState&);
-    void onLandscapeFinished();
+    void onLandscapeFinished(bool was_mirror);
     void onRender3D1Finished();
 
     bool isRenderingCubeMap()
@@ -192,22 +199,22 @@ namespace core_gl_wrapper
       return glm::ivec2(m_viewport_w, m_viewport_h);
     }
 
-    void onObjectDraw();
+    void onObjectDraw(GeometryType);
 
+    void updateFrameBufferBinding(GeometryType);
     bool isFrameBufferBound() { return is_framebuffer_bound; }
-    void bindFrameBuffer();
     void unbindFrameBuffer();
     FrameBuffer &getFrameBuffer() { return *m_framebuffer; }
 
   private:
-    void drawTerrainIfNeccessary();
     void createFrameBuffer();
     void configureFrameBuffer();
+    void bindFrameBuffer();
+    bool shouldBindFrameBuffer(GeometryType);
 
     std::unique_ptr<FrameBuffer> m_framebuffer;
     std::unique_ptr<texture_state::TextureState> m_texture_state;
     std::unique_ptr<arb_program::Context> m_arb_program_context;
-    bool m_was_terrain_drawn = false;
     int m_viewport_w = 0;
     int m_viewport_h = 0;
     unsigned long long m_frame_nr = 0;

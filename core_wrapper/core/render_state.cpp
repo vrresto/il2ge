@@ -149,7 +149,7 @@ namespace core
 
   void onLandscapeRender0Done()
   {
-    setRenderPhase(IL2_Landscape0_Finished);
+    setRenderPhase(IL2_Landscape0_Finished, g_il2_state.render_state.is_mirror);
 
     //   core::updateWaterAnimation();
     //   getWaterAnimation()->update();
