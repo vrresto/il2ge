@@ -897,7 +897,7 @@ struct core_gl_wrapper::arb_program::Context::Impl
       {
         main_context.setActiveARBProgram(glsl_program);
         main_context.updateUniforms(glsl_program);
-        glsl_program->assertUniformsAreSet();
+//         glsl_program->assertUniformsAreSet();
         bindUniformBuffers();
       }
       else
