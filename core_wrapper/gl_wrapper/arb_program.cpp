@@ -926,7 +926,7 @@ struct core_gl_wrapper::arb_program::Context::Impl
       return false;
 
     if (is_fragment_program_enabled && active_fragment_program)
-        return active_fragment_program->is_object_program ;
+        return active_fragment_program->is_object_program;
     else
       return false;
   }
