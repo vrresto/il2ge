@@ -4,19 +4,22 @@
 # see https://hub.docker.com/_/gcc/
 image: debian:buster-slim
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  APT_PACKAGES: gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python swig
+  CMAKE_OPTS: -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Duse_plog=0 -Dno_tools=1
+
 .debug_build:
-  variables:
-   GIT_SUBMODULE_STRATEGY: recursive
   stage: build
   before_script:
      - dpkg --add-architecture i386
      - apt-get update
-     - apt-get -y --no-install-recommends install gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python swig cpp
+     - apt-get -y --no-install-recommends install $APT_PACKAGES
   script:
     - mkdir build
     - mkdir install
     - cd build
-    - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Dno_tools=1 -Denable_debug=1 ..
+    - cmake $CMAKE_OPTS -Denable_debug=1 ..
     - make install
   artifacts:
     name: "il2ge-debug_build_$CI_JOB_ID"
@@ -24,18 +27,16 @@ image: debian:buster-slim
       - install
 
 .map_viewer_build:
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
   stage: build
   before_script:
      - dpkg --add-architecture i386
      - apt-get update
-     - apt-get -y --no-install-recommends install gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python
+     - apt-get -y --no-install-recommends install $APT_PACKAGES
   script:
     - mkdir build
     - mkdir install
     - cd build
-    - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Dno_tools=1 -Denable_map_viewer=1 -Ddisable_il2ge=1 ..
+    - cmake $CMAKE_OPTS -Denable_map_viewer=1 -Ddisable_il2ge=1 ..
     - make install
   artifacts:
     name: "il2ge_map_viewer-build_$CI_JOB_ID"
@@ -43,21 +44,18 @@ image: debian:buster-slim
       - install/map_viewer.exe
 
 build:
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
   stage: build
   # instead of calling g++ directly you can also use some build toolkit like make
   # install the necessary build tools when needed
   before_script:
      - dpkg --add-architecture i386
      - apt-get update
-     #- apt-get -y --no-install-recommends install gcc-multilib g++-multilib gcc-mingw-w64-i686 g++-mingw-w64-i686 libglfw3-dev:i386 libglm-dev:i386 libtiff-dev:i386 make cmake wine32-tools wine32 wine python
-     - apt-get -y --no-install-recommends install gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python swig cpp
+     - apt-get -y --no-install-recommends install $APT_PACKAGES
   script:
     - mkdir build
     - mkdir install
     - cd build
-    - cmake -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Dno_tools=1 ..
+    - cmake $CMAKE_OPTS ..
     - make install
   artifacts:
     name: "il2ge-build_$CI_JOB_ID"
