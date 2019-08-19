@@ -6,7 +6,7 @@ image: debian:buster-slim
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  APT_PACKAGES: gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python swig cpp
+  APT_PACKAGES: gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python swig cpp nsis
   CMAKE_OPTS: -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Duse_plog=0 -Dno_tools=1
 
 .debug_build:
@@ -21,10 +21,12 @@ variables:
     - cd build
     - cmake $CMAKE_OPTS -Denable_debug=1 ..
     - make install
+    - make installer
+    - cp il2ge-installer.exe ..
   artifacts:
     name: "il2ge-debug_build_$CI_JOB_ID"
     paths:
-      - install
+      - il2ge-installer.exe
 
 .map_viewer_build:
   stage: build
@@ -57,10 +59,12 @@ build:
     - cd build
     - cmake $CMAKE_OPTS ..
     - make install
+    - make installer
+    - cp il2ge-installer.exe ..
   artifacts:
     name: "il2ge-build_$CI_JOB_ID"
     paths:
-      - install
+      - il2ge-installer.exe
   # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
   # cache:
   #   paths:

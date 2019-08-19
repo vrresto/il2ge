@@ -180,3 +180,8 @@ add_custom_target(refresh_enabled_gl_procs
     ${PROJECT_SOURCE_DIR} ${renderutil_dir}
       > ${render_util_enabled_gl_procs_file}
 )
+
+add_custom_target(installer
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND BUILD=${build_job_id} SRC_DIR=${CMAKE_INSTALL_PREFIX} DEST_DIR=${CMAKE_CURRENT_BINARY_DIR} makensis ${PROJECT_SOURCE_DIR}/il2ge.nsi
+)
