@@ -148,7 +148,8 @@ void fatalError(const char *msg)
 
 bool isModuleWatched(HMODULE module)
 {
-  return g_blacklisted_modules.find(module) == g_blacklisted_modules.end();
+//   return g_blacklisted_modules.find(module) == g_blacklisted_modules.end();
+  return g_watched_modules.find(module) != g_watched_modules.end();
 }
 
 
