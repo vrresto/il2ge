@@ -102,6 +102,22 @@ std::string g_log_file_name;
 std::function<void(const char*)> g_fatal_error_handler;
 
 
+bool isExceptionCodeIgnored(DWORD exception_code)
+{
+  switch (exception_code)
+  {
+    case EXCEPTION_ACCESS_VIOLATION:
+    case EXCEPTION_FLT_DIVIDE_BY_ZERO:
+    case EXCEPTION_INT_DIVIDE_BY_ZERO:
+    case EXCEPTION_ILLEGAL_INSTRUCTION:
+    case EXCEPTION_STACK_OVERFLOW:
+      return false;
+    default:
+      return true;
+  }
+}
+
+
 void clearLog()
 {
   ofstream out(g_log_file_name);
@@ -280,7 +296,7 @@ void printBacktracePrivate()
 
 LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 {
-  if (info->ExceptionRecord->ExceptionCode != STATUS_CPP_EH_EXCEPTION)
+  if (!isExceptionCodeIgnored(info->ExceptionRecord->ExceptionCode))
   {
     if (InterlockedIncrement(&g_handler_entered) != 1)
     {
