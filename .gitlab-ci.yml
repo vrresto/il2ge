@@ -6,7 +6,7 @@ image: debian:buster-slim
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  APT_PACKAGES: gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python swig
+  APT_PACKAGES: gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python swig cpp
   CMAKE_OPTS: -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Duse_plog=0 -Dno_tools=1
 
 .debug_build:
