@@ -133,6 +133,17 @@ constexpr bool isTerrainEnabled() { return true; }
 #endif
 
 
+bool isCameraAboveCirrusClouds()
+{
+  auto *cirrus_clouds = core::getCirrusClouds();
+
+  if (!cirrus_clouds)
+    return false;
+  else
+    return core::getCamera()->getPos().z > cirrus_clouds->getHeight();
+}
+
+
 render_util::ShaderProgramPtr getRedProgram()
 {
   auto ctx = core_gl_wrapper::getContext();
@@ -849,6 +860,9 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
     case core::IL2_PostLandscape:
       onLandscapeFinished(was_mirror);
       break;
+    case IL2_Render3D1_Flushing:
+      onRender3D1Flushing();
+      break;
     case IL2_Render3D1_Finished:
       onRender3D1Finished();
       break;
@@ -886,14 +900,31 @@ void Context::Impl::onLandscapeFinished(bool was_mirror)
 }
 
 
-void Context::Impl::onRender3D1Finished()
+void Context::Impl::onRender3D1Flushing()
 {
+  if (isCameraAboveCirrusClouds())
+    return;
+
   const auto original_state = State::fromCurrent();
 
   StateModifier state(original_state);
   state.setDefaults();
 
   drawCirrus(this, state, *core::getCamera(), false);
+}
+
+
+void Context::Impl::onRender3D1Finished()
+{
+
+  const auto original_state = State::fromCurrent();
+
+  StateModifier state(original_state);
+  state.setDefaults();
+
+  if (isCameraAboveCirrusClouds())
+    drawCirrus(this, state, *core::getCamera(), false);
+
   core::renderEffects();
 
   gl::Clear(GL_DEPTH_BUFFER_BIT);

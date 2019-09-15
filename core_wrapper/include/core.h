@@ -53,7 +53,6 @@ namespace core
   {
     Il2CameraMode camera_mode = IL2_CAMERA_MODE_UNKNOWN;
     Il2RenderPhase render_phase = IL2_RENDER_PHASE_UNKNOWN;
-    bool render3d1_flushed = false;
     bool is_mirror = false;
   };
 
@@ -99,7 +98,8 @@ namespace core
   void onLandscapeRender0Done();
   void onLandscapeRender1(bool is_mirror);
   void onLandscapePostRender();
-  void onRender3D1Flush();
+  void onRender3D1FlushBegin();
+  void onRender3D1FlushEnd();
   void onRenderCockpitBegin();
   void onRenderCockpitEnd();
 

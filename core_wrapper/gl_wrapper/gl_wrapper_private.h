@@ -134,6 +134,7 @@ namespace core_gl_wrapper
 
     void onRenderPhaseChanged(const core::Il2RenderState&);
     void onLandscapeFinished(bool was_mirror);
+    void onRender3D1Flushing();
     void onRender3D1Finished();
 
     bool isRenderingCubeMap()

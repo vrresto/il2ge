@@ -46,31 +46,49 @@ unordered_map<string, unique_ptr<RenderWrapper>> g_render_wrappers = createWrapp
 
 struct RenderWrapper
 {
-  virtual void prepareStates() {};
-  virtual void flush() {};
-  virtual bool clearStatesOnFlush() { return false; }
+  virtual void prepareStates() = 0;
+  virtual void flushBegin() = 0;
+  virtual void flushEnd() = 0;
+
+  bool clearStatesOnFlush() { return m_clear_states_on_flush; }
+
+  RenderWrapper(bool clear_states_on_flush) : m_clear_states_on_flush(clear_states_on_flush) {}
+
+private:
+  const bool m_clear_states_on_flush = false;
 };
 
 
 struct RenderWrapper3D1 : public RenderWrapper
 {
-  void flush() override
+  RenderWrapper3D1() : RenderWrapper(true) {}
+
+  void prepareStates() override {}
+
+  void flushBegin() override
   {
-    core::onRender3D1Flush();
+    core::onRender3D1FlushBegin();
   }
 
-  bool clearStatesOnFlush() override { return true; }
+  void flushEnd() override
+  {
+    core::onRender3D1FlushEnd();
+  }
 };
 
 
 struct RenderWrapperCockpit: public RenderWrapper
 {
+  RenderWrapperCockpit() : RenderWrapper(false) {}
+
   void prepareStates() override
   {
     core::onRenderCockpitBegin();
   }
 
-  void flush() override
+  void flushBegin() override {}
+
+  void flushEnd() override
   {
     core::onRenderCockpitEnd();
   }
@@ -113,26 +131,36 @@ jint JNICALL prepareStates(JNIEnv *env, jobject obj)
   return ret;
 }
 
+
 jint JNICALL clearStates(JNIEnv *env, jobject obj)
 {
   return import.clearStates(env, obj);
 }
 
+
 jint JNICALL flush(JNIEnv *env, jobject obj)
 {
-  import.flush(env, obj);
-
   auto wrapper = getRenderWrapper(java::getClass<java::il2::engine::Renders>().current());
+
+  if (wrapper && wrapper->clearStatesOnFlush())
+    import.clearStates(env, obj);
+
+  if (wrapper)
+    wrapper->flushBegin();
+
+  auto ret = import.flush(env, obj);
+
   if (wrapper)
   {
     if (wrapper->clearStatesOnFlush())
       import.clearStates(env, obj);
 
-    wrapper->flush();
+    wrapper->flushEnd();
   }
 
-  return 0;
+  return ret;
 }
+
 
 jint JNICALL shadows(JNIEnv *env, jobject obj)
 {

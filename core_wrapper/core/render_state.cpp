@@ -90,8 +90,6 @@ namespace core
 
   void onPrePreRenders()
   {
-    g_il2_state.render_state.render3d1_flushed = false;
-
     if (!g_il2_state.last_frame_time)
       g_il2_state.last_frame_time = g_il2_state.current_time;
 
@@ -168,13 +166,16 @@ namespace core
     setRenderPhase(IL2_PostLandscape);
   }
 
-  void onRender3D1Flush()
+  void onRender3D1FlushBegin()
   {
-    if (!g_il2_state.render_state.render3d1_flushed)
-    {
+    if (g_il2_state.render_state.render_phase < IL2_Render3D1_Flushing)
+      setRenderPhase(IL2_Render3D1_Flushing);
+  }
+
+  void onRender3D1FlushEnd()
+  {
+    if (g_il2_state.render_state.render_phase < IL2_Render3D1_Finished)
       setRenderPhase(IL2_Render3D1_Finished);
-      g_il2_state.render_state.render3d1_flushed = true;
-    }
   }
 
   void onRenderCockpitBegin()
