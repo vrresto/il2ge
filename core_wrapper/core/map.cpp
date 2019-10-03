@@ -236,7 +236,7 @@ Map::Map(const char *path, ProgressReporter *progress,
   if (p->cirrus_texture && il2ge::core_wrapper::getConfig().enable_cirrus_clouds)
   {
     p->cirrus_clouds = std::make_unique<render_util::CirrusClouds>(core::textureManager(),
-        shader_search_path, shader_params, p->cirrus_texture);
+        shader_search_path, shader_params, 7000, p->cirrus_texture);
   }
 
 
