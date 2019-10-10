@@ -135,6 +135,13 @@ foreach(name table definitions)
   set(generated_output ${generated_output} ${output})
 endforeach(name)
 
+add_custom_target(class-wrappers
+  COMMAND mkdir -p ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/class_wrappers
+  COMMAND ${generator_cmd} all ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/class_wrappers
+    < ${CMAKE_CURRENT_SOURCE_DIR}/jni_wrapper/signatures
+  DEPENDS jni_generator
+)
+
 add_custom_target(core_wrapper_generated DEPENDS ${generated_output})
 
 add_library(${library_name} SHARED ${SRCS})
