@@ -43,6 +43,9 @@ public:
   Setting<bool> &enable_cirrus_clouds = addSetting("EnableCirrusClouds", false,
                                                    "cirrus clouds - experimental");
 
+  Setting<bool> &enable_transparent_shader = addSetting("EnableTransparentShader", false,
+                                                        "enable shader for transparent objects - experimental");
+
 #if ENABLE_WIP_FEATURES
   Setting<bool> &enable_effects = addSetting("EnableEffects", false,
                                             "new effect renderer - experimental");

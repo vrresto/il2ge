@@ -109,6 +109,7 @@ namespace core_gl_wrapper
     render_util::ShaderProgramPtr invisible_program;
     render_util::ShaderProgramPtr red_program;
     render_util::ShaderProgramPtr tree_program;
+    render_util::ShaderProgramPtr transparent_program;
 
     bool is_arb_program_active = false;
     bool is_shadow = false;
@@ -151,6 +152,8 @@ namespace core_gl_wrapper
       m_viewport_w = w;
       m_viewport_h = h;
     }
+
+    void onBlendFuncChanged(GLenum sfactor, GLenum dfactor);
 
     void updateFramebufferTextureSize();
 
@@ -221,6 +224,8 @@ namespace core_gl_wrapper
     unsigned long long m_frame_nr = 0;
     core::Il2RenderState m_render_state;
     bool is_framebuffer_bound = false;
+    GLenum m_blend_sfactor = GL_ONE;
+    GLenum m_blend_dfactor = GL_ZERO;
   };
 
 

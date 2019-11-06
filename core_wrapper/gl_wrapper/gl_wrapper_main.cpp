@@ -118,6 +118,7 @@ bool g_better_shadows = false;
 constexpr bool g_better_shadows = false;
 #endif
 bool g_enable_cirrus_clouds = false;
+bool g_enable_transparent_shader = true;
 
 #if ENABLE_SHORTCUTS
 bool g_enable = true;
@@ -180,6 +181,21 @@ render_util::ShaderProgramPtr getSkyProgram()
   return ctx->sky_program;
 }
 
+
+render_util::ShaderProgramPtr getTransparentProgram()
+{
+  auto ctx = core_gl_wrapper::getContext();
+  if (!ctx->transparent_program)
+  {
+    ctx->transparent_program =
+      render_util::createShaderProgram("transparent", core::textureManager(),
+                                       core::getShaderSearchPath(), {}, core::getShaderParameters());
+    ctx->transparent_program->setUniformi("sampler_0", 0);
+  }
+  return ctx->transparent_program;
+}
+
+
 #if 0
 render_util::ShaderProgramPtr getTreeProgram()
 {
@@ -232,6 +248,14 @@ void GLAPIENTRY wrap_glCallList(GLuint list)
 
 
 ////////////////////////////////////////////
+
+
+
+void GLAPIENTRY wrap_glBlendFunc(GLenum sfactor, GLenum dfactor)
+{
+  gl::BlendFunc(sfactor, dfactor);
+  getContext()->onBlendFuncChanged(sfactor, dfactor);
+}
 
 
 void GLAPIENTRY wrap_glClear(GLbitfield mask)
@@ -334,11 +358,33 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
   auto ctx = getContext();
   ctx->updateARBProgram();
   ctx->unbindFrameBuffer();
+  assert(!ctx->is_arb_program_active);
+  assert(!ctx->isFrameBufferBound());
 
-  if (!g_better_shadows)
+  auto &state = ctx->getRenderState();
+
+  if (state.isRender3D1Flushing())
   {
-    if (ctx->getRenderState().render_phase == IL2_Landscape0)
-      ctx->setActiveShader(getInvisibleProgram());
+    if (g_enable_transparent_shader)
+    {
+      if (ctx->active_shader != getTransparentProgram())
+      {
+        assert(!ctx->active_shader);
+        ctx->setActiveShader(getTransparentProgram());
+      }
+      ctx->active_shader->assertUniformsAreSet();
+    }
+  }
+  else if (!g_better_shadows)
+  {
+    if (state.render_phase == IL2_Landscape0)
+    {
+      if (ctx->active_shader != getInvisibleProgram())
+      {
+        assert(!ctx->active_shader);
+        ctx->setActiveShader(getInvisibleProgram());
+      }
+    }
   }
 
   gl::Begin(mode);
@@ -350,12 +396,6 @@ void GLAPIENTRY wrap_glEnd()
   assert(wgl_wrapper::isMainThread());
 
   gl::End();
-
-  if (!g_better_shadows)
-  {
-    if (wgl_wrapper::isMainContextCurrent())
-      getContext()->setActiveShader(nullptr);
-  }
 }
 
 
@@ -489,6 +529,7 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
 
     if (state.render_phase == IL2_Cockpit && ctx->active_shader)
     {
+      //FIXME - see Context::Impl::onBlendFuncChanged() / Context::Impl::onRender3D1Flushing()
       bool blend = gl::IsEnabled(GL_BLEND);
       bool blend_add = false;
 
@@ -740,6 +781,7 @@ void init()
   g_globals = make_shared<Globals>();
 
   g_enable_cirrus_clouds = il2ge::core_wrapper::getConfig().enable_cirrus_clouds;
+  g_enable_transparent_shader = il2ge::core_wrapper::getConfig().enable_transparent_shader;
 
 #if ENABLE_CONFIGURABLE_SHADOWS
   g_better_shadows = il2ge::core_wrapper::getConfig().better_shadows;
@@ -749,6 +791,8 @@ void init()
 //     setProc("glOrtho", (void*) &wrap_glOrtho);
 //     setProc("glCallList", (void*) &wrap_glCallList);
 //     setProc("glCallLists", (void*) &wrap_glCallLists);
+
+  SET_PROC(glBlendFunc);
 
   setProc("glBegin", (void*) &wrap_glBegin);
   setProc("glEnd", (void*) &wrap_glEnd);
@@ -834,6 +878,10 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
   m_render_state = new_state;
 
   getARBProgramContext()->onRenderPhaseChanged(new_state.render_phase);
+  getARBProgramContext()->update();
+
+  assert(!is_arb_program_active);
+
   unbindFrameBuffer();
 
   switch (new_state.render_phase)
@@ -844,19 +892,23 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
     case core::IL2_Landscape0:
       if (!core::isFMBActive() && isEnabled())
       {
-        gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_TERRAIN_NORMAL_MAP);
-
-        auto terrain = &core::getTerrain();
-        assert(terrain);
-        if (terrain)
+        // bind terrain normal map
         {
-          auto texture = terrain->getNormalMapTexture();
-          assert(texture);
-          if (texture)
-            gl::BindTexture(texture->getTarget(), texture->getID());
+          gl::ActiveTexture(GL_TEXTURE0 + TEXUNIT_TERRAIN_NORMAL_MAP);
+
+          auto terrain = &core::getTerrain();
+          assert(terrain);
+          if (terrain)
+          {
+            auto texture = terrain->getNormalMapTexture();
+            assert(texture);
+            if (texture)
+              gl::BindTexture(texture->getTarget(), texture->getID());
+          }
+
+          gl::ActiveTexture(GL_TEXTURE0);
         }
 
-        gl::ActiveTexture(GL_TEXTURE0);
         drawTerrain();
       }
       break;
@@ -876,6 +928,8 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
 void Context::Impl::onLandscapeFinished(bool was_mirror)
 {
   using namespace render_util::gl_binding;
+
+  setActiveShader(nullptr);
 
   if (core::isFMBActive() || !isEnabled() || was_mirror)
     return;
@@ -905,28 +959,50 @@ void Context::Impl::onLandscapeFinished(bool was_mirror)
 
 void Context::Impl::onRender3D1Flushing()
 {
-  if (isCameraAboveCirrusClouds())
+  if (!isEnabled() || core::isFMBActive())
     return;
+
+  assert(!is_arb_program_active);
 
   const auto original_state = State::fromCurrent();
 
-  StateModifier state(original_state);
-  state.setDefaults();
+  // cirrus
+  {
+    StateModifier state(original_state);
+    state.setDefaults();
 
-  drawCirrus(this, state, *core::getCamera(), false);
+    drawCirrus(this, state, *core::getCamera(), false);
+  }
+
+  //FIXME - see Context::Impl::onBlendFuncChanged() / wrap_glDrawRangeElements()
+  if (g_enable_transparent_shader)
+  {
+    auto program = getTransparentProgram();
+
+    updateUniforms(program);
+
+    bool blend_add = false;
+    bool alpha_texture = false;
+    if (m_blend_dfactor == GL_ONE)
+      blend_add = true;
+
+    program->setUniform("blend_add", blend_add);
+    program->setUniform("alpha_texture", alpha_texture);
+  }
 }
 
 
 void Context::Impl::onRender3D1Finished()
 {
+  if (!isEnabled() || core::isFMBActive())
+    return;
+
+  setActiveShader(nullptr);
 
   const auto original_state = State::fromCurrent();
 
   StateModifier state(original_state);
   state.setDefaults();
-
-  if (isCameraAboveCirrusClouds())
-    drawCirrus(this, state, *core::getCamera(), false);
 
   core::renderEffects();
 
@@ -936,6 +1012,11 @@ void Context::Impl::onRender3D1Finished()
 
 void Context::Impl::onObjectDraw(GeometryType geometry)
 {
+  if (active_shader == getInvisibleProgram())
+  {
+    setActiveShader(nullptr);
+  }
+
   updateARBProgram();
   updateFrameBufferBinding(geometry);
 }
@@ -1039,6 +1120,35 @@ void Context::Impl::unbindFrameBuffer()
 }
 
 
+void Context::Impl::onBlendFuncChanged(GLenum sfactor, GLenum dfactor)
+{
+  //FIXME - see wrap_glDrawRangeElements()
+  if (m_blend_sfactor != sfactor || m_blend_dfactor != dfactor)
+  {
+    auto &state = getRenderState();
+
+    if (state.isRender3D1Flushing())
+    {
+      if (g_enable_transparent_shader)
+      {
+        bool blend_add = false;
+        bool alpha_texture = false;
+        if (dfactor == GL_ONE)
+          blend_add = true;
+
+        auto program = getTransparentProgram();
+
+        program->setUniform("blend_add", blend_add);
+        program->setUniform("alpha_texture", alpha_texture);
+      }
+    }
+  }
+
+  m_blend_sfactor = sfactor;
+  m_blend_dfactor = dfactor;
+}
+
+
 void onRenderPhaseChanged(const core::Il2RenderState &new_state)
 {
   getContext()->onRenderPhaseChanged(new_state);
@@ -1059,6 +1169,11 @@ void toggleObjectShaders()
 void toggleTerrain()
 {
   g_enable_terrain = !g_enable_terrain;
+}
+
+void toggleTransparentShader()
+{
+  g_enable_transparent_shader = !g_enable_transparent_shader;
 }
 #endif
 

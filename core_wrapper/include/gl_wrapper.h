@@ -57,6 +57,7 @@ namespace core_gl_wrapper
   void toggleEnable();
   void toggleTerrain();
   void toggleObjectShaders();
+  void toggleTransparentShader();
 
   void setShader(render_util::ShaderProgramPtr);
   void updateUniforms(render_util::ShaderProgramPtr);

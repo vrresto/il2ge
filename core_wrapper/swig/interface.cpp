@@ -114,6 +114,12 @@ void initJavaClasses()
   };
   addCommand("ToggleObjectShaders", toggle_object_shaders);
 
+  auto toggle_tranparent_shader = [] ()
+  {
+    core_gl_wrapper::toggleTransparentShader();
+  };
+  addCommand("ToggleTransparentShader", toggle_tranparent_shader);
+
   auto toggle_terrain = [] ()
   {
     core_gl_wrapper::toggleTerrain();

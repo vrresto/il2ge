@@ -1,0 +1,9 @@
+vert transparent
+frag transparent
+frag util
+frag main
+frag lighting
+frag tonemap
+frag functions
+frag atmosphere
+texunit atmosphere_thickness_map

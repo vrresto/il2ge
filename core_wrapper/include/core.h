@@ -54,6 +54,9 @@ namespace core
     Il2CameraMode camera_mode = IL2_CAMERA_MODE_UNKNOWN;
     Il2RenderPhase render_phase = IL2_RENDER_PHASE_UNKNOWN;
     bool is_mirror = false;
+
+    bool isRender3D1Flushing() const { return render_phase == IL2_Render3D1_Flushing; }
+    bool isRender3D1Finished() const { return render_phase >= IL2_Render3D1_Finished; }
   };
 
   bool isFMBActive();
