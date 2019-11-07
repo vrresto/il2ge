@@ -21,7 +21,7 @@ Extract the contents of `install` in the zip file into your IL-2 folder.
 
 ### Current bugs/limitations and workarounds
 - artifacts with the default water textures in some modpacks  
-  **I recommend using Carsmaster's water mod to avoid artifacts (you might need to maually install it, even if it is part of a modpack you are using).**
+  **I recommend using Carsmaster's water mod to avoid artifacts (you might need to manually install it, even if it is part of a modpack you are using).**
 - forests are flat (but using a parallax effect) (code for layered forests exists but needs performance improvement)
 - misplaced coast lines on some maps
 - no normal/bump maps
