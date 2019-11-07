@@ -1,6 +1,6 @@
 # IL-2 Graphics Extender (IL2GE)
 
-I recommend using Carsmaster's water mod.
+I recommend using Carsmaster's water mod to avoid artifacts (you might need to maually install it, even if it is part of a modpack you are using).
 
 ### Requirements
 - IL-2 Selector (at least Version 3.4.2)
