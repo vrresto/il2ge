@@ -54,9 +54,6 @@ create_backup_dir_success:
   !insertmacro BackupFile "il2ge.dll" "${BACKUP_DIR}"
   !insertmacro BackupFile "il2ge" "${BACKUP_DIR}"
 
-  SetOutPath "$INSTDIR"
-  File "${SRC_DIR}/il2ge.dll"
-
   SetOutPath "$INSTDIR\il2ge"
   File /r "${SRC_DIR}/il2ge/*"
 

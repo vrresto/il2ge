@@ -162,6 +162,6 @@ if(platform_mingw)
 endif(platform_mingw)
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${library_name}${CMAKE_SHARED_LIBRARY_SUFFIX_CXX}
-  DESTINATION .
+  DESTINATION ${il2ge_lib_dir}
   RENAME ${library_name}.dll
 )
