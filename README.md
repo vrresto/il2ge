@@ -16,8 +16,8 @@
       Water=0
       ```
 
-### Installation
-Extract the contents of `install` in the zip file into your IL-2 folder.
+### Installing the latest developement shnapshot
+Download and run [il2ge-installer.exe](https://gitlab.com/vrresto/il2ge/-/jobs/artifacts/master/raw/il2ge-installer.exe?job=build)
 
 ### Current bugs/limitations and workarounds
 - artifacts with the default water textures in some modpacks  
