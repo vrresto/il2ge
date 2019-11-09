@@ -16,12 +16,9 @@
       Water=0
       ```
 
-### Installing the latest developement shnapshot
-Download and run [il2ge-installer.exe](https://gitlab.com/vrresto/il2ge/-/jobs/artifacts/master/raw/il2ge-installer.exe?job=build)
-
 ### Current bugs/limitations and workarounds
 - artifacts with the default water textures in some modpacks  
-  **I recommend using Carsmaster's water mod to avoid artifacts (you might need to manually install it, even if it is part of a modpack you are using).**
+  **I recommend using Carsmaster's water mod to avoid artifacts (you may need to manually install it, even if it comes with a modpack you are using).**
 - forests are flat (but using a parallax effect) (code for layered forests exists but needs performance improvement)
 - misplaced coast lines on some maps
 - no normal/bump maps
@@ -39,3 +36,6 @@ Download and run [il2ge-installer.exe](https://gitlab.com/vrresto/il2ge/-/jobs/a
 - ~~lighting / atmospheric effect is not applied to objects (planes/buildings/trees/roads/clouds/etc.)~~
 - ~~lighting at dusk/dawn/night needs improvement~~
 - ~~currently only cloudless weather looks as intended~~
+
+### Installing the latest developement shnapshot
+Download and run [il2ge-installer.exe](https://gitlab.com/vrresto/il2ge/-/jobs/artifacts/master/raw/il2ge-installer.exe?job=build)
