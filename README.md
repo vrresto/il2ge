@@ -37,5 +37,5 @@
 - ~~lighting at dusk/dawn/night needs improvement~~
 - ~~currently only cloudless weather looks as intended~~
 
-### Installing the latest developement shnapshot
+### Installing the latest developement snapshot
 Download and run [il2ge-installer.exe](https://gitlab.com/vrresto/il2ge/-/jobs/artifacts/master/raw/il2ge-installer.exe?job=build)
