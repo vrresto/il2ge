@@ -84,7 +84,8 @@ struct Map::Private : public render_util::MapBase
 
 Map::Map(const char *path, ProgressReporter *progress,
          const render_util::ShaderSearchPath &shader_search_path,
-         const render_util::ShaderParameters &shader_params) : p(new Private)
+         const render_util::ShaderParameters &shader_params,
+         float max_cirrus_opacity) : p(new Private)
 {
   const bool enable_base_map = false;//il2ge::core_wrapper::getConfig().enable_base_map;
   const bool enable_normal_maps = il2ge::core_wrapper::getConfig().enable_bumph_maps;
@@ -235,8 +236,8 @@ Map::Map(const char *path, ProgressReporter *progress,
 
   if (p->cirrus_texture && il2ge::core_wrapper::getConfig().enable_cirrus_clouds)
   {
-    p->cirrus_clouds = std::make_unique<render_util::CirrusClouds>(core::textureManager(),
-        shader_search_path, shader_params, 7000, p->cirrus_texture);
+    p->cirrus_clouds = std::make_unique<render_util::CirrusClouds>(max_cirrus_opacity,
+        core::textureManager(), shader_search_path, shader_params, 7000, p->cirrus_texture);
   }
 
 

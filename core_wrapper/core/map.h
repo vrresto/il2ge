@@ -43,7 +43,8 @@ namespace core
   public:
     Map(const char *path, ProgressReporter*,
         const render_util::ShaderSearchPath&,
-        const render_util::ShaderParameters&);
+        const render_util::ShaderParameters&,
+        float max_cirrus_opacity);
     ~Map();
 
     glm::vec2 getSize();

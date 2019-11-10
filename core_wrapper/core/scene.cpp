@@ -40,6 +40,8 @@ using namespace std;
 
 namespace
 {
+  constexpr auto MAX_CIRRUS_OPACITY = 0.7;
+  constexpr auto MAX_CIRRUS_ALBEDO = 0.4;
   const std::string g_shader_path = IL2GE_DATA_DIR "/shaders";
 }
 
@@ -58,6 +60,7 @@ namespace core
 #endif
 
     atmosphere = createAtmosphere(atmosphere_type,
+                                  MAX_CIRRUS_ALBEDO,
                                   texture_manager, g_shader_path);
 
     shader_search_path.push_back(g_shader_path + "/" + atmosphere->getShaderPath());
@@ -142,7 +145,7 @@ namespace core
 
     unloadMap();
 
-    map = make_unique<Map>(path, progress, shader_search_path, shader_parameters);
+    map = make_unique<Map>(path, progress, shader_search_path, shader_parameters, MAX_CIRRUS_OPACITY);
   }
 
 
