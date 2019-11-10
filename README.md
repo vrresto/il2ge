@@ -38,4 +38,5 @@
 - ~~currently only cloudless weather looks as intended~~
 
 ### Installing the latest developement snapshot
-Download and run [il2ge-installer.exe](https://gitlab.com/vrresto/il2ge/-/jobs/artifacts/master/raw/il2ge-installer.exe?job=build)
+Download and run [il2ge-installer.exe](https://gitlab.com/vrresto/il2ge/-/jobs/artifacts/master/raw/il2ge-installer.exe?job=build).
+If you get a `404 - Not Found` error, please try again after a few minutes.
