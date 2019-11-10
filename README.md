@@ -18,7 +18,7 @@
 
 ### Current bugs/limitations and workarounds
 - artifacts with the default water textures in some modpacks  
-  **I recommend using Carsmaster's water mod to avoid artifacts (you may need to manually install it, even if it comes with a modpack you are using).**
+  **I recommend using Carsmaster's water mod to avoid artifacts (you may need to manually install it, even if it's included in a modpack you are using).**
 - forests are flat (but using a parallax effect) (code for layered forests exists but needs performance improvement)
 - misplaced coast lines on some maps
 - no normal/bump maps
