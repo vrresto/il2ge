@@ -563,6 +563,9 @@ void drawCirrus(Context::Impl *ctx, StateModifier &state,
 
   state.enableBlend(true);
 
+  if (!is_far_camera)
+    state.setDepthMask(false);
+
   assert(cirrus_clouds->getProgram()->isValid());
 
   ctx->setActiveShader(cirrus_clouds->getProgram());
