@@ -24,6 +24,7 @@
 #define ENABLE_CONFIGURABLE_ATMOSPHERE ${enable_configurable_atmosphere}
 #define ENABLE_CONFIGURABLE_SHADOWS ${enable_configurable_shadows}
 #define ENABLE_MAP_VIEWER ${render_util_build_viewer}
+#define ENABLE_WIP_FEATURES ${enable_wip_features}
 
 
 #endif

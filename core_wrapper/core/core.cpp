@@ -253,8 +253,10 @@ bool removeEffect(int cpp_obj)
 
 void renderEffects()
 {
+#if ENABLE_WIP_FEATURES
   if (il2ge::core_wrapper::getConfig().enable_effects)
     getScene()->effects.render();
+#endif
 }
 
 

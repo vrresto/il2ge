@@ -98,11 +98,13 @@ void init()
     registrator::il2::fm::Wind,
   };
 
+#if ENABLE_WIP_FEATURES
   if (il2ge::core_wrapper::getConfig().enable_effects)
     registrators.push_back(registrator::il2::engine::Eff3D);
 
   if (il2ge::core_wrapper::getConfig().enable_light_point)
     registrators.push_back(registrator::il2::engine::LightPoint);
+#endif
 
   for (auto registrator : registrators)
   {

@@ -43,11 +43,13 @@ public:
   Setting<bool> &enable_cirrus_clouds = addSetting("EnableCirrusClouds", false,
                                                    "cirrus clouds - experimental");
 
+#if ENABLE_WIP_FEATURES
   Setting<bool> &enable_effects = addSetting("EnableEffects", false,
                                             "new effect renderer - experimental");
 
   Setting<bool> &enable_light_point = addSetting("EnableLightPoint", false,
                                                 "new lighting system - experimental");
+#endif
 
 //     Setting<bool> enable_base_map = addSetting("EnableBaseMap", false, "");
 
