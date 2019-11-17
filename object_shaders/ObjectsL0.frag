@@ -138,11 +138,12 @@ void main()
 
   gl_FragColor.xyz = gl_FragColor.xyz * (light_direct + light_ambient) + light_specular;
 
-  if (pass_color.a < 0.99)
+  #if IS_SHADOW
   {
     gl_FragColor.xyz = vec3(0.0);
     gl_FragColor.a = 0.3 * smoothstep(-0.02, 0.02, sunDir.z);
   }
+  #endif
 
   gl_FragColor.xyz = fogAndToneMap(gl_FragColor.xyz);
 }
