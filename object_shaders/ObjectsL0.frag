@@ -119,29 +119,32 @@ void main()
 
 void main()
 {
-  vec3 view_dir = normalize(cameraPosWorld - passObjectPos);
-
-  gl_FragColor = texture2D(sampler_0, pass_texcoord);
-  gl_FragColor.xyz = textureColorCorrection(gl_FragColor.xyz);
-
-  vec3 light_ambient_incoming;
-  vec3 light_direct_incoming;
-  getIncomingLight(passObjectPos, light_ambient_incoming, light_direct_incoming);
-
-  vec3 light_direct = getReflectedDirectLight(pass_normal, light_direct_incoming);
-  vec3 light_ambient = getReflectedAmbientLight(pass_normal, light_ambient_incoming);
-
-  light_direct *= DIRECT_LIGHT_SCALE;
-  light_ambient *= AMBIENT_LIGHT_SCALE;
-
-  vec3 light_specular = getSpecular(view_dir, light_direct_incoming);
-
-  gl_FragColor.xyz = gl_FragColor.xyz * (light_direct + light_ambient) + light_specular;
-
   #if IS_SHADOW
   {
     gl_FragColor.xyz = vec3(0.0);
     gl_FragColor.a = 0.3 * smoothstep(-0.02, 0.02, sunDir.z);
+  }
+  #else
+  {
+    gl_FragColor = texture2D(sampler_0, pass_texcoord);
+
+    vec3 view_dir = normalize(cameraPosWorld - passObjectPos);
+
+    gl_FragColor.xyz = textureColorCorrection(gl_FragColor.xyz);
+
+    vec3 light_ambient_incoming;
+    vec3 light_direct_incoming;
+    getIncomingLight(passObjectPos, light_ambient_incoming, light_direct_incoming);
+
+    vec3 light_direct = getReflectedDirectLight(pass_normal, light_direct_incoming);
+    vec3 light_ambient = getReflectedAmbientLight(pass_normal, light_ambient_incoming);
+
+    light_direct *= DIRECT_LIGHT_SCALE;
+    light_ambient *= AMBIENT_LIGHT_SCALE;
+
+    vec3 light_specular = getSpecular(view_dir, light_direct_incoming);
+
+    gl_FragColor.xyz = gl_FragColor.xyz * (light_direct + light_ambient) + light_specular;
   }
   #endif
 
