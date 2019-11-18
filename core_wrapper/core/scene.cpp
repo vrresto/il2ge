@@ -118,6 +118,14 @@ namespace core
     addAtmosphereParameter("texture_saturation", Atmosphere::Parameter::TEXTURE_SATURATION);
     addAtmosphereParameter("blue_saturation", Atmosphere::Parameter::BLUE_SATURATION);
 
+    addAtmosphereParameter("uncharted2_a", Atmosphere::Parameter::UNCHARTED2_A);
+    addAtmosphereParameter("uncharted2_b", Atmosphere::Parameter::UNCHARTED2_B);
+    addAtmosphereParameter("uncharted2_c", Atmosphere::Parameter::UNCHARTED2_C);
+    addAtmosphereParameter("uncharted2_d", Atmosphere::Parameter::UNCHARTED2_D);
+    addAtmosphereParameter("uncharted2_e", Atmosphere::Parameter::UNCHARTED2_E);
+    addAtmosphereParameter("uncharted2_f", Atmosphere::Parameter::UNCHARTED2_F);
+    addAtmosphereParameter("uncharted2_w", Atmosphere::Parameter::UNCHARTED2_W);
+
     menu = std::make_unique<Menu>(*this, texture_manager, shader_search_path);
   }
 
