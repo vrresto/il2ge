@@ -254,7 +254,11 @@ void GLAPIENTRY wrap_glCallList(GLuint list)
 void GLAPIENTRY wrap_glBlendFunc(GLenum sfactor, GLenum dfactor)
 {
   gl::BlendFunc(sfactor, dfactor);
-  getContext()->onBlendFuncChanged(sfactor, dfactor);
+
+  if (wgl_wrapper::isMainContextCurrent())
+  {
+    getContext()->onBlendFuncChanged(sfactor, dfactor);
+  }
 }
 
 
