@@ -21,12 +21,12 @@
   **I recommend using Carsmaster's water mod to avoid artifacts (you may need to manually install it, even if it's included in a modpack you are using).**
 - forests are flat (but using a parallax effect) (code for layered forests exists but needs performance improvement)
 - misplaced coast lines on some maps
-- no normal/bump maps
 - lighting / atmosphere color could use some tuning, or a better (PBR) algorithm
 - no water reflections
 - water is flat
 - no cloud shadows
 - no shore waves / wave foam (code is there but currently disabled) - WIP
+- ~~no normal/bump maps~~
 - ~~terrain artifacts (e.g. appears lower than it acually is)~~
 - ~~objects appear in front of terrain even if they are behind it~~
 - ~~forest near/far texture is not blended~~
