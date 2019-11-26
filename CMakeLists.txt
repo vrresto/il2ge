@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
 if(platform STREQUAL "mingw")
-  if (mingw_crash_handler_dir)
+  if(mingw_crash_handler_dir)
     add_subdirectory(${mingw_crash_handler_dir} ${CMAKE_BINARY_DIR}/mingw_crash_handler)
-  else (mingw_crash_handler_dir)
+  else()
     add_subdirectory(_modules/mingw_crash_handler)
-  endif (mingw_crash_handler_dir)
+  endif()
 endif(platform STREQUAL "mingw")
 
 set(il2ge_data_dir "il2ge")
