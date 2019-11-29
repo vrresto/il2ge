@@ -110,10 +110,14 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/_modules/inih/cpp
 )
 
-if(platform_mingw)
-  ExternalProject_Get_Property(glm SOURCE_DIR)
-  include_directories(${SOURCE_DIR})
-endif(platform_mingw)
+
+ExternalProject_Get_Property(glm SOURCE_DIR)
+include_directories(${SOURCE_DIR})
+
+
+ExternalProject_Get_Property(half SOURCE_DIR)
+include_directories(${SOURCE_DIR}/include)
+
 
 add_subdirectory(common)
 if(enable_map_viewer)
