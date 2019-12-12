@@ -1,6 +1,6 @@
 configure_file(version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
 
-add_definitions(-DINI_ALLOW_MULTILINE=0 -DINI_ALLOW_INLINE_COMMENTS=1)
+add_definitions(-DINI_ALLOW_MULTILINE=0 -DINI_ALLOW_INLINE_COMMENTS=1 -DINI_ALLOW_NO_VALUE=1)
 add_definitions("-DINI_INLINE_COMMENT_PREFIXES=\"\;/\"")
 
 set(CXX_SRCS

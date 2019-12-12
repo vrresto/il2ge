@@ -7,4 +7,4 @@
 	url = https://gitlab.com/vrresto/mingw_crash_handler.git
 [submodule "_modules/inih"]
 	path = _modules/inih
-	url = https://gitlab.com/vrresto/inih.git
+	url = https://github.com/benhoyt/inih.git
