@@ -33,6 +33,8 @@ namespace
 {
 
 
+constexpr char TAB[] = "  ";
+
 struct MethodInfo
 {
   string name;
@@ -108,7 +110,7 @@ void emitInterfaceDefinition(const ClassInfo &info, ostream &out)
   out << "{" << endl;
   for (const MethodInfo &m : info.methods)
   {
-    out << '\t' << m.name << "_t::Signature *" << m.name << " = nullptr;" << endl;
+    out << TAB << m.name << "_t::Signature *" << m.name << " = nullptr;" << endl;
   }
   out << "};" << endl;
 }
@@ -137,12 +139,12 @@ void emitMetaClassRegistration(const string &name, ostream &out)
   out << class_name << "(MetaClass &meta_class)" << endl;
 
   out << "{" << endl;
-  out << '\t' << "meta_class.package = \"com.maddox." << package << "\";" <<endl;
-  out << '\t' << "meta_class.name = \"" << class_name << "\";" << endl;
+  out << TAB << "meta_class.package = \"com.maddox." << package << "\";" <<endl;
+  out << TAB << "meta_class.name = \"" << class_name << "\";" << endl;
 
   for (MethodInfo &mi : info.methods)
   {
-    out << '\t' << "meta_class.addMethod<" << mi.name <<
+    out << TAB << "meta_class.addMethod<" << mi.name <<
       "_t>(\"" << mi.name << "\", &::import." << mi.name << ", &::" << mi.name << ");" << endl;
   }
 
@@ -156,13 +158,13 @@ void emitMethodImplementation(const MethodInfo &mi, ostream &out)
   out << mi.return_type << " JNICALL " << mi.name << "(JNIEnv *env, jobject obj";
   for (size_t i = 0; i < mi.arg_types.size(); i++)
   {
-    out << "," << endl << "\t\t" << mi.arg_types[i] << " arg" << i;
+    out << "," << endl << TAB << TAB << mi.arg_types[i] << " arg" << i;
   }
   out << ")" << endl;
 
   // body
   out << "{" << endl;
-  out << "\t" << "return import." << mi.name << "(env, obj";
+  out << TAB << "return import." << mi.name << "(env, obj";
   for (size_t i = 0; i < mi.arg_types.size(); i++)
   {
     out << "," << " arg" << i;
@@ -180,15 +182,15 @@ void emitMethodStubImplementation(const string &class_name, const MethodInfo &mi
   out << mi.return_type << " JNICALL " << mi.name << "(JNIEnv *env, jobject obj";
   for (size_t i = 0; i < mi.arg_types.size(); i++)
   {
-    out << "," << endl << "\t\t" << mi.arg_types[i] << " arg" << i;
+    out << "," << endl << TAB << TAB << mi.arg_types[i] << " arg" << i;
   }
   out << ")" << endl;
 
   // body
   out << "{" << endl;
-  out << "\t" << "LOG_ERROR(\"UNIMPLEMENTED: "
+  out << TAB << "LOG_ERROR(\"UNIMPLEMENTED: "
       << class_name << "." << mi.name << "()\")<<std::endl;" << endl;
-  out << "\t" << "exit(1);" << endl;
+  out << TAB << "exit(1);" << endl;
   out << "}" << endl;
 
   out << endl;
