@@ -1,0 +1,347 @@
+void il2.engine.LightPoint setPos jint jfloat jfloat jfloat
+void il2.engine.LightPoint setColor jint jfloat jfloat jfloat
+void il2.engine.LightPoint setEmit jint jfloat jfloat
+void il2.engine.LightPoint getPos jint jfloatArray
+void il2.engine.LightPoint getColor jint jfloatArray
+void il2.engine.LightPoint getEmit jint jfloatArray
+void il2.engine.LightPoint setOffset jfloat jfloat jfloat
+void il2.engine.LightPoint addToRender jint
+void il2.engine.LightPoint clearRender
+void il2.engine.LightPoint Finalize jint
+jint il2.engine.LightPoint New
+jint il2.engine.EffSmokeTrail cNew
+void il2.engine.Renders PrePreRenders
+void il2.engine.Renders PostPreRenders
+void il2.engine.Renders PostRenders
+void il2.engine.EngineProfile getLow jintArray
+jint il2.engine.EffAnimatedSprite cNew
+void il2.engine.MeshShared RenderArray jboolean jint jintArray jdoubleArray jfloatArray
+void il2.engine.MeshShared RenderArrayShadowProjective jint jintArray jdoubleArray jfloatArray
+void il2.engine.MeshShared RenderArrayShadowVolume jint jintArray jdoubleArray jfloatArray
+void il2.engine.MeshShared RenderArrayShadowVolumeHQ jint jintArray jdoubleArray jfloatArray
+void il2.engine.Render flush
+void il2.engine.Render shadows
+void il2.engine.Render enableFog jboolean
+void il2.engine.Render transform3f jfloatArray jint
+void il2.engine.Render transformVirt3f jfloatArray jint
+void il2.engine.Render transform3fInv jfloatArray jint
+void il2.engine.Render vertexArraysTransformAndLock jfloatArray jint
+void il2.engine.Render vertexArraysUnLock
+void il2.engine.Render drawBeginSprites jint
+void il2.engine.Render drawPushSprite jfloat jfloat jfloat jfloat jint jfloat
+void il2.engine.Render drawPushSprite jfloat jfloat jfloat jfloat jint jfloat jfloat
+void il2.engine.Render drawPushSprite jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat
+void il2.engine.Render prepareStates
+void il2.engine.Render clearStates
+void il2.engine.Render drawBeginTriangleLists jint
+void il2.engine.Render drawTriangleList jfloatArray jintArray jint jintArray jint
+void il2.engine.Render drawTriangleList jfloatArray jint jint jint jintArray jint
+void il2.engine.Render drawEnd
+void il2.engine.Render drawBeginLines jint
+void il2.engine.Render drawLines jfloatArray jint jfloat jint jint jint
+jboolean il2.engine.Render DrawSetMaterial jint jfloat jfloat jfloat jfloat
+jboolean il2.engine.Render DrawSetMaterial0 jint
+void il2.engine.Render DrawTile jfloat jfloat jfloat jfloat jfloat jint jint jfloat jfloat jfloat jfloat
+jobject il2.engine.CodePage get jstring
+jobject il2.engine.CodePage getApp
+void il2.engine.CodePage setApp jstring
+jobject il2.engine.CodePage getSystemAnsi
+jobject il2.engine.CodePage getSystemOem
+jint il2.engine.CodePage Translate jint jint
+jint il2.engine.CodePage Size jint
+jstring il2.engine.CodePage NameCP jint
+void il2.engine.HierMesh GetChunkCurVisBoundBox jint jfloatArray
+jint il2.engine.HierMesh Load jstring
+jint il2.engine.HierMesh LoadSubtree jint
+jint il2.engine.HierMesh LoadSubtreeLoc jint jdoubleArray
+jintArray il2.engine.HierMesh HideChunksInSubtrees jint jstring
+jintArray il2.engine.HierMesh GetChunksInSubtrees jint jstring
+jintArray il2.engine.HierMesh GetChunksInSubtreesSpec jint jstring
+void il2.engine.HierMesh SetPosXYZATK jint jdouble jdouble jdouble jfloat jfloat jfloat
+jint il2.engine.HierMesh PreRender jint
+void il2.engine.HierMesh Render jint
+void il2.engine.HierMesh RenderShadowProjective jint
+void il2.engine.HierMesh RenderShadowVolume jint
+void il2.engine.HierMesh RenderShadowVolumeHQ jint
+jint il2.engine.HierMesh DetectCollision jint jdoubleArray jint jdoubleArray
+jint il2.engine.HierMesh DetectCollisionMesh jint jdoubleArray jint jdoubleArray
+jfloat il2.engine.HierMesh DetectCollisionLine jint jdoubleArray jdoubleArray jdoubleArray
+jint il2.engine.HierMesh DetectCollisionLineMulti jint jdoubleArray jdoubleArray jdoubleArray
+jfloat il2.engine.HierMesh DetectCollisionQuad jint jdoubleArray jdoubleArray
+jint il2.engine.HierMesh DetectCollisionQuadMultiH jint jdoubleArray jdoubleArray
+jint il2.engine.HierMesh DetectCollisionPoint jint jdoubleArray jdoubleArray
+jfloat il2.engine.HierMesh DetectCollisionPlane jint jdoubleArray jdoubleArray
+jfloat il2.engine.HierMesh VisibilityR jint
+jfloat il2.engine.HierMesh CollisionR jint
+jfloat il2.engine.HierMesh GetUniformMaxDist jint
+jint il2.engine.HierMesh Chunks jint
+void il2.engine.HierMesh SetCurChunk jint jint
+jint il2.engine.HierMesh SetCurChunkByName jint jstring
+jint il2.engine.HierMesh ChunkFind jint jstring
+jint il2.engine.HierMesh ChunkFindCheck jint jstring
+jstring il2.engine.HierMesh ChunkName jint
+jfloat il2.engine.HierMesh GetChunkVisibilityR jint
+jint il2.engine.HierMesh GetChunkVisibility jint
+void il2.engine.HierMesh SetChunkVisibility jint jint
+void il2.engine.HierMesh SetChunkAngles jint jfloatArray
+void il2.engine.HierMesh SetChunkLocate jint jfloatArray jfloatArray
+jint il2.engine.HierMesh Frames jint
+void il2.engine.HierMesh SetFrame jint jint
+void il2.engine.HierMesh SetFrame jint jint jint jfloat
+void il2.engine.HierMesh SetFrameFromRange jint jint jint jfloat
+jint il2.engine.HierMesh Hooks jint
+jint il2.engine.HierMesh HookFind jint jstring
+jstring il2.engine.HierMesh HookName jint jint
+void il2.engine.HierMesh HookMatrix jint jint jdoubleArray
+void il2.engine.HierMesh GetChunkLTM jint jdoubleArray
+jint il2.engine.HierMesh ChunkByHookNamed jint jint
+jint il2.engine.HierMesh HookFaceCollisFind jint jdoubleArray jintArray jdoubleArray
+jint il2.engine.HierMesh HookFaceFind jint jdoubleArray jintArray jdoubleArray
+jint il2.engine.HierMesh HookChunkFaceFind jint jdoubleArray jdoubleArray
+void il2.engine.HierMesh HookFaceMatrix jint jint jint jdoubleArray
+jint il2.engine.HierMesh Materials jint
+jint il2.engine.HierMesh MaterialFind jint jstring jint jint
+jint il2.engine.HierMesh MaterialFindInChunk jint jstring jint
+jobject il2.engine.HierMesh Material jint jint
+void il2.engine.HierMesh MaterialReplace jint jint jint
+void il2.engine.HierMesh MaterialReplace jint jint jstring
+void il2.engine.HierMesh MaterialReplace jint jstring jint
+void il2.engine.HierMesh MaterialReplace jint jstring jstring
+jfloat il2.engine.HierMesh PoseCRC jint
+jint il2.engine.HierMesh isVisualRayHit jint jdoubleArray jdouble jdouble jdoubleArray
+jint il2.engine.HierMesh ApplyDecal jint jint jfloat jfloat jint jdoubleArray jfloatArray jint jintArray jint
+jint il2.engine.HierMesh GrabDecalsFromChunk jint jint
+jint il2.engine.HierMesh ApplyGrabbedDecalsToChunk jint jint
+void il2.engine.HierMesh RenderChunkMirror jint jdoubleArray jdoubleArray jdoubleArray
+void il2.engine.HierMesh RenderShadowPairs jint jintArray
+void il2.engine.RenderContext SetDrawMesh jboolean
+void il2.engine.RenderContext Begin jint jint
+void il2.engine.RenderContext End
+jint il2.engine.RenderContext TexGetFlags
+void il2.engine.RenderContext SetPolygonOffset jfloat jfloat
+void il2.engine.RenderContext GetPolygonOffset jfloatArray
+jint il2.engine.EffClouds Load jint jfloat
+void il2.engine.EffClouds Destroy jint
+void il2.engine.EffClouds SetType jint jint
+void il2.engine.EffClouds SetHeight jint jfloat
+jboolean il2.engine.EffClouds GetRandomCloudPos jint jfloatArray
+jfloat il2.engine.EffClouds GetVisibility jint jfloat jfloat jfloat jfloat jfloat jfloat
+jint il2.engine.EffClouds PreRender jint
+void il2.engine.EffClouds Render jint
+jstring il2.engine.CfgFlagsEngine Name jint
+jboolean il2.engine.CfgFlagsEngine IsPermanent jint
+jint il2.engine.CfgFlagsEngine FirstFlag jint
+jint il2.engine.CfgFlagsEngine CountFlags jint
+jboolean il2.engine.CfgFlagsEngine GetDefaultFlag jint jint
+jstring il2.engine.CfgFlagsEngine NameFlag jint jint
+jboolean il2.engine.CfgFlagsEngine IsPermanentFlag jint jint
+jboolean il2.engine.CfgFlagsEngine IsEnabledFlag jint jint
+jint il2.engine.CfgFlagsEngine GetFlagStatus jint jint
+jboolean il2.engine.CfgFlagsEngine Get jint jint
+jint il2.engine.CfgFlagsEngine Set jint jint jboolean
+jint il2.engine.EffSmokeSpiral cNew
+jobject il2.engine.Eff3D New
+void il2.engine.Eff3D SetPos jint jfloatArray
+void il2.engine.Eff3D SetAnglesATK jint jfloatArray
+void il2.engine.Eff3D SetXYZATK jint jfloat jfloat jfloat jfloat jfloat jfloat
+jint il2.engine.Eff3D PreRender jint
+void il2.engine.Eff3D Render jint
+void il2.engine.Eff3D Pause jint jboolean
+jboolean il2.engine.Eff3D IsPaused jint
+void il2.engine.Eff3D SetIntesity jint jfloat
+jfloat il2.engine.Eff3D GetIntesity jint
+void il2.engine.Eff3D Finish jint
+jfloat il2.engine.Eff3D TimeLife jint
+jfloat il2.engine.Eff3D TimeFinish jint
+jboolean il2.engine.Eff3D IsTimeReal jint
+void il2.engine.Eff3D initSetProcessTime jfloat
+void il2.engine.Eff3D initSetTypeTimer jboolean
+void il2.engine.Eff3D initSetBoundBox jfloat jfloat jfloat jfloat jfloat jfloat
+void il2.engine.Eff3D initSetPos jfloat jfloat jfloat
+void il2.engine.Eff3D initSetSize jfloat
+void il2.engine.Eff3D initSetAnglesATK jfloat jfloat jfloat
+void il2.engine.Eff3D initSetSubType jint
+void il2.engine.Eff3D initSetMaterialName jstring
+void il2.engine.Eff3D initSetParamFileName jstring
+jint il2.engine.EffParticles cNew
+jboolean il2.engine.Mat tgaInfo jstring jintArray
+jintArray il2.engine.Mat LoadTextureAsArrayFromTga jstring jint jint jint jint jintArray
+void il2.engine.Mat enableDeleteTextureID jboolean
+void il2.engine.Mat setGrayScaleLoading jboolean
+jboolean il2.engine.Mat isGrayScaleLoading
+jboolean il2.engine.Mat IsValidLayer jint jint
+void il2.engine.Mat SetLayer jint jint
+jboolean il2.engine.Mat Get jint jshort
+jint il2.engine.Mat Get jint jint
+jfloat il2.engine.Mat Get jint jbyte
+jstring il2.engine.Mat Get jint jchar
+jboolean il2.engine.Mat Set jint jshort jboolean
+jint il2.engine.Mat Set jint jint jint
+jfloat il2.engine.Mat Set jint jbyte jfloat
+jint il2.engine.Mat Set jint jchar jstring
+jint il2.engine.Mat PreRender jint jfloat jfloat jfloat jfloat
+jint il2.engine.Mat PreRender jint
+void il2.engine.Mat UpdateImage jint jint jint jint jbyteArray
+void il2.engine.Mat GrabFromScreen jint jint jint jint jint
+jobject il2.engine.CfgGObj FindByName jstring
+jstring il2.engine.FObj Name jint
+void il2.engine.FObj Rename jint jstring
+jlong il2.engine.FObj Hash jint
+jint il2.engine.FObj GetFObj jstring
+jint il2.engine.FObj GetFObj jstring jstring
+jint il2.engine.FObj GetFObj jlong
+jboolean il2.engine.FObj Exist jstring
+jboolean il2.engine.FObj Exist jlong
+jint il2.engine.FObj NextFObj jint
+jint il2.engine.FObj ReLoad jint
+jstring il2.engine.CfgIntEngine Name jint
+jboolean il2.engine.CfgIntEngine IsPermanent jint
+jint il2.engine.CfgIntEngine FirstState jint
+jint il2.engine.CfgIntEngine CountStates jint
+jint il2.engine.CfgIntEngine DefaultState jint
+jstring il2.engine.CfgIntEngine NameState jint jint
+jint il2.engine.CfgIntEngine GetStateStatus jint jint
+jint il2.engine.CfgIntEngine GetState jint
+jint il2.engine.CfgIntEngine SetState jint jint
+void il2.engine.Sun setNative jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat
+jstring il2.engine.Mesh collisionNameMulti jint jint
+jfloat il2.engine.Mesh collisionDistMulti jint
+jstring il2.engine.Mesh collisionChunk jint
+jint il2.engine.Mesh Load jstring
+jint il2.engine.Mesh CreateMeshFromHiermeshChunk jint
+jstring il2.engine.Mesh GetFileName jint
+void il2.engine.Mesh GetBoundBox jint jfloatArray
+void il2.engine.Mesh SetPosXYZATK jint jdouble jdouble jdouble jfloat jfloat jfloat
+jint il2.engine.Mesh PreRenderXYZ jint jdouble jdouble jdouble
+jint il2.engine.Mesh PreRender jint
+void il2.engine.Mesh SetFastShadowVisibility jint jint
+void il2.engine.Mesh Render jint
+void il2.engine.Mesh RenderShadowProjective jint
+void il2.engine.Mesh RenderShadowVolume jint
+void il2.engine.Mesh RenderShadowVolumeHQ jint
+jint il2.engine.Mesh DetectCollision jint jdoubleArray jint jdoubleArray
+jfloat il2.engine.Mesh DetectCollisionLine jint jdoubleArray jdoubleArray jdoubleArray
+jint il2.engine.Mesh DetectCollisionLineMulti jint jdoubleArray jdoubleArray jdoubleArray
+jfloat il2.engine.Mesh DetectCollisionQuad jint jdoubleArray jdoubleArray
+jint il2.engine.Mesh DetectCollisionQuadMultiM jint jdoubleArray jdoubleArray
+jint il2.engine.Mesh DetectCollisionPoint jint jdoubleArray jdoubleArray
+jfloat il2.engine.Mesh DetectCollisionPlane jint jdoubleArray jdoubleArray
+void il2.engine.Mesh SetScale jint jfloat
+jfloat il2.engine.Mesh Scale jint
+void il2.engine.Mesh SetScaleXYZ jint jfloat jfloat jfloat
+void il2.engine.Mesh ScaleXYZ jint jfloatArray
+jfloat il2.engine.Mesh VisibilityR jint
+jfloat il2.engine.Mesh CollisionR jint
+jfloat il2.engine.Mesh GetUniformMaxDist jint
+jint il2.engine.Mesh Frames jint
+void il2.engine.Mesh SetFrame jint jint
+void il2.engine.Mesh SetFrame jint jint jint jfloat
+void il2.engine.Mesh SetFrameFromRange jint jint jint jfloat
+jint il2.engine.Mesh Hooks jint
+jint il2.engine.Mesh HookFind jint jstring
+jstring il2.engine.Mesh HookName jint jint
+void il2.engine.Mesh HookMatrix jint jint jdoubleArray
+jint il2.engine.Mesh HookFaceFind jint jdoubleArray jdoubleArray
+void il2.engine.Mesh HookFaceMatrix jint jint jint jdoubleArray
+jint il2.engine.Mesh Materials jint
+jint il2.engine.Mesh MaterialFind jint jstring jint jint
+jobject il2.engine.Mesh Material jint jint
+void il2.engine.Mesh MaterialReplace jint jint jint
+void il2.engine.Mesh MaterialReplace jint jint jstring
+void il2.engine.Mesh MaterialReplace jint jstring jint
+void il2.engine.Mesh MaterialReplace jint jstring jstring
+jint il2.engine.Mesh IsSimilar jint jint
+jint il2.engine.Mesh IsAllowsSimpleRendering jint
+jfloat il2.engine.Mesh HeightMapMeshGetHeight jint jdouble jdouble
+jint il2.engine.Mesh HeightMapMeshGetNormal jint jdouble jdouble jfloatArray
+jint il2.engine.Mesh HeightMapMeshGetPlane jint jdouble jdouble jdoubleArray
+jfloat il2.engine.Mesh HeightMapMeshGetRayHit jint jdoubleArray
+jint il2.engine.BmpUtils squareSizeBMP8Pal jstring
+jint il2.engine.BmpUtils RectSizeBMP8Pal jstring
+jboolean il2.engine.BmpUtils BMP8Scale05 jstring jstring
+jboolean il2.engine.BmpUtils BMP8PalToTGA3 jstring jstring
+jboolean il2.engine.BmpUtils BMP8Pal192x256ToTGA3 jstring jstring
+jboolean il2.engine.BmpUtils BMP8PalToTGA4 jstring jstring
+jboolean il2.engine.BmpUtils BMP8PalTo2TGA4 jstring jstring jstring
+jboolean il2.engine.BmpUtils BMP8PalTo4TGA4 jstring jstring jstring
+jint il2.engine.Landscape getPixelMapT jint jint
+void il2.engine.Landscape setPixelMapT jint jint jint
+jint il2.engine.Landscape getPixelMapH jint jint
+void il2.engine.Landscape setPixelMapH jint jint jint
+jboolean il2.engine.Landscape isWater jfloat jfloat
+jint il2.engine.Landscape estimateNoWater jint jint jint
+jint il2.engine.Landscape getSizeXpix
+jint il2.engine.Landscape getSizeYpix
+jfloat il2.engine.Landscape cH jfloat jfloat
+jfloat il2.engine.Landscape cHmax jfloat jfloat
+jfloat il2.engine.Landscape cHmin jfloat jfloat
+jfloat il2.engine.Landscape cHQ_Air jfloat jfloat
+jfloat il2.engine.Landscape cHQ_forestHeightHere jfloat jfloat
+jint il2.engine.Landscape HQRoadTypeHere jfloat jfloat
+jfloat il2.engine.Landscape cHQ jfloat jfloat
+void il2.engine.Landscape cEQN jfloatArray
+jint il2.engine.Landscape getFogAverageRGBA
+jfloat il2.engine.Landscape getDynamicFogAlpha
+jint il2.engine.Landscape getDynamicFogRGB
+jint il2.engine.Landscape getFogRGBA jfloat jfloat jfloat
+jint il2.engine.Landscape ComputeVisibilityOfLandCells jfloat jint jint jint jint jint jint jint jint jintArray
+jint il2.engine.Landscape Compute2DBoundBoxOfVisibleLand jfloat jint jint jfloatArray
+void il2.engine.Landscape MarkStaticActorsCells jint jint jint jint jint jintArray
+void il2.engine.Landscape MarkActorCellWithTrees jint jint jint jintArray jint
+jboolean il2.engine.Landscape cIsCubeUpdated
+void il2.engine.Landscape cSetRoadsFunDrawing jboolean
+void il2.engine.Landscape cPreRender jfloat jboolean jfloatArray
+jint il2.engine.Landscape cRender0 jint
+void il2.engine.Landscape cRender1 jint
+jboolean il2.engine.Landscape cLoadMap jstring jintArray jint jboolean
+void il2.engine.Landscape cUnloadMap
+void il2.engine.Landscape cRenderBridgeRoad jint jint jint jint jint jint jfloat
+jint il2.engine.Landscape cRefBeg jint
+jint il2.engine.Landscape cRefEnd
+jboolean il2.engine.Landscape cRayHitHQ jfloatArray jfloatArray jfloatArray
+void il2.engine.Landscape setAstronomic jint jint jint jfloat jfloat
+void il2.engine.Camera SetTargetSpeed jfloat jfloat jfloat
+void il2.engine.Camera GetUniformDistParams jfloatArray
+void il2.engine.Camera ActivateWorldMode jint
+void il2.engine.Camera DeactivateWorldMode
+void il2.engine.Camera GetVirtOrigin jfloatArray
+jboolean il2.engine.Camera SetViewportCrop jfloat jint jint jint jint jint jint jint jint jint jint
+void il2.engine.Camera SetCameraPos jdoubleArray
+void il2.engine.Camera SetOrtho2D jfloat jfloat jfloat jfloat jfloat jfloat
+void il2.engine.Camera SetOrtho jfloat jfloat jfloat
+void il2.engine.Camera SetZOrder jfloat
+void il2.engine.Camera SetFOV jfloat jfloat jfloat
+jboolean il2.engine.Camera isSphereVisibleF jfloat jfloat jfloat jfloat
+jboolean il2.engine.Camera isSphereVisibleD jdouble jdouble jdouble jfloat
+jobject il2.engine.TTFont get jstring
+void il2.engine.TTFont setContextWidth jint
+void il2.engine.TTFont reloadAllOnResize
+void il2.engine.TTFont Output jint jint jfloat jfloat jfloat jstring jint jint
+void il2.engine.TTFont Output jint jint jfloat jfloat jfloat jcharArray jint jint
+void il2.engine.TTFont OutputClip jint jint jfloat jfloat jfloat jstring jint jint jfloat jfloat jfloat jfloat
+void il2.engine.TTFont OutputClipArr jint jint jfloat jfloat jfloat jcharArray jint jint jfloat jfloat jfloat jfloat
+void il2.engine.TTFont Transform jint jobject jint jstring jint jint
+void il2.engine.TTFont Transform jint jobject jint jcharArray jint jint
+jfloat il2.engine.TTFont Width jint jstring jint jint
+jfloat il2.engine.TTFont Width jint jcharArray jint jint
+jint il2.engine.TTFont Len jint jstring jint jint jfloat jint
+jint il2.engine.TTFont Len jint jcharArray jint jint jfloat jint
+jint il2.engine.TTFont LenEnd jint jstring jint jint jfloat jint
+jint il2.engine.TTFont LenEnd jint jcharArray jint jint jfloat jint
+jint il2.engine.TTFont Height jint
+jint il2.engine.TTFont Descender jint
+void il2.engine.TTFont ReloadOnResize jint
+void il2.engine.GObj Finalize jint
+jint il2.engine.GObj LinkCount jint
+void il2.engine.GObj Unlink jint
+jobject il2.engine.GObj Clone jint
+jboolean il2.engine.GObj LinkLock jint
+void il2.engine.GObj SetLinkLock jint jboolean
+jstring il2.engine.GObj getCppClassName jint
+jobject il2.engine.GObj getJavaObject jint
+void il2.engine.GObj DeleteCppObjects
+jint il2.engine.GObj version
+void il2.engine.GObj setInterf jint
+jboolean rts.ScreenMode EGet jint jintArray
+jboolean rts.ScreenMode ESet jintArray
+void rts.ScreenMode EGetCurrent jintArray

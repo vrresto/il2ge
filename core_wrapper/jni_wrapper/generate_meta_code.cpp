@@ -173,6 +173,28 @@ void emitMethodImplementation(const MethodInfo &mi, ostream &out)
   out << endl;
 }
 
+
+void emitMethodStubImplementation(const string &class_name, const MethodInfo &mi, ostream &out)
+{
+  // head
+  out << mi.return_type << " JNICALL " << mi.name << "(JNIEnv *env, jobject obj";
+  for (size_t i = 0; i < mi.arg_types.size(); i++)
+  {
+    out << "," << endl << "\t\t" << mi.arg_types[i] << " arg" << i;
+  }
+  out << ")" << endl;
+
+  // body
+  out << "{" << endl;
+  out << "\t" << "LOG_ERROR(\"UNIMPLEMENTED: "
+      << class_name << "." << mi.name << "()\")<<std::endl;" << endl;
+  out << "\t" << "exit(1);" << endl;
+  out << "}" << endl;
+
+  out << endl;
+}
+
+
 void dumpClassWrappers(const string &output_dir)
 {
   for (auto it : g_classes)
@@ -207,6 +229,42 @@ void dumpClassWrappers(const string &output_dir)
     out << endl;
     out << endl;
     out << "#include <_generated/jni_wrapper/" << class_name << "_registration>" << endl;
+  }
+}
+
+
+void dumpClassStubs(const string &output_dir)
+{
+  for (auto it : g_classes)
+  {
+    string class_name = it.first;
+    const ClassInfo &ci = it.second;
+
+    ofstream out(output_dir + '/' + "stub_" + class_name + ".cpp");
+    assert(out.good());
+
+    out << "#include \"jni_wrapper.h\"" << endl;
+    out << "#include \"meta_class_registrators.h\"" << endl;
+    out << endl;
+    out << "using namespace jni_wrapper;" << endl;
+    out << endl;
+    out << "namespace" << endl;
+    out << "{" << endl;
+    out << endl;
+    out << "#include <_generated/jni_impl/" << class_name << "_definitions>" << endl;
+    out << endl;
+
+    for (const MethodInfo &mi : ci.methods)
+    {
+      emitMethodStubImplementation(class_name, mi, out);
+    }
+
+    out << endl;
+    out << "} // namespace" << endl;
+
+    out << endl;
+    out << endl;
+    out << "#include <_generated/jni_impl/" << class_name << "_registration>" << endl;
   }
 }
 
@@ -280,11 +338,17 @@ int main(int argc, char **argv)
 
     emitMetaClassRegistration(class_name, cout);
   }
-  else if (cmd == "all")
+  else if (cmd == "class-wrappers")
   {
     parseSignatures(cin);
 
     dumpClassWrappers(cmd_arg);
+  }
+  else if (cmd == "class-stubs")
+  {
+    parseSignatures(cin);
+
+    dumpClassStubs(cmd_arg);
   }
   else
   {

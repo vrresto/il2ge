@@ -141,8 +141,22 @@ endforeach(name)
 
 add_custom_target(class-wrappers
   COMMAND mkdir -p ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/class_wrappers
-  COMMAND ${generator_cmd} all ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/class_wrappers
+  COMMAND ${generator_cmd} class-wrappers ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/class_wrappers
     < ${CMAKE_CURRENT_SOURCE_DIR}/jni_wrapper/signatures
+  DEPENDS jni_generator
+)
+
+add_custom_target(class-wrappers-all
+  COMMAND mkdir -p ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/class_wrappers
+  COMMAND ${generator_cmd} class-wrappers ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/class_wrappers
+    < ${CMAKE_CURRENT_SOURCE_DIR}/jni_wrapper/all_signatures
+  DEPENDS jni_generator
+)
+
+add_custom_target(class-stubs
+  COMMAND mkdir -p ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/class_stubs
+  COMMAND ${generator_cmd} class-stubs ${PROJECT_BINARY_DIR}/_generated/jni_wrapper/class_stubs
+    < ${CMAKE_CURRENT_SOURCE_DIR}/jni_wrapper/all_signatures
   DEPENDS jni_generator
 )
 
