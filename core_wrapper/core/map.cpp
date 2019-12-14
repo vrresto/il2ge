@@ -217,13 +217,19 @@ Map::Map(const char *path, ProgressReporter *progress,
   FORCE_CHECK_GL_ERROR();
 
   progress->report(7, "Creating terrain");
-  p->terrain->build(elevation_map,
-                                          p->material_map,
-                                          terrain_textures.type_map,
-                                          terrain_textures.textures,
-                                          terrain_textures.textures_nm,
-                                          terrain_textures.texture_scale,
-                                          shader_params);
+
+  render_util::TerrainBase::BuildParameters params =
+  {
+    .map = elevation_map,
+    .material_map = p->material_map,
+    .type_map = terrain_textures.type_map,
+    .textures = terrain_textures.textures,
+    .textures_nm = terrain_textures.textures_nm,
+    .texture_scale = terrain_textures.texture_scale,
+    .shader_parameters = shader_params,
+  };
+
+  p->terrain->build(params);
 
 #if 0
   if (elevation_map_base)
