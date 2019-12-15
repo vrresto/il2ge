@@ -62,13 +62,15 @@ std::string getExeFilePath()
 struct ElevationMapLoader : public render_util::ElevationMapLoaderBase
 {
   std::string m_map_path;
+  std::string m_base_map_path;
 
-  ElevationMapLoader(std::string map_path) : m_map_path(map_path) {}
+  ElevationMapLoader(std::string map_path, std::string base_map_path) :
+    m_map_path(map_path), m_base_map_path(base_map_path) {}
 
   render_util::ElevationMap::Ptr createElevationMap() const override
   {
     auto hm_image =
-      render_util::loadImageFromFile<render_util::ImageGreyScale>(m_map_path);;
+      render_util::loadImageFromFile<render_util::ImageGreyScale>(m_map_path);
 
     if (hm_image)
       return il2ge::map_loader::createElevationMap(hm_image);
@@ -80,6 +82,28 @@ struct ElevationMapLoader : public render_util::ElevationMapLoaderBase
   {
     return 200;
   }
+
+  render_util::ElevationMap::Ptr createBaseElevationMap() const override
+  {
+    if (!m_base_map_path.empty())
+    {
+      auto hm_image =
+        render_util::loadImageFromFile<render_util::ImageGreyScale>(m_base_map_path);
+
+      if (hm_image)
+        return il2ge::map_loader::createElevationMap(hm_image);
+      else
+        exit(1);
+    }
+    else
+      return {};
+  }
+
+  int getBaseElevationMapMetersPerPixel() const
+  {
+    return 200;
+  }
+
 };
 
 
@@ -93,10 +117,16 @@ int main(int argc, char **argv)
 
   string il2_dir = util::getDirFromPath(getExeFilePath());
   string map_path;
+  string base_map_path;
 
   if (argc == 2)
   {
     map_path = argv[1];
+  }
+  else if (argc == 3)
+  {
+    map_path = argv[1];
+    base_map_path = argv[2];
   }
   else
   {
@@ -108,9 +138,9 @@ int main(int argc, char **argv)
 
   _chdir(il2_dir.c_str());
 
-  render_util::viewer::CreateElevationMapLoaderFunc create_map_loader_func = [&map_path] ()
+  render_util::viewer::CreateElevationMapLoaderFunc create_map_loader_func = [map_path, base_map_path] ()
   {
-    return make_shared<ElevationMapLoader>(map_path);
+    return make_shared<ElevationMapLoader>(map_path, base_map_path);
   };
 
   render_util::viewer::runSimpleViewer(create_map_loader_func, "il2ge_map_editor");
