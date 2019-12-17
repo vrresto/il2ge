@@ -87,24 +87,20 @@ struct ElevationMapLoader : public render_util::ElevationMapLoaderBase
 
   render_util::ElevationMap::Ptr createBaseElevationMapRAW() const
   {
-      constexpr auto BYTES_PER_PIXEL = 2;
+    constexpr auto BYTES_PER_PIXEL = 2;
 
-      ivec2 size(4096);
+    ivec2 size(4096);
 
-      auto num_pixels = size.x * size.y;
-      auto data_size = num_pixels * BYTES_PER_PIXEL;
+    auto num_pixels = size.x * size.y;
+    auto data_size = num_pixels * BYTES_PER_PIXEL;
 
-      vector<unsigned char> data;
-      if (util::readFile(m_base_map_path, data))
-      {
-        cout<<"data.size(): "<<data.size()<<endl;
-        assert(data.size() == data_size);
+    auto data = util::readFile<unsigned char>(m_base_map_path);
 
-        auto image = make_shared<render_util::Image<int16_t>>(size, std::move(data));
-        return render_util::image::convert<float>(image);
-      }
-      else
-        exit(1);
+    cout<<"data.size(): "<<data.size()<<endl;
+    assert(data.size() == data_size);
+
+    auto image = make_shared<render_util::Image<int16_t>>(size, std::move(data));
+    return render_util::image::convert<float>(image);
   }
 
   render_util::ElevationMap::Ptr createBaseElevationMapTGA() const
