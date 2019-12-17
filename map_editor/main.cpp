@@ -24,12 +24,14 @@
 #include <util.h>
 #include <log.h>
 
+#include <glm/glm.hpp>
 #include <iostream>
 #include <windows.h>
 #include <shlobj.h>
 #include <direct.h>
 
 using namespace std;
+using namespace glm;
 
 
 bool il2ge::map_loader::isDumpEnabled()
@@ -83,10 +85,30 @@ struct ElevationMapLoader : public render_util::ElevationMapLoaderBase
     return 200;
   }
 
-  render_util::ElevationMap::Ptr createBaseElevationMap() const override
+  render_util::ElevationMap::Ptr createBaseElevationMapRAW() const
   {
-    if (!m_base_map_path.empty())
-    {
+      constexpr auto BYTES_PER_PIXEL = 2;
+
+      ivec2 size(4096);
+
+      auto num_pixels = size.x * size.y;
+      auto data_size = num_pixels * BYTES_PER_PIXEL;
+
+      vector<unsigned char> data;
+      if (util::readFile(m_base_map_path, data))
+      {
+        cout<<"data.size(): "<<data.size()<<endl;
+        assert(data.size() == data_size);
+
+        auto image = make_shared<render_util::Image<int16_t>>(size, std::move(data));
+        return render_util::image::convert<float>(image);
+      }
+      else
+        exit(1);
+  }
+
+  render_util::ElevationMap::Ptr createBaseElevationMapTGA() const
+  {
       auto hm_image =
         render_util::loadImageFromFile<render_util::ImageGreyScale>(m_base_map_path);
 
@@ -94,6 +116,27 @@ struct ElevationMapLoader : public render_util::ElevationMapLoaderBase
         return il2ge::map_loader::createElevationMap(hm_image);
       else
         exit(1);
+  }
+
+  render_util::ElevationMap::Ptr createBaseElevationMap() const override
+  {
+    if (!m_base_map_path.empty())
+    {
+      auto ext = util::makeLowercase(util::getFileExtensionFromPath(m_base_map_path));
+
+      if (ext == "tga")
+      {
+        return createBaseElevationMapTGA();
+      }
+      else if(ext == "raw")
+      {
+        return createBaseElevationMapRAW();
+      }
+      else
+      {
+        cerr<<"Unhandled extension: "<<ext<<endl;
+        exit(1);
+      }
     }
     else
       return {};
