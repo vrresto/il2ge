@@ -19,9 +19,10 @@
 #ifndef IL2GE_MAP_LOADER_H
 #define IL2GE_MAP_LOADER_H
 
+#include <render_util/map_base.h>
 #include <render_util/elevation_map.h>
 #include <render_util/terrain_base.h>
-#include <render_util/map_loader_base.h>
+#include <render_util/land_textures.h>
 
 #include <glm/glm.hpp>
 #include <map>
@@ -51,10 +52,10 @@ namespace il2ge::map_loader
 {
   bool isDumpEnabled();
 
-  void createTerrainTextures(il2ge::RessourceLoader*,
-                             render_util::ImageGreyScale::ConstPtr type_map,
-                             render_util::MapLoaderBase::TerrainTextures&,
-                             bool enable_normal_maps);
+  void createLandTextures(il2ge::RessourceLoader*,
+                          render_util::ImageGreyScale::ConstPtr type_map,
+                          render_util::LandTextures&,
+                          bool enable_normal_maps);
 
   void createMapTextures(il2ge::RessourceLoader*,
                         render_util::ImageGreyScale::ConstPtr,

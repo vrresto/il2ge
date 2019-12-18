@@ -195,9 +195,9 @@ void MapLoaderDump::createMapTextures(render_util::MapBase *map) const
 }
 
 
-void MapLoaderDump::createTerrainTextures(TerrainTextures &terrain_textures) const
+void MapLoaderDump::createLandTextures(LandTextures &land_textures) const
 {
-  il2ge::map_loader::createTerrainTextures(m_res_loader, m_type_map, terrain_textures, true);
+  il2ge::map_loader::createLandTextures(m_res_loader, m_type_map, land_textures, true);
 }
 
 

@@ -203,10 +203,10 @@ Map::Map(const char *path, ProgressReporter *progress,
   FORCE_CHECK_GL_ERROR();
 
 
-  MapLoaderBase::TerrainTextures terrain_textures;
-  map_loader::createTerrainTextures(&res_loader, type_map, terrain_textures, enable_normal_maps);
+  LandTextures land_textures;
+  map_loader::createLandTextures(&res_loader, type_map, land_textures, enable_normal_maps);
 
-  p->textures->setTexture(TEXUNIT_TERRAIN_FAR, terrain_textures.far_texture);
+  p->textures->setTexture(TEXUNIT_TERRAIN_FAR, land_textures.far_texture);
 
   p->textures->bind(core::textureManager());
 
@@ -222,10 +222,10 @@ Map::Map(const char *path, ProgressReporter *progress,
   {
     .map = elevation_map,
     .material_map = p->material_map,
-    .type_map = terrain_textures.type_map,
-    .textures = terrain_textures.textures,
-    .textures_nm = terrain_textures.textures_nm,
-    .texture_scale = terrain_textures.texture_scale,
+    .type_map = land_textures.type_map,
+    .textures = land_textures.textures,
+    .textures_nm = land_textures.textures_nm,
+    .texture_scale = land_textures.texture_scale,
     .shader_parameters = shader_params,
   };
 

@@ -184,7 +184,7 @@ void createWaterMap
 
 
 void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
-                         render_util::MapLoaderBase::TerrainTextures &terrain_textures,
+                         render_util::LandTextures &land_textures,
                          il2ge::RessourceLoader *loader,
                          bool enable_normal_maps)
 {
@@ -292,21 +292,21 @@ void createFieldTextures(ImageGreyScale::ConstPtr type_map_,
 
   dump(type_map, "type_map", loader->getDumpDir());
 
-  terrain_textures.type_map = type_map;
-  terrain_textures.textures = textures;
-  terrain_textures.textures_nm = textures_nm;
-  terrain_textures.texture_scale = texture_scale;
+  land_textures.type_map = type_map;
+  land_textures.textures = textures;
+  land_textures.textures_nm = textures_nm;
+  land_textures.texture_scale = texture_scale;
 
   LOG_INFO << "generating far texture ..." <<endl;
   std::vector<ImageRGBA::ConstPtr> textures_const;
   for (auto texture : textures)
     textures_const.push_back(texture);
-  terrain_textures.far_texture =
+  land_textures.far_texture =
     createMapFarTexture(type_map,
                         textures_const,
                         TYPE_MAP_METERS_PER_PIXEL,
                         TERRAIN_METERS_PER_TEXTURE_TILE);
-  dump(terrain_textures.far_texture, "far_texture", loader->getDumpDir());
+  dump(land_textures.far_texture, "far_texture", loader->getDumpDir());
 }
 
 
@@ -425,12 +425,12 @@ ImageGreyScale::Ptr createTypeMap(il2ge::RessourceLoader *loader)
 }
 
 
-void createTerrainTextures(il2ge::RessourceLoader *loader,
-                           ImageGreyScale::ConstPtr type_map,
-                           MapLoaderBase::TerrainTextures &terrain_textures,
-                           bool enable_normal_maps)
+void createLandTextures(il2ge::RessourceLoader *loader,
+                        ImageGreyScale::ConstPtr type_map,
+                        LandTextures &land_textures,
+                        bool enable_normal_maps)
 {
-  createFieldTextures(type_map, terrain_textures, loader, enable_normal_maps);
+  createFieldTextures(type_map, land_textures, loader, enable_normal_maps);
 }
 
 

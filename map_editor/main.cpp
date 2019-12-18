@@ -73,7 +73,7 @@ int showOkCancelDialog(std::string text, std::string title)
 }
 
 
-struct ElevationMapLoader : public render_util::ElevationMapLoaderBase
+struct ElevationMapLoader : public render_util::viewer::ElevationMapLoaderBase
 {
   std::string m_map_path;
   std::string m_base_map_path;

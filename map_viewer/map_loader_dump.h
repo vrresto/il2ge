@@ -19,10 +19,10 @@
 #ifndef MAP_LOADER_DUMP_H
 #define MAP_LOADER_DUMP_H
 
-#include <render_util/map_loader_base.h>
+#include <render_util/viewer.h>
 
 
-class MapLoaderDump : public render_util::MapLoaderBase
+class MapLoaderDump : public render_util::viewer::MapLoaderBase
 {
   class RessourceLoader;
 
@@ -41,7 +41,7 @@ public:
   render_util::ImageGreyScale::Ptr createBaseLandMap() const override;
   glm::vec2 getBaseMapOrigin() const override;
 
-  void createTerrainTextures(TerrainTextures&) const override;
+  void createLandTextures(render_util::LandTextures&) const override;
   void createMapTextures(render_util::MapBase*) const override;
   int getHeightMapMetersPerPixel() const override;
 };
