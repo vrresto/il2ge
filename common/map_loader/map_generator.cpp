@@ -21,7 +21,6 @@
 #include <render_util/image_loader.h>
 #include <render_util/image_resample.h>
 #include <render_util/image_util.h>
-#include <render_util/map.h>
 #include <render_util/texunits.h>
 #include <render_util/texture_util.h>
 #include <render_util/render_util.h>

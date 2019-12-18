@@ -17,7 +17,6 @@
  */
 
 #include "map_loader_dump.h"
-#include <render_util/map.h>
 #include <render_util/image.h>
 #include <render_util/image_loader.h>
 #include <render_util/image_util.h>
