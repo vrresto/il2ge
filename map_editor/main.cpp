@@ -17,6 +17,8 @@
  */
 
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <il2ge/exception_handler.h>
 #include <il2ge/map_loader.h>
 #include <render_util/viewer.h>
@@ -24,7 +26,10 @@
 #include <util.h>
 #include <log.h>
 
+#include <INIReader.h>
+
 #include <glm/glm.hpp>
+#include <glm/gtx/vec_swizzle.hpp>
 #include <iostream>
 #include <windows.h>
 #include <shlobj.h>
@@ -40,7 +45,8 @@ bool il2ge::map_loader::isDumpEnabled()
 }
 
 
-namespace {
+namespace
+{
 
 
 const char* const g_crash_log_file_name = "il2ge_map_editor_crash.log";
@@ -61,13 +67,21 @@ std::string getExeFilePath()
 }
 
 
+int showOkCancelDialog(std::string text, std::string title)
+{
+  return MessageBoxA(nullptr, text.c_str(), title.c_str(), MB_OKCANCEL | MB_ICONQUESTION);
+}
+
+
 struct ElevationMapLoader : public render_util::ElevationMapLoaderBase
 {
   std::string m_map_path;
   std::string m_base_map_path;
 
   ElevationMapLoader(std::string map_path, std::string base_map_path) :
-    m_map_path(map_path), m_base_map_path(base_map_path) {}
+    m_map_path(map_path), m_base_map_path(base_map_path)
+  {
+  }
 
   render_util::ElevationMap::Ptr createElevationMap() const override
   {
@@ -143,6 +157,43 @@ struct ElevationMapLoader : public render_util::ElevationMapLoaderBase
     return 200;
   }
 
+  glm::vec3 getBaseElevationMapOrigin(const glm::vec3 &default_value) const override
+  {
+    auto cfg_file_path = m_base_map_path + ".cfg";
+    INIReader ini(cfg_file_path);
+    if (!ini.ParseError())
+    {
+      return
+      {
+        .x = ini.GetReal("", "origin_x", default_value.x),
+        .y = ini.GetReal("", "origin_y", default_value.y),
+        .z = ini.GetReal("", "origin_z", default_value.z),
+      };
+    }
+    else if (ini.ParseError() == -1)
+    {
+      return default_value;
+    }
+    else
+    {
+      throw std::runtime_error("Error parsing " + cfg_file_path
+                                + " at line " + std::to_string(ini.ParseError()));
+    }
+  }
+
+  void saveBaseElevationMapOrigin(const glm::vec3 &origin) override
+  {
+    auto cfg_file_path = m_base_map_path + ".cfg";
+    if (util::fileExists(cfg_file_path))
+    {
+      if (showOkCancelDialog("Overwrite " + cfg_file_path + "?", "Confirm overwrite") != IDOK)
+        return;
+    }
+    std::ofstream out(cfg_file_path);
+    out << "origin_x = " << origin.x << std::endl;
+    out << "origin_y = " << origin.y << std::endl;
+    out << "origin_z = " << origin.z << std::endl;
+  }
 };
 
 
