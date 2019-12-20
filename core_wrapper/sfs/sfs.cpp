@@ -164,4 +164,85 @@ void *get_openf_wrapper()
 }
 
 
+
+File::File(std::string path) : m_path(path)
+{
+  m_fd = open(path.c_str());
+  if (m_fd == -1)
+    throw std::runtime_error("Failed to open " + path);
+
+  m_size = g_lseek_func(m_fd, 0, SEEK_END);
+  g_lseek_func(m_fd, 0, SEEK_SET);
+}
+
+
+File::~File()
+{
+  g_close_func(m_fd);
+}
+
+
+int File::read(char *out, int bytes)
+{
+  assert(m_pos < m_size);
+
+  auto ret = g_lseek_func(m_fd, m_pos, SEEK_SET);
+  assert(ret == m_pos);
+
+  ret = g_read_func(m_fd, out, bytes);
+  assert(ret != -1);
+  assert(ret >= 0);
+
+  m_pos += ret;
+  assert(m_pos <= m_size);
+
+  return ret;
+}
+
+
+void File::skip(int bytes)
+{
+  m_pos += bytes;
+  assert(m_pos >= 0);
+
+  auto ret = g_lseek_func(m_fd, m_pos, SEEK_SET);
+  assert(ret == m_pos);
+}
+
+
+void File::rewind()
+{
+  m_pos = 0;
+  g_lseek_func(m_fd, m_pos, SEEK_SET);
+}
+
+
+bool File::eof()
+{
+  return m_pos >= m_size;
+}
+
+
+void File::readAll(std::vector<char> &out)
+{
+  assert(m_pos == 0);
+  assert(!eof());
+
+  bool success = false;
+
+  out.resize(m_size);
+
+  auto ret = read(out.data(), out.size());
+  assert(ret == m_size);
+
+  rewind();
+}
+
+
+int File::getSize()
+{
+  return m_size;
+}
+
+
 } // namespace sfs

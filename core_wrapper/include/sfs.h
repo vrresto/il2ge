@@ -19,12 +19,33 @@
 #ifndef IL2GE_SFS_H
 #define IL2GE_SFS_H
 
+#include <file.h>
+
 #include <vector>
 #include <cstdint>
 #include <string>
 
 namespace sfs
 {
+  class File : public util::File
+  {
+    int m_fd = -1;
+    long m_pos = 0;
+    long m_size = 0;
+    std::string m_path;
+
+  public:
+    File(std::string path);
+    ~File() override;
+
+    int read(char *out, int bytes) override;
+    void skip(int bytes) override;
+    void rewind() override;
+    bool eof() override;
+    void readAll(std::vector<char>&) override;
+    int getSize() override;
+  };
+
   void init();
   bool readFile(const std::string &filename, std::vector<char> &out);
   __int64 getHash(const char *filename);
