@@ -1,3 +1,865 @@
+void sound.SoundListener jniSetPosition jdouble jdouble jdouble
+void sound.SoundListener jniSetVelocity jfloat jfloat jfloat
+void sound.SoundListener jniSetOrientation jfloat jfloat jfloat jfloat jfloat jfloat
+void sound.SoundListener jniSetAcoustics jint
+jint sound.Acoustics jniCreate
+void sound.Acoustics jniDestroy jint
+void sound.Acoustics jniSetParent jint jint
+void sound.Acoustics jniSetup jint jint
+void sound.Acoustics jniSetEAX jint jfloat jfloat jfloat jfloat jfloat jfloat
+void sound.Acoustics jniSetPosition jint jdouble jdouble jdouble
+void sound.Acoustics jniSetVelocity jint jfloat jfloat jfloat
+void sound.Acoustics jniSetOrientation jint jfloat jfloat jfloat jfloat jfloat jfloat
+jfloat sound.Acoustics jniGetControl jint jint
+void sound.Acoustics jniSetControl jint jint jfloat
+jboolean sound.BoundsControl jniSet jint jfloat jfloat jfloat jfloat jfloat jfloat jfloat
+jint sound.SoundPreset jniCreate jstring
+void sound.SoundPreset jniSetMutable jint jboolean
+void sound.SoundPreset jniSetSPL jint jfloat jfloat jint
+void sound.SoundPreset jniSetProperties jint jint jint jint
+void sound.SoundPreset jniSetEAX jint jfloat jfloat jfloat jfloat jfloat jfloat
+void sound.SoundPreset jniSetVGroup jint jint
+void sound.SoundPreset jniAddSample jint jint
+jint sound.SoundPreset jniGetControlList jint
+void sound.SoundPreset jniForceControl jint jint
+jint sound.SoundControl jniCreate jint jint jint
+jint sound.AcousticsGeometry jniCreate
+void sound.AcousticsGeometry jniMaterial jint jint
+void sound.AcousticsGeometry jniVertex jint jfloat jfloat jfloat
+void sound.AcousticsGeometry jniTriangle jint jint jint jint
+void sound.AcousticsGeometry jniEnd jint
+void sound.AcousticsGeometry jniEnable jint jboolean
+void sound.AudioStream jniPlay jint jfloat jboolean
+void sound.AudioStream jniStop jint jfloat
+void sound.AudioStream jniCancel jint
+jboolean sound.AudioStream jniIsPlaying jint
+jfloat sound.AudioStream jniGetControl jint jint
+void sound.AudioStream jniSetControl jint jint jfloat
+void sound.AudioStream jniRelease jint
+jstring sound.AudioStream jniGetName jint
+jboolean sound.EnvControl jniSet jint jfloat jfloat
+jboolean sound.ModControl jniSet jint jstring jfloat jfloat jfloat
+jint sound.Preset jniGet jstring
+void sound.Preset jniDestroy jint
+jint sound.Preset jniCreateObject jint jint
+jint sound.Preset jniGetFreeObject jint jint
+jint sound.VGroup jniCreate jint jint jint
+void sound.VGroup jniSet jint jint
+void sound.VGroup jniDestroy jint
+jint sound.Emitter jniCreate jint
+void sound.Emitter jniSet jint jfloat jfloat jfloat jfloat jfloat
+void sound.Emitter jniAddSample jint jint
+jint sound.AcousticsMaterial jniCreate
+void sound.AcousticsMaterial jniTransmittence jint jfloat jfloat
+void sound.AcousticsMaterial jniReflectance jint jfloat jfloat
+jint sound.SamplePool jniCreate
+void sound.SamplePool jniAddSample jint jint
+jint sound.SoundReceiver jniInit jint
+void sound.SoundReceiver jniDone jint
+void sound.SoundReceiver jniPut jint jbyteArray jint
+void sound.SoundReceiver jniReset jint
+jint sound.Reverb jniCreate jint
+void sound.Reverb jniDestroy jint
+void sound.Reverb jniApply jint jboolean
+jfloat sound.Reverb jniGet jint jint
+void sound.Reverb jniSet jint jint jfloat
+jint sound.Reverb jniGetType jint
+void sound.Reverb jniSetType jint jint
+jint sound.AudioDevice getInputData jbyteArray jint
+void sound.AudioDevice resetInput jboolean
+jboolean sound.AudioDevice isControlEnabled jint
+jint sound.AudioDevice getControl jint
+jboolean sound.AudioDevice setControl jint jint
+jboolean sound.AudioDevice initialize jint jstring
+void sound.AudioDevice done
+void sound.AudioDevice onMenuEnter
+jint sound.AudioDevice getAcousticsCaps
+jstring sound.AudioDevice jniFlush
+void sound.AudioDevice jniBeginNetPhone
+void sound.AudioDevice jniEndNetPhone
+jstring sound.AudioDevice jniVMStat jint jint
+jint sound.Sample jniCreate jstring jint
+void sound.Sample jniSet jint jint jint jint jint jfloat jfloat jfloat jfloat
+jint sound.Sample jniGetControlList jint
+jint sound.Sample jniCreateStream jint
+jint sound.BaseObject libVersion jint
+void sound.BaseObject libInit jint
+void sound.BaseObject initRTS jint
+jint sound.SoundFX jniGetCaps jint
+void sound.SoundFX jniSetAuto jint
+void sound.SoundFX jniSetAcoustics jint jint
+void sound.SoundFX jniSetParent jint jint
+void sound.SoundFX jniSetUsrFlag jint jint
+jint sound.SoundFX jniAdd jint jint
+jint sound.SoundFX jniRemove jint jint
+jint sound.SoundFX jniClear jint
+void sound.SoundFX jniAddSample jint jint jint jfloat jfloat
+void sound.SoundFX jniPlayPool jint jint jint jfloat jfloat
+jint sound.SoundFX jniCurDelay jint
+void sound.SoundFX jniSetPosition jint jdouble jdouble jdouble
+void sound.SoundFX jniSetVelocity jint jfloat jfloat jfloat
+void sound.SoundFX jniSetOrientation jint jfloat jfloat jfloat
+void sound.SoundFX jniSetTop jint jfloat jfloat jfloat
+jstring rts.HomePath get jint
+void rts.HomePath add jstring
+void rts.HomePath remove jstring
+jlong rts.Finger Long__B jbyteArray
+jlong rts.Finger Long__S jshortArray
+jlong rts.Finger Long__C jcharArray
+jlong rts.Finger Long__I jintArray
+jlong rts.Finger Long__F jfloatArray
+jlong rts.Finger Long__D jdoubleArray
+jint rts.Finger Int__B jbyteArray
+jint rts.Finger Int__S jshortArray
+jint rts.Finger Int__C jcharArray
+jint rts.Finger Int__I jintArray
+jint rts.Finger Int__F jfloatArray
+jint rts.Finger Int__D jdoubleArray
+jlong rts.Finger incLong__JB jlong jbyteArray
+jlong rts.Finger incLong__JS jlong jshortArray
+jlong rts.Finger incLong__JC jlong jcharArray
+jlong rts.Finger incLong__JI jlong jintArray
+jlong rts.Finger incLong__JF jlong jfloatArray
+jlong rts.Finger incLong__JD jlong jdoubleArray
+jint rts.Finger incInt__IB jint jbyteArray
+jint rts.Finger incInt__IS jint jshortArray
+jint rts.Finger incInt__IC jint jcharArray
+jint rts.Finger incInt__II jint jintArray
+jint rts.Finger incInt__IF jint jfloatArray
+jint rts.Finger incInt__ID jint jdoubleArray
+void rts.KeyboardDX nCreate jint
+void rts.KeyboardDX nDestroy
+void rts.KeyboardDX nSetCoopLevel jint
+jboolean rts.KeyboardDX nGetMsg jintArray
+jlong rts.Time realFromRaw jint
+void rts.Time setSpeedReal jfloat
+jfloat rts.Time speedReal
+jlong rts.Time real
+jint rts.Time raw
+void rts.Time setCurrent jlong jlong
+void rts.MouseDX nCreate jint
+void rts.MouseDX nDestroy
+void rts.MouseDX nSetCoopLevel jint
+jboolean rts.MouseDX nGetMsg jintArray
+jint rts.JoyWin nCreate
+jboolean rts.JoyWin nGetMsg jint jintArray
+jboolean rts.JoyFF IsAttached
+jboolean rts.JoyFF Start jint
+void rts.JoyFF Stop
+void rts.JoyFF SetAutoCenter jboolean
+jint rts.JoyFF NewEffect jstring
+void rts.JoyFF DelEffect jint
+jint rts.JoyFF GetEffectDuration jint
+void rts.JoyFF StartEffect jint
+void rts.JoyFF StopEffect jint
+jboolean rts.JoyFF EffectIsPlaying jint
+void rts.JoyFF SetEffectDuration jint jint
+void rts.JoyFF SetEffectSamplePeriod jint jint
+void rts.JoyFF SetEffectGain jint jint
+void rts.JoyFF SetEffectDirection jint jint jint
+void rts.JoyFF SetEffectOffset jint jint jint
+void rts.JoyFF SetEffectCoefficient jint jint jint
+jint rts.MainWindow componentWnd jobject
+jint rts.RTS version
+void rts.RTS setPostProcessCmd jstring
+jint rts.RTS interf
+void rts.MouseWin nCreate
+void rts.MouseWin nDestroy
+jboolean rts.MouseWin nGetMsg jintArray
+void rts.MouseWin SetCursor jint
+void rts.MainWin32 setFocus
+void rts.MainWin32 setSize jint jint
+void rts.MainWin32 setPosSize jint jint jint jint
+void rts.MainWin32 SetTitle jstring
+jint rts.MainWin32 Create__Ljava_lang_String_2II jstring jint jint
+jint rts.MainWin32 Create__Ljava_lang_String_2ZZII jstring jboolean jboolean jint jint
+void rts.MainWin32 Destroy
+jint rts.MainWin32 LoopMsgs
+jint rts.MainWin32 Width
+jint rts.MainWin32 Height
+jint rts.MainWin32 WidthFull
+jint rts.MainWin32 HeightFull
+jint rts.MainWin32 PosX
+jint rts.MainWin32 PosY
+jboolean rts.MainWin32 IsFocused
+jboolean rts.MainWin32 IsIconic
+void rts.MainWin32 ShowIconic
+void rts.MainWin32 ShowNormal
+jstring rts.MainWin32 RegistryGetAppPath jstring
+jstring rts.MainWin32 RegistryGetStringLM jstring jstring
+jstring rts.MainWin32 GetAppPath
+jstring rts.MainWin32 GetCDDrive jstring
+void rts.MainWin32 SetAppPath jstring
+void rts.MainWin32 ImmDisableIME
+void rts.SFS mount jstring jint
+void rts.SFS mountAs jstring jstring jint
+void rts.SFS unMount jstring
+void rts.SFS unMountPath jstring
+void rts.SFS setCacheBlockSize jboolean jint
+jint rts.SFS getCacheBlockSize jboolean
+void rts.SFS setCacheSize jboolean jint
+jint rts.SFS getCacheSize jboolean
+jint rts.SFSInputStream openf jlong
+jint rts.SFSInputStream open jstring jint
+jint rts.SFSInputStream crc jint jint
+jint rts.SFSInputStream read jint
+jint rts.SFSInputStream readBytes jint jbyteArray jint jint
+jlong rts.SFSInputStream skip jint jlong
+jint rts.SFSInputStream available jint
+void rts.SFSInputStream close jint
+void rts.StringClipboard Copy jstring
+jstring rts.StringClipboard Paste
+void rts.JoyDX doControlPanel
+jint rts.JoyDX nCreate jint
+void rts.JoyDX nDestroy
+void rts.JoyDX nSetCoopLevel jint
+jboolean rts.JoyDX nGetMsg jint jintArray
+jboolean rts.JoyDX nCaps jint jintArray
+jint rts.Compress Code jint jbyteArray jint
+jboolean rts.Compress Decode jint jbyteArray jint
+jint rts.CLASS method jobject jint
+jobject rts.CLASS field jobject jobject
+jint rts.CLASS ser
+void rts.RTSConf SetProcessAffinityMask jint
+void rts.KeyboardWin nCreate
+void rts.KeyboardWin nDestroy
+jboolean rts.KeyboardWin nGetMsg jintArray
+jboolean rts.TrackIRWin nCreateDT jint jint
+void rts.TrackIRWin nDestroyDT
+jboolean rts.TrackIRWin nGetAnglesDT jfloatArray
+jint rts.TrackIRWin nDTVersion
+jint rts.Cpu86ID get
+jint rts.Cpu86ID getvendor
+jint rts.Cpu86ID getMask
+jboolean rts.ScreenMode EGet jint jintArray
+jboolean rts.ScreenMode ESet jintArray
+void rts.ScreenMode EGetCurrent jintArray
+void opengl.glu Ortho2D jdouble jdouble jdouble jdouble
+void opengl.glu Perspective jdouble jdouble jdouble jdouble
+void opengl.glu LookAt jdouble jdouble jdouble jdouble jdouble jdouble jdouble jdouble jdouble
+jint opengl.glu Project jdouble jdouble jdouble jdoubleArray jdoubleArray jintArray jdoubleArray jdoubleArray jdoubleArray
+jint opengl.glu UnProject jdouble jdouble jdouble jdoubleArray jdoubleArray jintArray jdoubleArray jdoubleArray jdoubleArray
+jint opengl.glu ScaleImage jint jint jint jint jbyteArray jint jint jint jbyteArray
+void opengl.glu PickMatrix jdouble jdouble jdouble jdouble jintArray
+jint opengl.glu Build1DMipmaps__IIIIIB jint jint jint jint jint jbyteArray
+jint opengl.glu Build1DMipmaps__IIIIIS jint jint jint jint jint jshortArray
+jint opengl.glu Build1DMipmaps__IIIIII jint jint jint jint jint jintArray
+jint opengl.glu Build1DMipmaps__IIIIIF jint jint jint jint jint jfloatArray
+jint opengl.glu Build2DMipmaps__IIIIIIB jint jint jint jint jint jint jbyteArray
+jint opengl.glu Build2DMipmaps__IIIIIIS jint jint jint jint jint jint jshortArray
+jint opengl.glu Build2DMipmaps__IIIIIII jint jint jint jint jint jint jintArray
+jint opengl.glu Build2DMipmaps__IIIIIIF jint jint jint jint jint jint jfloatArray
+jstring opengl.glu ErrorString jint
+jstring opengl.glu GetString jint
+void opengl.GLUNurbs Delete
+void opengl.GLUNurbs Property jint jfloat
+void opengl.GLUNurbs GetProperty jint jfloatArray
+void opengl.GLUNurbs LoadSamplingMatrices jfloatArray jfloatArray jintArray
+void opengl.GLUNurbs BeginSurface
+void opengl.GLUNurbs EndSurface
+void opengl.GLUNurbs Surface jint jfloatArray jint jfloatArray jint jint jfloatArray jint jint jint
+void opengl.GLUNurbs BeginCurve
+void opengl.GLUNurbs EndCurve
+void opengl.GLUNurbs Curve jint jfloatArray jint jfloatArray jint jint
+void opengl.GLUNurbs BeginTrim
+void opengl.GLUNurbs EndTrim
+void opengl.GLUNurbs PwlCurve jint jfloatArray jint jint
+void opengl.GLUNurbs New
+void opengl.GLContext CreateWin32 jint jintArray
+void opengl.GLContext Change jintArray
+void opengl.GLContext Destroy
+jboolean opengl.GLContext SwapBuffers
+jboolean opengl.GLContext MakeCurrent
+void opengl.GLContext MakeNotCurrent
+void opengl.GLUTesselator Delete
+void opengl.GLUTesselator Vertex__DF jdoubleArray jfloatArray
+void opengl.GLUTesselator Vertex__DI jdoubleArray jintArray
+void opengl.GLUTesselator Vertex__DD jdoubleArray jdoubleArray
+void opengl.GLUTesselator BeginPolygon
+void opengl.GLUTesselator EndPolygon
+void opengl.GLUTesselator NextContour jint
+void opengl.GLUTesselator New
+void opengl.GLUQuadric Delete
+void opengl.GLUQuadric DrawStyle jint
+void opengl.GLUQuadric Normals jint
+void opengl.GLUQuadric Orientation jint
+void opengl.GLUQuadric Texture jboolean
+void opengl.GLUQuadric Sphere jdouble jint jint
+void opengl.GLUQuadric Cylinder jdouble jdouble jdouble jint jint
+void opengl.GLUQuadric Disk jdouble jdouble jint jint
+void opengl.GLUQuadric PartialDisk jdouble jdouble jint jint jdouble jdouble
+void opengl.GLUQuadric New
+jboolean opengl.Provider isGLloaded
+jboolean opengl.Provider isGLUloaded
+void opengl.Provider setEnableEmptyPaint jboolean
+jboolean opengl.Provider isEnableEmptyPaint
+void opengl.Provider setEnableProfile jboolean
+jboolean opengl.Provider isEnableProfile
+void opengl.Provider setEnableBW jboolean
+jboolean opengl.Provider isEnableBW
+void opengl.Provider GetProfile jintArray
+void opengl.Provider SetPauseProfile jboolean
+jboolean opengl.Provider isPauseProfile
+jstring opengl.Provider nGLname
+jstring opengl.Provider nGLUname
+jboolean opengl.Provider nGLload jstring
+jboolean opengl.Provider nGLUload jstring
+void opengl.Provider nGLunload
+void opengl.Provider nGLUunload
+jint opengl.Provider nGetGLCaps jint jintArray
+void opengl.gl Accum jint jfloat
+void opengl.gl AlphaFunc jint jfloat
+jboolean opengl.gl AreTexturesResident jint jintArray jbooleanArray
+void opengl.gl ArrayElement jint
+void opengl.gl Begin jint
+void opengl.gl BindTexture jint jint
+void opengl.gl Bitmap jint jint jfloat jfloat jfloat jfloat jbyteArray
+void opengl.gl BlendFunc jint jint
+void opengl.gl CallList jint
+void opengl.gl CallLists__IIB jint jint jbyteArray
+void opengl.gl CallLists__IIS jint jint jshortArray
+void opengl.gl CallLists__III jint jint jintArray
+void opengl.gl Clear jint
+void opengl.gl ClearAccum jfloat jfloat jfloat jfloat
+void opengl.gl ClearColor jfloat jfloat jfloat jfloat
+void opengl.gl ClearDepth jdouble
+void opengl.gl ClearIndex jfloat
+void opengl.gl ClearStencil jint
+void opengl.gl ClipPlane jint jdoubleArray
+void opengl.gl Color3b jbyte jbyte jbyte
+void opengl.gl Color3bv jbyteArray
+void opengl.gl Color3d jdouble jdouble jdouble
+void opengl.gl Color__DDD jdouble jdouble jdouble
+void opengl.gl Color3dv jdoubleArray
+void opengl.gl Color3f jfloat jfloat jfloat
+void opengl.gl Color__FFF jfloat jfloat jfloat
+void opengl.gl Color3fv jfloatArray
+void opengl.gl Color3i jint jint jint
+void opengl.gl Color3iv jintArray
+void opengl.gl Color3s jshort jshort jshort
+void opengl.gl Color3sv jshortArray
+void opengl.gl Color3ub jbyte jbyte jbyte
+void opengl.gl Color__BBB jbyte jbyte jbyte
+void opengl.gl Color3ubv jbyteArray
+void opengl.gl Color3ui jint jint jint
+void opengl.gl Color__III jint jint jint
+void opengl.gl Color3uiv jintArray
+void opengl.gl Color3us jshort jshort jshort
+void opengl.gl Color__SSS jshort jshort jshort
+void opengl.gl Color3usv jshortArray
+void opengl.gl Color4b jbyte jbyte jbyte jbyte
+void opengl.gl Color4bv jbyteArray
+void opengl.gl Color4d jdouble jdouble jdouble jdouble
+void opengl.gl Color__DDDD jdouble jdouble jdouble jdouble
+void opengl.gl Color4dv jdoubleArray
+void opengl.gl Color4f jfloat jfloat jfloat jfloat
+void opengl.gl Color__FFFF jfloat jfloat jfloat jfloat
+void opengl.gl Color4fv jfloatArray
+void opengl.gl Color4i jint jint jint jint
+void opengl.gl Color4iv jintArray
+void opengl.gl Color4s jshort jshort jshort jshort
+void opengl.gl Color4sv jshortArray
+void opengl.gl Color4ub jbyte jbyte jbyte jbyte
+void opengl.gl Color__BBBB jbyte jbyte jbyte jbyte
+void opengl.gl Color4ubv jbyteArray
+void opengl.gl Color4ui jint jint jint jint
+void opengl.gl Color__IIII jint jint jint jint
+void opengl.gl Color4uiv jintArray
+void opengl.gl Color4us jshort jshort jshort jshort
+void opengl.gl Color__SSSS jshort jshort jshort jshort
+void opengl.gl Color4usv jshortArray
+void opengl.gl Color__B jbyteArray
+void opengl.gl Color__S jshortArray
+void opengl.gl Color__I jintArray
+void opengl.gl Color__F jfloatArray
+void opengl.gl Color__D jdoubleArray
+void opengl.gl ColorMask jboolean jboolean jboolean jboolean
+void opengl.gl ColorMaterial jint jint
+void opengl.gl ColorPointer__IIIB jint jint jint jbyteArray
+void opengl.gl ColorPointer__IIIS jint jint jint jshortArray
+void opengl.gl ColorPointer__IIII jint jint jint jintArray
+void opengl.gl ColorPointer__IIIF jint jint jint jfloatArray
+void opengl.gl ColorPointer__IIID jint jint jint jdoubleArray
+void opengl.gl CopyPixels jint jint jint jint jint
+void opengl.gl CopyTexImage1D jint jint jint jint jint jint jint
+void opengl.gl CopyTexImage2D jint jint jint jint jint jint jint jint
+void opengl.gl CopyTexSubImage1D jint jint jint jint jint jint
+void opengl.gl CopyTexSubImage2D jint jint jint jint jint jint jint jint
+void opengl.gl CullFace jint
+void opengl.gl DeleteLists jint jint
+void opengl.gl DeleteTextures jint jintArray
+void opengl.gl DepthFunc jint
+void opengl.gl DepthMask jboolean
+void opengl.gl DepthRange jdouble jdouble
+void opengl.gl Disable jint
+void opengl.gl DisableClientState jint
+void opengl.gl DrawArrays jint jint jint
+void opengl.gl DrawBuffer jint
+void opengl.gl DrawElements__IIIB jint jint jint jbyteArray
+void opengl.gl DrawElements__IIIS jint jint jint jshortArray
+void opengl.gl DrawElements__IIII jint jint jint jintArray
+void opengl.gl DrawPixels__IIIIB jint jint jint jint jbyteArray
+void opengl.gl DrawPixels__IIIIS jint jint jint jint jshortArray
+void opengl.gl DrawPixels__IIIII jint jint jint jint jintArray
+void opengl.gl DrawPixels__IIIIF jint jint jint jint jfloatArray
+void opengl.gl EdgeFlag jboolean
+void opengl.gl EdgeFlagPointer jint jbooleanArray
+void opengl.gl EdgeFlagv jbooleanArray
+void opengl.gl Enable jint
+void opengl.gl EnableClientState jint
+void opengl.gl End
+void opengl.gl EndList
+void opengl.gl EvalCoord1d jdouble
+void opengl.gl EvalCoord__D jdouble
+void opengl.gl EvalCoord1dv jdoubleArray
+void opengl.gl EvalCoord1f jfloat
+void opengl.gl EvalCoord__F jfloat
+void opengl.gl EvalCoord1fv jfloatArray
+void opengl.gl EvalCoord2d jdouble jdouble
+void opengl.gl EvalCoord__DD jdouble jdouble
+void opengl.gl EvalCoord2dv jdoubleArray
+void opengl.gl EvalCoord2f jfloat jfloat
+void opengl.gl EvalCoord__FF jfloat jfloat
+void opengl.gl EvalCoord2fv jfloatArray
+void opengl.gl EvalCoord__D jdoubleArray
+void opengl.gl EvalCoord__F jfloatArray
+void opengl.gl EvalMesh1 jint jint jint
+void opengl.gl EvalMesh2 jint jint jint jint jint
+void opengl.gl EvalPoint1 jint
+void opengl.gl EvalPoint2 jint jint
+void opengl.gl FeedbackBuffer jint jint jfloatArray
+void opengl.gl Finish
+void opengl.gl Flush
+void opengl.gl Fogf jint jfloat
+void opengl.gl Fog__IF jint jfloat
+void opengl.gl Fogfv jint jfloatArray
+void opengl.gl Fog__IF jint jfloatArray
+void opengl.gl Fogi jint jint
+void opengl.gl Fog__II jint jint
+void opengl.gl Fogiv jint jintArray
+void opengl.gl Fog__II jint jintArray
+void opengl.gl FrontFace jint
+void opengl.gl Frustum jdouble jdouble jdouble jdouble jdouble jdouble
+jint opengl.gl GenLists jint
+void opengl.gl GenTextures jint jintArray
+void opengl.gl GetBooleanv jint jbooleanArray
+void opengl.gl GetClipPlane jint jdoubleArray
+void opengl.gl GetDoublev jint jdoubleArray
+jint opengl.gl GetError
+void opengl.gl GetFloatv jint jfloatArray
+void opengl.gl GetIntegerv jint jintArray
+void opengl.gl GetLightfv jint jint jfloatArray
+void opengl.gl GetLight__IIF jint jint jfloatArray
+void opengl.gl GetLightiv jint jint jintArray
+void opengl.gl GetLight__III jint jint jintArray
+void opengl.gl GetMapdv jint jint jdoubleArray
+void opengl.gl GetMap__IID jint jint jdoubleArray
+void opengl.gl GetMapfv jint jint jfloatArray
+void opengl.gl GetMap__IIF jint jint jfloatArray
+void opengl.gl GetMapiv jint jint jintArray
+void opengl.gl GetMap__III jint jint jintArray
+void opengl.gl GetMaterialfv jint jint jfloatArray
+void opengl.gl GetMaterial__IIF jint jint jfloatArray
+void opengl.gl GetMaterialiv jint jint jintArray
+void opengl.gl GetMaterial__III jint jint jintArray
+void opengl.gl GetPixelMapfv jint jfloatArray
+void opengl.gl GetPixelMap__IF jint jfloatArray
+void opengl.gl GetPixelMapuiv jint jintArray
+void opengl.gl GetPixelMap__II jint jintArray
+void opengl.gl GetPixelMapusv jint jshortArray
+void opengl.gl GetPixelMap__IS jint jshortArray
+void opengl.gl GetPolygonStipple jbyteArray
+jstring opengl.gl GetString jint
+void opengl.gl GetTexEnvfv jint jint jfloatArray
+void opengl.gl GetTexEnv__IIF jint jint jfloatArray
+void opengl.gl GetTexEnviv jint jint jintArray
+void opengl.gl GetTexEnv__III jint jint jintArray
+void opengl.gl GetTexGendv jint jint jdoubleArray
+void opengl.gl GetTexGen__IID jint jint jdoubleArray
+void opengl.gl GetTexGenfv jint jint jfloatArray
+void opengl.gl GetTexGen__IIF jint jint jfloatArray
+void opengl.gl GetTexGeniv jint jint jintArray
+void opengl.gl GetTexGen__III jint jint jintArray
+void opengl.gl GetTexImage__IIIIB jint jint jint jint jbyteArray
+void opengl.gl GetTexImage__IIIIS jint jint jint jint jshortArray
+void opengl.gl GetTexImage__IIIII jint jint jint jint jintArray
+void opengl.gl GetTexImage__IIIIF jint jint jint jint jfloatArray
+void opengl.gl GetTexLevelParameterfv jint jint jint jfloatArray
+void opengl.gl GetTexLevelParameter__IIIF jint jint jint jfloatArray
+void opengl.gl GetTexLevelParameteriv jint jint jint jintArray
+void opengl.gl GetTexLevelParameter__IIII jint jint jint jintArray
+void opengl.gl GetTexParameterfv jint jint jfloatArray
+void opengl.gl GetTexParameter__IIF jint jint jfloatArray
+void opengl.gl GetTexParameteriv jint jint jintArray
+void opengl.gl GetTexParameter__III jint jint jintArray
+void opengl.gl Hint jint jint
+void opengl.gl IndexMask jint
+void opengl.gl IndexPointer__IIB jint jint jbyteArray
+void opengl.gl IndexPointer__IIS jint jint jshortArray
+void opengl.gl IndexPointer__III jint jint jintArray
+void opengl.gl IndexPointer__IIF jint jint jfloatArray
+void opengl.gl IndexPointer__IID jint jint jdoubleArray
+void opengl.gl Indexd jdouble
+void opengl.gl Index__D jdouble
+void opengl.gl Indexdv jdoubleArray
+void opengl.gl Index__D jdoubleArray
+void opengl.gl Indexf jfloat
+void opengl.gl Index__F jfloat
+void opengl.gl Indexfv jfloatArray
+void opengl.gl Index__F jfloatArray
+void opengl.gl Indexi jint
+void opengl.gl Index__I jint
+void opengl.gl Indexiv jintArray
+void opengl.gl Index__I jintArray
+void opengl.gl Indexs jshort
+void opengl.gl Index__S jshort
+void opengl.gl Indexsv jshortArray
+void opengl.gl Index__S jshortArray
+void opengl.gl Indexub jbyte
+void opengl.gl Index__B jbyte
+void opengl.gl Indexubv jbyteArray
+void opengl.gl Index__B jbyteArray
+void opengl.gl InitNames
+void opengl.gl InterleavedArrays jint jint jfloatArray
+jboolean opengl.gl IsEnabled jint
+jboolean opengl.gl IsList jint
+jboolean opengl.gl IsTexture jint
+void opengl.gl LightModelf jint jfloat
+void opengl.gl LightMode jint jfloat
+void opengl.gl LightModelfv jint jfloatArray
+void opengl.gl LightModel__IF jint jfloatArray
+void opengl.gl LightModeli jint jint
+void opengl.gl LightModel__II jint jint
+void opengl.gl LightModeliv jint jintArray
+void opengl.gl LightModel__II jint jintArray
+void opengl.gl Lightf jint jint jfloat
+void opengl.gl Light__IIF jint jint jfloat
+void opengl.gl Lightfv jint jint jfloatArray
+void opengl.gl Light__IIF jint jint jfloatArray
+void opengl.gl Lighti jint jint jint
+void opengl.gl Light__III jint jint jint
+void opengl.gl Lightiv jint jint jintArray
+void opengl.gl Light__III jint jint jintArray
+void opengl.gl LineStipple jint jshort
+void opengl.gl LineWidth jfloat
+void opengl.gl ListBase jint
+void opengl.gl LoadIdentity
+void opengl.gl LoadMatrixd jdoubleArray
+void opengl.gl LoadMatrix__D jdoubleArray
+void opengl.gl LoadMatrixf jfloatArray
+void opengl.gl LoadMatrix__F jfloatArray
+void opengl.gl LoadName jint
+void opengl.gl LogicOp jint
+void opengl.gl Map1d jint jdouble jdouble jint jint jdoubleArray
+void opengl.gl Map1__IDDIID jint jdouble jdouble jint jint jdoubleArray
+void opengl.gl Map1f jint jfloat jfloat jint jint jfloatArray
+void opengl.gl Map1__IFFIIF jint jfloat jfloat jint jint jfloatArray
+void opengl.gl Map2d jint jdouble jdouble jint jint jdouble jdouble jint jint jdoubleArray
+void opengl.gl Map2__IDDIIDDIID jint jdouble jdouble jint jint jdouble jdouble jint jint jdoubleArray
+void opengl.gl Map2f jint jfloat jfloat jint jint jfloat jfloat jint jint jfloatArray
+void opengl.gl Map2__IFFIIFFIIF jint jfloat jfloat jint jint jfloat jfloat jint jint jfloatArray
+void opengl.gl MapGrid1d jint jdouble jdouble
+void opengl.gl MapGrid1__IDD jint jdouble jdouble
+void opengl.gl MapGrid1f jint jfloat jfloat
+void opengl.gl MapGrid1__IFF jint jfloat jfloat
+void opengl.gl MapGrid2d jint jdouble jdouble jint jdouble jdouble
+void opengl.gl MapGrid2__IDDIDD jint jdouble jdouble jint jdouble jdouble
+void opengl.gl MapGrid2f jint jfloat jfloat jint jfloat jfloat
+void opengl.gl MapGrid2__IFFIFF jint jfloat jfloat jint jfloat jfloat
+void opengl.gl Materialf jint jint jfloat
+void opengl.gl Material__IIF jint jint jfloat
+void opengl.gl Materialfv jint jint jfloatArray
+void opengl.gl Material__IIF jint jint jfloatArray
+void opengl.gl Materiali jint jint jint
+void opengl.gl Material__III jint jint jint
+void opengl.gl Materialiv jint jint jintArray
+void opengl.gl Material__III jint jint jintArray
+void opengl.gl MatrixMode jint
+void opengl.gl MultMatrixd jdoubleArray
+void opengl.gl MultMatrix__D jdoubleArray
+void opengl.gl MultMatrixf jfloatArray
+void opengl.gl MultMatrix__F jfloatArray
+void opengl.gl NewList jint jint
+void opengl.gl Normal3b jbyte jbyte jbyte
+void opengl.gl Normal3__BBB jbyte jbyte jbyte
+void opengl.gl Normal3bv jbyteArray
+void opengl.gl Normal3__B jbyteArray
+void opengl.gl Normal3d jdouble jdouble jdouble
+void opengl.gl Normal3__DDD jdouble jdouble jdouble
+void opengl.gl Normal3dv jdoubleArray
+void opengl.gl Normal3__D jdoubleArray
+void opengl.gl Normal3f jfloat jfloat jfloat
+void opengl.gl Normal3__FFF jfloat jfloat jfloat
+void opengl.gl Normal3fv jfloatArray
+void opengl.gl Normal3__F jfloatArray
+void opengl.gl Normal3i jint jint jint
+void opengl.gl Normal3__III jint jint jint
+void opengl.gl Normal3iv jintArray
+void opengl.gl Normal3__I jintArray
+void opengl.gl Normal3s jshort jshort jshort
+void opengl.gl Normal3__SSS jshort jshort jshort
+void opengl.gl Normal3sv jshortArray
+void opengl.gl Normal3__S jshortArray
+void opengl.gl NormalPointer__IIB jint jint jbyteArray
+void opengl.gl NormalPointer__IIS jint jint jshortArray
+void opengl.gl NormalPointer__III jint jint jintArray
+void opengl.gl NormalPointer__IIF jint jint jfloatArray
+void opengl.gl NormalPointer__IID jint jint jdoubleArray
+void opengl.gl Ortho jdouble jdouble jdouble jdouble jdouble jdouble
+void opengl.gl PassThrough jfloat
+void opengl.gl PixelMapfv jint jint jfloatArray
+void opengl.gl PixelMap__IIF jint jint jfloatArray
+void opengl.gl PixelMapuiv jint jint jintArray
+void opengl.gl PixelMap__III jint jint jintArray
+void opengl.gl PixelMapusv jint jint jshortArray
+void opengl.gl PixelMap__IIS jint jint jshortArray
+void opengl.gl PixelStoref jint jfloat
+void opengl.gl PixelStore__IF jint jfloat
+void opengl.gl PixelStorei jint jint
+void opengl.gl PixelStore__II jint jint
+void opengl.gl PixelTransferf jint jfloat
+void opengl.gl PixelTransfer__IF jint jfloat
+void opengl.gl PixelTransferi jint jint
+void opengl.gl PixelTransfer__II jint jint
+void opengl.gl PixelZoom jfloat jfloat
+void opengl.gl PointSize jfloat
+void opengl.gl PolygonMode jint jint
+void opengl.gl PolygonOffset jfloat jfloat
+void opengl.gl PolygonStipple jbyteArray
+void opengl.gl PopAttrib
+void opengl.gl PopClientAttrib
+void opengl.gl PopMatrix
+void opengl.gl PopName
+void opengl.gl PrioritizeTextures jint jintArray jfloatArray
+void opengl.gl PushAttrib jint
+void opengl.gl PushClientAttrib jint
+void opengl.gl PushMatrix
+void opengl.gl PushName jint
+void opengl.gl RasterPos2d jdouble jdouble
+void opengl.gl RasterPos__DD jdouble jdouble
+void opengl.gl RasterPos2dv jdoubleArray
+void opengl.gl RasterPos2f jfloat jfloat
+void opengl.gl RasterPos__FF jfloat jfloat
+void opengl.gl RasterPos2fv jfloatArray
+void opengl.gl RasterPos2i jint jint
+void opengl.gl RasterPos__II jint jint
+void opengl.gl RasterPos2iv jintArray
+void opengl.gl RasterPos2s jshort jshort
+void opengl.gl RasterPos__SS jshort jshort
+void opengl.gl RasterPos2sv jshortArray
+void opengl.gl RasterPos3d jdouble jdouble jdouble
+void opengl.gl RasterPos__DDD jdouble jdouble jdouble
+void opengl.gl RasterPos3dv jdoubleArray
+void opengl.gl RasterPos3f jfloat jfloat jfloat
+void opengl.gl RasterPos__FFF jfloat jfloat jfloat
+void opengl.gl RasterPos3fv jfloatArray
+void opengl.gl RasterPos3i jint jint jint
+void opengl.gl RasterPos__III jint jint jint
+void opengl.gl RasterPos3iv jintArray
+void opengl.gl RasterPos3s jshort jshort jshort
+void opengl.gl RasterPos__SSS jshort jshort jshort
+void opengl.gl RasterPos3sv jshortArray
+void opengl.gl RasterPos4d jdouble jdouble jdouble jdouble
+void opengl.gl RasterPos__DDDD jdouble jdouble jdouble jdouble
+void opengl.gl RasterPos4dv jdoubleArray
+void opengl.gl RasterPos4f jfloat jfloat jfloat jfloat
+void opengl.gl RasterPos__FFFF jfloat jfloat jfloat jfloat
+void opengl.gl RasterPos4fv jfloatArray
+void opengl.gl RasterPos4i jint jint jint jint
+void opengl.gl RasterPos__IIII jint jint jint jint
+void opengl.gl RasterPos4iv jintArray
+void opengl.gl RasterPos4s jshort jshort jshort jshort
+void opengl.gl RasterPos__SSSS jshort jshort jshort jshort
+void opengl.gl RasterPos4sv jshortArray
+void opengl.gl RasterPos__D jdoubleArray
+void opengl.gl RasterPos__F jfloatArray
+void opengl.gl RasterPos__I jintArray
+void opengl.gl RasterPos__S jshortArray
+void opengl.gl ReadBuffer jint
+void opengl.gl ReadPixels__IIIIIIB jint jint jint jint jint jint jbyteArray
+void opengl.gl ReadPixels__IIIIIIS jint jint jint jint jint jint jshortArray
+void opengl.gl ReadPixels__IIIIIII jint jint jint jint jint jint jintArray
+void opengl.gl ReadPixels__IIIIIIF jint jint jint jint jint jint jfloatArray
+void opengl.gl Rectd jdouble jdouble jdouble jdouble
+void opengl.gl Rect__DDDD jdouble jdouble jdouble jdouble
+void opengl.gl Rectdv jdoubleArray jdoubleArray
+void opengl.gl Rect__DD jdoubleArray jdoubleArray
+void opengl.gl Rectf jfloat jfloat jfloat jfloat
+void opengl.gl Rect__FFFF jfloat jfloat jfloat jfloat
+void opengl.gl Rectfv jfloatArray jfloatArray
+void opengl.gl Rect__FF jfloatArray jfloatArray
+void opengl.gl Recti jint jint jint jint
+void opengl.gl Rect__IIII jint jint jint jint
+void opengl.gl Rectiv jintArray jintArray
+void opengl.gl Rect__II jintArray jintArray
+void opengl.gl Rects jshort jshort jshort jshort
+void opengl.gl Rect__SSSS jshort jshort jshort jshort
+void opengl.gl Rectsv jshortArray jshortArray
+void opengl.gl Rect__SS jshortArray jshortArray
+jint opengl.gl RenderMode jint
+void opengl.gl Rotated jdouble jdouble jdouble jdouble
+void opengl.gl Rotate__DDDD jdouble jdouble jdouble jdouble
+void opengl.gl Rotatef jfloat jfloat jfloat jfloat
+void opengl.gl Rotate__FFFF jfloat jfloat jfloat jfloat
+void opengl.gl Scaled jdouble jdouble jdouble
+void opengl.gl Scale__DDD jdouble jdouble jdouble
+void opengl.gl Scalef jfloat jfloat jfloat
+void opengl.gl Scale__FFF jfloat jfloat jfloat
+void opengl.gl Scissor jint jint jint jint
+void opengl.gl SelectBuffer jint jintArray
+void opengl.gl ShadeModel jint
+void opengl.gl StencilFunc jint jint jint
+void opengl.gl StencilMask jint
+void opengl.gl StencilOp jint jint jint
+void opengl.gl TexCoord1d jdouble
+void opengl.gl TexCoord__D jdouble
+void opengl.gl TexCoord1dv jdoubleArray
+void opengl.gl TexCoord1f jfloat
+void opengl.gl TexCoord__F jfloat
+void opengl.gl TexCoord1fv jfloatArray
+void opengl.gl TexCoord1i jint
+void opengl.gl TexCoord__I jint
+void opengl.gl TexCoord1iv jintArray
+void opengl.gl TexCoord1s jshort
+void opengl.gl TexCoord__S jshort
+void opengl.gl TexCoord1sv jshortArray
+void opengl.gl TexCoord2d jdouble jdouble
+void opengl.gl TexCoord__DD jdouble jdouble
+void opengl.gl TexCoord2dv jdoubleArray
+void opengl.gl TexCoord2f jfloat jfloat
+void opengl.gl TexCoord__FF jfloat jfloat
+void opengl.gl TexCoord2fv jfloatArray
+void opengl.gl TexCoord2i jint jint
+void opengl.gl TexCoord__II jint jint
+void opengl.gl TexCoord2iv jintArray
+void opengl.gl TexCoord2s jshort jshort
+void opengl.gl TexCoord__SS jshort jshort
+void opengl.gl TexCoord2sv jshortArray
+void opengl.gl TexCoord3d jdouble jdouble jdouble
+void opengl.gl TexCoord__DDD jdouble jdouble jdouble
+void opengl.gl TexCoord3dv jdoubleArray
+void opengl.gl TexCoord3f jfloat jfloat jfloat
+void opengl.gl TexCoord__FFF jfloat jfloat jfloat
+void opengl.gl TexCoord3fv jfloatArray
+void opengl.gl TexCoord3i jint jint jint
+void opengl.gl TexCoord__III jint jint jint
+void opengl.gl TexCoord3iv jintArray
+void opengl.gl TexCoord3s jshort jshort jshort
+void opengl.gl TexCoord__SSS jshort jshort jshort
+void opengl.gl TexCoord3sv jshortArray
+void opengl.gl TexCoord4d jdouble jdouble jdouble jdouble
+void opengl.gl TexCoord__DDDD jdouble jdouble jdouble jdouble
+void opengl.gl TexCoord4dv jdoubleArray
+void opengl.gl TexCoord4f jfloat jfloat jfloat jfloat
+void opengl.gl TexCoord__FFFF jfloat jfloat jfloat jfloat
+void opengl.gl TexCoord4fv jfloatArray
+void opengl.gl TexCoord4i jint jint jint jint
+void opengl.gl TexCoord__IIII jint jint jint jint
+void opengl.gl TexCoord4iv jintArray
+void opengl.gl TexCoord4s jshort jshort jshort jshort
+void opengl.gl TexCoord__SSSS jshort jshort jshort jshort
+void opengl.gl TexCoord4sv jshortArray
+void opengl.gl TexCoord__D jdoubleArray
+void opengl.gl TexCoord__F jfloatArray
+void opengl.gl TexCoord__I jintArray
+void opengl.gl TexCoord__S jshortArray
+void opengl.gl TexCoordPointer__IIIS jint jint jint jshortArray
+void opengl.gl TexCoordPointer__IIII jint jint jint jintArray
+void opengl.gl TexCoordPointer__IIIF jint jint jint jfloatArray
+void opengl.gl TexCoordPointer__IIID jint jint jint jdoubleArray
+void opengl.gl TexEnvf jint jint jfloat
+void opengl.gl TexEnv__IIF jint jint jfloat
+void opengl.gl TexEnvfv jint jint jfloatArray
+void opengl.gl TexEnv__IIF jint jint jfloatArray
+void opengl.gl TexEnvi jint jint jint
+void opengl.gl TexEnv__III jint jint jint
+void opengl.gl TexEnviv jint jint jintArray
+void opengl.gl TexEnv__III jint jint jintArray
+void opengl.gl TexGend jint jint jdouble
+void opengl.gl TexGen__IID jint jint jdouble
+void opengl.gl TexGendv jint jint jdoubleArray
+void opengl.gl TexGen__IID jint jint jdoubleArray
+void opengl.gl TexGenf jint jint jfloat
+void opengl.gl TexGen__IIF jint jint jfloat
+void opengl.gl TexGenfv jint jint jfloatArray
+void opengl.gl TexGen__IIF jint jint jfloatArray
+void opengl.gl TexGeni jint jint jint
+void opengl.gl TexGen__III jint jint jint
+void opengl.gl TexGeniv jint jint jintArray
+void opengl.gl TexGen__III jint jint jintArray
+void opengl.gl TexImage1D__IIIIIIIB jint jint jint jint jint jint jint jbyteArray
+void opengl.gl TexImage1D__IIIIIIIS jint jint jint jint jint jint jint jshortArray
+void opengl.gl TexImage1D__IIIIIIII jint jint jint jint jint jint jint jintArray
+void opengl.gl TexImage1D__IIIIIIIF jint jint jint jint jint jint jint jfloatArray
+void opengl.gl TexImage2D__IIIIIIIIB jint jint jint jint jint jint jint jint jbyteArray
+void opengl.gl TexImage2D__IIIIIIIIS jint jint jint jint jint jint jint jint jshortArray
+void opengl.gl TexImage2D__IIIIIIIII jint jint jint jint jint jint jint jint jintArray
+void opengl.gl TexImage2D__IIIIIIIIF jint jint jint jint jint jint jint jint jfloatArray
+void opengl.gl TexParameterf jint jint jfloat
+void opengl.gl TexParameter__IIF jint jint jfloat
+void opengl.gl TexParameterfv jint jint jfloatArray
+void opengl.gl TexParameter__IIF jint jint jfloatArray
+void opengl.gl TexParameteri jint jint jint
+void opengl.gl TexParameter__III jint jint jint
+void opengl.gl TexParameteriv jint jint jintArray
+void opengl.gl TexParameter__III jint jint jintArray
+void opengl.gl TexSubImage1D__IIIIIIB jint jint jint jint jint jint jbyteArray
+void opengl.gl TexSubImage1D__IIIIIIS jint jint jint jint jint jint jshortArray
+void opengl.gl TexSubImage1D__IIIIIII jint jint jint jint jint jint jintArray
+void opengl.gl TexSubImage1D__IIIIIIF jint jint jint jint jint jint jfloatArray
+void opengl.gl TexSubImage2D__IIIIIIIIB jint jint jint jint jint jint jint jint jbyteArray
+void opengl.gl TexSubImage2D__IIIIIIIIS jint jint jint jint jint jint jint jint jshortArray
+void opengl.gl TexSubImage2D__IIIIIIIII jint jint jint jint jint jint jint jint jintArray
+void opengl.gl TexSubImage2D__IIIIIIIIF jint jint jint jint jint jint jint jint jfloatArray
+void opengl.gl Translated jdouble jdouble jdouble
+void opengl.gl Translate__DDD jdouble jdouble jdouble
+void opengl.gl Translatef jfloat jfloat jfloat
+void opengl.gl Translate__FFF jfloat jfloat jfloat
+void opengl.gl Vertex2d jdouble jdouble
+void opengl.gl Vertex__DD jdouble jdouble
+void opengl.gl Vertex2dv jdoubleArray
+void opengl.gl Vertex2f jfloat jfloat
+void opengl.gl Vertex__FF jfloat jfloat
+void opengl.gl Vertex2fv jfloatArray
+void opengl.gl Vertex2i jint jint
+void opengl.gl Vertex__II jint jint
+void opengl.gl Vertex2iv jintArray
+void opengl.gl Vertex2s jshort jshort
+void opengl.gl Vertex__SS jshort jshort
+void opengl.gl Vertex2sv jshortArray
+void opengl.gl Vertex3d jdouble jdouble jdouble
+void opengl.gl Vertex__DDD jdouble jdouble jdouble
+void opengl.gl Vertex3dv jdoubleArray
+void opengl.gl Vertex3f jfloat jfloat jfloat
+void opengl.gl Vertex__FFF jfloat jfloat jfloat
+void opengl.gl Vertex3fv jfloatArray
+void opengl.gl Vertex3i jint jint jint
+void opengl.gl Vertex__III jint jint jint
+void opengl.gl Vertex3iv jintArray
+void opengl.gl Vertex3s jshort jshort jshort
+void opengl.gl Vertex__SSS jshort jshort jshort
+void opengl.gl Vertex3sv jshortArray
+void opengl.gl Vertex4d jdouble jdouble jdouble jdouble
+void opengl.gl Vertex__DDDD jdouble jdouble jdouble jdouble
+void opengl.gl Vertex4dv jdoubleArray
+void opengl.gl Vertex4f jfloat jfloat jfloat jfloat
+void opengl.gl Vertex__FFFF jfloat jfloat jfloat jfloat
+void opengl.gl Vertex4fv jfloatArray
+void opengl.gl Vertex4i jint jint jint jint
+void opengl.gl Vertex__IIII jint jint jint jint
+void opengl.gl Vertex4iv jintArray
+void opengl.gl Vertex4s jshort jshort jshort jshort
+void opengl.gl Vertex__SSSS jshort jshort jshort jshort
+void opengl.gl Vertex4sv jshortArray
+void opengl.gl Vertex__D jdoubleArray
+void opengl.gl Vertex__F jfloatArray
+void opengl.gl Vertex__I jintArray
+void opengl.gl Vertex__S jshortArray
+void opengl.gl VertexPointer__IIIS jint jint jint jshortArray
+void opengl.gl VertexPointer__IIII jint jint jint jintArray
+void opengl.gl VertexPointer__IIIF jint jint jint jfloatArray
+void opengl.gl VertexPointer__IIID jint jint jint jdoubleArray
+void opengl.gl Viewport jint jint jint jint
 void il2.engine.LightPoint setPos jint jfloat jfloat jfloat
 void il2.engine.LightPoint setColor jint jfloat jfloat jfloat
 void il2.engine.LightPoint setEmit jint jfloat jfloat
@@ -28,14 +890,14 @@ void il2.engine.Render transform3fInv jfloatArray jint
 void il2.engine.Render vertexArraysTransformAndLock jfloatArray jint
 void il2.engine.Render vertexArraysUnLock
 void il2.engine.Render drawBeginSprites jint
-void il2.engine.Render drawPushSprite jfloat jfloat jfloat jfloat jint jfloat
-void il2.engine.Render drawPushSprite jfloat jfloat jfloat jfloat jint jfloat jfloat
-void il2.engine.Render drawPushSprite jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat
+void il2.engine.Render drawPushSprite__FFFFIF jfloat jfloat jfloat jfloat jint jfloat
+void il2.engine.Render drawPushSprite__FFFFIFF jfloat jfloat jfloat jfloat jint jfloat jfloat
+void il2.engine.Render drawPushSprite__FFFFFFFFF jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat jfloat
 void il2.engine.Render prepareStates
 void il2.engine.Render clearStates
 void il2.engine.Render drawBeginTriangleLists jint
-void il2.engine.Render drawTriangleList jfloatArray jintArray jint jintArray jint
-void il2.engine.Render drawTriangleList jfloatArray jint jint jint jintArray jint
+void il2.engine.Render drawTriangleList__FIIII jfloatArray jintArray jint jintArray jint
+void il2.engine.Render drawTriangleList__FIIIII jfloatArray jint jint jint jintArray jint
 void il2.engine.Render drawEnd
 void il2.engine.Render drawBeginLines jint
 void il2.engine.Render drawLines jfloatArray jint jfloat jint jint jint
@@ -86,8 +948,8 @@ void il2.engine.HierMesh SetChunkVisibility jint jint
 void il2.engine.HierMesh SetChunkAngles jint jfloatArray
 void il2.engine.HierMesh SetChunkLocate jint jfloatArray jfloatArray
 jint il2.engine.HierMesh Frames jint
-void il2.engine.HierMesh SetFrame jint jint
-void il2.engine.HierMesh SetFrame jint jint jint jfloat
+void il2.engine.HierMesh SetFrame__II jint jint
+void il2.engine.HierMesh SetFrame__IIIF jint jint jint jfloat
 void il2.engine.HierMesh SetFrameFromRange jint jint jint jfloat
 jint il2.engine.HierMesh Hooks jint
 jint il2.engine.HierMesh HookFind jint jstring
@@ -103,10 +965,10 @@ jint il2.engine.HierMesh Materials jint
 jint il2.engine.HierMesh MaterialFind jint jstring jint jint
 jint il2.engine.HierMesh MaterialFindInChunk jint jstring jint
 jobject il2.engine.HierMesh Material jint jint
-void il2.engine.HierMesh MaterialReplace jint jint jint
-void il2.engine.HierMesh MaterialReplace jint jint jstring
-void il2.engine.HierMesh MaterialReplace jint jstring jint
-void il2.engine.HierMesh MaterialReplace jint jstring jstring
+void il2.engine.HierMesh MaterialReplace__III jint jint jint
+void il2.engine.HierMesh MaterialReplace__IILjava_lang_String_2 jint jint jstring
+void il2.engine.HierMesh MaterialReplace__ILjava_lang_String_2I jint jstring jint
+void il2.engine.HierMesh MaterialReplace__ILjava_lang_String_2Ljava_lang_String_2 jint jstring jstring
 jfloat il2.engine.HierMesh PoseCRC jint
 jint il2.engine.HierMesh isVisualRayHit jint jdoubleArray jdouble jdouble jdoubleArray
 jint il2.engine.HierMesh ApplyDecal jint jint jfloat jfloat jint jdoubleArray jfloatArray jint jintArray jint
@@ -171,27 +1033,27 @@ void il2.engine.Mat setGrayScaleLoading jboolean
 jboolean il2.engine.Mat isGrayScaleLoading
 jboolean il2.engine.Mat IsValidLayer jint jint
 void il2.engine.Mat SetLayer jint jint
-jboolean il2.engine.Mat Get jint jshort
-jint il2.engine.Mat Get jint jint
-jfloat il2.engine.Mat Get jint jbyte
-jstring il2.engine.Mat Get jint jchar
-jboolean il2.engine.Mat Set jint jshort jboolean
-jint il2.engine.Mat Set jint jint jint
-jfloat il2.engine.Mat Set jint jbyte jfloat
-jint il2.engine.Mat Set jint jchar jstring
-jint il2.engine.Mat PreRender jint jfloat jfloat jfloat jfloat
-jint il2.engine.Mat PreRender jint
+jboolean il2.engine.Mat Get__IS jint jshort
+jint il2.engine.Mat Get__II jint jint
+jfloat il2.engine.Mat Get__IB jint jbyte
+jstring il2.engine.Mat Get__IC jint jchar
+jboolean il2.engine.Mat Set__ISZ jint jshort jboolean
+jint il2.engine.Mat Set__III jint jint jint
+jfloat il2.engine.Mat Set__IBF jint jbyte jfloat
+jint il2.engine.Mat Set__ICLjava_lang_String_2 jint jchar jstring
+jint il2.engine.Mat PreRender__IFFFF jint jfloat jfloat jfloat jfloat
+jint il2.engine.Mat PreRender__I jint
 void il2.engine.Mat UpdateImage jint jint jint jint jbyteArray
 void il2.engine.Mat GrabFromScreen jint jint jint jint jint
 jobject il2.engine.CfgGObj FindByName jstring
 jstring il2.engine.FObj Name jint
 void il2.engine.FObj Rename jint jstring
 jlong il2.engine.FObj Hash jint
-jint il2.engine.FObj GetFObj jstring
-jint il2.engine.FObj GetFObj jstring jstring
-jint il2.engine.FObj GetFObj jlong
-jboolean il2.engine.FObj Exist jstring
-jboolean il2.engine.FObj Exist jlong
+jint il2.engine.FObj GetFObj__Ljava_lang_String_2 jstring
+jint il2.engine.FObj GetFObj__Ljava_lang_String_2Ljava_lang_String_2 jstring jstring
+jint il2.engine.FObj GetFObj__J jlong
+jboolean il2.engine.FObj Exist__Ljava_lang_String_2 jstring
+jboolean il2.engine.FObj Exist__J jlong
 jint il2.engine.FObj NextFObj jint
 jint il2.engine.FObj ReLoad jint
 jstring il2.engine.CfgIntEngine Name jint
@@ -234,8 +1096,8 @@ jfloat il2.engine.Mesh VisibilityR jint
 jfloat il2.engine.Mesh CollisionR jint
 jfloat il2.engine.Mesh GetUniformMaxDist jint
 jint il2.engine.Mesh Frames jint
-void il2.engine.Mesh SetFrame jint jint
-void il2.engine.Mesh SetFrame jint jint jint jfloat
+void il2.engine.Mesh SetFrame__II jint jint
+void il2.engine.Mesh SetFrame__IIIF jint jint jint jfloat
 void il2.engine.Mesh SetFrameFromRange jint jint jint jfloat
 jint il2.engine.Mesh Hooks jint
 jint il2.engine.Mesh HookFind jint jstring
@@ -246,10 +1108,10 @@ void il2.engine.Mesh HookFaceMatrix jint jint jint jdoubleArray
 jint il2.engine.Mesh Materials jint
 jint il2.engine.Mesh MaterialFind jint jstring jint jint
 jobject il2.engine.Mesh Material jint jint
-void il2.engine.Mesh MaterialReplace jint jint jint
-void il2.engine.Mesh MaterialReplace jint jint jstring
-void il2.engine.Mesh MaterialReplace jint jstring jint
-void il2.engine.Mesh MaterialReplace jint jstring jstring
+void il2.engine.Mesh MaterialReplace__III jint jint jint
+void il2.engine.Mesh MaterialReplace__IILjava_lang_String_2 jint jint jstring
+void il2.engine.Mesh MaterialReplace__ILjava_lang_String_2I jint jstring jint
+void il2.engine.Mesh MaterialReplace__ILjava_lang_String_2Ljava_lang_String_2 jint jstring jstring
 jint il2.engine.Mesh IsSimilar jint jint
 jint il2.engine.Mesh IsAllowsSimpleRendering jint
 jfloat il2.engine.Mesh HeightMapMeshGetHeight jint jdouble jdouble
@@ -316,18 +1178,18 @@ jboolean il2.engine.Camera isSphereVisibleD jdouble jdouble jdouble jfloat
 jobject il2.engine.TTFont get jstring
 void il2.engine.TTFont setContextWidth jint
 void il2.engine.TTFont reloadAllOnResize
-void il2.engine.TTFont Output jint jint jfloat jfloat jfloat jstring jint jint
-void il2.engine.TTFont Output jint jint jfloat jfloat jfloat jcharArray jint jint
+void il2.engine.TTFont Output__IIFFFLjava_lang_String_2II jint jint jfloat jfloat jfloat jstring jint jint
+void il2.engine.TTFont Output__IIFFFCII jint jint jfloat jfloat jfloat jcharArray jint jint
 void il2.engine.TTFont OutputClip jint jint jfloat jfloat jfloat jstring jint jint jfloat jfloat jfloat jfloat
 void il2.engine.TTFont OutputClipArr jint jint jfloat jfloat jfloat jcharArray jint jint jfloat jfloat jfloat jfloat
-void il2.engine.TTFont Transform jint jobject jint jstring jint jint
-void il2.engine.TTFont Transform jint jobject jint jcharArray jint jint
-jfloat il2.engine.TTFont Width jint jstring jint jint
-jfloat il2.engine.TTFont Width jint jcharArray jint jint
-jint il2.engine.TTFont Len jint jstring jint jint jfloat jint
-jint il2.engine.TTFont Len jint jcharArray jint jint jfloat jint
-jint il2.engine.TTFont LenEnd jint jstring jint jint jfloat jint
-jint il2.engine.TTFont LenEnd jint jcharArray jint jint jfloat jint
+void il2.engine.TTFont Transform__ILjava_lang_Object_2ILjava_lang_String_2II jint jobject jint jstring jint jint
+void il2.engine.TTFont Transform__ILjava_lang_Object_2ICII jint jobject jint jcharArray jint jint
+jfloat il2.engine.TTFont Width__ILjava_lang_String_2II jint jstring jint jint
+jfloat il2.engine.TTFont Width__ICII jint jcharArray jint jint
+jint il2.engine.TTFont Len__ILjava_lang_String_2IIFI jint jstring jint jint jfloat jint
+jint il2.engine.TTFont Len__ICIIFI jint jcharArray jint jint jfloat jint
+jint il2.engine.TTFont LenEnd__ILjava_lang_String_2IIFI jint jstring jint jint jfloat jint
+jint il2.engine.TTFont LenEnd__ICIIFI jint jcharArray jint jint jfloat jint
 jint il2.engine.TTFont Height jint
 jint il2.engine.TTFont Descender jint
 void il2.engine.TTFont ReloadOnResize jint
@@ -342,6 +1204,55 @@ jobject il2.engine.GObj getJavaObject jint
 void il2.engine.GObj DeleteCppObjects
 jint il2.engine.GObj version
 void il2.engine.GObj setInterf jint
-jboolean rts.ScreenMode EGet jint jintArray
-jboolean rts.ScreenMode ESet jintArray
-void rts.ScreenMode EGetCurrent jintArray
+jintArray il2.ai.air.Pilot doFighterDefense jfloat jfloat jfloat jfloat jfloat jfloat jint jint jint jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean
+jint il2.ai.air.Pilot doStormovikDefense jfloat jfloat jfloat jfloat jint jint jint jboolean jint jint
+jint il2.ai.air.Pilot doTransportDefense jfloat jfloat jfloat jint jint jint jint jint
+jintArray il2.ai.air.AirGroup groupLove jfloat jfloat jfloat jfloat jfloat jfloat jfloat jint jint jint jint
+jlong il2.fm.FMMath nInit
+void il2.fm.FMMath nInitSeed jlong
+jfloat il2.fm.Wind SetWind jfloat jfloat jfloat jfloat jfloat
+void il2.fm.FlightModel nCreateSubSkills jint
+jfloat il2.fm.FlightModel nShootingPoint jint
+void il2.fm.FlightModel nSmackMe jfloat jfloat jfloat jint jint
+void il2.fm.FlightModel nShakeMe jint jint
+void il2.fm.FlightModel nLandAvoidance jfloat jfloat jfloat jfloat jfloat jint
+void il2.fm.FlightModel nFullPants jfloat jint
+jfloat il2.fm.FlightModel nSD jint jint jint jlong
+jfloat il2.fm.FlightModel nDanCoeff jdouble jfloat jfloat
+jstring il2.net.USGS cspUserName
+jstring il2.net.USGS cspUserPassword
+jstring il2.net.USGS cspGameName
+jint il2.net.USGS cspLobbyServerID
+jint il2.net.USGS cspGroupID
+jstring il2.net.USGS cspRoomName
+jstring il2.net.USGS cspRoomPassword
+jint il2.net.USGS cspMaxPlayer
+jstring il2.net.USGS cspPrimaryGameServerIP
+jstring il2.net.USGS cspSecondaryGameServerIP
+jint il2.net.USGS cspGamePort
+jint il2.net.USGS cspErrorMsgIDSource
+jint il2.net.USGS cspErrorCode
+jint il2.net.USGS cspGetMessage
+jint il2.net.USGS cspPostMessage jint jint
+jint il2.net.USGS cspInitialize
+void il2.net.USGS cspUninitialize
+jint il2.net.USGS cspConnect jint
+void il2.net.USGS cspDisconnect
+jboolean il2.net.USGS rsInitialize
+jboolean il2.net.USGS rsUninitialize
+void il2.net.USGS rsEngine
+jboolean il2.net.USGS rsLobbyServerConnection jstring jint
+jboolean il2.net.USGS rsLobbyServerLogin jstring jint
+jint il2.net.USGS rsResLobbyServerLogin
+void il2.net.USGS rsLobbyServerClose
+void il2.net.USGS rsUpdateGroup jstring jstring jstring jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean jboolean
+jint il2.game.Starforce SFLB jint jint jint jintArray
+void il2.builder.PathFind SetMap jbyteArray jint jint jint jfloat jfloat jintArray jint
+void il2.builder.PathFind UnloadMap
+jboolean il2.builder.PathFind SetMoverType jint
+jboolean il2.builder.PathFind SetStartPoint jint jfloat jfloat
+jboolean il2.builder.PathFind IsPointReacheable jint jfloat jfloat
+jfloatArray il2.builder.PathFind BuildPath jint jfloat jfloat
+jint il2.builder.PathFind codeAtPos jfloat jfloat
+jint il2.builder.PathFind getV
+jint il2.builder.PathFind getI
