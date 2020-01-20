@@ -362,7 +362,12 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
   auto ctx = getContext();
   ctx->updateARBProgram();
   ctx->unbindFrameBuffer();
-  assert(!ctx->is_arb_program_active);
+
+  if (ctx->is_arb_program_active)
+  {
+    ctx->setActiveShader(getRedProgram());
+  }
+
   assert(!ctx->isFrameBufferBound());
 
   auto &state = ctx->getRenderState();
@@ -398,6 +403,10 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 void GLAPIENTRY wrap_glEnd()
 {
   assert(wgl_wrapper::isMainThread());
+
+  auto ctx = getContext();
+  if (ctx->is_arb_program_active)
+    ctx->setActiveShader(nullptr);
 
   gl::End();
 }
