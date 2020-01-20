@@ -16,11 +16,22 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef IL2GE_EXCEPTION_HANDLER_H
-#define IL2GE_EXCEPTION_HANDLER_H
+#ifndef IL2GE_EXCEPTION_HANDLER_WIN32_H
+#define IL2GE_EXCEPTION_HANDLER_WIN32_H
 
-#ifdef _WIN32
-#include <il2ge/exception_handler_win32.h>
-#endif
+
+#include <functional>
+#include <string>
+#include <windef.h>
+
+
+namespace il2ge::exception_handler
+{
+  void install(const std::string &log_file_name,
+               std::function<void(const char*)> fatal_error_handler =  {});
+  void watchModule(HMODULE module);
+  void blacklistModule(HMODULE module);
+}
+
 
 #endif

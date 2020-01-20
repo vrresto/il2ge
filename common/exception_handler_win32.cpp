@@ -153,6 +153,8 @@ void fatalError(const char *msg)
 
 [[ noreturn ]] void die()
 {
+  fprintf(stderr, "About to self-destruct.\n");
+
   TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
 
   while (true)
@@ -296,6 +298,8 @@ void printBacktracePrivate()
 
 LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
 {
+  fprintf(stderr, "vectoredExceptionHandler()\n");
+  
   if (!isExceptionCodeIgnored(info->ExceptionRecord->ExceptionCode))
   {
     if (InterlockedIncrement(&g_handler_entered) != 1)
@@ -303,30 +307,40 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
       die();
     }
 
+    fprintf(stderr, "loading crash handler lib\n");
     if (loadCrashHandlerLibrary())
     {
+      fprintf(stderr, "done.\n");
       HMODULE module = 0;
 
       {
         Lock lock(g_crash_handler_mutex);
-        module = (HMODULE)
-          g_crash_handler->getModuleBase(info->ExceptionRecord->ExceptionAddress);
+        module = (HMODULE) g_crash_handler->getModuleBase(info->ExceptionRecord->ExceptionAddress);
       }
+      
+      fprintf(stderr, "module: %x\n", module);
 
       if (isModuleWatched(module))
       {
+        fprintf(stderr, "module is watched.\n");
+
         char module_file_name[MAX_PATH];
 
         if (GetModuleFileNameA(module, module_file_name, sizeof(module_file_name)))
         {
-          LOG_SEPARATOR;
-          LOG_ERROR << "Exception code: " << std::hex << info->ExceptionRecord->ExceptionCode << "  Flags: "
-                    << info->ExceptionRecord->ExceptionFlags << '\n' << std::dec;
-          LOG_ERROR << "Module: " << module_file_name << endl;
-          LOG_FLUSH;
+          fprintf(stderr, "module_file_name: %s\n", module_file_name);
+          
+          
+//           LOG_SEPARATOR;
+//           LOG_ERROR << "Exception code: " << std::hex << info->ExceptionRecord->ExceptionCode << "  Flags: "
+//                     << info->ExceptionRecord->ExceptionFlags << '\n' << std::dec;
+//           LOG_ERROR << "Module: " << module_file_name << endl;
+//           LOG_FLUSH;
 
           {
+            fprintf(stderr, "locking crash handler mutex ...\n");
             Lock lock(g_crash_handler_mutex);
+            fprintf(stderr, "locking crash handler mutex ... done.\n");
 
             clearLog();
             g_crash_handler->crashHandler(info);
@@ -338,8 +352,16 @@ LONG WINAPI vectoredExceptionHandler(_EXCEPTION_POINTERS *info)
         }
       }
     }
+    else
+    {
+      fprintf(stderr, "loading crash handler lib - failure!\n");
+    }
 
     InterlockedDecrement(&g_handler_entered);
+  }
+  else
+  {
+    fprintf(stderr, "ignored!\n");
   }
 
   return EXCEPTION_CONTINUE_SEARCH;

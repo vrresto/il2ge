@@ -23,9 +23,12 @@
 #include <log.h>
 
 #include <iostream>
+
+#ifdef _WIN32
 #include <windows.h>
 #include <shlobj.h>
 #include <direct.h>
+#endif
 
 using namespace std;
 
@@ -40,6 +43,8 @@ void atexitHandler()
 {
 }
 
+
+#ifdef _WIN32
 
 std::string getExeFilePath()
 {
@@ -96,6 +101,8 @@ bool getFolder(string root_path, string &path)
   return ret;
 }
 
+#endif
+
 
 } // namespace
 
@@ -104,12 +111,18 @@ int main(int argc, char **argv)
 {
   std::atexit(atexitHandler);
 
+#ifdef _WIN32
   il2ge::exception_handler::install(g_crash_log_file_name);
   il2ge::exception_handler::watchModule(GetModuleHandle(0));
 
   string il2_dir = util::getDirFromPath(getExeFilePath());
+#else
+  string il2_dir = ".";
+#endif
+
   string map_path;
 
+#ifdef _WIN32
   if (argc == 1)
   {
     string path;
@@ -125,6 +138,12 @@ int main(int argc, char **argv)
   {
     map_path = argv[1];
   }
+#else
+  if (argc == 2)
+  {
+    map_path = argv[1];
+  }
+#endif
   else
   {
     cerr << "Wrong number of arguments: " << argc << endl;
@@ -134,7 +153,9 @@ int main(int argc, char **argv)
 
   assert(!map_path.empty());
 
+#ifdef _WIN32
   _chdir(il2_dir.c_str());
+#endif
 
   render_util::viewer::CreateMapLoaderFunc
     create_map_loader_func = [&map_path] (const render_util::TextureManager &texture_mgr)

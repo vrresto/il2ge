@@ -1,5 +1,5 @@
 set(SRCS
-  ${PROJECT_SOURCE_DIR}/common/exception_handler.cpp
+#   ${PROJECT_SOURCE_DIR}/common/exception_handler.cpp
   main.cpp
 )
 
