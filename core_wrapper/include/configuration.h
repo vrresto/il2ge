@@ -68,8 +68,21 @@ public:
   MultipleChoice<render_util::Atmosphere::Type> &atmosphere =
     addMultipleChoice<render_util::Atmosphere::Type>("Atmosphere",
       {
-        { render_util::Atmosphere::DEFAULT, "default", "" },
-        { render_util::Atmosphere::PRECOMPUTED, "precomputed", "HDR - experimental" }
+        {
+          render_util::Atmosphere::DEFAULT,
+          "default",
+          "the original atmosphere shader"
+        },
+        {
+          render_util::Atmosphere::PRECOMPUTED,
+          "precomputed",
+          "precomputed scattering - experimental"
+        },
+        {
+          render_util::Atmosphere::PRECOMPUTED_REALTIME_SINGLE_SCATTERING,
+          "precomputed_realtime_single_scattering",
+          "precomputed multiple scattering, real-time single scattering - experimental"
+        },
       },
       render_util::Atmosphere::DEFAULT,
       "atmosphere shader");
