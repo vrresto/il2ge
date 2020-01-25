@@ -71,17 +71,24 @@ public:
         {
           render_util::Atmosphere::DEFAULT,
           "default",
-          "the original atmosphere shader"
+          { "the original atmosphere shader" }
         },
         {
           render_util::Atmosphere::PRECOMPUTED,
           "precomputed",
-          "precomputed scattering - experimental"
+          {
+            "(experimental)",
+            "precomputed multiple and single scattering"
+          }
         },
         {
           render_util::Atmosphere::PRECOMPUTED_REALTIME_SINGLE_SCATTERING,
           "precomputed_realtime_single_scattering",
-          "precomputed multiple scattering, real-time single scattering - experimental"
+          {
+            "(experimental)",
+            "precomputed multiple scattering, real-time single scattering",
+            "slower than completely precomputed scattering, but avoids some artifacts"
+          }
         },
       },
       render_util::Atmosphere::DEFAULT,

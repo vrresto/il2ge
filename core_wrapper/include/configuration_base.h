@@ -44,7 +44,14 @@ public:
       m_name(name), m_description(description) {}
 
     std::string getName() { return m_name; }
-    virtual std::string getDescription() { return m_description; }
+
+    virtual void writeDescription(std::ostream &out)
+    {
+      auto desc = m_description;
+      if (desc.empty())
+        desc = "no description";
+      out << "# " << desc << std::endl;
+    }
 
     virtual void parse(std::string value) = 0;
     virtual std::string getValueStr() = 0;
@@ -92,7 +99,7 @@ public:
     {
       T value;
       std::string name;
-      std::string description;
+      std::vector<std::string> description_lines;
     };
 
     using Choices = std::vector<Choice>;
@@ -131,20 +138,26 @@ public:
       return {};
     }
 
-    std::string getDescription() override
-    { 
-      auto desc = SettingBase::getDescription();
+    void writeDescription(std::ostream &out) override
+    {
+      SettingBase::writeDescription(out);
 
-      desc += "\n# choices:";
+      out << "#" << std::endl;
+      out << "# choices:" << std::endl;
 
       for (auto &choice : m_choices)
       {
-        desc += "\n#   " + choice.name;
-        if (!choice.description.empty())
-          desc += " (" + choice.description + ")";
+        out << "#" << std::endl;
+        out << "#     " << choice.name << ":" << std::endl;
+        if (!choice.description_lines.empty())
+        {
+          for (auto &line : choice.description_lines)
+          {
+            out << "#         " << line << std::endl;
+          }
+        }
       }
-
-      return desc;
+      out << "#" << std::endl;
     }
 
   private:
@@ -185,10 +198,7 @@ public:
   {
     for (auto &setting : m_settings)
     {
-      auto desc = setting->getDescription();
-      if (desc.empty())
-        desc = "no description";
-      out << "# " << desc << std::endl;
+      setting->writeDescription(out);
       out << setting->getName() << "=" << setting->getValueStr() << std::endl;
       out << std::endl;
     }
