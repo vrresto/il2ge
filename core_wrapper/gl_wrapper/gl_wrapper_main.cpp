@@ -404,11 +404,14 @@ void GLAPIENTRY wrap_glEnd()
 {
   assert(wgl_wrapper::isMainThread());
 
-  auto ctx = getContext();
-  if (ctx->is_arb_program_active)
-    ctx->setActiveShader(nullptr);
-
   gl::End();
+
+  if (wgl_wrapper::isMainContextCurrent())
+  {
+    auto ctx = getContext();
+    if (ctx->is_arb_program_active)
+      ctx->setActiveShader(nullptr);
+  }
 }
 
 
