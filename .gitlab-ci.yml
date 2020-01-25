@@ -7,7 +7,7 @@ image: debian:buster-slim
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   APT_PACKAGES: gcc-mingw-w64-i686 g++-mingw-w64-i686 binutils make cmake wine32 wine python swig cpp nsis
-  CMAKE_OPTS: -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Duse_plog=1 -Dno_tools=1 -Denable_configurable_atmosphere=1
+  CMAKE_OPTS: -DCMAKE_INSTALL_PREFIX=../install -Dplatform=mingw -Duse_plog=1 -Dno_tools=1 -Denable_configurable_atmosphere=1 -Denable_configurable_shadows=1
 
 .debug_build:
   stage: build

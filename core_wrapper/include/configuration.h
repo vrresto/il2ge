@@ -61,7 +61,7 @@ public:
 #endif
 
 #if ENABLE_CONFIGURABLE_SHADOWS
-  Setting<bool> &better_shadows = addSetting("BetterShadows", false, "");
+  Setting<bool> &better_shadows = addSetting("RealisticShadowColor", false, "experimental");
 #endif
 
 #if ENABLE_CONFIGURABLE_ATMOSPHERE
