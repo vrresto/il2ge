@@ -18,6 +18,7 @@
 
 #include "iat.h"
 #include "core_wrapper.h"
+#include "configuration_p.h"
 #include <sfs.h>
 #include <wgl_wrapper.h>
 #include <misc.h>
@@ -27,7 +28,6 @@
 #include <jni.h>
 #include <mutex_locker.h>
 #include <config.h>
-#include <configuration.h>
 #include <log.h>
 #include <log/file_appender.h>
 #include <log/console_appender.h>
@@ -51,7 +51,7 @@
 
 extern "C"
 {
-  void WINAPI il2ge_init();
+  void WINAPI il2geInit();
   BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, void *reserved);
 }
 
@@ -88,10 +88,8 @@ HMODULE loadCoreWrapper(const char*);
 constexpr jint JNI_VERSION = JNI_VERSION_1_2;
 constexpr const char* const LOG_FILE_NAME = "il2ge.log";
 constexpr const char* const LOG_FULL_FILE_NAME = "il2ge_full.log";
-constexpr const char* const CONFIG_FILE_NAME = "il2ge.ini";
 
 
-il2ge::core_wrapper::Configuration g_config;
 HMODULE g_core_wrapper_module = 0;
 bool g_core_wrapper_loaded = false;
 decltype(JNI_GetCreatedJavaVMs) *g_get_created_java_vms = nullptr;
@@ -160,57 +158,6 @@ void initLog()
   cerr.rdbuf(&g_cerr_buf);
 
 #endif
-}
-
-
-bool readConfig()
-{
-  bool success = false;
-
-  INIReader ini(CONFIG_FILE_NAME);
-
-  if (!ini.ParseError())
-  {
-    auto read_value = [&ini] (std::string name)
-    {
-      return ini.Get("", name, "");
-    };
-
-    g_config.read(read_value);
-
-    success = true;
-  }
-  else if (ini.ParseError() != -1)
-  {
-    LOG_ERROR << "Error reading configuration file " << CONFIG_FILE_NAME
-      << " at line " << ini.ParseError() << endl
-      << "Using default configuration." << endl;
-  }
-  else
-  {
-    success = true;
-  }
-
-  LOG_INFO << endl;
-  LOG_INFO << "*** IL2GE Configuration ***" << endl;
-
-  for (auto &setting : g_config.getSettings())
-  {
-    LOG_INFO << setting->getName() << ": " << setting->getValueStr() << endl;
-  }
-
-  LOG_INFO << endl;
-  LOG_FLUSH;
-
-  return success;
-}
-
-
-void writeConfig()
-{
-  ofstream config_out(CONFIG_FILE_NAME);
-  assert(config_out.good());
-  g_config.write(config_out);
 }
 
 
@@ -423,12 +370,6 @@ std::string il2ge::core_wrapper::getWrapperLibraryFilePath()
 }
 
 
-const il2ge::core_wrapper::Configuration &il2ge::core_wrapper::getConfig()
-{
-  return g_config;
-}
-
-
 JNIEnv_ *il2ge::core_wrapper::getJNIEnv()
 {
   JNIEnv_ *env = nullptr;
@@ -449,7 +390,7 @@ extern "C"
 {
 
 
-void WINAPI il2ge_init()
+void WINAPI il2geInit()
 {
   InitializeCriticalSection(&g_fatal_error_mutex);
 
@@ -464,10 +405,10 @@ void WINAPI il2ge_init()
   LOG_INFO << "Commit: " << il2ge::version::getCommitSHA() << endl;
   LOG_FLUSH;
 
-  if (readConfig())
-    writeConfig();
+  il2ge::core_wrapper::readConfig();
+  il2ge::core_wrapper::writeConfig();
 
-  if (!g_config.enable_graphics_extender)
+  if (!il2ge::core_wrapper::getConfig().enable_graphics_extender)
   {
     LOG_WARNING << "IL2GE is disabled in config." << endl;
     LOG_FLUSH;

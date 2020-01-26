@@ -52,6 +52,7 @@ set(SRCS
   ${resource_obj}
   il2ge.def
   main/main.cpp
+  main/configuration.cpp
   main/iat.c
   main/core_wrapper.cpp
   main/wgl_wrapper.cpp

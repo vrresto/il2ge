@@ -1,2 +1,3 @@
 EXPORTS
-  Init=il2ge_init
+  Init=il2geInit
+  UpdateConfig=il2geUpdateConfig
