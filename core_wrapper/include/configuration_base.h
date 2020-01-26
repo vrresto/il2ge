@@ -31,6 +31,33 @@ namespace il2ge::core_wrapper::configuration
 {
 
 
+using std::to_string;
+
+
+inline std::string to_string(bool value)
+{
+  return value ? "on" : "off";
+}
+
+
+template <typename T>
+inline void parseValue(std::string in, T &out)
+{
+  std::istringstream s(in);
+  s >> out;
+}
+
+
+template <>
+inline void parseValue<bool>(std::string in, bool &out)
+{
+  if (in == "on" || in == "true" || in == "1")
+    out = true;
+  else if (in == "off" || in == "false" || in == "0")
+    out = false;
+}
+
+
 class SettingBase
 {
 public:
@@ -74,13 +101,12 @@ public:
 
   void parse(std::string value) override
   {
-    std::istringstream s(value);
-    s >> m_value;
+    parseValue(value, m_value);
   }
 
   std::string getValueStr() override
   {
-    return std::to_string(m_value);
+    return to_string(m_value);
   }
 
 private:
