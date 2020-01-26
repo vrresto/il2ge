@@ -53,15 +53,13 @@ namespace core
   {
     text_renderer = make_unique<TextRenderer>();
 
-#if ENABLE_CONFIGURABLE_ATMOSPHERE
-    auto atmosphere_type = il2ge::core_wrapper::getConfig().atmosphere.get();
-#else
-    auto atmosphere_type = render_util::Atmosphere::DEFAULT;
-#endif
+    auto &config = il2ge::core_wrapper::getConfig();
 
-    atmosphere = createAtmosphere(atmosphere_type,
-                                  MAX_CIRRUS_ALBEDO,
-                                  texture_manager, g_shader_path);
+    atmosphere = createAtmosphere(config.atmosphere.get(),
+        MAX_CIRRUS_ALBEDO,
+        texture_manager, g_shader_path,
+        config.atmosphere_precomputed.realtime_single_scattering,
+        config.atmosphere_precomputed.realtime_single_scattering_samples);
 
     shader_search_path.push_back(g_shader_path + "/" + atmosphere->getShaderPath());
     shader_search_path.push_back(g_shader_path);

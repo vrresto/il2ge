@@ -40,9 +40,12 @@ namespace jni_wrapper
 
 namespace il2ge::core_wrapper
 {
-  class Configuration;
+  namespace configuration
+  {
+    class Configuration;
+  }
 
-  const Configuration &getConfig();
+  const configuration::Configuration &getConfig();
 
   JNIEnv_ *getJNIEnv();
   std::string getWrapperLibraryFilePath();

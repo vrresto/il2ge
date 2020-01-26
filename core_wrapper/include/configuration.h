@@ -25,7 +25,7 @@
 #include <render_util/atmosphere.h>
 
 
-namespace il2ge::core_wrapper
+namespace il2ge::core_wrapper::configuration
 {
 
 
@@ -70,30 +70,38 @@ public:
       {
         {
           render_util::Atmosphere::DEFAULT,
-          "default",
-          { "the original atmosphere shader" }
+          "Default",
+          { "the original shader" }
         },
         {
           render_util::Atmosphere::PRECOMPUTED,
-          "precomputed",
+          "Precomputed",
           {
             "(experimental)",
-            "precomputed multiple and single scattering"
-          }
-        },
-        {
-          render_util::Atmosphere::PRECOMPUTED_REALTIME_SINGLE_SCATTERING,
-          "precomputed_realtime_single_scattering",
-          {
-            "(experimental)",
-            "precomputed multiple scattering, real-time single scattering",
-            "slower than completely precomputed scattering, but avoids some artifacts"
+            "precomputed light scattering"
           }
         },
       },
       render_util::Atmosphere::DEFAULT,
-      "atmosphere shader");
+      "atmospheric light scattering shader");
+
+  struct AtmospherePrecomputedSection : public Section
+  {
+    AtmospherePrecomputedSection() : Section("Atmosphere.Precomputed") {}
+
+    Setting<bool> &realtime_single_scattering =
+      addSetting("RealtimeSingleScattering", false,
+                 "real-time single scattering - slower than precomputed, but avoids some artifacts");
+
+    Setting<int> &realtime_single_scattering_samples =
+      addSetting("RealtimeSingleScattering.SampleCount", 10,
+                 "controls the quality of real time single scattering - possible values: 10-50");
+  };
+
+  AtmospherePrecomputedSection &atmosphere_precomputed =
+    addSection<AtmospherePrecomputedSection>();
 #endif
+
 
 };
 

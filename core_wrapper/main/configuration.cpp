@@ -8,13 +8,14 @@
 extern "C" WINAPI void il2geUpdateConfig();
 
 using namespace std;
+using namespace il2ge::core_wrapper::configuration;
 
 
 namespace
 {
   constexpr auto CONFIG_FILE_NAME = "il2ge.ini";
 
-  il2ge::core_wrapper::Configuration g_config;
+  Configuration g_config;
 }
 
 
@@ -34,9 +35,9 @@ void readConfig()
 
   if (!ini.ParseError())
   {
-    auto read_value = [&ini] (std::string name)
+    auto read_value = [&ini] (std::string section, std::string name)
     {
-      return ini.Get("", name, "");
+      return ini.Get(section, name, "");
     };
 
     g_config.read(read_value);
@@ -51,10 +52,12 @@ void readConfig()
   LOG_INFO << endl;
   LOG_INFO << "*** IL2GE Configuration ***" << endl;
 
-  for (auto &setting : g_config.getSettings())
+  auto log_setting = [] (std::string section ,std::string name, std::string value)
   {
-    LOG_INFO << setting->getName() << ": " << setting->getValueStr() << endl;
-  }
+    LOG_INFO << section << (section.empty() ? "" : ".") << name << ": " << value << endl;
+  };
+
+  g_config.visit(log_setting);
 
   LOG_INFO << endl;
   LOG_FLUSH;

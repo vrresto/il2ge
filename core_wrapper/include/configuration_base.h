@@ -27,145 +27,180 @@
 #include <functional>
 
 
-namespace il2ge::core_wrapper
+namespace il2ge::core_wrapper::configuration
 {
 
 
-class ConfigurationBase
+class SettingBase
 {
 public:
-  class SettingBase
+  SettingBase(const SettingBase&) = delete;
+  SettingBase& operator=(const SettingBase&) = delete;
+
+  SettingBase(std::string name, std::string description) :
+    m_name(name), m_description(description) {}
+
+  std::string getName() { return m_name; }
+
+  virtual void writeDescription(std::ostream &out)
   {
-  public:
-    SettingBase(const SettingBase&) = delete;
-    SettingBase& operator=(const SettingBase&) = delete;
+    auto desc = m_description;
+    if (desc.empty())
+      desc = "no description";
+    out << "# " << desc << std::endl;
+  }
 
-    SettingBase(std::string name, std::string description) :
-      m_name(name), m_description(description) {}
+  virtual void parse(std::string value) = 0;
+  virtual std::string getValueStr() = 0;
 
-    std::string getName() { return m_name; }
+private:
+  std::string m_name;
+  std::string m_description;
+};
 
-    virtual void writeDescription(std::ostream &out)
-    {
-      auto desc = m_description;
-      if (desc.empty())
-        desc = "no description";
-      out << "# " << desc << std::endl;
-    }
 
-    virtual void parse(std::string value) = 0;
-    virtual std::string getValueStr() = 0;
+template <typename T>
+class Setting : public SettingBase
+{
+public:
+  Setting(std::string name, const T &default_value, std::string description) :
+    SettingBase(name, description),
+    m_value(default_value)
+  {
+  }
 
-  private:
-    std::string m_name;
-    std::string m_description;
+  const T &get() const { return m_value; }
+  operator const T &() const { return get(); }
+
+  void parse(std::string value) override
+  {
+    std::istringstream s(value);
+    s >> m_value;
+  }
+
+  std::string getValueStr() override
+  {
+    return std::to_string(m_value);
+  }
+
+private:
+  T m_value = {};
+};
+
+
+template <typename T>
+class MultipleChoice : public SettingBase
+{
+public:
+  struct Choice
+  {
+    T value;
+    std::string name;
+    std::vector<std::string> description_lines;
   };
 
+  using Choices = std::vector<Choice>;
 
-  template <typename T>
-  class Setting : public SettingBase
+  MultipleChoice(std::string name, Choices choices, T default_value, std::string description) :
+    SettingBase(name, description),
+    m_choices(choices),
+    m_value(default_value)
   {
-  public:
-    Setting(std::string name, const T &default_value, std::string description) :
-      SettingBase(name, description),
-      m_value(default_value)
-    {
-    }
+  }
 
-    const T &get() const { return m_value; }
-    operator const T &() const { return get(); }
+  const T &get() const { return m_value; }
+  operator const T &() const { return get(); }
 
-    void parse(std::string value) override
-    {
-      std::istringstream s(value);
-      s >> m_value;
-    }
-
-    std::string getValueStr() override
-    {
-      return std::to_string(m_value);
-    }
-
-  private:
-    T m_value = {};
-  };
-
-
-  template <typename T>
-  class MultipleChoice : public SettingBase
+  void parse(std::string value) override
   {
-  public:
-    struct Choice
+    for (auto &choice : m_choices)
     {
-      T value;
-      std::string name;
-      std::vector<std::string> description_lines;
-    };
-
-    using Choices = std::vector<Choice>;
-
-    MultipleChoice(std::string name, Choices choices, T default_value, std::string description) :
-      SettingBase(name, description),
-      m_choices(choices),
-      m_value(default_value)
-    {
-    }
-
-    const T &get() const { return m_value; }
-    operator const T &() const { return get(); }
-
-    void parse(std::string value) override
-    {
-      for (auto &choice : m_choices)
+      if (util::makeLowercase(value) == choice.name)
       {
-        if (util::makeLowercase(value) == choice.name)
-        {
-          m_value = choice.value;
-          break;
-        }
+        m_value = choice.value;
+        break;
       }
     }
+  }
 
-    std::string getValueStr() override
+  std::string getValueStr() override
+  {
+    for (auto &choice : m_choices)
     {
-      for (auto &choice : m_choices)
+      if (m_value == choice.value)
       {
-        if (m_value == choice.value)
-        {
-          return choice.name;
-        }
+        return choice.name;
       }
-      return {};
     }
+    return {};
+  }
 
-    void writeDescription(std::ostream &out) override
+  void writeDescription(std::ostream &out) override
+  {
+    SettingBase::writeDescription(out);
+
+    out << "#" << std::endl;
+    out << "# choices:" << std::endl;
+
+    for (auto &choice : m_choices)
     {
-      SettingBase::writeDescription(out);
-
       out << "#" << std::endl;
-      out << "# choices:" << std::endl;
-
-      for (auto &choice : m_choices)
+      out << "#     " << choice.name << ":" << std::endl;
+      if (!choice.description_lines.empty())
       {
-        out << "#" << std::endl;
-        out << "#     " << choice.name << ":" << std::endl;
-        if (!choice.description_lines.empty())
+        for (auto &line : choice.description_lines)
         {
-          for (auto &line : choice.description_lines)
-          {
-            out << "#         " << line << std::endl;
-          }
+          out << "#         " << line << std::endl;
         }
       }
-      out << "#" << std::endl;
     }
+    out << "#" << std::endl;
+  }
 
-  private:
-    T m_value = {};
-    Choices m_choices;
-  };
+private:
+  T m_value = {};
+  Choices m_choices;
+};
 
 
+class Section
+{
+  std::string m_name;
+  std::vector<std::unique_ptr<SettingBase>> m_settings;
+
+public:
+  Section(std::string name) : m_name(name) {}
+  Section& operator=(const Section&) = delete;
+
+  std::string getName() { return m_name; }
+
+  virtual void write(std::ostream &out)
+  {
+    for (auto &setting : m_settings)
+    {
+      out << std::endl;
+      setting->writeDescription(out);
+      out << setting->getName() << "=" << setting->getValueStr() << std::endl;
+    }
+  }
+
+  void read(std::function<std::string(std::string,std::string)> read_value)
+  {
+    for (auto &setting : m_settings)
+    {
+      auto value = read_value(m_name, setting->getName());
+      if (!value.empty())
+        setting->parse(value);
+    }
+  }
+
+  void visit(std::function<void(std::string,std::string,std::string)> func)
+  {
+    for (auto &setting : m_settings)
+      func(m_name, setting->getName(), setting->getValueStr());
+  }
+
+protected:
   template <typename T>
   T &addSetting(std::unique_ptr<T> &setting)
   {
@@ -174,14 +209,12 @@ public:
     return s;
   }
 
-
   template <typename T>
   Setting<T> &addSetting(std::string name, T default_value, std::string description)
   {
     auto setting = std::make_unique<Setting<T>>(name, default_value, description);
     return addSetting(setting);
   }
-
 
   template <typename T>
   MultipleChoice<T> &addMultipleChoice(std::string name,
@@ -192,38 +225,52 @@ public:
     auto setting = std::make_unique<MultipleChoice<T>>(name, choices, default_value, description);
     return addSetting(setting);
   }
+};
 
 
-  void write(std::ostream &out)
+class ConfigurationBase : public Section
+{
+public:
+  ConfigurationBase() : Section("") {}
+
+  void write(std::ostream &out) override
   {
-    for (auto &setting : m_settings)
+    Section::write(out);
+    for (auto &section : m_sections)
     {
-      setting->writeDescription(out);
-      out << setting->getName() << "=" << setting->getValueStr() << std::endl;
       out << std::endl;
+      out << std::endl;
+      out << "[" << section->getName() << "]" << std::endl;
+      section->write(out);
     }
   }
 
-
-  void read(std::function<std::string(std::string)> read_value)
+  void read(std::function<std::string(std::string,std::string)> read_value)
   {
-    for (auto &setting : m_settings)
-    {
-      auto value = read_value(setting->getName());
-      if (!value.empty())
-        setting->parse(value);
-    }
+    Section::read(read_value);
+    for (auto &section: m_sections)
+      section->read(read_value);
   }
 
-
-  const std::vector<std::unique_ptr<SettingBase>> &getSettings() const
+  void visit(std::function<void(std::string,std::string,std::string)> func)
   {
-    return m_settings;
+    Section::visit(func);
+    for (auto &section: m_sections)
+      section->visit(func);
   }
 
+protected:
+  template <class T>
+  T &addSection()
+  {
+    auto section = std::make_unique<T>();
+    auto &ref = *section;
+    m_sections.push_back(std::move(section));
+    return ref;
+  }
 
 private:
-  std::vector<std::unique_ptr<SettingBase>> m_settings;
+  std::vector<std::unique_ptr<Section>> m_sections;
 };
 
 
