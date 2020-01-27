@@ -51,6 +51,8 @@ inline void parseValue(std::string in, T &out)
 template <>
 inline void parseValue<bool>(std::string in, bool &out)
 {
+  in = util::makeLowercase(in);
+
   if (in == "on" || in == "true" || in == "1")
     out = true;
   else if (in == "off" || in == "false" || in == "0")
@@ -141,7 +143,7 @@ public:
   {
     for (auto &choice : m_choices)
     {
-      if (util::makeLowercase(value) == choice.name)
+      if (util::makeLowercase(value) == util::makeLowercase(choice.name))
       {
         m_value = choice.value;
         break;
