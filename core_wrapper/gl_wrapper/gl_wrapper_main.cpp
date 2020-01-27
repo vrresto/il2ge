@@ -384,6 +384,11 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
       ctx->active_shader->assertUniformsAreSet();
     }
   }
+  else if (state.render_phase == IL2_SpritesFog)
+  {
+    assert(!ctx->active_shader);
+    ctx->setActiveShader(getInvisibleProgram());
+  }
   else if (!g_better_shadows)
   {
     if (state.render_phase == IL2_Landscape0)
@@ -409,7 +414,11 @@ void GLAPIENTRY wrap_glEnd()
   if (wgl_wrapper::isMainContextCurrent())
   {
     auto ctx = getContext();
+
     if (ctx->is_arb_program_active)
+      ctx->setActiveShader(nullptr);
+
+    if (ctx->getRenderState().render_phase == IL2_SpritesFog)
       ctx->setActiveShader(nullptr);
   }
 }

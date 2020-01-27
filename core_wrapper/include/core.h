@@ -105,6 +105,8 @@ namespace core
   void onRender3D1FlushEnd();
   void onRenderCockpitBegin();
   void onRenderCockpitEnd();
+  void onRenderSpritesFogBegin();
+  void onRenderSpritesFogEnd();
 
   void showMenu(bool);
   bool isMenuShown();

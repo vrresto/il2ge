@@ -95,12 +95,31 @@ struct RenderWrapperCockpit: public RenderWrapper
 };
 
 
+struct RenderWrapperSpritesFog: public RenderWrapper
+{
+  RenderWrapperSpritesFog() : RenderWrapper(false) {}
+
+  void prepareStates() override
+  {
+    core::onRenderSpritesFogBegin();
+  }
+
+  void flushBegin() override {}
+
+  void flushEnd() override
+  {
+    core::onRenderSpritesFogEnd();
+  }
+};
+
+
 unordered_map<string, unique_ptr<RenderWrapper>> createWrappers()
 {
   unordered_map<string, unique_ptr<RenderWrapper>> map;
 
   map["render3D1"] = make_unique<RenderWrapper3D1>();
   map["renderCockpit"] = make_unique<RenderWrapperCockpit>();
+  map["renderSpritesFog"] = make_unique<RenderWrapperSpritesFog>();
 
   return move(map);
 }

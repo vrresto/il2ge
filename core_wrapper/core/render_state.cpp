@@ -178,6 +178,16 @@ namespace core
       setRenderPhase(IL2_Render3D1_Finished);
   }
 
+  void onRenderSpritesFogBegin()
+  {
+    setRenderPhase(IL2_SpritesFog);
+  }
+
+  void onRenderSpritesFogEnd()
+  {
+    setRenderPhase(IL2_SpritesFog_Finished);
+  }
+
   void onRenderCockpitBegin()
   {
     setRenderPhase(IL2_Cockpit);
