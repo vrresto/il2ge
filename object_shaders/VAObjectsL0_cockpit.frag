@@ -61,7 +61,7 @@ void main()
   }
 
   //EVIL HACK FIXME
-  bool is_light_source = !is_instrument_light && blend_add && pass_ambient_brightness > 0.3;
+  bool is_light_source = !is_instrument_light && blend_add;
 
   vec4 texture_color = texture2D(sampler_0, pass_texcoord);
 
@@ -86,7 +86,7 @@ void main()
 
   if (is_instrument_light || is_light_source)
   {
-    radiance += MAX_RETICLE_RADIANCE * texture_color.xyz * pass_secondary_color.xyz;
+    radiance += pass_ambient_brightness * MAX_RETICLE_RADIANCE * texture_color.xyz * pass_secondary_color.xyz;
   }
 
   gl_FragColor.xyz = toneMap(radiance);
