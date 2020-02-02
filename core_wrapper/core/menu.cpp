@@ -77,16 +77,22 @@ void Menu::rebuild()
 {
   m_display.clear();
 
-  m_display.addLine("IL-2 Graphics Extender", glm::vec3(0.0, 1.0, 0.0));
+  auto color = 0.7f * glm::vec3(0.4, 1.0, 0.4);
+
   m_display.addLine();
-  m_display.addLine("Escape: exit menu", glm::vec3(0.0, 1.0, 0.0));
+  m_display.addLine("Escape: exit menu", color);
 
   if (m_scene.getNumParameters())
   {
-    m_display.addLine("Up/Down: navigate menu", glm::vec3(0.0, 1.0, 0.0));
-    m_display.addLine("Left/Right: change value by 0.01", glm::vec3(0.0, 1.0, 0.0));
-    m_display.addLine("-/+: change value by 1.00", glm::vec3(0.0, 1.0, 0.0));
-    m_display.addLine("r: reset value", glm::vec3(0.0, 1.0, 0.0));
+    m_display.addLine("Down/Up: navigate menu", color);
+    m_display.addLine();
+    m_display.addLine("Left/Right: change value by 0.01", color);
+    m_display.addLine("-/+: change value by 1.00", color);
+    m_display.addLine("PageDown/PageUp: change value by 100", color);
+    m_display.addLine();
+    m_display.addLine("(Shift multiplies change amount by 10)", color);
+    m_display.addLine();
+    m_display.addLine("r: reset value", color);
   }
 
   m_display.addLine();
@@ -157,27 +163,25 @@ void Menu::handleKey(int key, bool ctrl, bool alt, bool shift)
   using namespace il2ge::keys;
 
   float increment = 1.0;
-  if (alt)
-    increment = 0.1;
-  else if (shift)
+  if (shift)
     increment = 10;
 
   switch (key)
   {
-    case R:
-      resetValue();
-      break;
-    case LEFT:
-      changeValue(-0.01);
-      break;
-    case RIGHT:
-      changeValue(+0.01);
-      break;
     case UP:
       prevEntry();
       break;
     case DOWN:
       nextEntry();
+      break;
+    case R:
+      resetValue();
+      break;
+    case LEFT:
+      changeValue(-0.01 * increment);
+      break;
+    case RIGHT:
+      changeValue(+0.01 * increment);
       break;
     case SUBTRACT:
       changeValue(-1.0 * increment);
@@ -186,10 +190,10 @@ void Menu::handleKey(int key, bool ctrl, bool alt, bool shift)
       changeValue(+1.0 * increment);
       break;
     case PAGE_DOWN:
-      changeValue(-100);
+      changeValue(-100 * increment);
       break;
     case PAGE_UP:
-      changeValue(+100);
+      changeValue(+100 * increment);
       break;
   }
 }
