@@ -35,7 +35,13 @@ namespace
 {
 
 
-using Command = std::function<void()>;
+struct Command
+{
+  using ExecFunc = std::function<void()>;
+
+  ExecFunc execute;
+  bool is_debug_command = false;
+};
 
 
 unordered_map<string, Command> g_commands;
@@ -43,9 +49,9 @@ vector<string> g_command_names;
 bool g_java_classes_initialized = false;
 
 
-void addCommand(string name, Command command)
+void addCommand(string name, Command::ExecFunc exec, bool is_debug_command = false)
 {
-  g_commands[name] = command;
+  g_commands[name] = { exec, is_debug_command };
   g_command_names.push_back(name);
 }
 
@@ -106,25 +112,25 @@ void initJavaClasses()
   {
     core_gl_wrapper::toggleEnable();
   };
-  addCommand("ToggleEnable", toggle_enable);
+  addCommand("ToggleEnable", toggle_enable, true);
 
   auto toggle_object_shaders = [] ()
   {
     core_gl_wrapper::toggleObjectShaders();
   };
-  addCommand("ToggleObjectShaders", toggle_object_shaders);
+  addCommand("ToggleObjectShaders", toggle_object_shaders, true);
 
   auto toggle_tranparent_shader = [] ()
   {
     core_gl_wrapper::toggleTransparentShader();
   };
-  addCommand("ToggleTransparentShader", toggle_tranparent_shader);
+  addCommand("ToggleTransparentShader", toggle_tranparent_shader, true);
 
   auto toggle_terrain = [] ()
   {
     core_gl_wrapper::toggleTerrain();
   };
-  addCommand("ToggleTerrain", toggle_terrain);
+  addCommand("ToggleTerrain", toggle_terrain, true);
 #endif
 
   cout << "loading class com/maddox/il2ge/HotKeys ..." << endl;
@@ -174,13 +180,19 @@ std::string getCommandDisplayText(std::string command_name)
 }
 
 
+bool isDebugCommand(std::string name)
+{
+  return g_commands.at(name).is_debug_command;
+}
+
+
 void executeCommand(std::string command_name)
 {
   auto it = g_commands.find(command_name);
 
   if (it != g_commands.end())
   {
-    it->second();
+    it->second.execute();
   }
   else
   {

@@ -94,8 +94,9 @@ public class HotKeys
     {
       String name = GraphicsExtender.getCommandName(i);
       String text = GraphicsExtender.getCommandDisplayText(name);
+      String section = GraphicsExtender.isDebugCommand(name) ? "hotkeys" : "misc";
 
-      HotKeyCmdEnv.addCmd("misc", new CommandHotKey(name, text));
+      HotKeyCmdEnv.addCmd(section, new CommandHotKey(name, text));
     }
   }
 

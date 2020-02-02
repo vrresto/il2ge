@@ -11,6 +11,7 @@ namespace il2ge::java_interface
   std::string getCommandName(int index);
 
   std::string getCommandDisplayText(std::string command_name);
+  bool isDebugCommand(std::string name);
   void executeCommand(std::string command_name);
 
   void showMenu(bool show);
