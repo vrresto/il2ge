@@ -1,7 +1,7 @@
 # IL-2 Graphics Extender (IL2GE)
 
 ### Requirements
-- OpenGL version 4.5
+- OpenGL version 4.5 (https://en.wikipedia.org/wiki/OpenGL#OpenGL_4.5)
 - IL-2 Selector (at least Version 3.4.2)
 - Settings:
    - OpenGL mode - DirectX is not supported
