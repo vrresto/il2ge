@@ -17,7 +17,7 @@
  */
 
 
-#include "interface.h"
+#include <il2ge_java_interface/interface.h>
 #include <java_util.h>
 #include <core.h>
 #include <config.h>

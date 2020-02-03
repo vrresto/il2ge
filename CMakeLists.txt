@@ -101,6 +101,13 @@ add_subdirectory(${renderutil_dir} ${CMAKE_BINARY_DIR}/render_util)
 
 include(${renderutil_dir}/cflags.cmake)
 
+
+if(NOT il2ge_java_interface_dir)
+  set(il2ge_java_interface_dir ${PROJECT_SOURCE_DIR}/_modules/il2ge_java_interface)
+endif()
+
+add_subdirectory(${il2ge_java_interface_dir} ${CMAKE_BINARY_DIR}/il2ge_java_interface)
+
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
   ${PROJECT_BINARY_DIR}
@@ -108,6 +115,9 @@ include_directories(
   ${render_util_BINARY_DIR}/include
   ${render_util_BINARY_DIR}
   ${PROJECT_SOURCE_DIR}/_modules/inih/cpp
+  ${il2ge_java_interface_dir}/include
+  ${il2ge_java_interface_BINARY_DIR}/include
+  ${il2ge_java_interface_BINARY_DIR}
 )
 
 

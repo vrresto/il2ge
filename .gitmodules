@@ -8,3 +8,6 @@
 [submodule "_modules/inih"]
 	path = _modules/inih
 	url = https://github.com/benhoyt/inih.git
+[submodule "_modules/il2ge_java_interface"]
+	path = _modules/il2ge_java_interface
+	url = https://gitlab.com/vrresto/il2ge_java_interface.git

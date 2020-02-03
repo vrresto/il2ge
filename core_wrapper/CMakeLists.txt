@@ -6,7 +6,7 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-add_subdirectory(swig)
+add_subdirectory(java_interface)
 
 set(library_name "il2ge")
 
