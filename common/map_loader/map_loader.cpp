@@ -361,32 +361,40 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
   int i = 0;
   while (true)
   {
-    char basename[100];
 
-    snprintf(basename, sizeof(basename), "WaterNoise%.2dDot3", i);
-    auto filename = string(basename) + ".tga";
-    LOG_TRACE << "loading " << filename << endl;
-    vector<char> data;
-    if (!loader->readWaterAnimation(filename, data))
-    {
-      break;
-    }
-    auto normal_map = loadImageRGBAFromMemory(data, filename.c_str());
-    assert(normal_map);
-    dump(normal_map, basename, loader->getDumpDir());
-    normal_maps.push_back(normal_map);
 
-    snprintf(basename, sizeof(basename), "WaterNoiseFoam%.2d", i);
-    filename = string(basename) + ".tga";
-    LOG_TRACE << "loading " << filename << endl;;
-    if (!loader->readWaterAnimation(filename, data))
     {
-      break;
+      char basename[100];
+      snprintf(basename, sizeof(basename), "WaterNoise%.2dDot3", i);
+      auto filename = string(basename) + ".tga";
+      LOG_TRACE << "loading " << filename << endl;
+      vector<char> data;
+      if (!loader->readWaterAnimation(filename, data))
+      {
+        break;
+      }
+      auto normal_map = loadImageRGBAFromMemory(data, filename.c_str());
+      assert(normal_map);
+      dump(normal_map, basename, loader->getDumpDir());
+      normal_maps.push_back(normal_map);
     }
-    auto foam_mask = render_util::loadImageFromMemory<ImageGreyScale>(data);
-    assert(foam_mask);
-    dump(foam_mask, basename, loader->getDumpDir());
-    foam_masks.push_back(foam_mask);
+
+
+    {
+      char basename[100];
+      snprintf(basename, sizeof(basename), "WaterNoiseFoam%.2d", i);
+      auto filename = string(basename) + ".tga";
+      LOG_TRACE << "loading " << filename << endl;;
+      vector<char> data;
+      if (!loader->readWaterAnimation(filename, data))
+      {
+        break;
+      }
+      auto foam_mask = render_util::loadImageFromMemory<ImageGreyScale>(data);
+      assert(foam_mask);
+      dump(foam_mask, basename, loader->getDumpDir());
+      foam_masks.push_back(foam_mask);
+    }
 
     i++;
   }
