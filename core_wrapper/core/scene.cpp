@@ -107,9 +107,9 @@ namespace core
     };
 
     addAtmosphereParameter("exposure", Atmosphere::Parameter::EXPOSURE);
-    addAtmosphereParameter("saturation", Atmosphere::Parameter::SATURATION);
     addAtmosphereParameter("brightness_curve_exponent",
                             Atmosphere::Parameter::BRIGHTNESS_CURVE_EXPONENT);
+    addAtmosphereParameter("saturation", Atmosphere::Parameter::SATURATION);
     addAtmosphereParameter("texture_brightness", Atmosphere::Parameter::TEXTURE_BRIGHTNESS);
     addAtmosphereParameter("texture_brightness_curve_exponent",
                             Atmosphere::Parameter::TEXTURE_BRIGHTNESS_CURVE_EXPONENT);
