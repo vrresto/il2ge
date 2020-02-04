@@ -337,6 +337,41 @@ void createWaterTypeMap(ImageGreyScale::ConstPtr type_map, MapTextures *map_text
 }
 
 
+template <typename T, class Container>
+bool loadWaterTexture(const char *prefix,
+                      const char *suffix,
+                      int i,
+                      Container &container,
+                      il2ge::RessourceLoader *loader)
+{
+  char basename[100];
+  snprintf(basename, sizeof(basename), "%s%.2d%s", prefix, i, suffix);
+  auto filename = string(basename) + ".tga";
+
+  LOG_TRACE << "loading " << filename << endl;
+
+  vector<char> data;
+  if (!loader->readWaterAnimation(filename, data))
+  {
+    return false;
+  }
+
+  auto image = loadImageFromMemory<T>(data, filename.c_str());
+  assert(image);
+
+  if (i != 0 && image->getSize() != container.at(0)->getSize())
+  {
+    LOG_WARNING << filename << " has wrong size." << endl;
+    LOG_WARNING << "Expected: " << container.at(0)->getSize() << endl;
+    LOG_WARNING << "Got: " << image->getSize() << endl;
+    return false;
+  }
+
+  dump(image, basename, loader->getDumpDir());
+  container.push_back(image);
+
+  return true;
+};
 
 
 void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
@@ -359,64 +394,16 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
   vector<ImageGreyScale::ConstPtr> foam_masks;
 
   int i = 0;
+
   while (true)
   {
-    glm::ivec2 normal_map_size = glm::ivec2(0);
-    glm::ivec2 foam_mask_size = glm::ivec2(0);
+    if (!loadWaterTexture<ImageRGBA>("WaterNoise", "Dot3", i, normal_maps, loader))
+      break;
 
+    if (!loadWaterTexture<ImageGreyScale>("WaterNoiseFoam", "", i, foam_masks, loader))
     {
-      char basename[100];
-      snprintf(basename, sizeof(basename), "WaterNoise%.2dDot3", i);
-      auto filename = string(basename) + ".tga";
-      LOG_TRACE << "loading " << filename << endl;
-      vector<char> data;
-      if (!loader->readWaterAnimation(filename, data))
-      {
-        break;
-      }
-
-      auto normal_map = loadImageRGBAFromMemory(data, filename.c_str());
-      assert(normal_map);
-      if (i == 0)
-        normal_map_size = normal_map->getSize();
-
-      if (normal_map->getSize() != normal_map_size)
-      {
-        LOG_WARNING << filename << " has wrong size." << endl;
-        LOG_WARNING << "Expected: " << normal_map_size << " - got: " << normal_map->getSize() << endl;
-        break;
-      }
-
-      dump(normal_map, basename, loader->getDumpDir());
-      normal_maps.push_back(normal_map);
-    }
-
-
-    {
-      char basename[100];
-      snprintf(basename, sizeof(basename), "WaterNoiseFoam%.2d", i);
-      auto filename = string(basename) + ".tga";
-      LOG_TRACE << "loading " << filename << endl;;
-      vector<char> data;
-      if (!loader->readWaterAnimation(filename, data))
-      {
-        break;
-      }
-
-      auto foam_mask = render_util::loadImageFromMemory<ImageGreyScale>(data);
-      assert(foam_mask);
-      if (i == 0)
-        foam_mask_size = foam_mask->getSize();
-
-      if (foam_mask->getSize() != foam_mask_size)
-      {
-        LOG_WARNING << filename << " has wrong size." << endl;
-        LOG_WARNING << "Expected: " << foam_mask_size << " - got: " << foam_mask->getSize() << endl;
-        break;
-      }
-
-      dump(foam_mask, basename, loader->getDumpDir());
-      foam_masks.push_back(foam_mask);
+      normal_maps.pop_back();
+      break;
     }
 
     i++;

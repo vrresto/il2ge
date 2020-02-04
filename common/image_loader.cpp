@@ -74,6 +74,14 @@ namespace il2ge
 {
 
 
+template <>
+std::shared_ptr<render_util::ImageRGBA>
+loadImageFromMemory<render_util::ImageRGBA>(const std::vector<char> &data, const char *name)
+{
+  return loadImageRGBAFromMemory(data, name);
+}
+
+
 std::shared_ptr<render_util::GenericImage> loadImageFromMemory(const std::vector<char> &data,
                                                                const char *name)
 {

@@ -20,9 +20,23 @@
 #define IL2GE_IMAGE_LOADER_H
 
 #include <render_util/image.h>
+#include <render_util/image_loader.h>
 
 namespace il2ge
 {
+
+
+template <class T>
+std::shared_ptr<T> loadImageFromMemory(const std::vector<char> &data, const char *name)
+{
+  return render_util::loadImageFromMemory<T>(data);
+}
+
+
+template <>
+std::shared_ptr<render_util::ImageRGBA>
+loadImageFromMemory<render_util::ImageRGBA>(const std::vector<char> &data, const char *name);
+
 
 std::shared_ptr<render_util::GenericImage> loadImageFromMemory(const std::vector<char> &data,
                                                                const char *name);
