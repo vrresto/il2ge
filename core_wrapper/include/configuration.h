@@ -89,6 +89,8 @@ public:
   {
     AtmospherePrecomputedSection() : Section("Atmosphere.Precomputed") {}
 
+    Setting<bool> &precomputed_luminance =
+      addSetting("AccurateLuminance", false, "more accurate colors");
   };
 
   AtmospherePrecomputedSection &atmosphere_precomputed =

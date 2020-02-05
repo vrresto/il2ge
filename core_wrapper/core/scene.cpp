@@ -57,7 +57,7 @@ namespace core
 
     atmosphere = createAtmosphere(config.atmosphere.get(),
         MAX_CIRRUS_ALBEDO,
-        texture_manager, g_shader_path, false, 0);
+        texture_manager, g_shader_path, config.atmosphere_precomputed.precomputed_luminance);
 
     shader_search_path.push_back(g_shader_path + "/" + atmosphere->getShaderPath());
     shader_search_path.push_back(g_shader_path);
