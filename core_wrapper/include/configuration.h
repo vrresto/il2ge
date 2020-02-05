@@ -91,6 +91,9 @@ public:
 
     Setting<bool> &precomputed_luminance =
       addSetting("AccurateLuminance", false, "more accurate colors");
+
+    Setting<float> &haziness =
+      addSetting("Haziness", 0.f, "possible values are between 0.0 and 1.0");
   };
 
   AtmospherePrecomputedSection &atmosphere_precomputed =
