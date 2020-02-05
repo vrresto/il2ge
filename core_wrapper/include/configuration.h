@@ -89,13 +89,6 @@ public:
   {
     AtmospherePrecomputedSection() : Section("Atmosphere.Precomputed") {}
 
-    Setting<bool> &realtime_single_scattering =
-      addSetting("RealtimeSingleScattering", false,
-                 "real-time single scattering - slower than precomputed, but avoids some artifacts");
-
-    Setting<int> &realtime_single_scattering_samples =
-      addSetting("RealtimeSingleScattering.SampleCount", 10,
-                 "controls the quality of real time single scattering - possible values: 10-50");
   };
 
   AtmospherePrecomputedSection &atmosphere_precomputed =

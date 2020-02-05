@@ -57,9 +57,7 @@ namespace core
 
     atmosphere = createAtmosphere(config.atmosphere.get(),
         MAX_CIRRUS_ALBEDO,
-        texture_manager, g_shader_path,
-        config.atmosphere_precomputed.realtime_single_scattering,
-        config.atmosphere_precomputed.realtime_single_scattering_samples);
+        texture_manager, g_shader_path, false, 0);
 
     shader_search_path.push_back(g_shader_path + "/" + atmosphere->getShaderPath());
     shader_search_path.push_back(g_shader_path);
