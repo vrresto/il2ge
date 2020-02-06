@@ -55,11 +55,14 @@ namespace core
 
     auto &config = il2ge::core_wrapper::getConfig();
 
-    atmosphere = createAtmosphere(config.atmosphere.get(),
-        MAX_CIRRUS_ALBEDO,
-        texture_manager, g_shader_path,
-        config.atmosphere_precomputed.precomputed_luminance,
-        config.atmosphere_precomputed.haziness);
+    {
+      AtmosphereCreationParameters params;
+      params.max_cirrus_albedo = MAX_CIRRUS_ALBEDO;
+      params.precomputed_luminance = config.atmosphere_precomputed.precomputed_luminance;
+      params.haziness = config.atmosphere_precomputed.haziness;
+
+      atmosphere = createAtmosphere(config.atmosphere.get(), texture_manager, g_shader_path, params);
+    }
 
     shader_search_path.push_back(g_shader_path + "/" + atmosphere->getShaderPath());
     shader_search_path.push_back(g_shader_path);
