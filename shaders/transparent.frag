@@ -5,7 +5,7 @@
 
 vec3 calcLight(vec3 pos, float direct_scale, float ambient_scale);
 vec3 deGamma(vec3 color);
-vec3 fogAndToneMap(vec3);
+vec3 fogAndToneMap(vec3 color, bool no_inscattering);
 
 uniform sampler2D sampler_0;
 uniform bool blend_add;
@@ -62,5 +62,5 @@ void main(void)
   else
     gl_FragColor.xyz *= light;
 
-  gl_FragColor.xyz = fogAndToneMap(gl_FragColor.xyz);
+  gl_FragColor.xyz = fogAndToneMap(gl_FragColor.xyz, blend_add);
 }
