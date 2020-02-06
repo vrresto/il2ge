@@ -60,6 +60,7 @@ namespace core
       params.max_cirrus_albedo = MAX_CIRRUS_ALBEDO;
       params.precomputed_luminance = config.atmosphere_precomputed.precomputed_luminance;
       params.haziness = config.atmosphere_precomputed.haziness;
+      params.single_mie_horizon_hack = config.atmosphere_precomputed.single_mie_horizon_hack;
 
       atmosphere = createAtmosphere(config.atmosphere.get(), texture_manager, g_shader_path, params);
     }
