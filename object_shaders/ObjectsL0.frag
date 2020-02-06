@@ -56,7 +56,9 @@ vec3 getSpecular(vec3 view_dir, vec3 incoming)
   vec3 R = reflect(view_dir, pass_normal);
   vec3 lVec = -sunDir;
 
-  vec3 specular_amount = 0.5 * pass_specular_amount * pow(max(dot(R, lVec), 0.0), pass_shinyness);
+  float specular_intensity = length(pass_specular_amount) / length(vec3(1));
+
+  vec3 specular_amount = vec3(1) * specular_intensity * pow(max(dot(R, lVec), 0.0), pass_shinyness);
 
   return deGamma(specular_amount) * incoming;
 }

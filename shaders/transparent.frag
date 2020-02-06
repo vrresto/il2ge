@@ -9,7 +9,6 @@ vec3 fogAndToneMap(vec3 color, bool no_inscattering);
 
 uniform sampler2D sampler_0;
 uniform bool blend_add;
-uniform bool alpha_texture;
 
 varying vec2 pass_texcoord;
 varying vec4 pass_color;
@@ -36,15 +35,8 @@ void main(void)
 {
   vec4 tex_color = texture(sampler_0, pass_texcoord);
 
-  if (alpha_texture)
-  {
-    gl_FragColor.xyz = pass_color.xyz;
-    gl_FragColor.a = tex_color.r;
-  }
-  else
-  {
-    gl_FragColor = pass_color * tex_color;
-  }
+  gl_FragColor.rgb = (length(pass_color.rgb) / length(vec3(1))) * tex_color.rgb;
+  gl_FragColor.a = pass_color.a * tex_color.a;
 
   gl_FragColor.xyz = deGamma(gl_FragColor.xyz);
 
