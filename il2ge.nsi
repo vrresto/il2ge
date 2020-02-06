@@ -58,6 +58,6 @@ create_backup_dir_success:
   File /r "${SRC_DIR}/il2ge/*"
 
   SetOutPath "$INSTDIR"
-  ExecWait "rundll32 $INSTDIR\il2ge\lib\il2ge.dll,UpdateConfig"
+  ExecWait 'rundll32 "$INSTDIR\il2ge\lib\il2ge.dll,UpdateConfig"'
 
 SectionEnd
