@@ -584,34 +584,7 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
       gl::DrawRangeElements(mode, start, end, count, type, indices);
     }
 
-#if 0
-    GLint values[4];
-    gl::GetIntegerv(GL_SCISSOR_BOX, values);
-    gl::Enable(GL_SCISSOR_TEST);
-    gl::Scissor(0, 0, 900, values[3]);
-
-
-    const string name = core_gl_wrapper::arb_program::getFragmentProgramName();
-    assert(!name.empty());
-    if (g_forest_shader_names.find(name) != g_forest_shader_names.end() || false)
-    {
-
-      gl::DrawRangeElements(mode, start, end, count, type, indices);
-
-    }
-
-    gl::Scissor(values[0], values[1], values[2], values[3]);
-    gl::Disable(GL_SCISSOR_TEST);
-#endif
   }
-
-//     if (state.render_phase == IL2_Landscape0_PreTerrain &&
-//         currentFragmentProgramName() &&
-//         strcmp(currentFragmentProgramName(), "fpFarLandFog") == 0)
-//     {
-//       setRenderPhase(IL2_Landscape0_TerrainFar);
-//     }
-
 
 }
 #endif
