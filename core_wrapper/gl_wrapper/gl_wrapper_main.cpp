@@ -935,7 +935,7 @@ void Context::Impl::onLandscapeFinished(bool was_mirror)
   if (!isActive() || was_mirror)
     return;
 
-  if (!g_better_shadows)
+  if (!g_better_shadows || !isTerrainEnabled())
     return;
 
   auto viewport_size = getViewportSize();
@@ -1066,7 +1066,7 @@ bool Context::Impl::shouldBindFrameBuffer(GeometryType geometry)
 
   auto &state = getRenderState();
 
-  if (!isActive() || state.is_mirror
+  if (!isActive() || !isTerrainEnabled() || state.is_mirror
       || state.render_phase < IL2_Landscape0 || state.render_phase >= IL2_PostLandscape)
   {
     return false;
