@@ -60,6 +60,13 @@ using render_util::StateModifier;
 #include <render_util/skybox.h>
 
 
+#if ENABLE_SHORTCUTS
+  #define SHORTCUT_OPTION
+#else
+  #define SHORTCUT_OPTION constexpr
+#endif
+
+
 namespace
 {
 
@@ -120,18 +127,14 @@ constexpr bool g_better_shadows = false;
 bool g_enable_cirrus_clouds = false;
 bool g_enable_transparent_shader = true;
 
-#if ENABLE_SHORTCUTS
-bool g_enable = true;
-bool g_enable_object_shaders = true;
-bool g_enable_terrain = true;
-bool isEnabled() { return g_enable; }
-bool isObjectShadersEnabled() { return g_enable && g_enable_object_shaders; }
-bool isTerrainEnabled() { return g_enable && g_enable_terrain; }
-#else
-constexpr bool isEnabled() { return true; }
-constexpr bool isObjectShadersEnabled() { return true; }
-constexpr bool isTerrainEnabled() { return true; }
-#endif
+SHORTCUT_OPTION bool g_enable = true;
+SHORTCUT_OPTION bool g_enable_object_shaders = true;
+SHORTCUT_OPTION bool g_enable_terrain = true;
+
+bool isActive() { return g_enable && !core::isFMBActive(); }
+bool isTerrainEnabled() { return isActive() && g_enable_terrain; }
+bool isObjectShadersEnabled() { return isActive() && g_enable_object_shaders; }
+bool isTransparentShaderEnabled() { return isActive() && g_enable_transparent_shader; }
 
 
 bool isCameraAboveCirrusClouds()
@@ -354,7 +357,7 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 {
   assert(wgl_wrapper::isMainThread());
 
-  if (!wgl_wrapper::isMainContextCurrent() || core::isFMBActive() || !isEnabled())
+  if (!wgl_wrapper::isMainContextCurrent() || !isActive())
   {
     return gl::Begin(mode);
   }
@@ -374,7 +377,7 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
 
   if (state.isRender3D1Flushing())
   {
-    if (g_enable_transparent_shader)
+    if (isTransparentShaderEnabled())
     {
       if (ctx->active_shader != getTransparentProgram())
       {
@@ -540,7 +543,7 @@ void GLAPIENTRY wrap_glDrawRangeElements(GLenum mode,
 
   ctx->onObjectDraw(GeometryType::OTHER);
 
-  if (core::isFMBActive()
+  if (!isActive()
       || !isTerrainEnabled()
       || state.is_mirror
       || state.camera_mode == IL2_CAMERA_MODE_2D
@@ -733,7 +736,7 @@ void drawTerrain()
 
   assert(ctx->getRenderState().camera_mode == IL2_CAMERA_MODE_3D);
 
-  if (core::isFMBActive() || !isTerrainEnabled() || ctx->getRenderState().is_mirror)
+  if (!isTerrainEnabled() || ctx->getRenderState().is_mirror)
     return;
 
   const auto original_state = State::fromCurrent();
@@ -858,7 +861,7 @@ void Context::Impl::updateShaderState()
   {
     new_active_shader = current_shader;
   }
-  else if (isObjectShadersEnabled() && is_arb_program_active && !core::isFMBActive())
+  else if (isObjectShadersEnabled() && is_arb_program_active)
   {
     new_active_shader = current_arb_program;
   }
@@ -915,7 +918,7 @@ void Context::Impl::onRenderPhaseChanged(const core::Il2RenderState &new_state)
       m_frame_nr++;
       break;
     case core::IL2_Landscape0:
-      if (!core::isFMBActive() && isEnabled())
+      if (isActive())
       {
         // bind terrain normal map
         {
@@ -956,7 +959,7 @@ void Context::Impl::onLandscapeFinished(bool was_mirror)
 
   setActiveShader(nullptr);
 
-  if (core::isFMBActive() || !isEnabled() || was_mirror)
+  if (!isActive() || was_mirror)
     return;
 
   if (!g_better_shadows)
@@ -984,7 +987,7 @@ void Context::Impl::onLandscapeFinished(bool was_mirror)
 
 void Context::Impl::onRender3D1Flushing()
 {
-  if (!isEnabled() || core::isFMBActive())
+  if (!isActive())
     return;
 
   assert(!is_arb_program_active);
@@ -1000,7 +1003,7 @@ void Context::Impl::onRender3D1Flushing()
   }
 
   //FIXME - see Context::Impl::onBlendFuncChanged() / wrap_glDrawRangeElements()
-  if (g_enable_transparent_shader)
+  if (isTransparentShaderEnabled())
   {
     auto program = getTransparentProgram();
 
@@ -1019,7 +1022,7 @@ void Context::Impl::onRender3D1Flushing()
 
 void Context::Impl::onRender3D1Finished()
 {
-  if (!isEnabled() || core::isFMBActive())
+  if (!isActive())
     return;
 
   setActiveShader(nullptr);
@@ -1090,7 +1093,7 @@ bool Context::Impl::shouldBindFrameBuffer(GeometryType geometry)
 
   auto &state = getRenderState();
 
-  if (!isEnabled() || core::isFMBActive() || state.is_mirror
+  if (!isActive() || state.is_mirror
       || state.render_phase < IL2_Landscape0 || state.render_phase >= IL2_PostLandscape)
   {
     return false;
@@ -1154,7 +1157,7 @@ void Context::Impl::onBlendFuncChanged(GLenum sfactor, GLenum dfactor)
 
     if (state.isRender3D1Flushing())
     {
-      if (g_enable_transparent_shader)
+      if (isTransparentShaderEnabled())
       {
         bool blend_add = false;
         bool alpha_texture = false;
