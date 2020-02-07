@@ -1090,7 +1090,7 @@ bool Context::Impl::shouldBindFrameBuffer(GeometryType geometry)
 
   auto &state = getRenderState();
 
-  if (core::isFMBActive() || state.is_mirror
+  if (!isEnabled() || core::isFMBActive() || state.is_mirror
       || state.render_phase < IL2_Landscape0 || state.render_phase >= IL2_PostLandscape)
   {
     return false;
