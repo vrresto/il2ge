@@ -46,8 +46,6 @@ void main(void)
     gl_FragColor = pass_color * tex_color;
   }
 
-  gl_FragColor.xyz += pass_secondary_color.xyz * pass_secondary_color.a;
-
   gl_FragColor.xyz = deGamma(gl_FragColor.xyz);
 
 #if USE_HDR
