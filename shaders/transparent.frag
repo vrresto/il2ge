@@ -3,16 +3,18 @@
 #define USE_HDR @use_hdr:0@
 #define USE_LUMINANCE @use_luminance:0@
 
+#define ENABLE_WINDOW_GLARE 1
+
+
 vec3 calcLight(vec3 pos, float direct_scale, float ambient_scale);
 vec3 deGamma(vec3 color);
 float deGamma(float color);
 vec3 fogAndToneMap(vec3 color, bool no_inscattering);
 void getIncomingLight(vec3 pos, out vec3 ambientLight, out vec3 directLight);
 
-vec3 textureColorCorrection(vec3 color);
-
 uniform sampler2D sampler_0;
 uniform bool blend_add;
+uniform bool texture_enabled;
 
 varying vec2 pass_texcoord;
 varying vec4 pass_color;
@@ -41,6 +43,24 @@ void main(void)
   vec3 incoming_direct_light;
   vec3 incoming_ambient_light;
   getIncomingLight(passObjectPos, incoming_ambient_light, incoming_direct_light);
+
+  if (!texture_enabled && blend_add)
+  {
+#if ENABLE_WINDOW_GLARE
+   // window glare
+    gl_FragColor.a = 1;
+
+    float glare_intensity = length(pass_color.rgb) / length(vec3(1));
+
+    gl_FragColor.rgb = incoming_direct_light * clamp(deGamma(vec3(glare_intensity)), 0, 1);
+
+    gl_FragColor.rgb = fogAndToneMap(gl_FragColor.rgb, true);
+
+    return;
+#else
+    discard;
+#endif
+  }
 
   float intensity = length(pass_color.rgb) / length(vec3(1));
 

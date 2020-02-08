@@ -384,6 +384,8 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
         assert(!ctx->active_shader);
         ctx->setActiveShader(getTransparentProgram());
       }
+
+      ctx->active_shader->setUniform<bool>("texture_enabled", gl::IsEnabled(GL_TEXTURE_2D));
       ctx->active_shader->assertUniformsAreSet();
     }
   }
