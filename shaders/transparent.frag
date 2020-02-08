@@ -14,7 +14,7 @@ uniform bool alpha_texture;
 varying vec2 pass_texcoord;
 varying vec4 pass_color;
 varying vec4 pass_secondary_color;
-varying vec3 passObjectPosFlat;
+varying vec3 passObjectPos;
 
 const float DIRECT_SCALE = 0.8;
 const float AMBIENT_SCALE = 0.6;
@@ -55,7 +55,7 @@ void main(void)
     gl_FragColor.xyz = pow(gl_FragColor.xyz, vec3(1.5));
 #endif
 
-  vec3 light = MAX_ALBEDO * calcLight(passObjectPosFlat, DIRECT_SCALE, AMBIENT_SCALE);
+  vec3 light = MAX_ALBEDO * calcLight(passObjectPos, DIRECT_SCALE, AMBIENT_SCALE);
 
   if (blend_add)
     gl_FragColor.xyz *= MAX_FIRE_RADIANCE;
