@@ -25,38 +25,58 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <cmath>
 
 
 namespace il2ge::core_wrapper::configuration
 {
 
 
-using std::to_string;
+template <typename T>
+inline std::string toString(T value)
+{
+  std::ostringstream s;
+
+  if (!glm::fract(static_cast<double>(value)))
+    s << std::setprecision(1) << std::fixed;
+
+  s << value;
+
+  return s.str();
+}
 
 
-inline std::string to_string(bool value)
+template <>
+inline std::string toString<bool>(bool value)
 {
   return value ? "on" : "off";
 }
 
 
 template <typename T>
-inline void parseValue(std::string in, T &out)
+inline bool parseValue(std::string in, T &out)
 {
   std::istringstream s(in);
   s >> out;
+  return !s.fail();
 }
 
 
 template <>
-inline void parseValue<bool>(std::string in, bool &out)
+inline bool parseValue<bool>(std::string in, bool &out)
 {
   in = util::makeLowercase(in);
+
+  bool valid = true;
 
   if (in == "on" || in == "true" || in == "1")
     out = true;
   else if (in == "off" || in == "false" || in == "0")
     out = false;
+  else
+    valid = false;
+
+  return valid;
 }
 
 
@@ -103,12 +123,15 @@ public:
 
   void parse(std::string value) override
   {
-    parseValue(value, m_value);
+    if (!parseValue(value, m_value))
+    {
+      LOG_ERROR << "Invalid value for " << getName() << ": " << value << std::endl;
+    }
   }
 
   std::string getValueStr() override
   {
-    return to_string(m_value);
+    return toString(m_value);
   }
 
 private:
@@ -141,14 +164,18 @@ public:
 
   void parse(std::string value) override
   {
+    bool valid = false;
     for (auto &choice : m_choices)
     {
       if (util::makeLowercase(value) == util::makeLowercase(choice.name))
       {
         m_value = choice.value;
+        valid = true;
         break;
       }
     }
+    if (!valid)
+      LOG_ERROR << "Invalid value for " << getName() << ": " << value << std::endl;
   }
 
   std::string getValueStr() override
