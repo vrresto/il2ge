@@ -16,3 +16,7 @@ add_library(java_interface OBJECT
 add_dependencies(java_interface
   swig_generate_cxx
 )
+
+target_link_libraries(java_interface
+  render_util
+)
