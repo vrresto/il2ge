@@ -22,4 +22,7 @@ set(CXX_SRCS
 
 add_library(common ${CXX_SRCS})
 
-target_link_libraries(common render_util)
+target_link_libraries(common
+  render_util
+  -lstdc++fs
+)

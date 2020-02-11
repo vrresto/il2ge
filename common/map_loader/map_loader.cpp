@@ -38,6 +38,8 @@
 #include <FastNoise.h>
 #include <glm/glm.hpp>
 
+#include <filesystem>
+#include <random>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -63,6 +65,7 @@ using namespace il2ge::map_loader;
 namespace
 {
 
+constexpr auto RANDOM_CIRRUS_TEXTURE_DIR = "il2ge_random_cirrus_textures";
 
 const vec3 default_water_color = vec3(45,51,40) / vec3(255);
 
@@ -119,6 +122,13 @@ float elevation_table[256] =
 {
   #include "height_table"
 };
+
+
+auto &getRandomNumberGenerator()
+{
+  static std::mt19937 gen(time(nullptr));
+  return gen;
+}
 
 
 void createWaterMap
@@ -415,10 +425,46 @@ void createWaterNormalMaps(render_util::WaterAnimation *water_animation,
 }
 
 
+std::shared_ptr<render_util::GenericImage> loadRandomCirrusTexture()
+{
+  std::vector<std::string> file_paths;
+
+  try
+  {
+    std::filesystem::directory_iterator it(RANDOM_CIRRUS_TEXTURE_DIR);
+    for (auto &entry : it)
+    {
+      if (!entry.is_regular_file())
+        continue;
+
+      if (util::makeLowercase(entry.path().extension().generic_string()) == ".tga")
+        file_paths.push_back(entry.path().generic_string());
+    }
+  }
+  catch (std::exception &e)
+  {
+    LOG_WARNING << e.what() << std::endl;
+  }
+
+  if (!file_paths.empty())
+  {
+    uniform_int_distribution<unsigned int> dist(0, file_paths.size()-1);
+    auto random_index = dist(getRandomNumberGenerator());
+    auto data = util::readFile<char>(file_paths.at(random_index));
+    if (!data.empty())
+      return loadImageFromMemory(data, "cirrus");
+  }
+
+  return {};
+}
+
+
 void createCirrusTextures(MapBase *map,
                           il2ge::RessourceLoader *loader)
 {
-  auto cirrus_texture = getTexture<GenericImage>("APPENDIX", "HighClouds", "", false, loader);
+  auto cirrus_texture = loadRandomCirrusTexture();
+  if (!cirrus_texture)
+    cirrus_texture = getTexture<GenericImage>("APPENDIX", "HighClouds", "", false, loader);
 //   auto cirrus_noise_texture = getTexture<GenericImage>("APPENDIX", "HighCloudsNoise", "", false, loader);
 
   map->setCirrusTexture(cirrus_texture);
