@@ -11,10 +11,12 @@ vec3 deGamma(vec3 color);
 float deGamma(float color);
 vec3 fogAndToneMap(vec3 color, bool no_inscattering);
 void getIncomingLight(vec3 pos, out vec3 ambientLight, out vec3 directLight);
+vec3 textureColorCorrection(vec3 color);
 
 uniform sampler2D sampler_0;
 uniform bool blend_add;
 uniform bool texture_enabled;
+uniform bool is_quad;
 
 varying vec2 pass_texcoord;
 varying vec4 pass_color;
@@ -35,6 +37,8 @@ varying vec3 passObjectPos;
 
 void main(void)
 {
+  bool is_sprite = is_quad;
+
   vec4 tex_color = texture(sampler_0, pass_texcoord);
 
   gl_FragColor.rgb = tex_color.rgb;
@@ -43,6 +47,14 @@ void main(void)
   vec3 incoming_direct_light;
   vec3 incoming_ambient_light;
   getIncomingLight(passObjectPos, incoming_ambient_light, incoming_direct_light);
+
+//   if (!gl_FrontFacing)
+//   {
+//     // smoketrails
+//     gl_FragColor.rgb = vec3(1,1,0);
+//     gl_FragColor.a = 0.3;
+//     return;
+//   }
 
   if (!texture_enabled && blend_add)
   {
@@ -63,22 +75,36 @@ void main(void)
   }
 
   float intensity = length(pass_color.rgb) / length(vec3(1));
+  float direct_intensity = pass_color.r;
 
   float ambient_albedo_factor = deGamma(intensity);
   float direct_albedo_factor = deGamma(pass_color.r);
 
-#if USE_HDR
-  direct_albedo_factor = pow(direct_albedo_factor, 3);
-  ambient_albedo_factor = pow(ambient_albedo_factor, 3);
-#else
-  direct_albedo_factor = pow(direct_albedo_factor, 2);
-  ambient_albedo_factor = pow(ambient_albedo_factor, 2);
-#endif
+  vec3 tex_color_corrected = vec3(0);
+  vec3 direct_albedo = vec3(0);
+  vec3 ambient_albedo = vec3(0);
 
-  vec3 tex_color_corrected = deGamma(tex_color.rgb);
+  if (is_sprite)
+  {
+    tex_color_corrected = deGamma(tex_color.rgb);
 
-  vec3 direct_albedo = MAX_ALBEDO * direct_albedo_factor * tex_color_corrected;
-  vec3 ambient_albedo = MAX_ALBEDO * ambient_albedo_factor * tex_color_corrected;
+    #if USE_HDR
+      direct_albedo_factor = pow(direct_albedo_factor, 3);
+      ambient_albedo_factor = pow(ambient_albedo_factor, 3);
+    #else
+      direct_albedo_factor = pow(direct_albedo_factor, 2);
+      ambient_albedo_factor = pow(ambient_albedo_factor, 2);
+    #endif
+
+    direct_albedo = MAX_ALBEDO * direct_albedo_factor * tex_color_corrected;
+    ambient_albedo = MAX_ALBEDO * ambient_albedo_factor * tex_color_corrected;
+  }
+  else
+  {
+    tex_color_corrected = textureColorCorrection(tex_color.rgb);
+    direct_albedo = tex_color_corrected * direct_albedo_factor;
+    ambient_albedo = tex_color_corrected * ambient_albedo_factor;
+  }
 
   vec3 ambient_reflection = ambient_albedo * incoming_ambient_light;
   vec3 direct_reflection = direct_albedo * incoming_direct_light;

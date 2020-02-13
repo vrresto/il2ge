@@ -386,6 +386,7 @@ void GLAPIENTRY wrap_glBegin(GLenum mode)
       }
 
       ctx->active_shader->setUniform<bool>("texture_enabled", gl::IsEnabled(GL_TEXTURE_2D));
+      ctx->active_shader->setUniform<bool>("is_quad", mode == GL_QUADS);
       ctx->active_shader->assertUniformsAreSet();
     }
   }
