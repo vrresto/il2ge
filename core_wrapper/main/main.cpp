@@ -143,7 +143,7 @@ void initLog()
   {
     auto message = std::string(e.what()) + "\n\rTerminating program.";
     MessageBoxA(nullptr, message.c_str(), "IL-2 Graphics Extender", MB_OK | MB_ICONERROR);
-    _Exit(1);
+    _Exit(EXIT_FAILURE);
   }
 
 #else
@@ -360,7 +360,7 @@ void il2ge::core_wrapper::fatalError(const std::string &message)
 {
   LOG_ERROR << "ERROR: " << message << endl;
   LOG_FLUSH;
-  _Exit(1);
+  _Exit(EXIT_FAILURE);
 }
 
 
