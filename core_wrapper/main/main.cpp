@@ -86,8 +86,8 @@ HMODULE loadCoreWrapper(const char*);
 
 
 constexpr jint JNI_VERSION = JNI_VERSION_1_2;
-constexpr const char* const LOG_FILE_NAME = "il2ge.log";
-constexpr const char* const LOG_FULL_FILE_NAME = "il2ge_full.log";
+constexpr auto LOG_FILE_NAME = "il2ge.log";
+constexpr auto LOG_FULL_FILE_NAME = "il2ge_full.log";
 
 
 HMODULE g_core_wrapper_module = 0;
