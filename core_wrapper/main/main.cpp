@@ -115,26 +115,35 @@ void initLog()
   using FileSink = FileAppender<TxtFormatter<ADD_NEW_LINE>>;
   using ConsoleSink = ConsoleAppender<MessageOnlyFormatter<ADD_NEW_LINE>>;
 
-  auto &logger_default = plog::init(plog::verbose);
-
-  #if LOG_TO_CONSOLE
+  try
   {
-    static ConsoleSink sink;
-    auto &logger = plog::init<LOGGER_INFO>(plog::info, &sink);
-    logger_default.addAppender(&logger);
+    auto &logger_default = plog::init(plog::verbose);
+
+    #if LOG_TO_CONSOLE
+    {
+      static ConsoleSink sink;
+      auto &logger = plog::init<LOGGER_INFO>(plog::info, &sink);
+      logger_default.addAppender(&logger);
+    }
+    #endif
+
+    {
+      static FileSink sink(LOG_FILE_NAME);
+      auto &logger = plog::init<LOGGER_DEBUG>(plog::debug, &sink);
+      logger_default.addAppender(&logger);
+    }
+
+    {
+      static FileSink sink(LOG_FULL_FILE_NAME);
+      auto &logger = plog::init<LOGGER_TRACE>(plog::verbose, &sink);
+      logger_default.addAppender(&logger);
+    }
   }
-  #endif
-
+  catch (std::exception &e)
   {
-    static FileSink sink(LOG_FILE_NAME);
-    auto &logger = plog::init<LOGGER_DEBUG>(plog::debug, &sink);
-    logger_default.addAppender(&logger);
-  }
-
-  {
-    static FileSink sink(LOG_FULL_FILE_NAME);
-    auto &logger = plog::init<LOGGER_TRACE>(plog::verbose, &sink);
-    logger_default.addAppender(&logger);
+    auto message = std::string(e.what()) + "\n\rTerminating program.";
+    MessageBoxA(nullptr, message.c_str(), "IL-2 Graphics Extender", MB_OK | MB_ICONERROR);
+    _Exit(1);
   }
 
 #else
