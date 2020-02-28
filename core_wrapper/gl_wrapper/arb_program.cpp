@@ -179,6 +179,9 @@ render_util::ShaderProgramPtr createGLSLProgram(const string &vertex_shader_,
   program->setUniformi("sampler_terrain_normal_map", core_gl_wrapper::TEXUNIT_TERRAIN_NORMAL_MAP);
   program->setUniformi("sampler_shadow_color", core_gl_wrapper::TEXUNIT_SHADOW_COLOR);
 
+  program->setUniform("blend_add", false);
+  program->setUniform("blend", false);
+
   auto vertex_uniform_block_index =
     gl::GetUniformBlockIndex(program->getId(), "local_vertex_parameters");
   if (vertex_uniform_block_index != GL_INVALID_INDEX)
