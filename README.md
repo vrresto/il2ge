@@ -8,6 +8,10 @@
    - perfect mode
    - conf.ini:
       ```
+      [window]
+      StencilBits=8
+      ```
+      ```
       [GLPROVIDER]
       GL=Opengl32.dll
       ```
@@ -15,7 +19,6 @@
       [Render_OpenGL]  
       HardwareShaders=1  
       Water=0
-      StencilBits=1
       ```
 
 ### Current bugs/limitations and workarounds
