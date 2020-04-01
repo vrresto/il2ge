@@ -15,6 +15,7 @@
       [Render_OpenGL]  
       HardwareShaders=1  
       Water=0
+      StencilBits=1
       ```
 
 ### Current bugs/limitations and workarounds
