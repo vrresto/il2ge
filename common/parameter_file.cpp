@@ -170,4 +170,27 @@ const ParameterFile::Section &ParameterFile::getSection(const char *name) const
 }
 
 
+const ParameterFile &ParameterFiles::get(const string &file_path)
+{
+  auto &file = m_file_map[file_path];
+  if (!file)
+  {
+    auto content = m_read_file(file_path);
+
+    try
+    {
+      file = make_unique<ParameterFile>(content.data(), content.size());
+    }
+    catch(...)
+    {
+      cout<<"error in parameter file: "<<file_path<<endl;
+      throw;
+    }
+  }
+
+  assert(file);
+  return *file;
+}
+
+
 } // namespace il2ge

@@ -24,6 +24,8 @@
 #include <unordered_map>
 #include <vector>
 #include <iostream>
+#include <functional>
+#include <memory>
 
 namespace il2ge
 {
@@ -95,6 +97,21 @@ public:
 
 private:
   std::unordered_map<std::string, Section> m_sections;
+};
+
+
+class ParameterFiles
+{
+public:
+  using ReadFileFunc = std::function<std::vector<char>(std::string)>;
+
+  ParameterFiles(ReadFileFunc f) : m_read_file(f) {}
+
+  const ParameterFile &get(const std::string &file_path);
+
+private:
+  ReadFileFunc m_read_file;
+  std::unordered_map<std::string, std::unique_ptr<ParameterFile>> m_file_map;
 };
 
 

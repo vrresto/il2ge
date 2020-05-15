@@ -46,6 +46,16 @@ std::string resolveRelativePath(std::string base_dir, std::string path)
 }
 
 
+std::vector<char> readFile(const std::string &path)
+{
+    vector<char> content;
+    if (!sfs::readFile(path, content))
+      throw std::runtime_error("Failed to open file:" + path);
+
+    return content;
+}
+
+
 #include <_generated/jni_wrapper/il2.engine.Eff3D_definitions>
 
 Interface import;
@@ -61,39 +71,16 @@ struct InitParams
 
 InitParams g_init_params;
 unordered_map<string, unique_ptr<Effect3DParameters>> g_param_map;
-unordered_map<string, unique_ptr<ParameterFile>> g_param_file_map;
 unordered_map<string, shared_ptr<const Material>> g_material_map;
 ofstream g_preload_out;
 bool g_preload_done = false;
+ParameterFiles g_parameter_files(&readFile);
 
 
-const ParameterFile &getParamFile(const string &file_path)
+string getMaterialPath(const string &parameter_file_path,
+                       ParameterFiles &parameter_files)
 {
-  auto &file = g_param_file_map[file_path];
-  if (!file)
-  {
-    vector<char> content;
-    if (sfs::readFile(file_path, content))
-    {
-      try
-      {
-        file = make_unique<ParameterFile>(content.data(), content.size());
-      }
-      catch(...)
-      {
-        cout<<"error in parameter file: "<<file_path<<endl;
-      }
-    }
-  }
-
-  assert(file);
-  return *file;
-}
-
-
-string getMaterialPath(const string &parameter_file_path)
-{
-  auto &params = getParamFile(parameter_file_path);
+  auto &params = parameter_files.get(parameter_file_path);
   auto &general = params.getSection("General");
   auto path = general.get("MatName");
 
@@ -106,19 +93,19 @@ string getMaterialPath(const string &parameter_file_path)
     auto &class_info = params.getSection("ClassInfo");
     auto &based_on = class_info.at("BasedOn");
     auto path = resolveRelativePath(util::getDirFromPath(parameter_file_path), based_on);
-    return getMaterialPath(path);
+    return getMaterialPath(path, parameter_files);
   }
 }
 
 
 const shared_ptr<const Material> &getMaterial(const string &parameter_file_path)
 {
-  auto path = getMaterialPath(parameter_file_path);
+  auto path = getMaterialPath(parameter_file_path, g_parameter_files);
 
   auto &mat = g_material_map[path];
   if (!mat)
   {
-    mat = std::make_shared<Material>(getParamFile(path), util::getDirFromPath(path));
+    mat = std::make_shared<Material>(g_parameter_files.get(path), util::getDirFromPath(path));
   }
   return mat;
 }
@@ -139,7 +126,7 @@ const Effect3DParameters &getParams(const string &file_name)
     g_preload_out << file_name << endl;
 #endif
 
-    auto &file = getParamFile(file_name);
+    auto &file = g_parameter_files.get(file_name);
     auto &class_info = file.getSection("ClassInfo");
     auto class_name = class_info.at("ClassName");
 
