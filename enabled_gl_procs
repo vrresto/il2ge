@@ -94,6 +94,7 @@ ReadnPixels
 Scissor
 ShaderSource
 TexCoord4f
+TexCoordPointer
 TexImage1D
 TexImage2D
 TexImage3D
