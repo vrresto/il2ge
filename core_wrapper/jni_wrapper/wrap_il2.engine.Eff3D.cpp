@@ -105,7 +105,7 @@ const shared_ptr<const Material> &getMaterial(const string &parameter_file_path)
   auto &mat = g_material_map[path];
   if (!mat)
   {
-    mat = std::make_shared<Material>(g_parameter_files.get(path), util::getDirFromPath(path));
+    mat = il2ge::loadMaterial(g_parameter_files, path);
   }
   return mat;
 }

@@ -36,16 +36,26 @@ public:
   struct Layer
   {
     std::string texture_path;
+    bool tfBlend = false;
     bool tfBlendAdd = false;
+    bool tfNoTexture = false;
+    bool tfNoWriteZ = false;
+    bool tfTestA = false;
+    float AlphaTestVal = 0.5;
   };
 
-  Material(const ParameterFile&, const std::string &dir);
-
+  Material() {}
   const std::vector<Layer> &getLayers() const { return m_layers; }
+  void applyParameters(ParameterFiles &files, std::string path);
+
+  bool tfDoubleSided = false;
 
 private:
   std::vector<Layer> m_layers;
 };
+
+
+std::unique_ptr<Material> loadMaterial(ParameterFiles&, std::string path);
 
 
 } // namespace il2ge

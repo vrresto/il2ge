@@ -21,6 +21,7 @@
 
 using namespace std;
 
+
 namespace il2ge
 {
 
@@ -28,32 +29,68 @@ namespace il2ge
 constexpr int MAX_LAYERS = 8;
 
 
-Material::Material(const ParameterFile &params, const std::string &dir)
+void Material::applyParameters(ParameterFiles &files, std::string path)
 {
+  auto dir = util::getDirFromPath(path);
+  assert(!dir.empty());
+  auto &params = files.get(path);
+
+  if (params.hasSection("ClassInfo"))
+  {
+    auto &class_info = params.getSection("ClassInfo");
+
+    std::string based_on;
+    class_info.get_noexcept("BasedOn", based_on);
+
+    if (!based_on.empty())
+      applyParameters(files, dir + '/' + based_on);
+  }
+
+  if (params.hasSection("General"))
+  {
+    auto &general = params.getSection("General");
+    general.get_noexcept("tfDoubleSided", this->tfDoubleSided);
+  }
+
   for (size_t i = 0; i < MAX_LAYERS; i++)
   {
     string layer_name = "Layer" + to_string(i);
-    string texture_name;
-    bool tfBlendAdd = false;
 
-    try
+    if (params.hasSection(layer_name))
     {
       auto &section = params.getSection(layer_name.c_str());
-      section.get("TextureName", texture_name);
-      section.get("tfBlendAdd", tfBlendAdd);
+
+      if (m_layers.size() < (i+1))
+        m_layers.resize(i+1);
+
+      assert(m_layers.size() > i);
+      auto &layer = m_layers.at(i);
+
+      string texture_name;
+      section.get_noexcept("TextureName", texture_name);
+
+      #define GET_PARAMETER(p) { section.get_noexcept(#p, layer.p); }
+      GET_PARAMETER(tfBlend);
+      GET_PARAMETER(tfBlendAdd);
+      GET_PARAMETER(tfNoTexture);
+      GET_PARAMETER(tfNoWriteZ);
+      GET_PARAMETER(AlphaTestVal);
+      GET_PARAMETER(tfTestA);
+      #undef GET_PARAMETER
+
+      if (!texture_name.empty())
+        layer.texture_path = util::resolveRelativePathComponents(dir + '/' + texture_name);
     }
-    catch(...)
-    {
-      break;
-    }
-
-    if (texture_name.empty())
-      break;
-
-    Layer layer { util::resolveRelativePathComponents(dir + '/' + texture_name), tfBlendAdd };
-
-    m_layers.push_back(layer);
   }
+}
+
+
+std::unique_ptr<Material> loadMaterial(ParameterFiles &files, std::string path)
+{
+  auto mat = std::make_unique<Material>();
+  mat->applyParameters(files, path);
+
+  return mat;
 }
 
 

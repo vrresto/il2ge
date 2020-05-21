@@ -164,7 +164,7 @@ ParameterFile::ParameterFile(const char *content, size_t size)
 }
 
 
-const ParameterFile::Section &ParameterFile::getSection(const char *name) const
+const ParameterFile::Section &ParameterFile::getSection(const std::string &name) const
 {
   return m_sections.at(name);
 }

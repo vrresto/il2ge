@@ -40,7 +40,21 @@ public:
 
   public:
     template <typename T>
-    bool get(const char *name, T &value) const
+    void get(const char *name, T &value) const
+    {
+      try
+      {
+        getImp(name, value);
+      }
+      catch(std::exception &e)
+      {
+        std::cout<<"failed to get parameter "<<name<<" : "<<e.what()<<std::endl;
+        throw;
+      }
+    }
+
+    template <typename T>
+    bool get_noexcept(const char *name, T &value) const
     {
       try
       {
@@ -53,6 +67,7 @@ public:
         return false;
       }
     }
+
 
     std::string get(const char *param) const
     {
@@ -93,7 +108,10 @@ public:
 
   ParameterFile(const char *content, size_t size);
 
-  const Section &getSection(const char *name) const;
+  const Section &getSection(const std::string &name) const;
+  const bool hasSection(const std::string &name) const { return m_sections.find(name) != m_sections.end(); }
+
+  const std::unordered_map<std::string, Section> &getSections() const { return m_sections; }
 
 private:
   std::unordered_map<std::string, Section> m_sections;
