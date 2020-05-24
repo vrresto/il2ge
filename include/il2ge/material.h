@@ -48,7 +48,7 @@ public:
   const std::vector<Layer> &getLayers() const { return m_layers; }
   void applyParameters(ParameterFiles &files, std::string path);
 
-  bool tfDoubleSided = false;
+  bool tfDoubleSide = false;
 
 private:
   std::vector<Layer> m_layers;

@@ -49,7 +49,7 @@ void Material::applyParameters(ParameterFiles &files, std::string path)
   if (params.hasSection("General"))
   {
     auto &general = params.getSection("General");
-    general.get_noexcept("tfDoubleSided", this->tfDoubleSided);
+    general.get_noexcept("tfDoubleSide", this->tfDoubleSide);
   }
 
   for (size_t i = 0; i < MAX_LAYERS; i++)
