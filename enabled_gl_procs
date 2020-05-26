@@ -1,4 +1,5 @@
 ActiveTexture
+AlphaFunc
 AttachShader
 Begin
 BindAttribLocation
@@ -58,6 +59,7 @@ GenVertexArrays
 GetActiveUniform
 GetActiveUniformBlock
 GetError
+GetFloatv
 GetIntegerv
 GetProgramInfoLog
 GetProgramiv
