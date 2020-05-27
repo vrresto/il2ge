@@ -44,6 +44,66 @@ void stripComment(string &line)
   }
 }
 
+template <class Section, class Handler>
+void readSectionFile(const char *content, size_t size, Handler &handler)
+{
+  assert(content);
+  assert(size);
+
+  stringstream in(string(content, size));
+
+  Section *section = nullptr;
+
+  while (in.good())
+  {
+    string line;
+    getline(in, line);
+
+    stripComment(line);
+    line = util::trim(line);
+
+    if (line.empty())
+    {
+      continue;
+    }
+    else if (line.front() == '[')
+    {
+      if (line.back() != ']')
+      {
+        LOG_ERROR << "Unterminated section: " << line << endl;
+        throw std::runtime_error("Unterminated section.");
+      }
+
+      string section_name = line.substr(1, line.size()-2);
+      section = handler.getSection(section_name);
+    }
+    else
+    {
+      assert(section);
+
+      auto tokens = util::tokenize(line);
+      if (!tokens.empty())
+      {
+        vector<string> values;
+
+        for (auto &t : tokens)
+        {
+          string value = util::trim(t);
+          if (!value.empty())
+          {
+            if (util::isPrefix("//", value))
+              break;
+            values.push_back(move(value));
+          }
+        }
+
+        if (!values.empty())
+          handler.handleValues(section, move(values));
+      }
+    }
+  }
+}
+
 
 } // namespace
 
@@ -103,64 +163,24 @@ void ParameterFile::Section::getImp(const char *name, glm::vec4 &value_) const
 
 ParameterFile::ParameterFile(const char *content, size_t size)
 {
-  assert(content);
-  assert(size);
-
-  stringstream in(string(content, size));
-
-  Section *section = nullptr;
-
-  while (in.good())
+  struct Handler
   {
-    string line;
-    getline(in, line);
+    ParameterFile *file = nullptr;
 
-    stripComment(line);
-    line = util::trim(line);
+    Section *getSection(const string &name) { return &file->m_sections[name]; }
 
-    if (line.empty())
+    void handleValues(Section *section, vector<string> &&values)
     {
-      continue;
+      auto key = values.front();
+      values.erase(values.begin());
+      section->m_values[key] = move(values);
     }
-    else if (line.front() == '[')
-    {
-      if (line.back() != ']')
-      {
-        cout<<"unterminated section: "<<line<<endl;
-        throw std::exception();
-      }
+  };
 
-      string section_name = line.substr(1, line.size()-2);
-      section = &m_sections[section_name];
-    }
-    else
-    {
-      assert(section);
+  Handler handler;
+  handler.file = this;
 
-      auto tokens = util::tokenize(line);
-      if (!tokens.empty())
-      {
-        string key = tokens.front();
-        tokens.erase(tokens.begin());
-
-        vector<string> values;
-
-        for (auto &t : tokens)
-        {
-          string value = util::trim(t);
-          if (!value.empty())
-          {
-            if (util::isPrefix("//", value))
-              break;
-            values.push_back(move(value));
-          }
-        }
-
-        section->m_values[key] = move(values);
-      }
-    }
-
-  }
+  readSectionFile<Section>(content, size, handler);
 }
 
 
