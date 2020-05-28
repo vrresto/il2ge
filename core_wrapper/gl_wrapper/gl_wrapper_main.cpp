@@ -719,6 +719,8 @@ void drawTerrain()
 
   StateModifier state(original_state);
   state.setDefaults();
+  state.enableCullFace(true);
+  state.enableDepthTest(true);
 
   assert(gl::IsEnabled(GL_COLOR_LOGIC_OP) == GL_FALSE);
 
@@ -974,6 +976,9 @@ void Context::Impl::onRender3D1Flushing()
   {
     StateModifier state(original_state);
     state.setDefaults();
+    state.enableCullFace(true);
+    state.enableDepthTest(true);
+    state.enableBlend(true);
 
     drawCirrus(this, state, *core::getCamera(), false);
   }
