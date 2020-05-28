@@ -17,6 +17,7 @@
  */
 
 #include "wgl_wrapper.h"
+#include "gl_version_check.h"
 
 #include <misc.h>
 #include <render_util/gl_binding/gl_interface.h>
@@ -86,6 +87,7 @@ ContextData *getContextData(HGLRC handle)
 void currentContextChanged(ContextData *new_current)
 {
   render_util::gl_binding::GL_Interface *iface = nullptr;
+  bool first_time = false;
 
   if (new_current)
   {
@@ -93,6 +95,7 @@ void currentContextChanged(ContextData *new_current)
     {
       auto iface = std::make_shared<render_util::gl_binding::GL_Interface>(&getProcAddress_ext);
       new_current->setGLInterface(iface);
+      first_time = true;
     }
 
     iface = new_current->getGLInterface();
@@ -100,6 +103,9 @@ void currentContextChanged(ContextData *new_current)
 
   g_data.m_current_context = new_current;
   render_util::gl_binding::GL_Interface::setCurrent(iface);
+
+  if (first_time)
+    il2ge::checkGLVersion();
 }
 
 

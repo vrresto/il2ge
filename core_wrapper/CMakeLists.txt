@@ -56,6 +56,7 @@ set(SRCS
   main/iat.c
   main/core_wrapper.cpp
   main/wgl_wrapper.cpp
+  main/gl_version_check.cpp
   sfs/sfs.cpp
   sfs/hash.cpp
   core/core.cpp
