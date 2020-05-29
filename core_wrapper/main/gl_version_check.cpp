@@ -17,10 +17,10 @@
  */
 
 #include "gl_version_check.h"
-#include <render_util/gl_binding/gl_functions.h>
 #include <log.h>
 
-using namespace render_util::gl_binding;
+#include <GL/gl.h>
+#include <GL/glext.h>
 
 
 namespace
@@ -34,12 +34,15 @@ namespace il2ge
 {
 
 
-void checkGLVersion()
+void checkGLVersion(std::function<void*(const char*)> get_proc_address)
 {
+  auto GetIntegerv = (decltype(glGetIntegerv)*) get_proc_address("glGetIntegerv");
+  assert(GetIntegerv);
+
   int major = 0;
   int minor = 0;
-  gl::GetIntegerv(GL_MAJOR_VERSION, &major);
-  gl::GetIntegerv(GL_MINOR_VERSION, &minor);
+  GetIntegerv(GL_MAJOR_VERSION, &major);
+  GetIntegerv(GL_MINOR_VERSION, &minor);
 
   if (major < MIN_MAJOR || minor < MIN_MINOR)
   {

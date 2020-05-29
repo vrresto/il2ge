@@ -87,15 +87,15 @@ ContextData *getContextData(HGLRC handle)
 void currentContextChanged(ContextData *new_current)
 {
   render_util::gl_binding::GL_Interface *iface = nullptr;
-  bool first_time = false;
 
   if (new_current)
   {
     if (!new_current->getGLInterface())
     {
+      il2ge::checkGLVersion(getProcAddress_ext);
+
       auto iface = std::make_shared<render_util::gl_binding::GL_Interface>(&getProcAddress_ext);
       new_current->setGLInterface(iface);
-      first_time = true;
     }
 
     iface = new_current->getGLInterface();
@@ -103,9 +103,6 @@ void currentContextChanged(ContextData *new_current)
 
   g_data.m_current_context = new_current;
   render_util::gl_binding::GL_Interface::setCurrent(iface);
-
-  if (first_time)
-    il2ge::checkGLVersion();
 }
 
 
