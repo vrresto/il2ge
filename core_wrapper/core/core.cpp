@@ -19,6 +19,7 @@
 #include "core_p.h"
 #include <core.h>
 #include <configuration.h>
+#include <java_util.h>
 #include <core/scene.h>
 #include <wgl_wrapper.h>
 #include <misc.h>
@@ -182,6 +183,8 @@ void loadMap(const char *path, void *env_)
 
   unloadMap();
 
+  checkHardwareShaders();
+
   ProgressReporter progress((JNIEnv*)env_);
 
   GameState game_state((JNIEnv*)env_);
@@ -293,6 +296,40 @@ void handleKey(int key, bool ctrl, bool alt, bool shift)
 render_util::CirrusClouds *getCirrusClouds()
 {
   return getScene()->getCirrusClouds();
+}
+
+
+void checkHardwareShaders()
+{
+  auto env = il2ge::java::getEnv();
+
+  auto class_id_RenderContext = env->FindClass("com/maddox/il2/engine/RenderContext");
+  assert(class_id_RenderContext);
+
+  auto field_id_cfgHardwareShaders = env->GetStaticFieldID(class_id_RenderContext,
+                                                      "cfgHardwareShaders", "Lcom/maddox/rts/CfgInt;");
+  assert(field_id_cfgHardwareShaders);
+
+  auto class_id_CfgInt = env->FindClass("com/maddox/rts/CfgInt");
+  assert(class_id_CfgInt);
+
+  auto method_id_CfgInt_get = env->GetMethodID(class_id_CfgInt, "get", "()I");
+  assert(method_id_CfgInt_get);
+
+  auto obj_id_RenderContext_cfgHardwareShaders =
+    env->GetStaticObjectField(class_id_RenderContext, field_id_cfgHardwareShaders);
+  assert(obj_id_RenderContext_cfgHardwareShaders);
+
+  auto value = env->CallIntMethod(obj_id_RenderContext_cfgHardwareShaders, method_id_CfgInt_get);
+
+  LOG_INFO << "cfgHardwareShaders: " << value << std::endl;
+
+  if (value <= 0)
+  {
+    LOG_ERROR << "Error: IL2GE needs perfect mode (HardwareShaders=1) to work." << std::endl;
+    LOG_FLUSH;
+    abort();
+  }
 }
 
 
