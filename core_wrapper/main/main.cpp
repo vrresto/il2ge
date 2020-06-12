@@ -179,7 +179,7 @@ int wrap_write(int fd, const void *buffer, unsigned int count)
 
     MutexLocker lock(g_fatal_error_mutex);
 
-    plog::Record record(g_fatal_error ? plog::error : plog::debug);
+    plog::Record record(g_fatal_error ? plog::error : plog::verbose);
     record << str;
     *plog::get<PLOG_DEFAULT_INSTANCE>() += record;
 
