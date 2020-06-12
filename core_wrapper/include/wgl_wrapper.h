@@ -57,6 +57,7 @@ namespace wgl_wrapper
 
   static constexpr bool isMainThread() { return true; }
   bool isMainContextCurrent();
+  bool isShuttingDown();
   void *getProcAddress(HMODULE module, LPCSTR name);
   ContextData *getContext();
   ContextData *getMainContext();

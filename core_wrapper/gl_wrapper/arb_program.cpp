@@ -1197,10 +1197,13 @@ void GLAPIENTRY wrap_Disable(GLenum cap)
 {
   assert(wgl_wrapper::isMainThread());
 
-  gl::Disable(cap);
+  if (!wgl_wrapper::isShuttingDown())
+  {
+    gl::Disable(cap);
 
-  if (wgl_wrapper::isMainContextCurrent())
-    setEnabled(cap, false);
+    if (wgl_wrapper::isMainContextCurrent())
+      setEnabled(cap, false);
+  }
 }
 
 

@@ -306,6 +306,12 @@ ContextData *getMainContext()
 }
 
 
+bool isShuttingDown()
+{
+  return g_data.m_in_shutdown;
+}
+
+
 core::Scene *getScene()
 {
   return getContext()->getScene();
