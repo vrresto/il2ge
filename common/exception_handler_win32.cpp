@@ -265,7 +265,7 @@ void printBacktracePrivate()
 
   LOG_DEBUG<<"current thread: "<<currend_thread<<endl;
 
-  printf("waiting for backtrace thread to finish ...\n");
+  LOG_DEBUG<<"waiting for backtrace thread to finish ..."<<endl;
   fflush(stdout);
   fflush(stderr);
   SetLastError(0);
@@ -281,7 +281,7 @@ void printBacktracePrivate()
                              nullptr);
   if (!thread)
   {
-    fprintf(stderr, "ERROR: can't create backtrace thread - error code: 0x%x\n", GetLastError());
+    LOG_ERROR<<"ERROR: can't create backtrace thread - error code: 0x"<<GetLastError()<<endl;
     CloseHandle(currend_thread);
     ReleaseMutex(g_target_thread_mutex);
     return;
@@ -289,7 +289,7 @@ void printBacktracePrivate()
 
   SignalObjectAndWait(g_target_thread_mutex, thread, INFINITE, false);
 
-  fprintf(stderr, "backtrace thread returned\n");
+  LOG_DEBUG<<"backtrace thread returned"<<endl;
 
   ReleaseMutex(g_target_thread_mutex);
   CloseHandle(currend_thread);
