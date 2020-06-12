@@ -284,6 +284,11 @@ void printBacktracePrivate()
     LOG_ERROR<<"ERROR: can't create backtrace thread - error code: 0x"<<GetLastError()<<endl;
     CloseHandle(currend_thread);
     ReleaseMutex(g_target_thread_mutex);
+
+    // force access violation which will call vectoredExceptionHandler
+    int *null_ptr = nullptr;
+    *null_ptr = 1;
+
     return;
   }
 
