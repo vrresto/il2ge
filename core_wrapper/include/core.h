@@ -114,7 +114,7 @@ namespace core
 
   void init();
   void initJavaClasses();
-  void checkHardwareShaders();
+  bool checkHardwareShaders();
 }
 
 #endif

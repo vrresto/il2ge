@@ -131,7 +131,7 @@ SHORTCUT_OPTION bool g_enable = true;
 SHORTCUT_OPTION bool g_enable_object_shaders = true;
 SHORTCUT_OPTION bool g_enable_terrain = true;
 
-bool isActive() { return g_enable && !core::isFMBActive(); }
+bool isActive() { return g_enable && core::isMapLoaded() && !core::isFMBActive(); }
 bool isTerrainEnabled() { return isActive() && g_enable_terrain; }
 bool isObjectShadersEnabled() { return isActive() && g_enable_object_shaders; }
 bool isTransparentShaderEnabled() { return isActive() && g_enable_transparent_shader; }

@@ -183,15 +183,13 @@ void loadMap(const char *path, void *env_)
 
   unloadMap();
 
-  checkHardwareShaders();
-
   ProgressReporter progress((JNIEnv*)env_);
 
   GameState game_state((JNIEnv*)env_);
 
   core::setFMBActive(game_state.isBuilder());
 
-  if (!game_state.isBuilder())
+  if (!game_state.isBuilder() && checkHardwareShaders())
     getScene()->loadMap(path, &progress);
 
   FORCE_CHECK_GL_ERROR();
@@ -299,7 +297,7 @@ render_util::CirrusClouds *getCirrusClouds()
 }
 
 
-void checkHardwareShaders()
+bool checkHardwareShaders()
 {
   auto env = il2ge::java::getEnv();
 
@@ -327,9 +325,10 @@ void checkHardwareShaders()
   if (value <= 0)
   {
     LOG_ERROR << "Error: IL2GE needs perfect mode (HardwareShaders=1) to work." << std::endl;
-    LOG_FLUSH;
-    abort();
+    return false;
   }
+  else
+    return true;
 }
 
 
