@@ -57,6 +57,21 @@ namespace
 
 }
 
+
+void getIMFInfo(util::File &file, int &w, int &h)
+{
+  file.skip(8);
+
+  char size_header[4];
+  file.read(size_header, sizeof(size_header));
+
+  w = size_header[0] | (size_header[1] << 8);
+  h = size_header[2] | (size_header[3] << 8);
+
+  file.rewind();
+}
+
+
 void loadIMF(const std::vector<char> &src, std::vector<unsigned char> &out,
              int &width, int &height, const std::string &name)
 {

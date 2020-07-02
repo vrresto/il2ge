@@ -20,6 +20,7 @@
 #include <il2ge/image_loader.h>
 #include <render_util/image_loader.h>
 #include <render_util/image.h>
+#include <render_util/image_util.h>
 
 #include <vector>
 
@@ -30,15 +31,16 @@ namespace
 {
 
 
+const string g_imf_header =
+{
+  'I', 'M', 'F', 0x1A, 0x31, 0x30, 0x00
+};
+
+
 bool isIMF(const vector<char> &data)
 {
-  static const string imf_header =
-  {
-    'I', 'M', 'F', 0x1A, 0x31, 0x30, 0x00
-  };
-
-  if (data.size() > imf_header.size())
-    return imf_header.compare(0, string::npos, data.data(), imf_header.size()) == 0;
+  if (data.size() > g_imf_header.size())
+    return g_imf_header.compare(0, string::npos, data.data(), g_imf_header.size()) == 0;
   else
     return false;
 }
@@ -50,7 +52,6 @@ loadImageFromIMF(const vector<char> &data, const char *field_name)
   vector<unsigned char> rgba_data;
   int width, height;
   loadIMF(data, rgba_data, width, height, field_name);
-
 
   return make_shared<render_util::GenericImage>(glm::ivec2(width, height), std::move(rgba_data), 4);
 }
@@ -82,10 +83,59 @@ loadImageFromMemory<render_util::ImageRGBA>(const std::vector<char> &data, const
 }
 
 
+bool isIMF(util::File &file)
+{
+  bool is_imf = false;
+
+  try
+  {
+    vector<char> data(g_imf_header.size());
+
+    auto read = file.read(data.data(), data.size());
+
+    if (read == data.size())
+    {
+      is_imf = g_imf_header.compare(0, string::npos, data.data(), data.size()) == 0;
+    }
+  }
+  catch(...) {}
+
+  file.rewind();
+
+  return is_imf;
+}
+
+
+void getIMFInfo(util::File &file, int &w, int &h)
+{
+  return ::getIMFInfo(file, w, h);
+}
+
+
+std::unique_ptr<render_util::GenericImage>
+loadIMF(const std::vector<char> &data, int force_channels)
+{
+  vector<unsigned char> image_data;
+  int width, height;
+  ::loadIMF(data, image_data, width, height, "");
+
+  auto image = make_unique<render_util::GenericImage>(glm::ivec2(width, height),
+                                                      std::move(image_data), 4);
+
+  if (force_channels && force_channels != 4)
+  {
+    auto new_image = render_util::image::makeGeneric(image, force_channels);
+    image = std::move(new_image);
+  }
+
+  return image;
+}
+
+
 std::shared_ptr<render_util::GenericImage> loadImageFromMemory(const std::vector<char> &data,
                                                                const char *name)
 {
-  if (isIMF(data))
+  if (::isIMF(data))
     return loadImageFromIMF(data, name);
   else
     return render_util::loadImageFromMemory<render_util::GenericImage>(data);
@@ -95,7 +145,7 @@ std::shared_ptr<render_util::GenericImage> loadImageFromMemory(const std::vector
 std::shared_ptr<render_util::ImageRGBA> loadImageRGBAFromMemory(const std::vector<char> &data,
                                                                 const char *name)
 {
-  if (isIMF(data))
+  if (::isIMF(data))
     return loadImageRGBAFromIMF(data, name);
   else
     return render_util::loadImageFromMemory<render_util::ImageRGBA>(data);
@@ -105,8 +155,8 @@ std::shared_ptr<render_util::ImageRGBA> loadImageRGBAFromMemory(const std::vecto
 std::shared_ptr<render_util::ImageRGB> loadImageRGBFromMemory(const std::vector<char> &data,
                                                                const char *name)
 {
-  assert(!isIMF(data));
-  if (isIMF(data))
+  assert(!::isIMF(data));
+  if (::isIMF(data))
   {
     abort();
   }

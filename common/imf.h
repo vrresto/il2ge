@@ -18,9 +18,12 @@
 #ifndef IMF_H
 #define IMF_H
 
+#include <file.h>
+
 #include <vector>
 #include <string>
 
+void getIMFInfo(util::File &file, int &w, int &h);
 void loadIMF(const std::vector<char> &src, std::vector<unsigned char> &data,
              int &width, int &height, const std::string &name);
 

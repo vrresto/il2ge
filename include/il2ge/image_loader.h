@@ -21,6 +21,7 @@
 
 #include <render_util/image.h>
 #include <render_util/image_loader.h>
+#include <file.h>
 
 namespace il2ge
 {
@@ -32,11 +33,13 @@ std::shared_ptr<T> loadImageFromMemory(const std::vector<char> &data, const char
   return render_util::loadImageFromMemory<T>(data);
 }
 
-
 template <>
 std::shared_ptr<render_util::ImageRGBA>
 loadImageFromMemory<render_util::ImageRGBA>(const std::vector<char> &data, const char *name);
 
+bool isIMF(util::File &file);
+void getIMFInfo(util::File&, int &w, int &h);
+std::unique_ptr<render_util::GenericImage> loadIMF(const std::vector<char> &data, int force_channels);
 
 std::shared_ptr<render_util::GenericImage> loadImageFromMemory(const std::vector<char> &data,
                                                                const char *name);
