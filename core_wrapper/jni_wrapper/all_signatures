@@ -1137,8 +1137,8 @@ jint il2.engine.Landscape getSizeYpix
 jfloat il2.engine.Landscape cH jfloat jfloat
 jfloat il2.engine.Landscape cHmax jfloat jfloat
 jfloat il2.engine.Landscape cHmin jfloat jfloat
-jfloat il2.engine.Landscape cHQ_Air jfloat jfloat
-jfloat il2.engine.Landscape cHQ_forestHeightHere jfloat jfloat
+jfloat il2.engine.Landscape cHQ_1Air jfloat jfloat
+jfloat il2.engine.Landscape cHQ_1forestHeightHere jfloat jfloat
 jint il2.engine.Landscape HQRoadTypeHere jfloat jfloat
 jfloat il2.engine.Landscape cHQ jfloat jfloat
 void il2.engine.Landscape cEQN jfloatArray
