@@ -39,7 +39,7 @@ DrawArrays
 DrawBuffer
 DrawBuffers
 DrawElements
-DrawElementsInstancedARB
+DrawElementsInstancedBaseInstance
 DrawRangeElements
 Enable
 EnableClientState
