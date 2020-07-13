@@ -50,7 +50,7 @@ wglGetProcAddress_t *real_wglGetProcAddress = nullptr;
 struct GlobalData
 {
   std::unordered_map<HGLRC, ContextData*> m_data_for_context;
-  ContextData *m_current_context;
+  ContextData *m_current_context = nullptr;
   ContextData *m_main_context = nullptr;
   bool m_in_shutdown = false;
   HMODULE m_gl_module = 0;
